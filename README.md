@@ -2,7 +2,7 @@ ILIAS REST Plugin
 =====================
 This is an extensible REST interface that allows developers to create RESTful APIs on top of the [ILIAS LMS](http://www.ilias.de).
 
-![Alt text](https://cloud.githubusercontent.com/assets/7113474/3655327/eeec4264-1177-11e4-8256-869db1f98c29.PNG "ILIAS REST Plugin")
+![Alt text](https://cloud.githubusercontent.com/assets/7113474/4717608/c75ea6c4-5916-11e4-9337-a4cdc869224a.PNG "ILIAS REST Plugin")
 
 #### Features:
 * CRUD (Create-Read-Update-Delete) principle for resources
