@@ -1,0 +1,76 @@
+<div>
+    <div class="well">
+    <form class="form-horizontal">
+        <fieldset>
+        <legend><button class="btn btn-primary" ng-click="backToListView()">Zurück</button>
+        </legend>
+            <div class="control-group">
+                <label class="control-label" for="cid">ID</label>
+                <div class="controls">
+                    <input class="form-control" id="cid" type="text" ng-model="currentClient.id" class="ng-pristine ng-valid" ng-readonly="true">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputClientId">REST Client ID</label>
+                <div class="controls">
+                        <input id="inputClientId" name="inputClientId" ng-model="currentClient.client_id" class="form-control" type="text">
+                        <button type="button" class="btn btn-default" ng-click="createRandomApiKey()">Generiere zufällig</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="inputClientSecret">Client Secret</label>
+                <div class="controls">
+                    <input id="inputClientSecret" name="inputClientSecret" ng-model="currentClient.client_secret" class="form-control" type="text">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="inputRedirectionURI">Redirection URI</label>
+                <div class="controls">
+                    <input id="inputRedirectionURI" name="inputRedirectionURI" ng-model="currentClient.redirection_uri" class="form-control" type="text">
+                 </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="inputDescription">OAuth2 Consent Meldung</label>
+                <div class="controls">
+                    <textarea id="inputDescription" class="form-control" rows="3" ng-model="currentClient.oauth_consent_message"></textarea>
+                </div>
+            </div>
+
+
+        <table class="table table-striped table-bordered">
+            <thead>
+            <tr>
+                <th>Rechte</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="permission in currentClient.permissions track by $index">
+                <td>{{permission}}</td>
+                <td><button class="btn btn-danger" ng-click="deletePermission($index)">Löschen</button></td>
+            </tr>
+            <tr>
+                <td><select class="form-control" ng-model="newPermission" ng-options="label(route.pattern, route.verb) group by route.pattern for route in routes">
+                    <option value="">(Bitte auswählen)</option>
+                    </select>
+                </td>
+                <td><button class="btn btn-primary"  ng-click="addPermission(newPermission)">Recht hinzufügen</button></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <button class="btn btn-success" ng-click="saveClient()">Speichern</button>
+            </fieldset>
+    </form>
+    </div>
+
+   <!--<div>{{newPermission}}</div>
+    <hr />
+    <div>{{currentClient}}</div>
+    <hr />
+    <div>{{routes}}</div>-->
+
+</div>

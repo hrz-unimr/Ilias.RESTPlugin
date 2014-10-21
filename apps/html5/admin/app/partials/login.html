@@ -1,0 +1,35 @@
+<h4>Das Login kann direkt über die REST Plugin Konfiguration in ILIAS erfolgen.</h4>
+<div ng-controller="LoginCtrl">
+
+    <form ng-submit="loginfromilias(logindata.user_id, logindata.client_id, logindata.session_id, logindata.rtoken)">
+        <div class="well">
+            <div class="form-group">
+                <label for="inputClientId">REST Client ID</label>
+                <input id="inputClientId" type="text" ng-model="logindata.client_id" class="ng-pristine ng-valid">
+
+                <label for="inputUserId">ILIAS User ID</label>
+                <input id="inputUserId" type="text" ng-model="logindata.user_id" class="ng-pristine ng-valid">
+            </div>
+            <div class="form-group">
+                <label for="inputSessionId">ILIAS Session  </label>
+                <input id="inputSessionId" type="text" ng-model="logindata.session_id" class="ng-pristine ng-valid">
+
+                <label for="inputRtoken">ILIAS rToken</label>
+                <input id="inputRtoken" type="text" ng-model="logindata.rtoken" class="ng-pristine ng-valid">
+            </div>
+        <br />
+        {{loginError}}  {{loggedUser}}
+        <button class="btn btn-success">Einloggen</button>
+        <!--<button class="btn btn-warning" ng-click="cancel()">Abbruch</button> -->
+        </div>
+    </form>
+    <!--<div class="panel panel-danger">
+        <div class="panel-heading">
+            <h3 class="panel-title">Debug</h3>
+        </div>
+        <div class="panel-body">
+            {{logindata}}
+            {{access_token}}
+        </div>
+    </div> -->
+</div>

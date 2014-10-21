@@ -1,0 +1,21 @@
+// 
+// Sprachdatei für Rest Plugin
+//
+ 
+<!-- language file start -->
+config#:#Configuration
+save_success#:#Speichern erfolgreich
+save_failure#:#Speichern fehlgeschlagen!
+nothing_changed#:#Keine Änderungen
+plugin_configuration#:#Konfiguration
+req_header#:#Request Header
+req_header_info#:#Erläuterungen.
+setting_1#:#Einstellung 1
+setting_2#:#Einstellung 2
+welcome_config#:#Willkommen zur Konfiguration des ILIAS REST-Plugins
+info_config#:#Informationen und Erweiterungen zu dem Plugin befinden sich unter
+installation_note_config#:#Hinweis: die Gateways "plugin/gateways/restplugin.php" und ggf auch "restclientcert.php" müssen im Webroot liegen oder dahin kopiert werden.
+api_info_config#:#Liefert Informationen über die REST - API:
+admin_info_config#:#Die Administration von REST Clients bzw. Api Keys und Zugriffsrechte auf Routen lassen sich über folgende Operation einstellen:
+api_btn_config#:#API Dokumentation aufrufen
+admin_btn_config#:#REST Clients administrieren
