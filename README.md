@@ -34,7 +34,7 @@ Example 2
 Current release: v.0.5.6-alpha
 * mkdir -p ILIAS_DIR/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/
 * cd ILIAS_DIR/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/
-* wget https://github.com/eqsoft/RESTPlugin/archive/v.0.5.6-alpha.zip
+* wget https://github.com/hrz-unimr/Ilias.RESTPlugin/archive/v.0.5.6-alpha.zip
 * unzip v.0.5.6.zip
 * mv RESTPlugin-v.0.5.6-alpha Rest
 * Copy Rest/gateways/restplugin.php to /
