@@ -20,15 +20,15 @@ Examples
 ---------
 Example 1
 **Retrieve available routes**
-<pre><code>curl -X GET http://localhost/restplugin.php/routes
-</code></pre>
+
+   curl -X GET http://localhost/restplugin.php/routes
 
 Example 2
 **Retrieve an OAuth 2.0 Access Token**
-<pre><code>curl -X POST http://localhost/restplugin.php/v1/oauth2/token -d "grant_type=password&username=root&password=homer"| python -m json.tool
-</code></pre>
-<pre><code>curl -H "Authorization: Bearer <ACCESS_TOKEN>" http://...
-</code></pre>
+
+   curl -X POST http://localhost/restplugin.php/v1/oauth2/token -d "grant_type=password&username=root&password=homer"| python -m json.tool
+
+   curl -H "Authorization: Bearer <ACCESS_TOKEN>" http://...
 
 ##Installation##
 Current release: v.0.5.6-alpha
