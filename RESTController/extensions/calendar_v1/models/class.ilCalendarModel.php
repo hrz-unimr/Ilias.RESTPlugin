@@ -77,13 +77,13 @@ class ilCalendarModel
             $tmp_arr['title'] = $entry->getPresentationTitle();
             $tmp_arr['description'] = $entry->getDescription();
             $tmp_arr['fullday'] = $entry->isFullday();
-            #$tmp_arr['begin'] = $entry->getStart()->get(IL_CAL_UNIX);
-            #$tmp_arr['end'] = $entry->getEnd()->get(IL_CAL_UNIX);
+            //$tmp_arr['begin'] = $entry->getStart()->get(IL_CAL_UNIX);
+            //$tmp_arr['end'] = $entry->getEnd()->get(IL_CAL_UNIX);
 
             $tmp_arr['begin'] = $event['dstart'];
             $tmp_arr['end'] = $event['dend'];
 
-            $tmp_arr['duration'] = $tmp_arr['end'] - $tmp_arr['begin'];
+            $tmp_arr['duration'] =  $event['dend'] - $event['dstart'];
             if($tmp_arr['fullday'])
             {
                 $tmp_arr['duration'] += (60 * 60 * 24);

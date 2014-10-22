@@ -53,7 +53,7 @@ $app->group('/m', function () use ($app) {
         $result = array();
 
         // TODO: extract user_id from valid token
-        $user_id = 225;//6;//361; // testuser
+        $user_id = 6;//225;//6;//361; // testuser
         //$user = ilRestLib::userIdtoLogin($user_id);
 
         // use case: load all available courses
@@ -92,26 +92,14 @@ $app->group('/m', function () use ($app) {
         $data = $calModel->getCalUpcomingEvents($user_id);
         $result['events'] = $data;
 
+        // Contacts
+        $contactModel = new ilContactsModel();
+        $data = $contactModel->getMyContacts($user_id);
+        $result['contacts']['mycontacts'] = $data;
+
         $result['status'] = "ok";
         echo json_encode($result);
     });
 
-
-    /**
-     *  Retrieves the calendar from user
-     */
-    $app->get('/cal/:id', function ($id) use ($app) {
-        $result = array();
-
-       /* include_once('./Services/Calendar/classes/class.ilCalendarInboxSharedTableGUI.php');
-        include_once('./Services/Calendar/classes/class.ilCalendarShared.php');
-
-        $table = new ilCalendarInboxSharedTableGUI($this,'inbox');
-        $table->setCalendars(ilCalendarShared::getSharedCalendarsForUser());
-*/
-
-        $result['msg'] = "calendar for user ".$id;
-        echo json_encode($result);
-    });
 
 });
