@@ -19,9 +19,9 @@ class ilTokenLib
      * @param $client_id - OAuth2 client (not ILIAS ilias-client)
      * @return array
      */
-    public static function generateBearerToken($user, $client_id)
+    public static function generateBearerToken($user, $api_key)
     {
-        $token = self::generateToken($user, $client_id, "", DEFAULT_LIFETIME);
+        $token = self::generateToken($user, $api_key, "", DEFAULT_LIFETIME);
         $ttl = self::getRemainingTime($token);
         $serializedToken = self::serializeToken($token);
         $result = array();
@@ -42,11 +42,11 @@ class ilTokenLib
      * @param $lifetime
      * @return array
      */
-    public static function generateToken($user, $client_id, $misc, $lifetime)
+    public static function generateToken($user, $api_key, $misc, $lifetime)
     {
         $token = array();
         $token['user'] = $user;
-        $token['client_id'] = $client_id;
+        $token['api_key'] = $api_key;
         $token['misc'] = $misc;
         $token['ttl'] =  strval(time() + ($lifetime * 60));
         $token['s'] = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',5)),0,25);
@@ -112,9 +112,9 @@ class ilTokenLib
     {
         if (self::tokenValid($token)){
             $user = $token['user'];
-            $client_id = $token['client_id'];
+            $api_key = $token['api_key'];
             $misc = $token['misc'];
-            return self::generateToken($user, $client_id, $misc, DEFAULT_LIFETIME);
+            return self::generateToken($user, $api_key, $misc, DEFAULT_LIFETIME);
         }
         return $token;
     }
@@ -126,7 +126,7 @@ class ilTokenLib
      */
     private static function getTokenString($token)
     {
-        $tokenContent = $token['user'].'/'.$token['client_id'].'/'.$token['misc'].'/'.$token['ttl'].'/'.$token['s'];
+        $tokenContent = $token['user'].'/'.$token['api_key'].'/'.$token['misc'].'/'.$token['ttl'].'/'.$token['s'];
         return $tokenContent;
     }
 
@@ -148,7 +148,7 @@ class ilTokenLib
      */
     public static function serializeToken($token)
     {
-        $tokenStr = $token['user'].",".$token['client_id'].",".$token['misc'].",".$token['ttl'].",".$token['s'].",".$token['h'];
+        $tokenStr = $token['user'].",".$token['api_key'].",".$token['misc'].",".$token['ttl'].",".$token['s'].",".$token['h'];
         return urlencode(base64_encode($tokenStr));
         //return $tokenStr;
     }
@@ -166,7 +166,7 @@ class ilTokenLib
         $a_token_parts = explode(",",$tokenStr);
         $token = array();
         $token['user']  =  $a_token_parts[0];
-        $token['client_id']  =  $a_token_parts[1];
+        $token['api_key']  =  $a_token_parts[1];
         $token['misc']   =  $a_token_parts[2];
         $token['ttl']   =  $a_token_parts[3];
         $token['s']     =  $a_token_parts[4];

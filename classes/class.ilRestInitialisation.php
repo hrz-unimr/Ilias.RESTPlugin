@@ -33,6 +33,7 @@ class ilRestInitialisation extends ilInitialisation
             if (isset($_POST['ilias_client_id'])) {
                 $_GET['client_id'] = $_POST['ilias_client_id'];
             } else {
+                $_POST['client_id'] = "";
                 $_GET['client_id'] = "";
             }
         } else { // json post request

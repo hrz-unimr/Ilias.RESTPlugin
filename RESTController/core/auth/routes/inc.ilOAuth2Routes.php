@@ -146,7 +146,13 @@ $app->post('/v1/oauth2/token', function () use ($app) {
                 // optional: send msg
             }
             else {
-                $result = ilTokenLib::generateBearerToken($user, "");
+                if (isset($_POST['api_key'])) {
+                    $apikey = $_POST['api_key'];
+                } else {
+                    $apikey = "";
+                }
+
+                $result = ilTokenLib::generateBearerToken($user, $apikey);
                 $app->response()->header('Content-Type', 'application/json');
                 $app->response()->header('Cache-Control', 'no-store');
                 $app->response()->header('Pragma', 'no-cache');
@@ -237,7 +243,7 @@ $app->get('/v1/oauth2/tokeninfo', function () use ($app) {
         $valid = ilTokenLib::tokenValid($token);
         $result = array();
         if ($valid) {
-            $result['rest_client_id'] = $token['client_id'];
+            $result['rest_client_id'] = $token['api_key'];
             // scope
             $result['user'] =  $token['user'];
             $result['expires_in'] = ilTokenLib::getRemainingTime($token);
@@ -302,7 +308,33 @@ $app->post('/v1/ilauth/rtoken2bearer', function () use ($app) {
     $app->response()->header('Cache-Control', 'no-store');
     $app->response()->header('Pragma', 'no-cache');
     echo json_encode($result); // output-format: {"access_token":"03807cb390319329bdf6c777d4dfae9c0d3b3c35","expires_in":3600,"token_type":"bearer","scope":null}
-
 });
+
+/*
+ * Given a valid token, this rest call performs a redirect to the ILIAS main (html).
+ */
+$app->get('/v1/ilauth/switch2main', 'authenticateTokenOnly', function () use ($app) {
+    $app = \Slim\Slim::getInstance();
+    $env = $app->environment();
+
+    ilRestLib::initDefaultRestGlobals();
+    ilRestLib::initAccessHandling();
+
+    //$env
+    $app->response()->redirect('http://localhost/ilias5beta/');
+    $value = 'something from somewhere';
+    setcookie("TestCookie", $value);
+ /*   $app->hook('slim.after.router', function () {
+        $value = 'something from somewhere';
+        setcookie("TestCookie", $value);
+    });
+*/
+    /*$result = array("msg" => "hello");
+    $app->response()->header('Content-Type', 'application/json');
+    $app->response()->header('Cache-Control', 'no-store');
+    $app->response()->header('Pragma', 'no-cache');
+    echo json_encode($result);*/
+});
+
 
 ?>

@@ -28,6 +28,7 @@ $app->view()->setTemplatesDirectory("./Customizing/global/plugins/Services/UICom
 $app->log->setEnabled(true);
 $app->log->setLevel(\Slim\Log::DEBUG);
 
+
 $app->hook('slim.after.router', function () {
     header_remove('Set-Cookie');
 });

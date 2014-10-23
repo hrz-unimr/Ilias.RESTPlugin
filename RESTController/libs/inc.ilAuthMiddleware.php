@@ -110,9 +110,9 @@ function checkToken()
         $env['user'] = $token['user'];
     }
 
-    if (isset($token['client_id'])) {
+    if (isset($token['api_key'])) {
         $env = $app->environment();
-        $env['client_id'] = $token['client_id'];
+        $env['api_key'] = $token['api_key'];
     }
     $env['token'] = $token_ser;
 }
@@ -125,12 +125,12 @@ function checkRoutePermissions($route)
 {
     $app = \Slim\Slim::getInstance();
     $env = $app->environment();
-    $client_id = $env['client_id'];
+    $api_key = $env['api_key'];
     $current_route = $route->getPattern();
     $current_verb = strtolower($app->request->getMethod());
 
-    if (!ilAuthLib::checkOAuth2Scope($current_route, $current_verb, $client_id)) {
-        $app->log->debug("Invalid scope for client ".$client_id);
+    if (!ilAuthLib::checkOAuth2Scope($current_route, $current_verb, $api_key)) {
+        $app->log->debug("Invalid scope for client ".$api_key);
         $app->response()->header('Content-Type', 'application/json');
         $output=array();
         $output['msg'] = "Client has no permission to access route";
