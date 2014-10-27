@@ -6,8 +6,50 @@ require_once "./Services/User/classes/class.ilObjUser.php";
 class ilFileModel
 {
 
+    function getFileObjForUser($file_obj_id, $user_id)
+    {
+        ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
+        ilRestLib::initDefaultRestGlobals();
+
+        self::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        global    $ilUser;
+        $ilUser->setId($user_id);
+        $ilUser->read();
+        ilRestLib::initAccessHandling();
+
+        require_once("./Services/Xml/classes/class.ilSaxParser.php");
+        self::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
+        self::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
+        self::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
+        global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
+        global $ilAccess;
+
+        // Check access
+        $permission_ok = false;
+        foreach($ref_ids = ilObject::_getAllReferences($file_obj_id) as $ref_id)
+        {
+            if($ilAccess->checkAccess('read','',$ref_id))
+            {
+                $permission_ok = true;
+                break;
+            }
+        }
+
+        if ($permission_ok==false) {
+            return array();
+        }
+
+        define("DEBUG", FALSE);
+        $fileObj=  ilObjectFactory::getInstanceByObjId($file_obj_id);
+
+        return $fileObj;
+    }
+
+
     function getFileObj($obj_id)
     {
+        //ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
+        //ilRestLib::initDefaultRestGlobals();
         //global $ilDB;
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
         self::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
@@ -168,8 +210,8 @@ class ilFileModel
                 // END WebDAV: Ensure that object title ends with the filename extension
             }
 
-            var_dump($file_upload);
-            var_dump($title);
+            //var_dump($file_upload);
+            //var_dump($title);
 
             // create and insert file in grp_tree
             include_once("./Modules/File/classes/class.ilObjFile.php");
