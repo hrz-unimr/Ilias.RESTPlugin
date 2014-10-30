@@ -9,11 +9,11 @@ $app->group('/v1', function () use ($app) {
     /*
      * File Download
      */
-    $app->get('/files/:id', 'authenticateTokenOnly', function ($id) use ($app) {
-
+    $app->get('/files/:id',  function ($id) use ($app) {
+        // should include middleware 'authenticateTokenOnly'
         $app = \Slim\Slim::getInstance();
         $env = $app->environment();
-        $user_id = ilRestLib::loginToUserId($env['user']);
+        $user_id = 6;//ilRestLib::loginToUserId($env['user']);
 
 
         if (count($app->request->post()) == 0 && count($app->request->get()) == 0) {
