@@ -69,12 +69,22 @@ $app->group('/m', function () use ($app) {
 
         $courseModel = new ilCoursesModel();
         $course_list = $courseModel->getCoursesOfUser($user_id);
+
         $course_contents = array();
         $course_info = array();
         foreach ($course_list as $course_refid)
         {
             $course_contents[$course_refid] = $courseModel->getCourseContent($course_refid);
-            $course_info[$course_refid] = $courseModel->getCourseInfo($course_refid);
+            $children_ref_ids = array();
+            foreach ($course_contents[$course_refid] as $item) {
+                $children_ref_ids[] = $item['ref_id'];
+            }
+            //var_dump($children_ref_ids);
+            $course_item = $courseModel->getCourseInfo($course_refid);
+            $course_item['children_ref_ids'] = $children_ref_ids;
+            $course_info[$course_refid] = $course_item;
+
+            //var_dump($course_info[$course_refid]);
             $course_info[$course_refid]['content_length']= count($course_contents[$course_refid]);
         }
         $result['courses'] = $course_info;
@@ -106,7 +116,7 @@ $app->group('/m', function () use ($app) {
      * - Dates (Note: System Caldendar must be activated)
      *  - List
      *  - ICAL (ics) Feed Url
-     *  In contrast to version 1, the json is structured in a better and concise way.
+     *  In contrast to version 1, the json is structured in a better and more concise way.
      *  Format:
         Items:
         •	Title : string
@@ -144,36 +154,62 @@ $app->group('/m', function () use ($app) {
         ilRestLib::initDefaultRestGlobals();
         ilRestLib::initAccessHandling();
 
-        /*$userModel = new ilUsersModel();
+        $userModel = new ilUsersModel();
         $userData = $userModel->getBasicUserData($user_id);
         $result['user'] = $userData;
 
         $courseModel = new ilCoursesModel();
-        $course_list = $courseModel->getCoursesOfUser($user_id);
-        $course_contents = array();
-        $course_info = array();
-        foreach ($course_list as $course_refid)
-        {
-            $course_contents[$course_refid] = $courseModel->getCourseContent($course_refid);
-            $course_info[$course_refid] = $courseModel->getCourseInfo($course_refid);
-            $course_info[$course_refid]['content_length']= count($course_contents[$course_refid]);
-        }
-        $result['courses'] = $course_info;
-        $result['contents'] = $course_contents;
+        $my_courses = $courseModel->getCoursesOfUser($user_id);
 
-        // Calendar
-        $calModel = new ilCalendarModel();
-        $data = $calModel->getIcalAdress($user_id);
-        $result['ical_url'] = $data;
-        $data = $calModel->getCalUpcomingEvents($user_id);
-        $result['events'] = $data;
+        $repository_items = array();
+
+       // $course_contents = array();
+        //$course_info = array();
+
+        foreach ($my_courses as $course_refid)
+        {
+            //$my_courses [] = $course_refid;
+            $courseContents = $courseModel->getCourseContent($course_refid);
+            $children_ref_ids = array();
+            foreach ($courseContents as $item) {
+                $children_ref_ids[] = $item['ref_id'];
+                $repository_items[$item['ref_id']] = $item;
+            }
+            $course_item = $courseModel->getCourseInfo($course_refid);
+            $course_item['children_ref_ids'] = $children_ref_ids;
+            $repository_items[$course_refid] = $course_item;
+        }
+
+        $result['repository_items'] = $repository_items;
+
+        $desktopModel = new ilDesktopModel();
+        $pditems = $desktopModel -> getPersonalDesktopItems($user_id);
+        $pdrefids = array();
+        foreach ($pditems as $pditem) {
+            $pdrefids[] = $pditem['ref_id'];
+        }
+        $result['my_personal_desktop'] = $pdrefids;
+        $result['my_courses'] = $my_courses;
+        
+        $grpModel = new ilGroupsModel();
+        $my_groups = $grpModel->getGroupsOfUser($user_id);
+        $result['my_groups'] = $my_groups;
+
 
         // Contacts
         $contactModel = new ilContactsModel();
         $data = $contactModel->getMyContacts($user_id);
-        $result['contacts']['mycontacts'] = $data;
+        $result['contacts']['my_contacts'] = $data;
+        // -> todo: CourseContacts, GroupContacts
 
-        $result['status'] = "ok";*/
+        // Calendar
+        $calModel = new ilCalendarModel();
+        $data = $calModel->getIcalAdress($user_id);
+        $result['calendar']['ical_url'] = $data;
+        $data = $calModel->getCalUpcomingEvents($user_id);
+        $result['calendar']['events'] = $data;
+
+        $result['status'] = "ok";
         echo json_encode($result);
     });
 

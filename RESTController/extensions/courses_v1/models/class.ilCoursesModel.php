@@ -68,6 +68,7 @@ class ilCoursesModel
         $crs_info['title'] = $obj->getTitle();
         $crs_info['description'] = $obj->getDescription();
         $crs_info['create_date'] = $obj->create_date;
+        $crs_info['type'] = $obj->getType();
         //var_dump($obj);
         return $crs_info;
     }
@@ -109,6 +110,7 @@ class ilCoursesModel
             $record['type'] = $item['type'];
             $record['title'] = $item['title'];
             $record['description'] = $item['description'];
+            $record['parent_ref_id'] = $crs_ref_id;
             //var_dump($item);
             $crs_items[] = $record;
         }
