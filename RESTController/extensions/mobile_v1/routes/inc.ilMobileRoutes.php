@@ -121,21 +121,11 @@ $app->group('/m', function () use ($app) {
     $app->get('/desk2', function () use ($app) {
         $t_start = microtime();
         $result = array();
-
-
+        
         // TODO: extract user_id from valid token
         $user_id = 6;//225;//6;//361; // testuser
         //$user = ilRestLib::userIdtoLogin($user_id);
 
-        // use case: load all available courses
-        // later: split according to current semesters and
-        // information on courses for older semesters are provided on demand (this should be the default case)
-
-        // the mobile desktop is made up of
-        // courses the user is participating
-        // in addition to the course names also the
-        // list of items for each course is sent, to enable better
-        // UI interactions
         ilRestLib::initDefaultRestGlobals();
         ilRestLib::initAccessHandling();
 
@@ -147,9 +137,6 @@ $app->group('/m', function () use ($app) {
         $my_courses = $courseModel->getCoursesOfUser($user_id);
 
         $repository_items = array();
-
-       // $course_contents = array();
-        //$course_info = array();
 
         foreach ($my_courses as $course_refid)
         {
