@@ -117,26 +117,11 @@ $app->group('/m', function () use ($app) {
      *  - List
      *  - ICAL (ics) Feed Url
      *  In contrast to version 1, the json is structured in a better and more concise way.
-     *  Format:
-        Items:
-        •	Title : string
-        •	Description : string
-        •	Type: string
-        •	Ref_id (*) : integer
-        •	Children : list of ref_ids
-        •	Parent: one ref_id
-        •	isDesktopItem: bool
-        Courses:
-        •	List of Item - Ref_ids
-        Groups
-        •	List of Item - Ref_ids
-        Personal Desktop
-        •	List of Item – Ref_ids
-
-     *
      */
     $app->get('/desk2', function () use ($app) {
+        $t_start = microtime();
         $result = array();
+
 
         // TODO: extract user_id from valid token
         $user_id = 6;//225;//6;//361; // testuser
@@ -180,7 +165,7 @@ $app->group('/m', function () use ($app) {
             $repository_items[$course_refid] = $course_item;
         }
 
-        $result['repository_items'] = $repository_items;
+        $result['ritems'] = $repository_items;
 
         $desktopModel = new ilDesktopModel();
         $pditems = $desktopModel -> getPersonalDesktopItems($user_id);
@@ -188,12 +173,12 @@ $app->group('/m', function () use ($app) {
         foreach ($pditems as $pditem) {
             $pdrefids[] = $pditem['ref_id'];
         }
-        $result['my_personal_desktop'] = $pdrefids;
-        $result['my_courses'] = $my_courses;
-        
+        $result['mypersonaldesktop'] = $pdrefids;
+        $result['mycourses'] = $my_courses;
+
         $grpModel = new ilGroupsModel();
         $my_groups = $grpModel->getGroupsOfUser($user_id);
-        $result['my_groups'] = $my_groups;
+        $result['mygroups'] = $my_groups;
 
 
         // Contacts
@@ -209,10 +194,9 @@ $app->group('/m', function () use ($app) {
         $data = $calModel->getCalUpcomingEvents($user_id);
         $result['calendar']['events'] = $data;
 
-        $result['status'] = "ok";
+        $t_end = microtime();
+        $result['status']['duration'] = abs($t_end-$t_start);
+        $result['status']['tstamp'] = time();
         echo json_encode($result);
     });
-
-
-
 });
