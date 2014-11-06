@@ -11,8 +11,6 @@ $app->group('/v1', function () use ($app) {
      */
     $app->get('/files/:id',  function ($id) use ($app) {
         // should include middleware 'authenticateTokenOnly'
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
         $user_id = 6;//ilRestLib::loginToUserId($env['user']);
 
 

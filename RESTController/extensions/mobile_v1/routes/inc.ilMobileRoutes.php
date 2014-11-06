@@ -8,8 +8,6 @@ $app->group('/m', function () use ($app) {
 
     $app->get('/courses/:id', function ($id) use ($app) {
 
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
 
         $id_type = $app->request()->params("id_type");
         $id_type = $id_type = null ? 'ref_id' : $id_type;

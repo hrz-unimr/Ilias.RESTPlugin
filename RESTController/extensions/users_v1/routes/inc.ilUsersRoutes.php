@@ -5,8 +5,6 @@
 // users
 $app->get('/v1/users', 'authenticateILIASAdminRole', function () use ($app) {
     try {
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
 
         $limit = 10;
         $offset = 0;
@@ -49,7 +47,6 @@ $app->get('/v1/users', 'authenticateILIASAdminRole', function () use ($app) {
 
 $app->get('/v1/users/:user_id', 'authenticateTokenOnly', function ($user_id) use ($app) {
     try {
-        $app = \Slim\Slim::getInstance();
         $env = $app->environment();
         $id = $user_id;
         if ($user_id == "mine") {
@@ -73,8 +70,6 @@ $app->get('/v1/users/:user_id', 'authenticateTokenOnly', function ($user_id) use
 
 $app->post('/v1/users', 'authenticate', function () use ($app) { // create
     try { // root only
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
 
         $request = $app->request();
         $user = $request->params('username');
@@ -106,8 +101,6 @@ $app->post('/v1/users', 'authenticate', function () use ($app) { // create
 
 $app->put('/v1/users/:user_id', 'authenticate', function ($user_id) use ($app){ // update
     try {
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
 
         $usr_model = new ilUsersModel();
         $a_Requests = $app->request->put();
@@ -131,8 +124,6 @@ $app->put('/v1/users/:user_id', 'authenticate', function ($user_id) use ($app){ 
 
 $app->delete('/v1/users/:user_id', 'authenticate', function ($user_id) use ($app) {
     try {
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
         $result = array();
         $usr_model = new ilUsersModel();
         $status = $usr_model->deleteUser($user_id);

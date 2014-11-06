@@ -14,8 +14,6 @@ $app->group('/dev', function () use ($app) {
      * TODO: This code must be included in the OAuth2 Core
      */
     $app->post('/login', function () use ($app) {
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
 
         $request = $app->request();
 
@@ -83,8 +81,6 @@ $app->group('/dev', function () use ($app) {
      * TODO: This code must be included in the OAuth2 Core
      */
     $app->post('/login2', function () use ($app) {
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
 
         $request = $app->request();
 
@@ -119,7 +115,6 @@ $app->group('/dev', function () use ($app) {
     $app->get('/hello', function () use ($app) {
 
         $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
 
         $result = array();
         $result['status'] = 'success';
@@ -139,8 +134,6 @@ $app->group('/dev', function () use ($app) {
 
     $app->get('/roundtrip', function () use ($app) {
 
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
 
         $destiny_url = 'http://localhost/restplugin.php/experimental/hello';
 
@@ -171,8 +164,6 @@ $app->group('/dev', function () use ($app) {
 
     $app->get('/transportfile', function () use ($app) {
 
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
 
         // Get file info
         $self_service_url = 'http://localhost/restplugin.php/v1/files/96?meta_data=1';
