@@ -9,8 +9,6 @@ $app->group('/v1', function () use ($app) {
      * Returns the contacts for a user specified by id
      */
     $app->get('/contacts/:id',  function ($id) use ($app) {
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
         $result = array();
 
         $model = new ilContactsModel();

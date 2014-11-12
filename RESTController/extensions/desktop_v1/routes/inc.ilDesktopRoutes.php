@@ -4,7 +4,6 @@
  */
 $app->group('/v1', function () use ($app) {
     $app->get('/desktop/items/:id',  function ($id) use ($app) {
-        $app = \Slim\Slim::getInstance();
         $env = $app->environment();
         $result = array();
 
@@ -17,8 +16,6 @@ $app->group('/v1', function () use ($app) {
 
     // proof of concept: DEL this route should be implemented as delete op
     $app->get('/desktop/remitem/:id',  function ($id) use ($app) {
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
         $result = array();
         $ref_id = 78;
 
@@ -31,8 +28,6 @@ $app->group('/v1', function () use ($app) {
 
     // proof of concept: ADD this route should be implemented as put op
     $app->get('/desktop/additem/:id',  function ($id) use ($app) {
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
         $result = array();
         $ref_id = 78;
 

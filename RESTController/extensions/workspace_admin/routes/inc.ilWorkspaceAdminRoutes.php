@@ -8,8 +8,6 @@ $app->group('/admin', function () use ($app) {
 
     $app->get('/workspaces', 'authenticateILIASAdminRole', function () use ($app) {
         try {
-            $app = \Slim\Slim::getInstance();
-            $env = $app->environment();
 
             if (count($app->request->post()) == 0 && count($app->request->get()) == 0) {
                 $req_data = json_decode($app->request()->getBody(),true); // json
@@ -57,8 +55,6 @@ $app->group('/admin', function () use ($app) {
 
     $app->get('/workspaces/:user_id', 'authenticateILIASAdminRole', function ($user_id) use ($app) {
         try {
-            $app = \Slim\Slim::getInstance();
-            $env = $app->environment();
             $t_start = microtime();
             $result = array();
             $result['msg'] = 'Workspaces of user.';

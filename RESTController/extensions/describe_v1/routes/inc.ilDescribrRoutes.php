@@ -15,8 +15,6 @@ $app->group('/admin', function () use ($app) {
      */
     $app->get('/describe/:id', 'authenticateILIASAdminRole', function ($id) use ($app) {
 
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
 
         $id_type = $app->request()->params("id_type"); // ref_id, obj_id, usr_id
         if (!defined($id_type)) {

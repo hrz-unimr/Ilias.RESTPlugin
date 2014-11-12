@@ -11,8 +11,6 @@ $app->group('/admin', function () use ($app) {
      */
     $app->get('/files/:id', 'authenticateILIASAdminRole', function ($id) use ($app) {
 
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
 
 
         if (count($app->request->post()) == 0 && count($app->request->get()) == 0) {
@@ -79,8 +77,6 @@ $app->group('/admin', function () use ($app) {
      * File Upload
      */
     $app->post('/files', 'authenticateILIASAdminRole', function () use ($app) { // create
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
         $repository_ref_id = $app->request()->params("ref_id");
         $title = $app->request()->params("title");
         $description = $app->request()->params("description");

@@ -9,8 +9,6 @@
  */
 $app->group('/v1', function () use ($app) {
     $app->get('/cal/events/:id',  function ($id) use ($app) {
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
         $result = array();
 
         $model = new ilCalendarModel();
@@ -25,8 +23,6 @@ $app->group('/v1', function () use ($app) {
      * Gets the ICAL Url for a user specified by id
      */
     $app->get('/cal/icalurl/:id',  function ($id) use ($app) {
-        $app = \Slim\Slim::getInstance();
-        $env = $app->environment();
         $result = array();
 
         $model = new ilCalendarModel();
