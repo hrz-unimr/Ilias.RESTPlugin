@@ -119,7 +119,7 @@ $app->group('/m', function () use ($app) {
     $app->get('/desk2', function () use ($app) {
         $t_start = microtime();
         $result = array();
-        
+
         // TODO: extract user_id from valid token
         $user_id = 6;//225;//6;//361; // testuser
         //$user = ilRestLib::userIdtoLogin($user_id);
@@ -135,7 +135,6 @@ $app->group('/m', function () use ($app) {
         $my_courses = $courseModel->getCoursesOfUser($user_id);
 
         $repository_items = array();
-
         foreach ($my_courses as $course_refid)
         {
             //$my_courses [] = $course_refid;
@@ -149,7 +148,6 @@ $app->group('/m', function () use ($app) {
             $course_item['children_ref_ids'] = $children_ref_ids;
             $repository_items[$course_refid] = $course_item;
         }
-
         $result['ritems'] = $repository_items;
 
         $desktopModel = new ilDesktopModel();
@@ -164,7 +162,6 @@ $app->group('/m', function () use ($app) {
         $grpModel = new ilGroupsModel();
         $my_groups = $grpModel->getGroupsOfUser($user_id);
         $result['mygroups'] = $my_groups;
-
 
         // Contacts
         $contactModel = new ilContactsModel();

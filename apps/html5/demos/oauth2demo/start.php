@@ -10,8 +10,8 @@
         $base_url = $protocol . $_SERVER['SERVER_NAME'] . ":" . $_SERVER["SERVER_PORT"] . dirname($_SERVER['PHP_SELF']);
     }
     $apikey = "apollon"; // apikey alias oauth2 client_id
-    $apipass = "B8f3gHwwbp"; // only needed for "Clients Credentials Grant"
-    $subFolder = "/ilias5beta";
+    $apipass = "oMzVXctRuu"; // only needed for "Clients Credentials Grant"
+    $subFolder = "/ilias5";
     $loginUrl = $subFolder. "/restplugin.php/v1/oauth2/auth?client_id=".urlencode($apikey);
 
     // Prerequisite the demo endpoints are located within the same directory as this script

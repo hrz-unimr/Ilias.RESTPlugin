@@ -206,4 +206,25 @@ $app->group('/dev', function () use ($app) {
         echo json_encode($result);
 
     });
+
+    $app->get('/responsetest', function () use ($app) {
+
+        $response = new RestResponse();
+        $env = $app->environment();
+
+        $response->addData('status',"success");
+        $response->addData('time',time());
+        $response->addData('host',$_SERVER['HTTP_HOST']);
+        $response->addData('referrer', $_SERVER['HTTP_REFERER']);
+        $somenumbers = array(0.5, 0.3, 0.2, 0.3, 0.5);
+        $response->addData('mynumbers', $somenumbers);
+        $response->setData('time',0);
+        $response->addData('status',"full");
+
+        $app->response()->header('Content-Type', 'application/json');
+        echo $response->getJSON();
+
+
+    });
+
 });

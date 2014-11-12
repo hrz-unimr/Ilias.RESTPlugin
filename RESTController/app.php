@@ -42,6 +42,7 @@ class ResourceNotFoundException extends Exception {}
 require_once('libs/class.ilRestLib.php');
 require_once('libs/class.ilAuthLib.php');
 require_once('libs/class.ilTokenLib.php');
+require_once('libs/class.RestResponse.php');
 require_once('libs/inc.ilAuthMiddleware.php');
 require_once('libs/class.ilRestSoapAdapter.php');
 require_once('core/clients/models/class.ilClientsModel.php');
