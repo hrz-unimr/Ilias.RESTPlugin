@@ -1,6 +1,6 @@
 ## Workspace Administration of the ILIAS REST Plugin
 
-This is an extension for the [ILIAS REST Plugin](https://github.com/eqsoft/RESTPlugin)
+This is an extension for the [ILIAS REST Plugin](https://github.com/hrz-unimr/RESTPlugin)
 
 The purpose of the endpoints defined by this extension is to enable administration of
 the user workspaces.

@@ -15,7 +15,7 @@ class ilDesktopModel
         ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
         ilRestLib::initDefaultRestGlobals();
 
-        self::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        ilRestLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
@@ -37,7 +37,7 @@ class ilDesktopModel
         ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
         ilRestLib::initDefaultRestGlobals();
 
-        self::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        ilRestLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         global $ilDB;
         $ilUser->setId($user_id);
@@ -61,7 +61,7 @@ class ilDesktopModel
         ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
         ilRestLib::initDefaultRestGlobals();
 
-        self::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        ilRestLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
@@ -77,7 +77,7 @@ class ilDesktopModel
         ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
         ilRestLib::initDefaultRestGlobals();
 
-        self::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        ilRestLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         if ($ilUser->getId()!=$user_id) {
             $ilUser->setId($user_id);
@@ -87,24 +87,5 @@ class ilDesktopModel
         return $ilUser->isDesktopItem($a_item_id, $a_type);
     }
 
-    /**
-     * Initialize global instance
-     *
-     * @param string $a_name
-     * @param string $a_class
-     * @param string $a_source_file
-     */
-    protected static function initGlobal($a_name, $a_class, $a_source_file = null)
-    {
-        if($a_source_file)
-        {
-            include_once $a_source_file;
-            $GLOBALS[$a_name] = new $a_class;
-        }
-        else
-        {
-            $GLOBALS[$a_name] = $a_class;
-        }
-    }
 
 }

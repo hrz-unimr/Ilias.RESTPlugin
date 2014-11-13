@@ -1,6 +1,6 @@
 Experimental v1 API for the ILIAS REST Plugin
 ======================================
-This is an extension under development for the [ILIAS REST Plugin](https://github.com/eqsoft/RESTPlugin).
+This is an extension under development for the [ILIAS REST Plugin](https://github.com/hrz-unimr/RESTPlugin).
 
 Exp 1:
 * Enables the communication and transfer of items between two ILIAS installations.

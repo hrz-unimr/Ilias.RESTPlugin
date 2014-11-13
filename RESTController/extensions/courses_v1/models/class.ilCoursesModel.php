@@ -22,7 +22,7 @@ class ilCoursesModel
     {
         ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
         ilRestLib::initDefaultRestGlobals();
-        self::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        ilRestLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId($usr_id);
         $ilUser->read();
@@ -54,10 +54,10 @@ class ilCoursesModel
     public function getCourseInfo($crs_ref_id)
     {
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        self::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
-        self::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
-        self::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
-        self::initGlobal("ilObjDataCache", "ilObjectDataCache",
+        ilRestLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
+        ilRestLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
+        ilRestLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
+        ilRestLib::initGlobal("ilObjDataCache", "ilObjectDataCache",
             "./Services/Object/classes/class.ilObjectDataCache.php");
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilObjDataCache;
         define("DEBUG", FALSE);
@@ -83,9 +83,9 @@ class ilCoursesModel
     {
 
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        self::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
-        self::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
-        self::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
+        ilRestLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
+        ilRestLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
+        ilRestLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
         define("DEBUG", FALSE);
 
@@ -95,7 +95,7 @@ class ilCoursesModel
             require_once "./Services/Language/classes/class.ilLanguage.php";
             $lng = new ilLanguage($lang);
             $lng->loadLanguageModule("init");
-            self::initGlobal('lng', $lng);
+            ilRestLib::initGlobal('lng', $lng);
         }
 
 
@@ -166,7 +166,7 @@ class ilCoursesModel
     {
         ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
         ilRestLib::initDefaultRestGlobals();
-        self::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        ilRestLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
@@ -229,25 +229,6 @@ class ilCoursesModel
         }
     }
 
-    /**
-     * Initialize global instance
-     *
-     * @param string $a_name
-     * @param string $a_class
-     * @param string $a_source_file
-     */
-    protected static function initGlobal($a_name, $a_class, $a_source_file = null)
-    {
-        if($a_source_file)
-        {
-            include_once $a_source_file;
-            $GLOBALS[$a_name] = new $a_class;
-        }
-        else
-        {
-            $GLOBALS[$a_name] = $a_class;
-        }
-    }
 
     public function soapTest()
     {

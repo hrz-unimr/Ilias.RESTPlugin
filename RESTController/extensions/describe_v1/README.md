@@ -1,6 +1,6 @@
 describe API for the ILIAS REST Plugin
 ======================================
-This is an extension for the [ILIAS REST Plugin](https://github.com/eqsoft/RESTPlugin)
+This is an extension for the [ILIAS REST Plugin](https://github.com/hrz-unimr/RESTPlugin)
 providing additional REST endpoints for explaining ILIAS objects.
 
 This can be seen as a tool for administrators and developers to get descriptions of ilias objects / users in a quick way.

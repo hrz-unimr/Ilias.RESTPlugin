@@ -22,7 +22,7 @@ class ilGroupsModel
     {
         ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
         ilRestLib::initDefaultRestGlobals();
-        self::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        ilRestLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId($usr_id);
         $ilUser->read();
@@ -42,10 +42,10 @@ class ilGroupsModel
     public function getGroupInfo($crs_ref_id)
     {
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        self::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
-        self::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
-        self::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
-        self::initGlobal("ilObjDataCache", "ilObjectDataCache",
+        ilRestLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
+        ilRestLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
+        ilRestLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
+        ilRestLib::initGlobal("ilObjDataCache", "ilObjectDataCache",
             "./Services/Object/classes/class.ilObjectDataCache.php");
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilObjDataCache;
         define("DEBUG", FALSE);
@@ -71,9 +71,9 @@ class ilGroupsModel
     {
 
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        self::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
-        self::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
-        self::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
+        ilRestLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
+        ilRestLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
+        ilRestLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
         define("DEBUG", FALSE);
 
@@ -83,7 +83,7 @@ class ilGroupsModel
             require_once "./Services/Language/classes/class.ilLanguage.php";
             $lng = new ilLanguage($lang);
             $lng->loadLanguageModule("init");
-            self::initGlobal('lng', $lng);
+            ilRestLib::initGlobal('lng', $lng);
         }
 
         $crs_items = array();

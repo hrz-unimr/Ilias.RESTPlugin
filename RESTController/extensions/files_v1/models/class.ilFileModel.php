@@ -11,16 +11,16 @@ class ilFileModel
         ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
         ilRestLib::initDefaultRestGlobals();
 
-        self::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        ilRestLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
         ilRestLib::initAccessHandling();
 
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        self::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
-        self::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
-        self::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
+        ilRestLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
+        ilRestLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
+        ilRestLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
         global $ilAccess;
 
@@ -52,9 +52,9 @@ class ilFileModel
         //ilRestLib::initDefaultRestGlobals();
         //global $ilDB;
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        self::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
-        self::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
-        self::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
+        ilRestLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
+        ilRestLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
+        ilRestLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
         define("DEBUG", FALSE);
         $fileObj=  ilObjectFactory::getInstanceByObjId($obj_id);
@@ -83,12 +83,12 @@ class ilFileModel
         define ("MAXLENGTH_OBJ_DESC",123);
 
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        self::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
-        self::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
-        self::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
-        self::initGlobal("ilAppEventHandler", "ilAppEventHandler","./Services/EventHandling/classes/class.ilAppEventHandler.php");
-        self::initGlobal("ilObjDataCache", "ilObjectDataCache","./Services/Object/classes/class.ilObjectDataCache.php");
-        self::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        ilRestLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
+        ilRestLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
+        ilRestLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
+        ilRestLib::initGlobal("ilAppEventHandler", "ilAppEventHandler","./Services/EventHandling/classes/class.ilAppEventHandler.php");
+        ilRestLib::initGlobal("ilObjDataCache", "ilObjectDataCache","./Services/Object/classes/class.ilObjectDataCache.php");
+        ilRestLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilAppEventHandler, $ilObjDataCache, $ilUser;
 
 
@@ -251,8 +251,8 @@ class ilFileModel
      */
     protected function putObjectInTree(ilObject $a_obj, $a_parent_node_id = null)
     {
-        self::initGlobal("rbacreview", "ilRbacReview", "./Services/AccessControl/classes/class.ilRbacReview.php");
-        self::initGlobal("rbacadmin", "ilRbacAdmin", "./Services/AccessControl/classes/class.ilRbacAdmin.php");
+        ilRestLib::initGlobal("rbacreview", "ilRbacReview", "./Services/AccessControl/classes/class.ilRbacReview.php");
+        ilRestLib::initGlobal("rbacadmin", "ilRbacAdmin", "./Services/AccessControl/classes/class.ilRbacAdmin.php");
         //ilInitialisation::initAccessHandling();
         global $rbacreview, $ilUser, $objDefinition;
 
@@ -273,27 +273,6 @@ class ilFileModel
         $rbac_log_roles = $rbacreview->getParentRoleIds($ref_id, false);
         $rbac_log = ilRbacLog::gatherFaPa($ref_id, array_keys($rbac_log_roles), true);
         ilRbacLog::add(ilRbacLog::CREATE_OBJECT, $ref_id, $rbac_log);
-    }
-
-
-    /**
-     * Initialize global instance
-     *
-     * @param string $a_name
-     * @param string $a_class
-     * @param string $a_source_file
-     */
-    protected static function initGlobal($a_name, $a_class, $a_source_file = null)
-    {
-        if($a_source_file)
-        {
-            include_once $a_source_file;
-            $GLOBALS[$a_name] = new $a_class;
-        }
-        else
-        {
-            $GLOBALS[$a_name] = $a_class;
-        }
     }
 
 }

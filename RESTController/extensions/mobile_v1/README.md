@@ -1,6 +1,6 @@
 Mobile v1 API for the ILIAS REST Plugin
 ======================================
-This is an extension under development for the [ILIAS REST Plugin](https://github.com/eqsoft/RESTPlugin).
+This is an extension under development for the [ILIAS REST Plugin](https://github.com/hrz-unimr/RESTPlugin).
 The goal is to provide additional REST endpoints for a mobile app.
 
 #### Features:
