@@ -160,11 +160,12 @@ class ilUsersModel
 
             $resp->setData("num_users", $parser->getUserCount());
             $resp->setMessage("Import successful");
-            $resp->setCode(200);
+            $resp->setRestCode(200);
         } else {
             $resp->setData("ILIAS_log", $parser->getProtocol());
             $resp->setMessage("Import failed, nothing done").
-            $resp->setCode(400);
+            $resp->setRestCode(400);
+            $resp->setHttpStatus(400);
         }
 
 

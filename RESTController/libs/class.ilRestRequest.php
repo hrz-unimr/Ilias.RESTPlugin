@@ -3,10 +3,10 @@
 
 class ilRestRequest {
 
-    var $app;
-    var $content_type;
-    var $json_arr;
-    var $json_decoded;
+    private $app;
+    private $content_type;
+    public $json_arr;
+    private $json_decoded;
 
     public function ilRestRequest($app) {
         $this->app = $app;

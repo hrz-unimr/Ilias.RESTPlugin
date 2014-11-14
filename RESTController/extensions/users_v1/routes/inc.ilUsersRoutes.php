@@ -75,9 +75,9 @@ $app->post('/v1/users', 'authenticateILIASAdminRole', function() use ($app) {
     $importData = $request->getRaw();
     $model = new ilUsersModel();
     
-    $resp = new ilRestResponse();
+    $resp = new ilRestResponse($app);
     $import_result = $model->bulkImport($importData, $resp);
-    echo($resp->getJSON());
+    echo($resp->toJSON());
 });
 
 
