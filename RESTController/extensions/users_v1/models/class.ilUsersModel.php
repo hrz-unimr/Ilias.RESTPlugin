@@ -143,20 +143,23 @@ class ilUsersModel
 
         require_once "./Services/User/classes/class.ilUserImportParser.php";
         require_once "./Services/Authentication/classes/class.ilAuthUtils.php";
+
+        // TODO: do it here or in route?
+        $app = new \Slim\Slim();
+        ilAuthLib::setUserContext($app->environment['user']);  // filled by auth middleware
+        ilRestLib::initAccessHandling();
+
+
     	$parser = new ilUserImportParser();
         // TODO/Problem: can't pass mode in constructor if no file is given
-        // $parser->mode = IL_VERIFY;
+        $parser->mode = IL_VERIFY;
     	$parser->setXMLContent($xmlData);
-        // Permissions are only checked if IL_VERIFY is given, but from this context,
-        // $ilAccess is null
-        // resulting in
-        // PHP Fatal error:  Call to a member function checkAccess() on a non-object in /opt/ilias/shared/ilias5_beta/Services/User/classes/class.ilUserImportParser.php on line 2033
         $parser->startParsing();
 
         if ($parser->isSuccess()) {
-//	        $parser = new ilUserImportParser();
-//	        $parser->setXMLContent($xmlData);
-//            $parser->startParsing();
+            $parser = new ilUserImportParser();
+            $parser->setXMLContent($xmlData);
+            $parser->startParsing();
 
             $resp->setData("num_users", $parser->getUserCount());
             $resp->setMessage("Import successful");
