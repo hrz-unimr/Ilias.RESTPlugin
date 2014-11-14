@@ -1,9 +1,9 @@
 <?php
 /**
- * This class eases the formatting of output and also ensures a standardized output scheme.
+ * This class eases the formatting of output and also ensures a standardized output schema of the API.
  * 2014 HRZ - Uni-Marburg
  */
-class RestResponse {
+class ilRestResponse {
     public $_data = array();
     public $_msg = "";
     public $_code = "200";

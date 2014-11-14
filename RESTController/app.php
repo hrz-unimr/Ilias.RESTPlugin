@@ -42,7 +42,8 @@ class ResourceNotFoundException extends Exception {}
 require_once('libs/class.ilRestLib.php');
 require_once('libs/class.ilAuthLib.php');
 require_once('libs/class.ilTokenLib.php');
-require_once('libs/class.RestResponse.php');
+//require_once('libs/class.ilRestRequest.php');
+require_once('libs/class.ilRestResponse.php');
 require_once('libs/inc.ilAuthMiddleware.php');
 require_once('libs/class.ilRestSoapAdapter.php');
 require_once('core/clients/models/class.ilClientsModel.php');
@@ -59,23 +60,24 @@ include_once('core/clients/routes/inc.ilClientsRoutes.php');
 // --------------------------[!! Please do not remove !!]---------------------------
 ////////////////////////////////////////////////////////////////////////////////////
 
+$app->log->debug("REST call from ".$_SERVER['REMOTE_ADDR']." at ".date("d/m/Y,H:i:s", time()));
+
 // Please add your models and routes to the folders:
 // extensions/models and extensions/routes respectively
 
 /**
  * Load Extensions
  */
-
 foreach (glob(realpath(dirname(__FILE__))."/extensions/*/models/*.php") as $filename)
 {
     include_once $filename;
-    $app->log->debug("Loading extension [model] $filename");
+    //$app->log->debug("Loading extension [model] $filename");
 }
 
 foreach (glob(realpath(dirname(__FILE__))."/extensions/*/routes/*.php") as $filename)
 {
     include_once $filename;
-    $app->log->debug("Loading extension [route] $filename");
+    //$app->log->debug("Loading extension [route] $filename");
 }
 
 ?>

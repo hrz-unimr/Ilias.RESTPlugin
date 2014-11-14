@@ -1,11 +1,10 @@
 <?php
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// REST - Client Administration Routes
+// REST - Client Administration
 
 $app->get('/clients', 'authenticateTokenOnly',  function () use ($app) {
     try {
-        $app = \Slim\Slim::getInstance();
         $env = $app->environment();
         $client_id = $env['client_id'];
 
@@ -52,9 +51,6 @@ $app->get('/clients', 'authenticateTokenOnly',  function () use ($app) {
 });
 
 $app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ // update
-
-
-    $app = \Slim\Slim::getInstance();
     $env = $app->environment();
 
     $authorizedUser = $env['user'];
@@ -64,13 +60,17 @@ $app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ /
     //$usr_model = new ilUsersModel();
     $ilRest = new ilRestLib();
     if (!$ilRest->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
-
         $result['status'] = 'failed';
         $result['msg'] = "Access denied. Administrator permissions required.";
         $result['authuser'] = $authorizedUser;
-
     } else {
         $admin_model = new ilClientsModel();
+        //$ilReq = new ilRestRequest($app);
+        //$rawReq = $ilReq->getRaw();
+        //$app->log->debug("slim new ilrequest obj: ".print_r($rawReq, true));
+        //$rd = $ilReq->getParam('data');
+        //$app->log->debug("slim new ilrequest getParam(data): ".$rd['client_secret']);
+
 
         $a_Requests = $app->request->put();
         if (count($a_Requests) == 0) {
@@ -84,7 +84,6 @@ $app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ /
             $a_Requests['oauth_consent_message'] = $a_data['data']['oauth_consent_message'];
             $a_Requests['redirection_uri'] = $a_data['data']['redirection_uri'];
             $a_Requests['permissions'] = addslashes ($a_data['data']['permissions']);
-
             }
 
         foreach ($a_Requests as $key => $value) {
@@ -94,7 +93,6 @@ $app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ /
         $result['status'] = 'success';
 
     }
-
     $app->response()->header('Content-Type', 'application/json');
     echo json_encode($result);
 
@@ -102,7 +100,6 @@ $app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ /
 
 $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // create
     try {
-        $app = \Slim\Slim::getInstance();
         $env = $app->environment();
         $authorizedUser = $env['user'];
         $result = array();
@@ -195,7 +192,6 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
 // 'authenticate',
 $app->delete('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app) {
 
-    $app = \Slim\Slim::getInstance();
     $request = $app->request();
     $env = $app->environment();
 
@@ -233,7 +229,6 @@ $app->delete('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app)
 
 $app->get('/routes', function () use ($app) {
 
-    $app = \Slim\Slim::getInstance();
     $env = $app->environment();
 
     $result = array();

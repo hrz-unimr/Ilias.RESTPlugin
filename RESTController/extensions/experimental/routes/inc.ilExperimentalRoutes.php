@@ -209,7 +209,7 @@ $app->group('/dev', function () use ($app) {
 
     $app->get('/responsetest', function () use ($app) {
 
-        $response = new RestResponse();
+        $response = new ilRestResponse();
         $env = $app->environment();
 
         $response->addData('status',"success");
