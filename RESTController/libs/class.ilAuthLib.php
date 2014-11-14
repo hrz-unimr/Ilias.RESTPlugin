@@ -61,24 +61,6 @@ class ilAuthLib {
         ilRestLib::initGlobal("ilUser", $ilUser);
 	}
 
-	static public function initAccessHandling()
-    {
-        ilRestLib::initGlobal("rbacreview", "ilRbacReview",
-			"./Services/AccessControl/classes/class.ilRbacReview.php");
-		
-		require_once "./Services/AccessControl/classes/class.ilRbacSystem.php";
-		$rbacsystem = ilRbacSystem::getInstance();
-        ilRestLib::initGlobal("rbacsystem", $rbacsystem);
-
-        ilRestLib::initGlobal("rbacadmin", "ilRbacAdmin",
-			 "./Services/AccessControl/classes/class.ilRbacAdmin.php");
-
-        ilRestLib::initGlobal("ilAccess", "ilAccessHandler",
-			 "./Services/AccessControl/classes/class.ilAccessHandler.php");
-		
-		require_once "./Services/AccessControl/classes/class.ilConditionHandler.php";
-	}
-
     /**
      * Authentication via the ILIAS Auth mechanisms.
      *
