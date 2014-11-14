@@ -209,7 +209,7 @@ $app->group('/dev', function () use ($app) {
 
     $app->get('/responsetest', function () use ($app) {
 
-        $response = new ilRestResponse();
+        $response = new ilRestResponse($app);
         $env = $app->environment();
 
         $response->addData('status',"success");
@@ -221,8 +221,9 @@ $app->group('/dev', function () use ($app) {
         $response->setData('time',0);
         $response->addData('status',"full");
 
-        $app->response()->header('Content-Type', 'application/json');
-        echo $response->getJSON();
+        $response->toJSON();
+        //$app->response()->header('Content-Type', 'application/json');
+        //echo $response->getJSON();
 
 
     });

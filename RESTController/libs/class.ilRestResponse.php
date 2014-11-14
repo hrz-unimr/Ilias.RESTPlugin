@@ -7,6 +7,12 @@ class ilRestResponse {
     public $_data = array();
     public $_msg = "";
     public $_code = "200";
+    private $app;
+
+    public function ilRestResponse($app) {
+        $this->app = $app;
+        $this->setHttpStatus(200);
+    }
 
     /**
      * Adds data to the response object.
@@ -55,21 +61,41 @@ class ilRestResponse {
      *
      * @param $code a string
      */
-    public function setCode($code)
+    public function setRestCode($code)
     {
         $this->_code = $code;
     }
 
     /**
-     * Creates a response string in json format.
+     * Sets a http header speficied by key and value.
+     * E.g. ('Cache-Control', 'no-store') or ('Pragma', 'no-cache')
+     */
+    public function setHttpHeader($key, $value)
+    {
+        $this->app->response()->header($key, $value);
+    }
+
+    /**
+     * Sets the HTTP status code.
+     * By default, it is set to 200 (OK).
+     */
+    public function setHttpStatus($statusCode)
+    {
+        $this->app->response()->status($statusCode);
+    }
+
+    /**
+     * Creates a response in json format.
+     * The method automatically sets the correct Content-Type: ('Content-Type', 'application/json')
      * @return a string in JSON format.
      */
-    public function getJSON()
+    public function toJSON()
     {
+        $this->setHttpHeader('Content-Type', 'application/json');
         $response = array();
         $response['data'] = $this->_data;
         $response['msg'] =  $this->_msg;
         $response['code'] = $this->_code;
-        return json_encode($response);
+        echo json_encode($response);
     }
 }
