@@ -68,6 +68,21 @@ $app->get('/v1/users/:user_id', 'authenticateTokenOnly', function ($user_id) use
     }
 });
 
+// bulk import via XML
+// consumes the schema that is produced by Administration -> Users -> Export
+$app->post('/v1/users', 'authenticateILIASAdminRole', function() use ($app) {
+    $request = new ilRestRequest($app);
+    $importData = $request->getRaw();
+    $model = new ilUsersModel();
+    
+    $resp = new ilRestResponse();
+    $import_result = $model->bulkImport($importData, $resp);
+    echo($resp->getJSON());
+});
+
+
+
+/*
 $app->post('/v1/users', 'authenticate', function () use ($app) { // create
     try { // root only
 
@@ -98,6 +113,7 @@ $app->post('/v1/users', 'authenticate', function () use ($app) { // create
         $app->response()->header('X-Status-Reason', $e->getMessage());
     }
 });
+*/
 
 $app->put('/v1/users/:user_id', 'authenticate', function ($user_id) use ($app){ // update
     try {

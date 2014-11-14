@@ -47,6 +47,7 @@ require_once('libs/class.ilRestResponse.php');
 require_once('libs/inc.ilAuthMiddleware.php');
 require_once('libs/class.ilRestSoapAdapter.php');
 require_once('core/clients/models/class.ilClientsModel.php');
+require_once('libs/class.ilRestRequest.php');
 
 /**
  * OAuth2 authorization and authentication mechanism
