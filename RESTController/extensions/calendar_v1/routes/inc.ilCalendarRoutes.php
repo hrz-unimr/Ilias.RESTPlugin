@@ -1,35 +1,55 @@
 <?php
 /*
- * Prototypical implementation of some rest endpoints for development
- * and testing.
+ * Route definitions for the REST Calendar API
  */
 
-/**
- * Gets the calendar events of user specified by $id.
- */
 $app->group('/v1', function () use ($app) {
-    $app->get('/cal/events/:id',  function ($id) use ($app) {
-        $result = array();
+    /**
+     * Gets the calendar events of user specified by $id.
+     */
+    $app->get('/cal/events/:id', 'authenticate', function ($id) use ($app) {
+        $env = $app->environment();
+        $response = new ilRestResponse($app);
+        $authorizedUserId =  ilRestLib::loginToUserId($env['user']);
 
-        $model = new ilCalendarModel();
-        $data = $model->getCalUpcomingEvents($id);
-        //var_dump($data);
-        $result['msg'] = "Upcoming events for user ".$id;
-        $result['events'] = $data;
-        echo json_encode($result);
+        if ($authorizedUserId == $id || ilRestLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
+            try {
+                $model = new ilCalendarModel();
+                $data = $model->getCalUpcomingEvents($id);
+                $response->setMessage("Upcoming events for user " . $id . ".");
+                $response->addData('items', $data);
+            } catch (Exception $e) {
+                $response->setRestCode("-15");
+                $response->setMessage('Error: Could not retrieve any events for user '.$id.".");
+            }
+        } else {
+            $response->setRestCode("-13");
+            $response->setMessage('User has no RBAC permissions to access the data.');
+        }
+        $response->toJSON();
     });
 
     /**
      * Gets the ICAL Url for a user specified by id
      */
-    $app->get('/cal/icalurl/:id',  function ($id) use ($app) {
-        $result = array();
-
-        $model = new ilCalendarModel();
-        $data = $model->getIcalAdress($id);
-        //var_dump($data);
-        $result['msg'] = "ICAL (ics) address for user ".$id;
-        $result['ical_url'] = $data;
-        echo json_encode($result);
+    $app->get('/cal/icalurl/:id', 'authenticate' , function ($id) use ($app) {
+        $env = $app->environment();
+        $response = new ilRestResponse($app);
+        $authorizedUserId =  ilRestLib::loginToUserId($env['user']);
+        if ($authorizedUserId == $id || ilRestLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
+            try {
+                $model = new ilCalendarModel();
+                $data = $model->getIcalAdress($id);
+                $response->setMessage("ICAL (ics) address for user " . $id . ".");
+                $response->addData('icalurl', $data);
+            } catch (Exception $e) {
+                $response->setRestCode("-15");
+                $response->setMessage('Error: Could not retrieve ICAL url for user '.$id.".");
+            }
+        } else {
+            $response->setRestCode("-13");
+            $response->setMessage('User has no RBAC permissions to access the data.');
+        }
+        $response->toJSON();
     });
 });

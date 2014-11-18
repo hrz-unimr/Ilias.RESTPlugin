@@ -15,7 +15,6 @@ class ilCalendarModel
         ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
         ilRestLib::initDefaultRestGlobals();
 
-
         ilRestLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId($user_id);
@@ -47,12 +46,10 @@ class ilCalendarModel
         include_once './Services/Calendar/classes/class.ilCalendarUserSettings.php';
         if(ilCalendarUserSettings::_getInstance()->getCalendarSelectionType() == ilCalendarUserSettings::CAL_SELECTION_MEMBERSHIP)
         {
-            //echo "there";
             $cats->initialize(ilCalendarCategories::MODE_PERSONAL_DESKTOP_MEMBERSHIP);
         }
         else
         {
-           // echo "here";
             $cats->initialize(ilCalendarCategories::MODE_PERSONAL_DESKTOP_ITEMS);
         }
 
@@ -145,7 +142,6 @@ class ilCalendarModel
             $token->setCalendar($calendar);
             $hash = $token->add();
         }
-        //$url = ILIAS_HTTP_PATH.'/calendar.php?client_id='.CLIENT_ID.'&token='.$hash;
         $url = $protocol.$host.'/calendar.php?client_id='.CLIENT_ID.'&token='.$hash;
 
         return $url;
