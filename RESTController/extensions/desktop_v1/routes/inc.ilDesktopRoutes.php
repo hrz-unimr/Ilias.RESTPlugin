@@ -11,19 +11,16 @@ $app->group('/v1', function () use ($app) {
         $authorizedUserId =  ilRestLib::loginToUserId($env['user']);
 
         $response = new ilRestResponse($app);
-
         if ($authorizedUserId == $id || ilRestLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
             $model = new ilDesktopModel();
             $data = $model->getPersonalDesktopItems($id);
             $response->addData('items', $data);
             $response->setMessage("Personal desktop items for user ".$id.".");
-            $response->toJSON();
         } else {
             $response->setRestCode("-13");
             $response->setMessage('User has no RBAC permissions to access the data.');
-            $response->toJSON();
         }
-
+        $response->toJSON();
     });
 
     /**
