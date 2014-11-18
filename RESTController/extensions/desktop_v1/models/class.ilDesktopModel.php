@@ -50,8 +50,7 @@ class ilDesktopModel
     {
         $obj = ilObjectFactory::getInstanceByRefId($ref_id,false);
         $item_type = $obj->getType();
-       // echo "item type: ".$item_type;
-        $this-> addItemToDesktopWithType($user_id, $ref_id, $item_type);
+        $this->addItemToDesktopWithType($user_id, $ref_id, $item_type);
         return true;
     }
 
@@ -67,7 +66,6 @@ class ilDesktopModel
         $ilUser->read();
         ilRestLib::initAccessHandling();
         $ilUser->addDesktopItem($ref_id, $item_type);
-        //_addDesktopItem($a_usr_id, $a_item_id, $a_type, $a_par = "")
         return true;
     }
 
