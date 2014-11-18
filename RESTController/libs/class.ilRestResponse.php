@@ -7,6 +7,7 @@ class ilRestResponse {
     public $_data = array();
     public $_msg = "";
     public $_code = "200";
+    public $_format = "json";
     private $app;
 
     public function ilRestResponse($app) {
@@ -85,6 +86,24 @@ class ilRestResponse {
     }
 
     /**
+     * Sets the type of the output. Depending on the output format, the send method decides how the response message will be rendered.
+     * Default setting: json.
+     * @param $outputFormat - a string
+     */
+    public function setOutputFormat($outputFormat)
+    {
+        $this->_format = $outputFormat;
+    }
+
+    /**
+     * Gets the currently selected type of the output format.
+     */
+    public function getOutputFormat()
+    {
+        return $this->_format;
+    }
+
+    /**
      * Creates a response in json format.
      * The method automatically sets the correct Content-Type: ('Content-Type', 'application/json')
      * @return a string in JSON format.
@@ -97,5 +116,17 @@ class ilRestResponse {
         $response['msg'] =  $this->_msg;
         $response['code'] = $this->_code;
         echo json_encode($response);
+    }
+
+    /**
+     * Calls one of the output functions (toJSON, toXML, toRAW)
+     * depending on the state of the internal variable "format".
+     */
+    public function send()
+    {
+        switch ($_format) {
+            case "json": $this->toJSON(); break;
+            default: $this->toJSON();
+        }
     }
 }
