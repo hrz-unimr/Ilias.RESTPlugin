@@ -9,7 +9,6 @@
  */
 $app->post('/v1/oauth2/auth', function () use ($app) {
     try {
-        $app = \Slim\Slim::getInstance();
         $request = $app->request();
         $response_type = $request->params('response_type');
         //$client_id = $request->params('api_key');
@@ -91,7 +90,6 @@ $app->post('/v1/oauth2/auth', function () use ($app) {
 
 $app->get('/v1/oauth2/auth', function () use ($app) {
     try {
-        $app = \Slim\Slim::getInstance();
         $request = $app->request();
         $apikey = $_GET['api_key']; // Issue: Standard ILIAS Init absorbs client_id GET request field
         $client_redirect_uri = $_GET['redirect_uri'];
@@ -121,7 +119,6 @@ $app->get('/v1/oauth2/auth', function () use ($app) {
 */
 $app->post('/v1/oauth2/token', function () use ($app) {
     try {
-        $app = \Slim\Slim::getInstance();
         $request = $app->request();
 
         if (count($request->post()) == 0) {
@@ -221,7 +218,6 @@ $app->post('/v1/oauth2/token', function () use ($app) {
 // to prevent the "confused deputy problem".
 $app->get('/v1/oauth2/tokeninfo', function () use ($app) {
     try {
-        $app = \Slim\Slim::getInstance();
         $request = $app->request();
         $access_token = $request->params('access_token');
         if (!isset($access_token)) {
