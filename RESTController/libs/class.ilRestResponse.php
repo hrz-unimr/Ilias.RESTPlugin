@@ -124,7 +124,7 @@ class ilRestResponse {
      */
     public function send()
     {
-        switch ($_format) {
+        switch ($this->_format) {
             case "json": $this->toJSON(); break;
             default: $this->toJSON();
         }
