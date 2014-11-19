@@ -11,40 +11,32 @@ $app->group('/admin', function () use ($app) {
      */
     $app->get('/files/:id', 'authenticateILIASAdminRole', function ($id) use ($app) {
 
+        $env = $app->environment();
+        $user_id = ilRestLib::loginToUserId($env['user']);
 
+        $request = new ilRestRequest($app);
+        $response = new ilRestResponse($app);
 
-        if (count($app->request->post()) == 0 && count($app->request->get()) == 0) {
-            $req_data = json_decode($app->request()->getBody(),true); // json
-        } else {
-            $req_data = $_REQUEST;
-        }
-
-
-        $meta_data = $req_data['meta_data'];
-       // $meta_data = true;
-/*        $id_type = $req_data['id_type'];
-        if (isset($id_type) == true) {
-            if ($id_type == "ref_id") {
-                $obj_id = ilRestLib::refid_to_objid($id);
-            } else {
-                $obj_id = $id;
+        try {
+            $meta_data = $request->getParam('meta_data');
+            if (isset($meta_data)) {
+                $meta_data = true;
             }
-        } else {
-            $obj_id = ilRestLib::refid_to_objid($id);
+        } catch (Exception $e) {
+            $meta_data = false;
         }
-*/
-      //  $meta_data = true;
+
         $result = array();
-        if (isset($meta_data) == true)
-        {
+        if ($meta_data == true) {
 
             $model = new ilFileModel();
             $obj_id = ilRestLib::refid_to_objid($id);
             $fileObj = $model->getFileObj($obj_id);
  //           $fileObj = $model->getFileObjForUser($obj_id,6);
 
-            $result['status'] = 'success';
-            $result['msg'] = 'Meta-data of file with id = '.$id;
+            $response->setMessage('Meta-data of file with id = ' . $id . '.');
+
+            $result = array();
             $result['file']['ext'] = $fileObj->getFileExtension();
             $result['file']['name'] = $fileObj->getFileName();
             $result['file']['size'] = $fileObj->getFileSize();
@@ -52,25 +44,15 @@ $app->group('/admin', function () use ($app) {
             $result['file']['dir'] = $fileObj->getDirectory();
             $result['file']['version'] = $fileObj->getVersion();
             $result['file']['realpath'] = $fileObj->getFile();
-
-            $app->response()->header('Content-Type', 'application/json');
-            echo json_encode($result);
+            $response->addData("file", $result['file']);
+            $response->send();
         } else
         {
             $model = new ilFileModel();
             $fileObj = $model->getFileObj($id);
             $fileObj->sendFile();
         }
-        /*$res = $app->response();
-        $res['Content-Description'] = 'File Transfer';
-        $res['Content-Type'] = 'application/octet-stream';
-        $res['Content-Disposition'] ='attachment; filename=' . $fileObj->getFileName();
-        $res['Content-Transfer-Encoding'] = 'binary';
-        $res['Expires'] = '0';
-        $res['Cache-Control'] = 'must-revalidate';
-        $res['Pragma'] = 'public';
-        $res['Content-Length'] = $fileObj->getFileSize();
-        */
+
     });
 
     /*
@@ -108,7 +90,5 @@ $app->group('/admin', function () use ($app) {
         echo json_encode($result);
 
     });
-
-
 
 });
