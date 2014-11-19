@@ -58,6 +58,20 @@ class ilRestResponse {
     }
 
     /**
+     * Adds another string to the message part of the response.
+     *
+     * @param $message a string
+     */
+    public function addMessage($message)
+    {
+        if ($this->_msg == "") {
+            $this->setMessage($message);
+        } else {
+            $this->setMessage($this->_msg.' '.$message);
+        }
+    }
+
+    /**
      * Sets the code part of the JSON response.
      *
      * @param $code a string
