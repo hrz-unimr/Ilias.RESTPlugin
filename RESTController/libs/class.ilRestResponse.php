@@ -16,7 +16,7 @@ class ilRestResponse {
     }
 
     /**
-     * Adds data to the response object.
+     * Adds data to the response object, creating or extending an array for $keyword.
      *
      * @param $keyword a string which describes an object in the resulting json
      * @param $data an array or a string which represents the data
@@ -24,14 +24,9 @@ class ilRestResponse {
     public function addData($keyword, $data)
     {
         if (isset($this->_data[$keyword])) {
-            if (is_array($this->_data[$keyword])) {
-                $this->_data[$keyword][] = $data;
-            } else {
-                $oldVal = $this->_data[$keyword];
-                $this->_data[$keyword] = array($oldVal, $data);
-            }
+            $this->_data[$keyword][] = $data;
         } else {
-            $this->setData($keyword, $data);
+            $this->setData($keyword, array($data));
         }
     }
 
