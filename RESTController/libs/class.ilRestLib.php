@@ -312,5 +312,21 @@ class ilRestLib {
         return define('ILIAS_HTTP_PATH',ilUtil::removeTrailingPathSeparators($protocol.$host.$uri));
     }
 
+    /**
+     * Provides object properties as stored in table object_data.
+     *
+     * @param $obj_id
+     * @param $aFields array of strings; to query all fields please specify "array('*')"
+     * @return mixed
+     */
+    public static  function getObjectData($obj_id, $aFields)
+    {
+        global $ilDB;
+        $fields = implode(',',$aFields);
+        $query = "SELECT ".$fields." FROM object_data WHERE object_data.obj_id=".$obj_id;
+        $set = $ilDB->query($query);
+        $row = $ilDB->fetchAssoc($set);
+        return $row;
+    }
 }
 ?>

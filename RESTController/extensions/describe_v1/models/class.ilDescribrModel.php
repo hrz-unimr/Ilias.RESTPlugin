@@ -76,12 +76,6 @@ class ilDescribrModel
         $set = $ilDB->query($query);
         $row = $ilDB->fetchAssoc($set);
         return $row;
-        /*while($row = $ilDB->fetchAssoc($set))
-        {
-            $res[] = $row;
-        }
-        return $res;
-        */
     }
 
     /**
