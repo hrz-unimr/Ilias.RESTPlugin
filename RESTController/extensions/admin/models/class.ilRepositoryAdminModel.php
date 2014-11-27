@@ -105,6 +105,143 @@ class ilRepositoryAdminModel
     }
 
 
+    /**
+     * Returns a list representation of a repository subtree. The node of the subtree must be specified by a ref_id.
+     * Wrapper for getRekNode.
+     *
+     * @param $ref_id - the reference id of the ilias repository object
+     */
+    public function getSubTreeWithinTimespan($ref_id, $last_k_month)
+    {
+        $span_in_sec = 60*60*24*30*$last_k_month;
+        return $this->getRekNodeTimespan($ref_id, 0, array('cat','crs'), 0, 1000, $span_in_sec);
+    }
+
+    /**
+     * This method returns a list of repository items which belongs to the subtree of the item specified by its $ref_id.
+     * In contrast to getRekNode this method filters items that have not been used within a certain time span.
+     *
+     * Each item in the result list has the following descriptions:
+     *  - create_date
+     *  - description
+     *  - title
+     *  - type
+     *  - ref_id
+     * The list of descriptions is furthermore extended to have the following additional field:
+     * - children_ref_ids
+     * - parent_ref_id
+     *
+     * @param $ref_id - the reference id of the ilias repository object
+     * @param $parent_ref_id - the parent ref_id
+     * @param $a_types - array of strings that filter the types of objects that should be queried
+     * @param $ct_level - current depth level
+     * @param $max_level - maximal level of depth to descend within the subtree
+     * @param $max_timeinterval - items will be filtered which have not been accessed (read) within the last $max_timeinterval seconds
+     */
+    public function getRekNodeTimespan($ref_id, $parent_ref_id, $a_types, $ct_level, $max_level, $max_timeinterval)
+    {
+        // echo "Running getRekNode (".$ref_id.",".$parent_ref_id.") \n";
+        // Step: get node data
+        $obj_id = ilRestLib::refid_to_objid($ref_id);
+        $node_data = ilRestLib::getObjectData($obj_id, array('create_date','description','title','type'));
+        $node_data['ref_id'] = "$ref_id";
+
+        // Step: get children (crs, cat)
+        $tree = new ilTree(ROOT_FOLDER_ID);
+        $childs = $tree->getChildsByTypeFilter($ref_id, $a_types);
+        $a_children_ref_ids = array();
+        //$a_timestamps = array();
+        foreach ($childs as $item) {
+            // Check if the current item has been read within the last $max_timeinterval
+            $ct_obj_id = ilRestLib::refid_to_objid($item['ref_id']);
+            $ct_last_read = ilRestLib::getLatestReadEventTimestamp($ct_obj_id);
+            if (time() - $max_timeinterval < $ct_last_read) {
+               // echo "within! last read event: ".date('Y-m-d H-i-s', $ct_last_read)."\n";
+                //$a_timestamps [] = date('Y-m-d H-i-s', $ct_last_read);
+                $a_children_ref_ids[] = $item['ref_id'];
+            } else {
+               // echo "NOT within! last read event: ".date('Y-m-d H-i-s', $ct_last_read)."\n";
+            }
+        }
+        // Step: add children ref ids to node data
+        $node_data['children'] = $a_children_ref_ids;
+        $node_data['parent'] = "$parent_ref_id";
+        //$node_data['children_ts'] = $a_timestamps;
+
+        // Step: for each children ref_id call this function
+        $childresults = array();
+        if ($ct_level < $max_level) {
+            foreach ($a_children_ref_ids as $item_ref_id) {
+                $childresult = $this->getRekNodeTimespan($item_ref_id, $ref_id, $a_types, $ct_level + 1, $max_level, $max_timeinterval); // result: array('id1'=>{child1}, 'id1sub1'=>{child11}, ...);
+                $childresults = $childresults + $childresult; // "+" in contrast to array_merge preserves numerical keys
+            }
+        }
+        // Step: return merge this node data with result arrays from child calls
+        $result = array("$ref_id" => $node_data) + $childresults;
+        return $result;
+    }
+
+
+
+    /**
+     * The purpose of this function is to provide data for decision making.
+     * In particular it is necessary to decide which kind of containers should be displayed on the mobile phone.
+     * The difficulty consists of deciding what is an "old" or "not used" item.
+     */
+    public function getRepositoryReadEvents($ref_id)
+    {
+         return $this->getRepositoryReadEventsHelperRec($ref_id, 0, array('cat','crs'), 0, 1000, 10);
+    }
+
+
+    private function getRepositoryReadEventsHelperRec($ref_id, $parent_ref_id, $a_types, $ct_level, $max_level, $k)
+    {
+        // echo "Running getRekNode (".$ref_id.",".$parent_ref_id.") \n";
+        // Step: get node data
+        $obj_id = ilRestLib::refid_to_objid($ref_id);
+        $node_data = array();
+        //$node_data = ilRestLib::getObjectData($obj_id, array('create_date','description','title','type'));
+        $obj_id = ilRestLib::refid_to_objid($ref_id);
+        $node_data['obj_id'] = "$obj_id";
+        $a_timestamps = ilRestLib::getTopKReadEventTimestamp($obj_id, $k);
+        $node_data['timestamps'] = $a_timestamps;
+
+        // Step: get children (crs, cat)
+        $tree = new ilTree(ROOT_FOLDER_ID);
+        $childs = $tree->getChildsByTypeFilter($ref_id, $a_types);
+        $a_children_ref_ids = array();
+        //$a_timestamps = array();
+        foreach ($childs as $item) {
+
+            $a_children_ref_ids[] = $item['ref_id'];
+
+        }
+        // Step: add children ref ids to node data
+       // $node_data['children'] = $a_children_ref_ids;
+       // $node_data['parent'] = "$parent_ref_id";
+        //$node_data['children_ts'] = $a_timestamps;
+
+        // Step: for each children ref_id call this function
+        $childresults = array();
+        if ($ct_level < $max_level) {
+            foreach ($a_children_ref_ids as $item_ref_id) {
+                $childresult = $this->getRepositoryReadEventsHelperRec($item_ref_id, $ref_id, $a_types, $ct_level + 1, $max_level, $k); // result: array('id1'=>{child1}, 'id1sub1'=>{child11}, ...);
+                $childresults = $childresults + $childresult; // "+" in contrast to array_merge preserves numerical keys
+            }
+        }
+        // Step: return merge this node data with result arrays from child calls
+        $result = array("$ref_id" => $node_data) + $childresults;
+        return $result;
+    }
+
+
+    // ------------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Creates a new category specified by title and description.
+     * @param $parent_ref_id - the parent ref id must be specified.
+     *
+     */
     public function createNewCategoryAsUser($parent_ref_id, $title, $desc)
     {
         ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)

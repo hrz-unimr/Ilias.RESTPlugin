@@ -328,5 +328,51 @@ class ilRestLib {
         $row = $ilDB->fetchAssoc($set);
         return $row;
     }
+    /**
+     * Reads top 1 read event which occured on the object.
+     *
+     * @param $obj_id int the object id.
+     * @return timestamp
+     */
+    public static function getLatestReadEventTimestamp($obj_id)
+    {
+        global $ilDB;
+
+        $query = sprintf(' SELECT last_access FROM read_event '.
+            'WHERE obj_id = %s '.
+            'ORDER BY last_access DESC LIMIT 1',
+            $ilDB->quote($obj_id,'integer'));
+        $res = $ilDB->query($query);
+        $row = $ilDB->fetchAssoc($res);
+
+        return $row['last_access'];
+    }
+
+    /**
+     * Reads top-k read events which occured on the object.
+     * Tries to deliver a list with max -k items
+     * @param $obj_id int the object id.
+     * @return timestamp
+     */
+    public static function getTopKReadEventTimestamp($obj_id, $k)
+    {
+        global $ilDB;
+
+        $query = sprintf(' SELECT last_access FROM read_event '.
+            'WHERE obj_id = %s '.
+            'ORDER BY last_access DESC LIMIT %s',
+            $ilDB->quote($obj_id,'integer'),$k);
+        $res = $ilDB->query($query);
+        $list = array();
+        $cnt = 0;
+        while ($row = $ilDB->fetchAssoc($res)){
+            $list[] = $row['last_access'];
+            $cnt = $cnt + 1;
+            if ($cnt == $k) break;
+        }
+
+        return $list;
+    }
+
 }
 ?>

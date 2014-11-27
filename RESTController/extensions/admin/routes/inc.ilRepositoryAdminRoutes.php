@@ -13,7 +13,22 @@ $app->group('/admin', function () use ($app) {
         $request = new ilRestRequest($app);
         $response = new ilRestResponse($app);
         $repModel = new ilRepositoryAdminModel();
-        $data = $repModel->getSubTree(61);
+      //  $data = $repModel->getSubTree($ref_id);
+        $data = $repModel-> getSubTreeWithinTimespan($ref_id, 2);
+
+        $response->setData("subtree",$data);
+        $response->setMessage('Subtree of repository item '.$ref_id.'.');
+        $response->send();
+    });
+
+
+    $app->get('/repository/analytics/:ref_id', 'authenticateILIASAdminRole', function ($ref_id) use ($app) {
+        $request = new ilRestRequest($app);
+        $response = new ilRestResponse($app);
+        $repModel = new ilRepositoryAdminModel();
+        //  $data = $repModel->getSubTree($ref_id);
+        $data = $repModel-> getRepositoryReadEvents($ref_id);
+
         $response->setData("subtree",$data);
         $response->setMessage('Subtree of repository item '.$ref_id.'.');
         $response->send();
