@@ -78,10 +78,7 @@ class ilRepositoryAdminModel
         // Step: get node data
         $obj_id = ilRestLib::refid_to_objid($ref_id);
         $node_data = ilRestLib::getObjectData($obj_id, array('create_date','description','title','type'));
-
-        //var_dump($node_data);
         $node_data['ref_id'] = "$ref_id";
-        // var_dump($node_data);
 
         // Step: get children (crs, cat)
         $tree = new ilTree(ROOT_FOLDER_ID);
@@ -106,5 +103,30 @@ class ilRepositoryAdminModel
         $result = array("$ref_id" => $node_data) + $childresults;
         return $result;
     }
+
+
+    public function createNewCategoryAsUser($parent_ref_id, $title, $desc)
+    {
+        ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
+        ilRestLib::initDefaultRestGlobals();
+        ilRestLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        global    $ilUser;
+        $ilUser->setId(6);
+        $ilUser->read();
+        ilRestLib::initAccessHandling();
+
+        include_once("Modules/Category/classes/class.ilObjCategory.php");
+        $newObj = new ilObjCategory();
+        $newObj->setType('cat');
+        $newObj->setTitle($title);
+        $newObj->setDescription($desc);
+        $newObj->create(true); // true for upload
+        $newObj->createReference();
+        $newObj->putInTree($parent_ref_id);
+        $newObj->setPermissions($parent_ref_id);
+
+        return $newObj->getRefId() ? $newObj->getRefId() : "0";
+    }
+
 }
 ?>

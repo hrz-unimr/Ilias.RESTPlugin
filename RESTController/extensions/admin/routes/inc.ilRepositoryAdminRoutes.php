@@ -19,6 +19,23 @@ $app->group('/admin', function () use ($app) {
         $response->send();
     });
 
+    /**
+     * Creates a new category within the repository container object specfied by ref_id
+     */
+    $app->post('/categories', 'authenticateILIASAdminRole', function () use ($app) {
+        $request = new ilRestRequest($app);
+        $response = new ilRestResponse($app);
+        $repModel = new ilRepositoryAdminModel();
+        $parent_ref_id = $request->getParam("ref_id");
+        $title = $request->getParam("title");
+        $description = $request->getParam("description");
+        $new_ref_id = $repModel->createNewCategoryAsUser($parent_ref_id, $title, $description);
+        $response->setData("new_ref_id", $new_ref_id);
+        $response->setMessage('New Category added to container '.$ref_id.' successfully.');
+        $response->send();
+    });
+
+
 
 
 });
