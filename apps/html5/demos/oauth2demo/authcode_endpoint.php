@@ -2,8 +2,8 @@
     //print_r($_REQUEST);
     if (isset($_GET['code'])){ // Exchange OAuth 2 authorization code for bearer token
         $client_id = "apollon";
-        $client_secret = "B8f3gHwwbp"; // Top Secret
-        $restUrl = "http://localhost/ilias5beta/restplugin.php/v1/oauth2/token";
+        $client_secret = "abcdefgha"; // Top Secret
+        $restUrl = "http://localhost/ilias5/restplugin.php/v1/oauth2/token";
 
         if (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off') {
             $protocol = 'http://';

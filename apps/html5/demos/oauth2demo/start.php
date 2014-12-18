@@ -10,7 +10,7 @@
         $base_url = $protocol . $_SERVER['SERVER_NAME'] . ":" . $_SERVER["SERVER_PORT"] . dirname($_SERVER['PHP_SELF']);
     }
     $apikey = "apollon"; // apikey alias oauth2 client_id
-    $apipass = "oMzVXctRuu"; // only needed for "Clients Credentials Grant"
+    $apipass = "abcdefgha"; // only needed for "Clients Credentials Grant"
     $subFolder = "/ilias5";
     $loginUrl = $subFolder. "/restplugin.php/v1/oauth2/auth?client_id=".urlencode($apikey);
 

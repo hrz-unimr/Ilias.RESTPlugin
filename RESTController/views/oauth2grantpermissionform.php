@@ -4,7 +4,7 @@
     <title>OAuth2: Review permissions</title>
 </head>
 <body>
-    <form accept-charset="UTF-8" action="<?php echo dirname($_SERVER['SCRIPT_NAME']); ?>/restplugin.php/v1/oauth2/auth" method="post">
+    <form id="consentform" accept-charset="UTF-8" action="<?php echo dirname($_SERVER['SCRIPT_NAME']); ?>/restplugin.php/v1/oauth2/auth" method="post">
     <h3 class="permission-title">Review permissions</h3>
     <div class="oauth-permissions">
         <ul>
