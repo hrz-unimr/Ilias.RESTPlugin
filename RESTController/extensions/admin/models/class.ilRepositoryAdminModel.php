@@ -107,14 +107,30 @@ class ilRepositoryAdminModel
 
     /**
      * Returns a list representation of a repository subtree. The node of the subtree must be specified by a ref_id.
-     * Wrapper for getRekNode.
+     * Only those items will be queried that are no older than $last_k_month.
      *
-     * @param $ref_id - the reference id of the ilias repository object
+     * @param $ref_id - number, the reference id of the ilias repository object
+     * @param $last_k_month -  number
      */
     public function getSubTreeWithinTimespan($ref_id, $last_k_month)
     {
         $span_in_sec = 60*60*24*30*$last_k_month;
         return $this->getRekNodeTimespan($ref_id, 0, array('cat','crs'), 0, 1000, $span_in_sec);
+    }
+
+    /**
+     * Returns a list representation of a repository subtree. The node of the subtree must be specified by a ref_id.
+     * Only those items will be queried that are no older than $last_k_month.
+     * Furthermore only a subtree of depth $maxDepth will be queried.
+     *
+     * @param $ref_id - number, the reference id of the ilias repository object
+     * @param $last_k_month -  number
+     * @param $maxDepth - number
+     */
+    public function getSubTreeWithinTimespanDepth($ref_id, $last_k_month, $maxDepth)
+    {
+        $span_in_sec = 60*60*24*30*$last_k_month;
+        return $this->getRekNodeTimespan($ref_id, 0, array('cat','crs'), 0, $maxDepth, $span_in_sec);
     }
 
     /**

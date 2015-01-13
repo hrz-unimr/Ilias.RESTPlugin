@@ -12,9 +12,20 @@ $app->group('/admin', function () use ($app) {
     $app->get('/repository/:ref_id', 'authenticateILIASAdminRole', function ($ref_id) use ($app) {
         $request = new ilRestRequest($app);
         $response = new ilRestResponse($app);
+        $maxDepth = 1000;
+        $maxAge = 24; // 24 month
+        try {
+            $maxDepth = $request->getParam("depth");
+        } catch(Exception $e){
+        }
+        try {
+            $maxAge = $request->getParam("age");
+        } catch(Exception $e){
+        }
         $repModel = new ilRepositoryAdminModel();
       //  $data = $repModel->getSubTree($ref_id);
-        $data = $repModel-> getSubTreeWithinTimespan($ref_id, 2);
+        $data = $repModel-> getSubTreeWithinTimespanDepth($ref_id, $maxAge, $maxDepth);
+
 
         $response->setData("subtree",$data);
         $response->setMessage('Subtree of repository item '.$ref_id.'.');

@@ -112,7 +112,7 @@ $app->group('/dev', function () use ($app) {
     });
 
     // -------------------------------------------------------------------
-    $app->get('/hello', function () use ($app) {
+    $app->get('/hello', 'authenticateTokenOnly', function () use ($app) {
 
         $app = \Slim\Slim::getInstance();
 
