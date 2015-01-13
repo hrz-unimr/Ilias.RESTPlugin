@@ -83,12 +83,17 @@ function checkToken()
 
     if ($token_ser == null) {
         $headers = apache_request_headers();
+        // $app->log->debug(print_r($headers, true));
         $authHeader = $headers['Authorization'];
         if ($authHeader!=null) {
             $a_auth = explode(" ",$authHeader);
             $token_ser = $a_auth[1];    // Bearer Access Token
+            if ($token_ser == null) {
+                $token_ser = $a_auth[0];
+            }
         }
     }
+
     $token = ilTokenLib::deserializeToken($token_ser);
 
     if (!$token) {
