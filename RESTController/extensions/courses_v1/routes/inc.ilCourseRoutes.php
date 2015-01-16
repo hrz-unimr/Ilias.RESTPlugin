@@ -4,10 +4,13 @@
  * and testing.
  */
 
-$app->group('/experimental', function () use ($app) {
-
-    $app->get('/courses/:ref_id', function ($ref_id) use ($app) {
+$app->group('/v1', function () use ($app) {
+    /**
+     * Retrieves the content and a description of a course specified by ref_id.
+     */
+    $app->get('/courses/:ref_id', 'authenticate', function ($ref_id) use ($app) {
         $response = new ilRestResponse($app);
+        $env = $app->environment();
         $authorizedUserId =  ilRestLib::loginToUserId($env['user']);
         try {
             $crs_model = new ilCoursesModel();
@@ -21,47 +24,11 @@ $app->group('/experimental', function () use ($app) {
             $response->setMessage('Error: Could not retrieve data for user '.$id.".");
         }
         $response->toJSON();
-        /*if ($authorizedUserId == $id || ilRestLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
-            try {
-                $crs_model = new ilCoursesModel();
-                $data1 =  $crs_model->getCourseContent($ref_id);
-                $data2 =  $crs_model->getCourseInfo($ref_id);
-                $response->addData('course_description', $data1);
-                $response->addData('course_content', $data2);
-                $response->setMessage("Courses of user " . $id . ".");
-            } catch (Exception $e) {
-                $response->setRestCode("-15");
-                $response->setMessage('Error: Could not retrieve data for user '.$id.".");
-            }
-        } else {
-            $response->setRestCode("-13");
-            $response->setMessage('User has no RBAC permissions to access the data.');
-        }
-        $response->toJSON();
-        */
-
-
-       /* try {
-            $env = $app->environment();
-            $result = array();
-            // $result['usr_id'] = $user_id;
-            $crs_model = new ilCoursesModel();
-            $data1 =  $crs_model->getCourseContent($ref_id);
-            $data2 =  $crs_model->getCourseInfo($ref_id);
-            $result['course_description'] = $data2;
-            $result['course_content'] = $data1;
-
-            $app->response()->header('Content-Type', 'application/json');
-            echo json_encode($result);
-
-        } catch (Exception $e) {
-            $app->response()->status(400);
-            $app->response()->header('X-Status-Reason', $e->getMessage());
-        }*/
     });
 
-    $app->post('/courses',  function() use ($app) {
+    $app->post('/courses', 'authenticate', function() use ($app) {
         $env = $app->environment();
+        $authorizedUserId =  ilRestLib::loginToUserId($env['user']);
 
         $parent_container_ref_id = 1;
         $new_course_title = "";
@@ -85,7 +52,9 @@ $app->group('/experimental', function () use ($app) {
         $result = array();
         // $result['usr_id'] = $user_id;
         $crs_model = new ilCoursesModel();
-        $user_id = 6; // root for testing purposes
+        //$user_id = 6; // root for testing purposes
+        $user_id = $authorizedUserId;
+
         $new_ref_id =  $crs_model->createNewCourseAsUser($user_id, $parent_container_ref_id, $new_course_title, $new_course_description);
         $result['msg'] = "Created a new course with ref id ".$new_ref_id.". Parent ref_id: ".$parent_container_ref_id;
 
@@ -108,7 +77,7 @@ $app->group('/experimental', function () use ($app) {
     });
 
 
-    $app->get('/join', 'authenticate', function () use ($app) {
+    $app->get('/courses/join', 'authenticate', function () use ($app) {
         $env = $app->environment();
         $response = new ilRestResponse($app);
         $request = new ilRestRequest($app);
@@ -131,7 +100,7 @@ $app->group('/experimental', function () use ($app) {
         $response->toJSON();
     });
 
-    $app->get('/leave', 'authenticate', function () use ($app) {
+    $app->get('/courses/leave', 'authenticate', function () use ($app) {
         $env = $app->environment();
         $response = new ilRestResponse($app);
         $request = new ilRestRequest($app);

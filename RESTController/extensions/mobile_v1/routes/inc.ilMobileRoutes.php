@@ -108,7 +108,7 @@ $app->group('/m', function () use ($app) {
         echo json_encode($result);
     });
 
-    $app->get('/search/',  function () use ($app) {
+    /*$app->get('/search/',  function () use ($app) {
         $request = new ilRestRequest($app);
         $response = new ilRestResponse($app);
 
@@ -152,7 +152,7 @@ $app->group('/m', function () use ($app) {
         $response->addData('search_results', $searchResults);
         $response->setMessage('You have been searching for: "'.$query.'"');
         $response->send();
-    });
+    });*/
 
 
 });

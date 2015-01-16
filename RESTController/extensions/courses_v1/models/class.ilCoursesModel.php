@@ -189,31 +189,6 @@ class ilCoursesModel
 
     }
 
-    /**
-     * This methods creates a new course object within the repository.
-     *
-     * @param $parent_ref_id
-     * @param $title
-     * @param $desc
-     * @return mixed
-     */
-  /*  public function createNewCourse($parent_ref_id, $title, $desc)
-    {
-        //$class_name = "ilObj".$objDefinition->getClassName($new_type);
-        //$location = $objDefinition->getLocation($new_type);
-        //include_once($location."/class.".$class_name.".php");
-        $new_type = "crs";
-        $class_name = "ilObjCourse";
-        $newObj = new $class_name();
-        $newObj->setType($new_type);
-        $newObj->setTitle($title);
-        $newObj->setDescription($desc);
-        $newObj->create();
-
-        //$this->putObjectInTree($newObj);
-        return $newObj->getId();
-    }
-*/
 
     public function deleteCourse($ref_id)
     {
@@ -230,7 +205,7 @@ class ilCoursesModel
     }
 
 
-    public function soapTest()
+    /*public function soapTest()
     {
         $adapter = new ilRestSoapAdapter();
         $adapter->loginSOAP();
@@ -239,10 +214,8 @@ class ilCoursesModel
        // $result = $adapter->executeSOAPFunction("lookupUser",array($adapter->SID, "root"));
        // $result = $adapter->executeSOAPFunction("getUser",array($adapter->SID, "6"));
         $result = $adapter->executeSOAPFunction("getCourseXML",array($adapter->SID, 60));
-
-
         $adapter->logoutSOAP();
         return $result;
-    }
+    }*/
 
 }

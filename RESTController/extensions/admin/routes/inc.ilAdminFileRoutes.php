@@ -12,7 +12,7 @@ $app->group('/admin', function () use ($app) {
     $app->get('/files/:id', 'authenticateILIASAdminRole', function ($id) use ($app) {
 
         $env = $app->environment();
-        $user_id = ilRestLib::loginToUserId($env['user']);
+        //$user_id = ilRestLib::loginToUserId($env['user']);
 
         $request = new ilRestRequest($app);
         $response = new ilRestResponse($app);
@@ -26,7 +26,6 @@ $app->group('/admin', function () use ($app) {
             $meta_data = false;
         }
 
-        $result = array();
         if ($meta_data == true) {
 
             $model = new ilFileModel();

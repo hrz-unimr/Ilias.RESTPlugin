@@ -5,7 +5,7 @@
 
 $app->group('/v1', function () use ($app) {
     /**
-     * Gets the calendar events of user specified by $id.
+     * Returns the calendar events of user specified by $id.
      */
     $app->get('/cal/events/:id', 'authenticate', function ($id) use ($app) {
         $env = $app->environment();
@@ -30,7 +30,7 @@ $app->group('/v1', function () use ($app) {
     });
 
     /**
-     * Gets the ICAL Url for a user specified by id
+     * Returns the ICAL Url of the desktop calendar of user specified by $id
      */
     $app->get('/cal/icalurl/:id', 'authenticate' , function ($id) use ($app) {
         $env = $app->environment();
