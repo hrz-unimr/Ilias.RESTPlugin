@@ -119,7 +119,7 @@ function checkToken()
         $env = $app->environment();
         $env['api_key'] = $token['api_key'];
     }
-    $env['token'] = $token_ser;
+    $env['token'] = $token;
 }
 
 /**
