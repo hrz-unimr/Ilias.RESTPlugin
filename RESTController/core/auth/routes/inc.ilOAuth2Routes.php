@@ -31,7 +31,7 @@ $app->post('/v1/oauth2/auth', function () use ($app) {
                 $clientValid = $iliasAuth->checkOAuth2Client($client_id);
 
                 if ($isAuth == true && $clientValid == true){
-                    $temp_authenticity_token = ilTokenLib::serializeToken(ilTokenLib::generateToken($username, $client_id, "", 10));
+                    $temp_authenticity_token = ilTokenLib::serializeToken(ilTokenLib::generateToken($username, $client_id, "", "", 10));
                     $app->render('oauth2grantpermissionform.php', array('api_key' => $client_id, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type, 'authenticity_token' => $temp_authenticity_token));
                 }else {
                     $app->response()->status(404);
@@ -41,7 +41,7 @@ $app->post('/v1/oauth2/auth', function () use ($app) {
                 $user = $authenticity_token['user'];
 
                 if (!ilTokenLib::tokenExpired($authenticity_token)) {
-                    $tempToken = ilTokenLib::generateToken($user, $client_id, $redirect_uri,10);
+                    $tempToken = ilTokenLib::generateToken($user, $client_id, "code", $redirect_uri,10);
                     $authorization_code = ilTokenLib::serializeToken($tempToken);
                     $url = $redirect_uri . "?code=".$authorization_code;
                     $app->redirect($url);
@@ -63,7 +63,7 @@ $app->post('/v1/oauth2/auth', function () use ($app) {
                 $app->log->debug("Implicit Grant Flow - Client valid: ".print_r($clientValid,true));
                 if ($isAuth == true && $clientValid != false) {
                     $app->log->debug("Implicit Grant Flow - proceed to grant permission form" );
-                    $temp_authenticity_token = ilTokenLib::serializeToken(ilTokenLib::generateToken($username, $client_id, "", 10));
+                    $temp_authenticity_token = ilTokenLib::serializeToken(ilTokenLib::generateToken($username, $client_id, "", "", 10));
                     $app->render('oauth2grantpermissionform.php', array('api_key' => $client_id, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type, 'authenticity_token' => $temp_authenticity_token));
                 }else {
                     // Username/Password wrong or client does not exist (which is less likely)
@@ -231,6 +231,9 @@ $app->get('/v1/oauth2/tokeninfo', function () use ($app) {
                 if ($authHeader!=null) {
                     $a_auth = explode(" ",$authHeader);
                     $access_token = $a_auth[1];    // Bearer Access Token
+                    if ($access_token == null) {
+                        $access_token = $a_auth[0]; // Another kind of Token
+                    }
                 }
             }
         }
@@ -239,9 +242,10 @@ $app->get('/v1/oauth2/tokeninfo', function () use ($app) {
         $valid = ilTokenLib::tokenValid($token);
         $result = array();
         if ($valid) {
-            $result['rest_client_id'] = $token['api_key'];
+            $result['api_key'] = $token['api_key'];
             // scope
             $result['user'] =  $token['user'];
+            $result['type'] =  $token['type'];
             $result['expires_in'] = ilTokenLib::getRemainingTime($token);
 
         } else {
@@ -309,7 +313,7 @@ $app->post('/v1/ilauth/rtoken2bearer', function () use ($app) {
 /*
  * Given a valid token, this rest call performs a redirect to the ILIAS main (html).
  */
-$app->get('/v1/ilauth/switch2main', 'authenticateTokenOnly', function () use ($app) {
+/*$app->get('/v1/ilauth/switch2main', 'authenticateTokenOnly', function () use ($app) {
     $app = \Slim\Slim::getInstance();
     $env = $app->environment();
 
@@ -320,17 +324,11 @@ $app->get('/v1/ilauth/switch2main', 'authenticateTokenOnly', function () use ($a
     $app->response()->redirect('http://localhost/ilias5beta/');
     $value = 'something from somewhere';
     setcookie("TestCookie", $value);
- /*   $app->hook('slim.after.router', function () {
+    $app->hook('slim.after.router', function () {
         $value = 'something from somewhere';
         setcookie("TestCookie", $value);
     });
-*/
-    /*$result = array("msg" => "hello");
-    $app->response()->header('Content-Type', 'application/json');
-    $app->response()->header('Cache-Control', 'no-store');
-    $app->response()->header('Pragma', 'no-cache');
-    echo json_encode($result);*/
 });
-
+*/
 
 ?>
