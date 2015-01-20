@@ -7,7 +7,7 @@ class IShell:
    """	
 		ILIAS-Shell
 		Enables personalized and administrative operations on the ILIAS LMS.
-		v.1.0
+		v.1.1
    """
 
    def __init__(self):
@@ -37,7 +37,12 @@ class IShell:
 		print 'Welcome to the ILIAS-Shell'
 		print 'Connected successfully to ' + self.rest_endpoint + self.oauth2_endpoint
 		print 'Retrieved OAuth2 Token: ' + self.token
-
+   
+   def printIntro(self):
+		print '--'
+		print 'Hint: to get started just type $il. + <tab> to see some functions.'
+		print 'Example: $il.getRoutes(); followed by $il.show()'
+   
    def getRoutes(self):
 		response = urllib2.urlopen(self.rest_endpoint+'/routes').read()
 		data = json.loads(response)
@@ -55,7 +60,7 @@ class IShell:
    def get(self, routeStr):
 		#response = urllib2.urlopen(self.rest_endpoint+'/'+routeStr).read()
 		request = urllib2.Request(self.rest_endpoint+'/'+routeStr)
-		request.add_header('Authorization', ''+ self.token)
+		request.add_header('Authorization', ' Bearer '+ self.token)
 		response = urllib2.urlopen(request).read()
 		#response
 		data = json.loads(response)
