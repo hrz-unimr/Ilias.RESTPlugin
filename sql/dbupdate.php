@@ -137,5 +137,48 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
     //$md5_pass = md5($rest_pass);
     //$ilDB->query("INSERT INTO usr_data VALUES (5,'$rest_user','$md5_pass','$rest_user','user',NULL,'m','ilias@yourserver.com',NULL,NULL,NULL,NULL,NULL,NULL,'2005-07-20 15:11:40','2003-09-30 19:50:01',NULL,'',NULL,NULL,NULL,NULL,NULL,7,1,0,0,0,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,'default',0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1217068076,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0)");
     //$ilDB->query("INSERT INTO rbac_ua VALUES (5,2)");
-   
+?>
+<#7>
+<?php
+    // setup of table rest_oauth2_refresh
+    global $ilLog;
+    $ilLog->write(__METHOD__.': l');
+    $ilLog->write('Plugin REST -> DB_Update: rest_oauth2_refresh');
+
+    $fields = array(
+        'id' => array(
+            'type' => 'integer',
+            'length' => 4,
+            'notnull' => true
+        ),
+        'client_id' => array(
+            'type' => 'text',
+            'length' => 50,
+            'fixed' => false,
+            'notnull' => false
+        ),
+        'username' => array(
+            'type' => 'text',
+            'length' => 50,
+            'fixed' => false,
+            'notnull' => false
+        ),
+        'refresh_token' => array(
+            'type' => 'text',
+            'length' => 1024,
+            'fixed' => false,
+            'notnull' => false
+        ),
+        'num_refresh_left' => array(
+            'type' => 'integer',
+            'length' => 4,
+            'notnull' => true
+        ),
+        'last_refresh_timestamp' => array('type' => 'timestamp'), // -> will be datetime in mysql!
+        'init_timestamp' => array('type' => 'timestamp'),        // -> will be datetime in mysql!
+        'num_resets' => array('type' => 'integer', 'length' => 4, 'notnull' => true)
+    );
+    $dropExistingTable = true;
+    $ilDB->createTable("rest_oauth2_refresh", $fields, $dropExistingTable);
+    $ilDB->addPrimaryKey("rest_oauth2_refresh", array("id"));
 ?>
