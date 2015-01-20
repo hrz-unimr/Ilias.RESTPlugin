@@ -1,6 +1,6 @@
 <?php
 
-define("TOKEN_SALT", UUID); // -> Used to lift entropy
+define("TOKEN_SALT", UUID);     // Used to lift entropy
 define("DEFAULT_LIFETIME", 30); // 30 minutes
 
 class ilTokenLib
@@ -16,12 +16,12 @@ class ilTokenLib
      * a generic token and additional fields, such as token type and scope.
      *
      * @param $user
-     * @param $client_id - OAuth2 client (not ILIAS ilias-client)
+     * @param $api_key - OAuth2 client (not ILIAS ilias-client)
      * @return array
      */
     public static function generateBearerToken($user, $api_key)
     {
-        $token = self::generateToken($user, $api_key, "", DEFAULT_LIFETIME);
+        $token = self::generateToken($user, $api_key, "bearer", "", DEFAULT_LIFETIME);
         $ttl = self::getRemainingTime($token);
         $serializedToken = self::serializeToken($token);
         $result = array();
@@ -37,16 +37,18 @@ class ilTokenLib
      * it is not necessary to validate this kind of token without use of a database.
      *
      * @param $user
-     * @param $client_id
+     * @param $api_key
+     * @param $type
      * @param $misc
      * @param $lifetime
      * @return array
      */
-    public static function generateToken($user, $api_key, $misc, $lifetime)
+    public static function generateToken($user, $api_key, $type, $misc, $lifetime)
     {
         $token = array();
         $token['user'] = $user;
         $token['api_key'] = $api_key;
+        $token['type'] = $type;
         $token['misc'] = $misc;
         $token['ttl'] =  strval(time() + ($lifetime * 60));
         $token['s'] = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',5)),0,25);
@@ -113,8 +115,9 @@ class ilTokenLib
         if (self::tokenValid($token)){
             $user = $token['user'];
             $api_key = $token['api_key'];
+            $type = $token['type'];
             $misc = $token['misc'];
-            return self::generateToken($user, $api_key, $misc, DEFAULT_LIFETIME);
+            return self::generateToken($user, $api_key, $type, $misc, DEFAULT_LIFETIME);
         }
         return $token;
     }
@@ -126,7 +129,7 @@ class ilTokenLib
      */
     private static function getTokenString($token)
     {
-        $tokenContent = $token['user'].'/'.$token['api_key'].'/'.$token['misc'].'/'.$token['ttl'].'/'.$token['s'];
+        $tokenContent = $token['user'].'/'.$token['api_key'].'/'.$token['type'].'/'.$token['misc'].'/'.$token['ttl'].'/'.$token['s'];
         return $tokenContent;
     }
 
@@ -148,7 +151,7 @@ class ilTokenLib
      */
     public static function serializeToken($token)
     {
-        $tokenStr = $token['user'].",".$token['api_key'].",".$token['misc'].",".$token['ttl'].",".$token['s'].",".$token['h'];
+        $tokenStr = $token['user'].",".$token['api_key'].",".$token['type'].",".$token['misc'].",".$token['ttl'].",".$token['s'].",".$token['h'];
         return urlencode(base64_encode($tokenStr));
         //return $tokenStr;
     }
@@ -165,12 +168,13 @@ class ilTokenLib
         //$tokenStr = $serializedToken;
         $a_token_parts = explode(",",$tokenStr);
         $token = array();
-        $token['user']  =  $a_token_parts[0];
-        $token['api_key']  =  $a_token_parts[1];
-        $token['misc']   =  $a_token_parts[2];
-        $token['ttl']   =  $a_token_parts[3];
-        $token['s']     =  $a_token_parts[4];
-        $token['h']     =  $a_token_parts[5];
+        $token['user']      =  $a_token_parts[0];
+        $token['api_key']   =  $a_token_parts[1];
+        $token['type']      =  $a_token_parts[2];
+        $token['misc']      =  $a_token_parts[3];
+        $token['ttl']       =  $a_token_parts[4];
+        $token['s']         =  $a_token_parts[5];
+        $token['h']         =  $a_token_parts[6];
         return $token;
     }
 }
