@@ -65,12 +65,6 @@ $app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ /
         $result['authuser'] = $authorizedUser;
     } else {
         $admin_model = new ilClientsModel();
-        //$ilReq = new ilRestRequest($app);
-        //$rawReq = $ilReq->getRaw();
-        //$app->log->debug("slim new ilrequest obj: ".print_r($rawReq, true));
-        //$rd = $ilReq->getParam('data');
-        //$app->log->debug("slim new ilrequest getParam(data): ".$rd['client_secret']);
-
 
         $a_Requests = $app->request->put();
         if (count($a_Requests) == 0) {
@@ -146,11 +140,6 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
                 $input_complete = true;
             }
 
-            /*if (is_null($new_client_secret)) {
-                $input_complete = false;
-            } else {
-                $input_complete = true;
-            }*/
 
             if (is_null($new_client_secret)) {
                 $new_client_secret = "";
