@@ -57,6 +57,17 @@ class IShell:
 		f.write(json.dumps(jsondata, indent=2))
 		f.close
 	
+   def post(self, routeStr, data):
+		#response = urllib2.urlopen(self.rest_endpoint+'/'+routeStr).read()
+		request = urllib2.Request(self.rest_endpoint+'/'+routeStr)
+		request.add_header('Authorization', ' Bearer '+ self.token)
+                enc_data = urllib.urlencode(data)
+		response = urllib2.urlopen(url=request, data=enc_data).read()
+		#response
+		data = json.loads(response)
+		self.latestResponse = data
+		return data
+
    def get(self, routeStr):
 		#response = urllib2.urlopen(self.rest_endpoint+'/'+routeStr).read()
 		request = urllib2.Request(self.rest_endpoint+'/'+routeStr)
