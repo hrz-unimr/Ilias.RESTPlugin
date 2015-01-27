@@ -32,6 +32,18 @@ $app->group('/admin', function () use ($app) {
         $response->send();
     });
 
+    /**
+     * Get subtree of categories.
+     */
+    $app->get('/repository/categories/:ref_id', 'authenticateILIASAdminRole', function ($ref_id) use ($app) {
+        $response = new ilRestResponse($app);
+        $repModel = new ilRepositoryAdminModel();
+        $data = $repModel->getRekNode($ref_id, 0, array('cat'), 0, 1000);
+
+        $response->setData("subtree",$data);
+        $response->setMessage('Subtree of repository item '.$ref_id.'.');
+        $response->send();
+    });
 
     $app->get('/repository/analytics/:ref_id', 'authenticateILIASAdminRole', function ($ref_id) use ($app) {
         $request = new ilRestRequest($app);
