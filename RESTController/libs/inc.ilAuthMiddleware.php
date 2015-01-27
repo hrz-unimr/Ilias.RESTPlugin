@@ -141,8 +141,8 @@ function checkRoutePermissions($route)
         $output=array();
         $output['msg'] = "Client has no permission to access route";
         echo json_encode($output);
-        //$app->halt(401);
-        exit;
+        $app->halt(401);
+        //exit;
     }
 }
 
