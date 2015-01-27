@@ -169,11 +169,12 @@ class ilAuthLib {
      * @param $client_id
      * @return bool
      */
-    static public function checkOAuth2Scope($route, $operation, $client_id)
+    static public function checkOAuth2Scope($route, $operation, $api_key)
     {
         global $ilDB;
+        if ($api_key == "") return false;
         $operation = strtoupper($operation);
-        $query = "SELECT * FROM rest_apikeys WHERE client_id=\"".$client_id."\"";
+        $query = "SELECT * FROM rest_apikeys WHERE client_id=\"".$api_key."\"";
         $set = $ilDB->query($query);
         $ret = $ilDB->fetchAssoc($set);
         if ($ret) {
