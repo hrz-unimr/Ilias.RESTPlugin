@@ -162,17 +162,18 @@ class ilCoursesModel
     }
 
 
-    public function createNewCourseAsUser($user_id, $parent_ref_id, $title, $desc)
+    /**
+     * Create a course in the ILIAS repository. Does *not* check for permissions,
+     * this has to be done at route level ($ilAccess->checkAccess()). The course
+     * has only atitle and a description. Permissions are cloned from the parent.
+     *
+     * @param $parent_ref_id Ref ID of containing category
+     * @param $title Title of new course
+     * @param $desc Description of new course
+     * @return Ref ID of newly created course, or 0 on error.
+     */
+    public function createNewCourse($parent_ref_id, $title, $desc)
     {
-        ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        ilRestLib::initDefaultRestGlobals();
-        ilRestLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
-        global    $ilUser;
-        $ilUser->setId($user_id);
-        $ilUser->read();
-        ilRestLib::initAccessHandling();
-        //$this->createNewCourse($parent_ref_id, $title, $desc);
-
 
         include_once("Modules/Course/classes/class.ilObjCourse.php");
 
@@ -185,8 +186,7 @@ class ilCoursesModel
         $newObj->putInTree($parent_ref_id);
         $newObj->setPermissions($parent_ref_id);
 
-        return $newObj->getRefId() ? $newObj->getRefId() : "0";
-
+        return $newObj->getRefId() ? $newObj->getRefId() : 0;
     }
 
 

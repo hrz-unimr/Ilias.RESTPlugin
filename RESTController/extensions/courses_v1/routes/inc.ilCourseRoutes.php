@@ -28,6 +28,7 @@ $app->group('/v1', function () use ($app) {
 
     $app->post('/courses', 'authenticate', function() use ($app) {
         $env = $app->environment();
+        $response = new ilRestResponse($app);
         $authorizedUserId =  ilRestLib::loginToUserId($env['user']);
 
         $parent_container_ref_id = 1;
@@ -49,17 +50,31 @@ $app->group('/v1', function () use ($app) {
             $new_course_title = $request->post('title');
             $new_course_description = $request->post('description');
         }
-        $result = array();
         // $result['usr_id'] = $user_id;
         $crs_model = new ilCoursesModel();
         //$user_id = 6; // root for testing purposes
         $user_id = $authorizedUserId;
 
-        $new_ref_id =  $crs_model->createNewCourseAsUser($user_id, $parent_container_ref_id, $new_course_title, $new_course_description);
-        $result['msg'] = "Created a new course with ref id ".$new_ref_id.". Parent ref_id: ".$parent_container_ref_id;
+        ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
+        ilRestLib::initDefaultRestGlobals();
+        ilRestLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        global $ilUser;
+        $ilUser->setId($user_id);
+        $ilUser->read();
+        ilRestLib::initAccessHandling();
+        global $ilAccess;
+        
+        if(!$ilAccess->checkAccess("create_crs", "", $parent_container_ref_id)) {
+            $response->setMessage("Insufficient access rights");
+            $response->setHttpStatus(401);
+            $response->send();
+            return;
+        }
 
-        $app->response()->header('Content-Type', 'application/json');
-        echo json_encode($result);
+        $new_ref_id =  $crs_model->createNewCourse($parent_container_ref_id, $new_course_title, $new_course_description);
+        $response->setMessage("Created a new course with ref id ".$new_ref_id.". Parent ref_id: ".$parent_container_ref_id);
+        $response->setData("newRefId", $new_ref_id);
+        $response->send();
     });
 
     $app->delete('/courses/:id',  function ($id) use ($app) {
