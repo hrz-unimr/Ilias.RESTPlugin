@@ -39,6 +39,7 @@ Current release: v.0.5.6-alpha
 * unzip v.0.5.6.zip
 * mv RESTPlugin-v.0.5.6-alpha Rest
 * Copy Rest/gateways/restplugin.php to /
-* Plugin directories must be readable by www-user
+* Plugin directories must be readable by apache process (www-data)
+* Create www-data writable logfile /var/log/restplugin.log
 * Activate Plugin in Administration > Plugins
 
