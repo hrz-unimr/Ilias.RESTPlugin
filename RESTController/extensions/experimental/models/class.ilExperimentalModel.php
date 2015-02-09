@@ -6,7 +6,6 @@ require_once "./Services/User/classes/class.ilObjUser.php";
 */
 class ilExperimentalModel
 {
-
     public static function initSettings()
     {
         global $ilSetting;
@@ -101,5 +100,8 @@ class ilExperimentalModel
 
         return define('ILIAS_HTTP_PATH',ilUtil::removeTrailingPathSeparators($protocol.$host.$uri));
     }
+
+
+
 
 }

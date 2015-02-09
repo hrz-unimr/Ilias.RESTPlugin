@@ -3,7 +3,7 @@
  * ILIAS REST Plugin for the ILIAS LMS
  *
  * Authors: D.Schaefer and S.Schneider <(schaefer|schneider)@hrz.uni-marburg.de>
- * 2014
+ * 2014-2015
  */
 require 'Slim/Slim.php';
 
@@ -33,6 +33,8 @@ $app->hook('slim.after.router', function () {
     header_remove('Set-Cookie');
 });
 
+$env = $app->environment();
+$env['client_id'] = CLIENT_ID;
 
 class ResourceNotFoundException extends Exception {}
 
@@ -42,26 +44,32 @@ class ResourceNotFoundException extends Exception {}
 require_once('libs/class.ilRestLib.php');
 require_once('libs/class.ilAuthLib.php');
 require_once('libs/class.ilTokenLib.php');
-//require_once('libs/class.ilRestRequest.php');
 require_once('libs/class.ilRestResponse.php');
 require_once('libs/inc.ilAuthMiddleware.php');
 require_once('libs/class.ilRestSoapAdapter.php');
 require_once('core/clients/models/class.ilClientsModel.php');
 require_once('libs/class.ilRestRequest.php');
 
-/**
- * OAuth2 authorization and authentication mechanism
- */
-include_once('core/auth/routes/inc.ilOAuth2Routes.php');
-/**
- * ILIAS REST clients administration component.
- */
-include_once('core/clients/routes/inc.ilClientsRoutes.php');
-
 // --------------------------[!! Please do not remove !!]---------------------------
 ////////////////////////////////////////////////////////////////////////////////////
 
 $app->log->debug("REST call from ".$_SERVER['REMOTE_ADDR']." at ".date("d/m/Y,H:i:s", time()));
+
+
+/**
+ * Load Core
+ */
+foreach (glob(realpath(dirname(__FILE__))."/core/*/models/*.php") as $filename)
+{
+    include_once $filename;
+    //$app->log->debug("Loading extension [model] $filename");
+}
+
+foreach (glob(realpath(dirname(__FILE__))."/core/*/routes/*.php") as $filename)
+{
+    include_once $filename;
+    //$app->log->debug("Loading extension [route] $filename");
+}
 
 // Please add your models and routes to the folders:
 // extensions/models and extensions/routes respectively

@@ -6,13 +6,15 @@
 
 /*
  * Authorization Endpoint
+   RCF6749: "The authorization endpoint is used by the authorization code grant
+   type and implicit grant type flows."
  */
 $app->post('/v1/oauth2/auth', function () use ($app) {
     try {
         $request = $app->request();
         $response_type = $request->params('response_type');
-        //$client_id = $request->params('api_key');
-        $client_id = $_POST['api_key'];
+        //$api_key = $request->params('api_key');
+        $api_key = $_POST['api_key'];
         $redirect_uri = $request->params('redirect_uri');
         $username = $request->params('username');
         $password = $request->params('password');
@@ -20,19 +22,18 @@ $app->post('/v1/oauth2/auth', function () use ($app) {
 
         if ($response_type == "code"){
 
-            if ($redirect_uri && $client_id && is_null($authenticity_token) && is_null($username) && is_null($password)) {
-                $app->render('oauth2loginform.php', array('api_key' => $client_id, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
+            if ($redirect_uri && $api_key && is_null($authenticity_token) && is_null($username) && is_null($password)) {
+                $app->render('oauth2loginform.php', array('api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
             } elseif ($username && $password) {
 
-                $iliasAuth = & ilAuthLib::getInstance();
-                //$isAuth = $iliasAuth->authMDB2($username,$password);
-                $isAuth = $iliasAuth->authenticateViaIlias($username, $password);
+                $ilAuth = & ilAuthLib::getInstance();
+                $isAuth = $ilAuth->authenticateViaIlias($username, $password);
 
-                $clientValid = $iliasAuth->checkOAuth2Client($client_id);
+                $clientValid = $ilAuth->checkOAuth2Client($api_key);
 
                 if ($isAuth == true && $clientValid == true){
-                    $temp_authenticity_token = ilTokenLib::serializeToken(ilTokenLib::generateToken($username, $client_id, "", "", 10));
-                    $app->render('oauth2grantpermissionform.php', array('api_key' => $client_id, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type, 'authenticity_token' => $temp_authenticity_token));
+                    $temp_authenticity_token = ilTokenLib::serializeToken(ilTokenLib::generateToken($username, $api_key, "", "", 10));
+                    $app->render('oauth2grantpermissionform.php', array('api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type, 'authenticity_token' => $temp_authenticity_token));
                 }else {
                     $app->response()->status(404);
                 }
@@ -41,20 +42,20 @@ $app->post('/v1/oauth2/auth', function () use ($app) {
                 $user = $authenticity_token['user'];
 
                 if (!ilTokenLib::tokenExpired($authenticity_token)) {
-                    $tempToken = ilTokenLib::generateToken($user, $client_id, "code", $redirect_uri,10);
+                    $tempToken = ilTokenLib::generateToken($user, $api_key, "code", $redirect_uri,10);
                     $authorization_code = ilTokenLib::serializeToken($tempToken);
                     $url = $redirect_uri . "?code=".$authorization_code;
                     $app->redirect($url);
                 }
             }
         } elseif ($response_type == "token") { // implicit grant
-            if ($redirect_uri && $client_id && is_null($authenticity_token) && is_null($username) && is_null($password)) {
-                $app->render('oauth2loginform.php', array('api_key' => $client_id, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
+            if ($redirect_uri && $api_key && is_null($authenticity_token) && is_null($username) && is_null($password)) {
+                $app->render('oauth2loginform.php', array('api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
             } elseif ($username && $password) {
                 $iliasAuth = & ilAuthLib::getInstance();
                 //$isAuth = $iliasAuth->authMDB2($username,$password);
                 $isAuth = $iliasAuth->authenticateViaIlias($username, $password);
-                $clientValid = $iliasAuth->checkOAuth2Client($client_id);
+                $clientValid = $iliasAuth->checkOAuth2Client($api_key);
                 if ($isAuth == true) {
                     $app->log->debug("Implicit Grant Flow - Auth valid");
                 } else {
@@ -63,11 +64,11 @@ $app->post('/v1/oauth2/auth', function () use ($app) {
                 $app->log->debug("Implicit Grant Flow - Client valid: ".print_r($clientValid,true));
                 if ($isAuth == true && $clientValid != false) {
                     $app->log->debug("Implicit Grant Flow - proceed to grant permission form" );
-                    $temp_authenticity_token = ilTokenLib::serializeToken(ilTokenLib::generateToken($username, $client_id, "", "", 10));
-                    $app->render('oauth2grantpermissionform.php', array('api_key' => $client_id, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type, 'authenticity_token' => $temp_authenticity_token));
+                    $temp_authenticity_token = ilTokenLib::serializeToken(ilTokenLib::generateToken($username, $api_key, "", "", 10));
+                    $app->render('oauth2grantpermissionform.php', array('api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type, 'authenticity_token' => $temp_authenticity_token));
                 }else {
                     // Username/Password wrong or client does not exist (which is less likely)
-                    $app->render('oauth2loginform.php', array('error_msg' => "Username or password incorrect!",'api_key' => $client_id, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
+                    $app->render('oauth2loginform.php', array('error_msg' => "Username or password incorrect!",'api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
                     $app->response()->status(404);
                 }
             } elseif ($authenticity_token && $redirect_uri) {
@@ -75,7 +76,7 @@ $app->post('/v1/oauth2/auth', function () use ($app) {
                 $user = $authenticity_token['user'];
 
                 if (!ilTokenLib::tokenExpired($authenticity_token)) { // send bearer token
-                    $bearerToken = ilTokenLib::generateBearerToken($user, $client_id);
+                    $bearerToken = ilTokenLib::generateBearerToken($user, $api_key);
                     $url = $redirect_uri . "#access_token=".$bearerToken['access_token']."&token_type=bearer"."&expires_in=".$bearerToken['expires_in']."&state=xyz";
                     $app->redirect($url);
                 }
@@ -120,6 +121,7 @@ $app->get('/v1/oauth2/auth', function () use ($app) {
 $app->post('/v1/oauth2/token', function () use ($app) {
     try {
         $request = $app->request();
+        $response = new ilRestResponse($app);
 
         if (count($request->post()) == 0) {
             $req_data = json_decode($app->request()->getBody(),true); // json
@@ -128,14 +130,14 @@ $app->post('/v1/oauth2/token', function () use ($app) {
             //$grant_type = $request->params('grant_type');
         }
 
-        if ($req_data['grant_type'] == "password") {    // User credentials
+        if ($req_data['grant_type'] == "password") { // = user credentials grant
 
             $user = $req_data['username'];
             $pass = $req_data['password'];
 
-            $iliasAuth = & ilAuthLib::getInstance();
-            //$isAuth = $iliasAuth->authMDB2($user,$pass);
-            $isAuth = $iliasAuth->authenticateViaIlias($user, $pass);
+            $ilAuth = & ilAuthLib::getInstance();
+            //$isAuth = $ilAuth->authMDB2($user,$pass);
+            $isAuth = $ilAuth->authenticateViaIlias($user, $pass);
 
 
             if ($isAuth == false) {
@@ -144,30 +146,36 @@ $app->post('/v1/oauth2/token', function () use ($app) {
             }
             else {
                 if (isset($_POST['api_key'])) {
-                    $apikey = $_POST['api_key'];
+                    $api_key = $_POST['api_key'];
                 } else {
-                    $apikey = "";
+                    $api_key = "";
                 }
 
-                $result = ilTokenLib::generateBearerToken($user, $apikey);
-                $app->response()->header('Content-Type', 'application/json');
-                $app->response()->header('Cache-Control', 'no-store');
-                $app->response()->header('Pragma', 'no-cache');
-                echo json_encode($result); // output-format: {"access_token":"03807cb390319329bdf6c777d4dfae9c0d3b3c35","expires_in":3600,"token_type":"bearer","scope":null}
+                $bearer_token = ilTokenLib::generateBearerToken($user, $api_key);
+                $response->addData("access_token",$bearer_token['access_token']);
+                $response->addData("expires_in",$bearer_token['expires_in']);
+                $response->addData("token_type",$bearer_token['token_type']);
+                $response->addData("scope",$bearer_token['scope']);
+                //$response->addData("refresh_token",$bearer_token['scope']);
+                $response->send();
+                //$app->response()->header('Content-Type', 'application/json');
+                //$app->response()->header('Cache-Control', 'no-store');
+                //$app->response()->header('Pragma', 'no-cache');
+                //echo json_encode($result); // output-format: {"access_token":"03807cb390319329bdf6c777d4dfae9c0d3b3c35","expires_in":3600,"token_type":"bearer","scope":null}
             }
         } elseif ($req_data['grant_type'] == "client_credentials") {
-            $client_id = $_POST['api_key'];
+            $api_key = $_POST['api_key'];
             $client_secret = $req_data['client_secret'];
 
-            $iliasAuth = & ilAuthLib::getInstance();
-            $authResult = $iliasAuth->checkOAuth2ClientCredentials($client_id, $client_secret);
+            $ilAuth = & ilAuthLib::getInstance();
+            $authResult = $ilAuth->checkOAuth2ClientCredentials($api_key, $client_secret);
 
             if (!$authResult) {
                 $app->response()->status(401);
 
             }
             else {
-                $result = ilTokenLib::generateBearerToken("",$client_id);
+                $result = ilTokenLib::generateBearerToken("",$api_key);
                 $app->response()->header('Content-Type', 'application/json');
                 $app->response()->header('Cache-Control', 'no-store');
                 $app->response()->header('Pragma', 'no-cache');
@@ -177,12 +185,12 @@ $app->post('/v1/oauth2/token', function () use ($app) {
 
             $code = $req_data["code"];
             $redirect_uri = $req_data["redirect_uri"];
-            //$client_id = $req_data["api_key"];
-            $client_id = $_POST['api_key'];
+
+            $api_key = $_POST['api_key'];
             $client_secret = $req_data['client_secret']; // also check by other means
 
-            $iliasAuth = & ilAuthLib::getInstance();
-            $isClientAuthorized = $iliasAuth->checkOAuth2ClientCredentials($client_id, $client_secret);
+            $ilAuth = & ilAuthLib::getInstance();
+            $isClientAuthorized = $ilAuth->checkOAuth2ClientCredentials($api_key, $client_secret);
 
             if (!$isClientAuthorized) {
                 $app->response()->status(401);
@@ -193,9 +201,9 @@ $app->post('/v1/oauth2/token', function () use ($app) {
                 if (!ilTokenLib::tokenExpired($code_token)){
                     $t_redirect_uri = $code_token['misc'];
                     $t_user = $code_token['user'];
-                    $t_client_id = $code_token['client_id'];
+                    $t_client_id = $code_token['client_id']; // TODO
 
-                    if ($t_redirect_uri == $redirect_uri && $t_client_id == $client_id) {
+                    if ($t_redirect_uri == $redirect_uri && $t_client_id == $api_key) {
                         $result = ilTokenLib::generateBearerToken($t_user, $t_client_id);
                         $app->response()->header('Content-Type', 'application/json');
                         $app->response()->header('Cache-Control', 'no-store');
@@ -206,8 +214,6 @@ $app->post('/v1/oauth2/token', function () use ($app) {
 
             }
         }
-
-
     } catch (Exception $e) {
         $app->response()->status(400);
         $app->response()->header('X-Status-Reason', $e->getMessage());
@@ -266,7 +272,7 @@ $app->post('/v1/ilauth/rtoken2bearer', function () use ($app) {
     $user_id = "";
     $rtoken = "";
     $session_id = "";
-    $client_id = "";
+    $api_key = "";
 
     $request = $app->request();
     if (count($request->post()) == 0) {
@@ -277,16 +283,16 @@ $app->post('/v1/ilauth/rtoken2bearer', function () use ($app) {
         $user_id = $a_data['user_id'];
         $rtoken = $a_data['rtoken'];
         $session_id = $a_data['session_id'];
-        $client_id = $a_data['client_id'];
+        $api_key = $a_data['api_key'];
     } else {
         $user_id = $request->params('user_id');
         $rtoken = $request->params('rtoken');
         $session_id = $request->params('session_id');
-        $client_id = $request->params('api_key');
+        $api_key = $request->params('api_key');
     }
 
-    $iliasAuth = & ilAuthLib::getInstance();
-    $isAuth = $iliasAuth->authFromIlias($user_id, $rtoken, $session_id);
+    $ilAuth = & ilAuthLib::getInstance();
+    $isAuth = $ilAuth->authFromIlias($user_id, $rtoken, $session_id);
 
     if ($isAuth == false) {
         //$app->response()->status(400);
@@ -299,7 +305,7 @@ $app->post('/v1/ilauth/rtoken2bearer', function () use ($app) {
     }
     else {
         $user = ilRestLib::userIdtoLogin($user_id);
-        $access_token = ilTokenLib::generateBearerToken($user, $client_id);
+        $access_token = ilTokenLib::generateBearerToken($user, $api_key);
         $result['status'] = "success";
         $result['user'] = $user;
         $result['token'] = $access_token;

@@ -6,109 +6,65 @@
 
 $app->group('/dev', function () use ($app) {
 
-
     /**
-     * Aim: Utilize the default ILIAS authentication mechanism instead of
-     * only database authentication.
-     *
-     * TODO: This code must be included in the OAuth2 Core
-     */
-    $app->post('/login', function () use ($app) {
+     * Refresh-Token Part 1: extended token-endpoint: hier kann durch ein gültiges refresh-token ein bearer-token erzeugt werden. der code hier geht in jedem fall in den oauth2 token endpunkt ein.
+     * TODO
+    */
+    $app->get('/reftoken', function () use ($app) {
+        $env = $app->environment();
+        $request = new ilRestRequest($app);
+        $response = new ilRestResponse($app);
 
-        $request = $app->request();
-
-        $result = array();
-
-        $user = $request->params('username');
-        $pass = $request->params('password');
-
+        $refresh_token = $request->getParam("refresh_token");
 
         ilRestLib::initDefaultRestGlobals();
         ilRestLib::initAccessHandling();
 
         global $ilLog;
         $ilLog->write('Hello from REST Plugin - Experimental');
+        $app->response()->header('Content-Type', 'application/json');
 
-        $model = new ilExperimentalModel();
-        $model::initSettings();
-        // see initUser
-        $_POST['username'] = $user;
-        $_POST['password'] = $pass;
+        $model = new ilOAuth2Model();
+        $bearer_token = $model->getBearerTokenForRefreshToken($refresh_token);
 
-        // add code 1
-        if (!is_object($GLOBALS["ilPluginAdmin"]))
-       {
-           ilRestLib::initGlobal("ilPluginAdmin", "ilPluginAdmin",
-               "./Services/Component/classes/class.ilPluginAdmin.php");
-       }
-       // add code 2
-       include_once "Services/Authentication/classes/class.ilSession.php";
-       include_once "Services/Authentication/classes/class.ilSessionControl.php";
 
-       require_once "Auth/Auth.php";
-       require_once "./Services/AuthShibboleth/classes/class.ilShibboleth.php";
-       include_once("./Services/Authentication/classes/class.ilAuthUtils.php");
-        ilAuthUtils::_initAuth();
-        global $ilAuth;
+        $response->setMessage("Refresh 2 Bearer.");
+       // $response->addData("refresh_token",$refresh_token);
+        $response->addData("bearerToken",$bearer_token['access_token']);
+        $response->send();
 
-        $ilAuth->start();
-        $checked_in = $ilAuth->getAuth();
-
-        if ($checked_in == true)
-        {
-            $result['msg'] = "User logged in successfully.";
-        } else
-        {
-            $result['msg'] = "User could not be logged in.";
-        }
-        //echo "sessid: ".session_name().' // '.session_id();
-        $ilAuth->logout();
-
-        session_destroy();
-        header_remove('Set-Cookie');
-
-        //$result['getdata'] = $user.':'.$pass;
-        $result['auth'] = session_id(); // should be empty!
-        echo json_encode($result);
     });
 
-
-
     /**
-     * Aim: Utilize the default ILIAS authentication mechanism instead of
-     * only database authentication.
-     *
-     * TODO: This code must be included in the OAuth2 Core
+     * Refresh-Token Part 2.1: new refresh end-point ; erzeugt ein NEUES refresh-token für ein valides bearer token. der
+     * zugang muss daher geschützt sein. teile des codes gehen entweder gemaess spec im oauth2 mechanismus ein oder die beantragung
+     * von REFRESH tokens bleibt eine eigene route und der zugriff wird über api-key geregelt.
+     * Status: DONE
      */
-    $app->post('/login2', function () use ($app) {
-
-        $request = $app->request();
-
-        $result = array();
-
-        $user = $request->params('username');
-        $pass = $request->params('password');
-
-        $iliasAuth = & ilAuthLib::getInstance();
-        $checked_in = $iliasAuth->authenticateViaIlias($user,$pass);
-
+    $app->get('/refresh', 'authenticate', function () use ($app) {
+        $env = $app->environment();
+        $request = new ilRestRequest($app);
+        $response = new ilRestResponse($app);
+        $uid = ilRestLib::loginToUserId($env['user']);
 
         global $ilLog;
-        $ilLog->write('Hello from REST Plugin - Experimental');
+        $ilLog->write('Requesting new refresh token for user '.$uid);
+        //ilRestLib::initDefaultRestGlobals();
+        //ilRestLib::initAccessHandling();
+
+        // Create new refresh token
+        $bearerToken = $env['token'];
+        $model = new ilOAuth2Model();
+        $refreshToken = $model->getRefreshToken($bearerToken);
 
 
-        if ($checked_in == true)
-        {
-            $result['msg'] = "User logged in successfully.";
-        } else
-        {
-            $result['msg'] = "User could not be logged in.";
-        }
-
-
-        //$result['getdata'] = $user.':'.$pass;
-        $result['auth'] = session_id(); // should be empty!
-        echo json_encode($result);
+        $response->setMessage("Requesting new refresh token for user ".$uid.".");
+        $response->setData("refresh-token", $refreshToken);
+        $response->addData("maxint", PHP_INT_MAX);
+        $response->addData("beareruser", $bearerToken['user']);
+        $response->addData("api-key", $bearerToken['api_key']);
+        $response->addData("ilias client: ", $env['client_id']);
+        $response->send();
     });
 
     // -------------------------------------------------------------------
@@ -222,10 +178,6 @@ $app->group('/dev', function () use ($app) {
         $response->addData('status',"full");
 
         $response->toJSON();
-        //$app->response()->header('Content-Type', 'application/json');
-        //echo $response->getJSON();
-
-
     });
 
 });

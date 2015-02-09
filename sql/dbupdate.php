@@ -151,15 +151,20 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
             'length' => 4,
             'notnull' => true
         ),
-        'client_id' => array(
+        /*'client_id' => array(
             'type' => 'text',
             'length' => 50,
             'fixed' => false,
             'notnull' => false
+        ),*/
+        'user_id' => array(
+            'type' => 'integer',
+            'length' => 4,
+            'notnull' => true
         ),
-        'username' => array(
+        'api_key' => array(
             'type' => 'text',
-            'length' => 50,
+            'length' => 1024,
             'fixed' => false,
             'notnull' => false
         ),
@@ -181,4 +186,5 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
     $dropExistingTable = true;
     $ilDB->createTable("rest_oauth2_refresh", $fields, $dropExistingTable);
     $ilDB->addPrimaryKey("rest_oauth2_refresh", array("id"));
+    $ilDB->manipulate("ALTER TABLE rest_oauth2_refresh CHANGE id id INT( 11 ) NOT NULL AUTO_INCREMENT");
 ?>

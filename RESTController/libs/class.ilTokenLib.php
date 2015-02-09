@@ -33,6 +33,19 @@ class ilTokenLib
     }
 
     /**
+     * Generates an OAuth2 Refresh Token
+     * @param $user
+     * @param $api_key
+     * @return array
+     */
+    public static function generateOAuth2RefreshToken($user, $api_key)
+    {
+        $randomStr = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',5)),0,5);
+        $refresh_token_array = ilTokenLib::generateToken($user, $api_key, "refresh", $randomStr, 5256000); //  ten years of validity
+        return $refresh_token_array;
+    }
+
+    /**
      * Creates a generic token. The resulting token incorporates several fields, s.t.
      * it is not necessary to validate this kind of token without use of a database.
      *
