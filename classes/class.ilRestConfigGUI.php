@@ -78,6 +78,8 @@ class ilRestConfigGUI extends ilPluginConfigGUI
         $ret = $ilDB->query($q);
         $rec = $ilDB->fetchAssoc($ret);
         $client_id = $rec['client_id'];
+        $inst_folder = dirname($_SERVER['SCRIPT_NAME']);
+        $inst_folder = ($inst_folder == '/' ? '' : $inst_folder);
 
         $configHTML .= '
             <form action="./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/Rest/apps/html5/admin/app/index.php" method="post" target="_blank">
@@ -85,7 +87,7 @@ class ilRestConfigGUI extends ilPluginConfigGUI
                 <input type="hidden" name="session_id" value="'.session_id().'" />
                 <input type="hidden" name="rtoken" value="'.$ilCtrl->rtoken.'" />
                 <input type="hidden" name="client_id" value="'.$client_id.'" />
-                <input type="hidden" name="inst_folder" value="'.dirname($_SERVER['SCRIPT_NAME']).'" />
+                <input type="hidden" name="inst_folder" value="'.$inst_folder.'" />
                 <input type="submit" value="'.$pl->txt("admin_btn_config").'" />
             </form>
          ';
