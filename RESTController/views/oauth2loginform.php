@@ -86,7 +86,7 @@
                 </div>
             </div> <!-- end of ilFormRow -->
         </div>
-        <input id="client_id" name ="api_key" type="hidden" value="<?php echo $this->data['api_key']; ?>" />
+        <input id="api_key" name ="api_key" type="hidden" value="<?php echo $this->data['api_key']; ?>" />
         <input id="redirect_uri" name ="redirect_uri" type="hidden" value="<?php echo $this->data['redirect_uri']; ?>" />
         <input id="response_type" name ="response_type" type="hidden" value="<?php echo $this->data['response_type']; ?>" />
     </form>

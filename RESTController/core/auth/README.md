@@ -12,6 +12,7 @@ Examples
 ---------
 
 #### History:
+v0.2 - 2015-02 major revisions
 v0.1 - 2014-03
 
 ##### Authors:
