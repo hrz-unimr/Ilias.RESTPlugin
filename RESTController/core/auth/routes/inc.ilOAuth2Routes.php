@@ -76,8 +76,35 @@ $app->post('/v1/oauth2/token', function () use ($app) {
         $model->handleTokenEndpoint_clientCredentials($app, $request);
     } elseif ($request->getParam('grant_type') == "authorization_code") {
         $model->handleTokenEndpoint_authorizationCode($app, $request);
+    } elseif ($request->getParam('grant_type') == "refresh_token") {
+        $model->handleTokenEndpoint_refreshToken2Bearer($app);
     }
 
+});
+
+
+/*
+ * Refresh Endpoint
+ *
+ * This endpoint allows for exchanging a bearer token with a ong-lasting refresh token.
+ * Note: a client needs the appropriate permission to use this endpoint.
+ */
+$app->get('/v1/oauth2/refresh', 'authenticate', function () use ($app) {
+    $env = $app->environment();
+    $uid = ilRestLib::loginToUserId($env['user']);
+    $response = new ilOauth2Response($app);
+    global $ilLog;
+    $ilLog->write('Requesting new refresh token for user '.$uid);
+
+    // Create new refresh token
+    $bearerToken = $env['token'];
+    $model = new ilOAuth2Model();
+    $refreshToken = $model->getRefreshToken($bearerToken);
+
+    $response->setHttpHeader('Cache-Control', 'no-store');
+    $response->setHttpHeader('Pragma', 'no-cache');
+    $response->setField("refresh_token",$refreshToken);
+    $response->send();
 });
 
 /*
@@ -92,7 +119,7 @@ $app->get('/v1/oauth2/tokeninfo', function () use ($app) {
 });
 
 /*
- * rtoken2bearer: Allows for exchanging an ilias session to a bearer token.
+ * rtoken2bearer: Allows for exchanging an ilias session with a bearer token.
  * This is used for administration purposes.
  */
 $app->post('/v1/ilauth/rtoken2bearer', function () use ($app) {

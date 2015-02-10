@@ -8,7 +8,7 @@ $app->group('/dev', function () use ($app) {
 
     /**
      * Refresh-Token Part 1: extended token-endpoint: hier kann durch ein gültiges refresh-token ein bearer-token erzeugt werden. der code hier geht in jedem fall in den oauth2 token endpunkt ein.
-     * TODO
+     * Status: DONE
     */
     $app->get('/reftoken', function () use ($app) {
         $env = $app->environment();

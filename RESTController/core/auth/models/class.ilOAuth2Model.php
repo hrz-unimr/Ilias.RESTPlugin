@@ -214,6 +214,29 @@ class ilOAuth2Model
         }
     }
 
+    /**
+     * Token-endpoint for refresh tokens.
+     * Cf. RFC6749 Chapter 6.  Refreshing an Access Token
+     * @param $app
+     * @throws Exception
+     */
+    public function handleTokenEndpoint_refreshToken2Bearer($app)
+    {
+        $request = new ilRestRequest($app);
+        $response = new ilOauth2Response($app);
+
+        $refresh_token = $request->getParam("refresh_token");
+        $bearer_token = $this->getBearerTokenForRefreshToken($refresh_token);
+
+        $response->setHttpHeader('Cache-Control', 'no-store');
+        $response->setHttpHeader('Pragma', 'no-cache');
+        $response->setField("access_token",$bearer_token['access_token']);
+        $response->setField("expires_in",$bearer_token['expires_in']);
+        $response->setField("token_type",$bearer_token['token_type']);
+        $response->setField("scope",$bearer_token['scope']);
+        $response->send();
+    }
+
     // ----------------------------------------------------------------------------------------------
     // Refresh Token Support
     /**
