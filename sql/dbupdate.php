@@ -84,13 +84,13 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
 <?php
     global $ilLog;
     $ilLog->write('Plugin REST -> Include Primary Rest Client');
-    $client_id = "apollon";
-    $client_secret = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',5)),0,10);
+    $api_key = "apollon";
+    $api_secret = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',5)),0,10);
     $redirection_uri = "";
     $oauth_consent_message = "";
     $permissions = '[{"pattern":"/clients","verb":"GET"},{"pattern":"/clients/:id","verb":"PUT"},{"pattern":"/clients/:id","verb":"DELETE"},{"pattern":"/clients/","verb":"POST"},{"pattern":"/routes","verb":"GET"}]';
-    $a_columns = array("client_id" => array("text", $client_id),
-        "client_secret" => array("text", $client_secret),
+    $a_columns = array("api_key" => array("text", $api_key),
+        "api_secret" => array("text", $api_secret),
         "redirection_uri" => array("text", $redirection_uri),
         "oauth_consent_message" => array("text", $oauth_consent_message),
         "permissions" => array("text", $permissions));

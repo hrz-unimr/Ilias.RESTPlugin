@@ -78,13 +78,13 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
     }
 
     $scope.createRandomApiKey = function() {
-        $scope.currentClient.client_id='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
+        $scope.currentClient.api_key='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
     }
 
     $scope.saveClient = function() {
         if ($scope.currentClient.id==-1) {
             console.log("Creating a new Client");
-            restClients.getResource().create({client_id: $scope.currentClient.client_id, client_secret:$scope.currentClient.client_secret, redirection_uri : $scope.currentClient.redirection_uri, oauth_consent_message : $scope.currentClient.oauth_consent_message, permissions: angular.toJson($scope.currentClient.permissions) }, function (data) {
+            restClients.getResource().create({api_key: $scope.currentClient.api_key, api_secret:$scope.currentClient.api_secret, redirection_uri : $scope.currentClient.redirection_uri, oauth_consent_message : $scope.currentClient.oauth_consent_message, permissions: angular.toJson($scope.currentClient.permissions) }, function (data) {
                 console.log('Callback : ',data);
                 if (data.status == "success") {
                     $scope.currentClient.id = data.id;
@@ -93,7 +93,7 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
             });
         } else {
             console.log("Saving client with id: "+$scope.currentClient.id);
-            restClient.getResource().update({id: $scope.currentClient.id, data: {client_id: $scope.currentClient.client_id, client_secret:$scope.currentClient.client_secret, redirection_uri : $scope.currentClient.redirection_uri, oauth_consent_message : $scope.currentClient.oauth_consent_message, permissions: angular.toJson($scope.currentClient.permissions) } }, function (data) {
+            restClient.getResource().update({id: $scope.currentClient.id, data: {api_key: $scope.currentClient.api_key, api_secret:$scope.currentClient.api_secret, redirection_uri : $scope.currentClient.redirection_uri, oauth_consent_message : $scope.currentClient.oauth_consent_message, permissions: angular.toJson($scope.currentClient.permissions) } }, function (data) {
                 console.log('Callback : ',data);
             });
         }
