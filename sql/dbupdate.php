@@ -65,6 +65,36 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
             'length' => 4000,
             'fixed' => false,
             'notnull' => false
+        ),
+        'ct_client_active' => array(
+            'type' => 'integer',
+            'length' => 1,
+            'notnull' => true,
+            'default' => 1
+        ),
+        'ct_authcode_active' => array(
+            'type' => 'integer',
+            'length' => 1,
+            'notnull' => true,
+            'default' => 1
+        ),
+        'ct_implicit_active' => array(
+            'type' => 'integer',
+            'length' => 1,
+            'notnull' => true,
+            'default' => 1
+        ),
+        'ct_userpass_active' => array(
+            'type' => 'integer',
+            'length' => 1,
+            'notnull' => true,
+            'default' => 1
+        ),
+        'all_user_access' => array(
+            'type' => 'integer',
+            'length' => 1,
+            'notnull' => true,
+            'default' => 1
         )
     );
     $dropExistingTable = true;
@@ -75,12 +105,37 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
 
 <#3>
 <?php
-    $ilDB->manipulate("ALTER TABLE `rest_config` CHANGE `id` `id` INT NOT NULL AUTO_INCREMENT");
-    $ilDB->manipulate("ALTER TABLE `rest_apikeys` CHANGE `id` `id` INT NOT NULL AUTO_INCREMENT");
-    $ilDB->query("ALTER TABLE `rest_apikeys` CHANGE `permissions` `permissions` VARCHAR( 60000 )");
+    $fields = array(
+        'id' => array(
+            'type' => 'integer',
+            'length' => 4,
+            'notnull' => true
+        ),
+        'api_id' => array(
+            'type' => 'integer',
+            'length' => 4,
+            'notnull' => true
+        ),
+        'user_id' => array(
+            'type' => 'integer',
+            'length' => 4,
+            'notnull' => true
+        )
+    );
+    $dropExistingTable = true;
+    $ilDB->createTable("rest_user_apikey_map", $fields, $dropExistingTable);
+    $ilDB->addPrimaryKey("rest_user_apikey_map", array("id"));
 ?>
 
 <#4>
+<?php
+    $ilDB->manipulate("ALTER TABLE `rest_config` CHANGE `id` `id` INT NOT NULL AUTO_INCREMENT");
+    $ilDB->manipulate("ALTER TABLE `rest_apikeys` CHANGE `id` `id` INT NOT NULL AUTO_INCREMENT");
+    $ilDB->manipulate("ALTER TABLE `rest_user_apikey_map` CHANGE `id` `id` INT NOT NULL AUTO_INCREMENT");
+    $ilDB->query("ALTER TABLE `rest_apikeys` CHANGE `permissions` `permissions` VARCHAR( 60000 )");
+?>
+
+<#5>
 <?php
     global $ilLog;
     $ilLog->write('Plugin REST -> Include Primary Rest Client');
@@ -97,7 +152,7 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
 
     $ilDB->insert("rest_apikeys", $a_columns);
 ?>
-<#5>
+<#6>
 <?php
     function gen_uuid() {
         return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
@@ -124,7 +179,7 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
     $a_columns = array("setting_name" => array("text", "uuid"), "setting_value" => array("text",$uuid));
     $ilDB->insert("rest_config", $a_columns);
 ?>
-<#6>
+<#7>
 <?php
     $rest_user = "rest_sys_user";
     $a_columns = array("setting_name" => array("text", "rest_system_user"), "setting_value" => array("text",$rest_user));
@@ -138,7 +193,7 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
     //$ilDB->query("INSERT INTO usr_data VALUES (5,'$rest_user','$md5_pass','$rest_user','user',NULL,'m','ilias@yourserver.com',NULL,NULL,NULL,NULL,NULL,NULL,'2005-07-20 15:11:40','2003-09-30 19:50:01',NULL,'',NULL,NULL,NULL,NULL,NULL,7,1,0,0,0,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,'default',0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1217068076,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0)");
     //$ilDB->query("INSERT INTO rbac_ua VALUES (5,2)");
 ?>
-<#7>
+<#8>
 <?php
     // setup of table rest_oauth2_refresh
     global $ilLog;
