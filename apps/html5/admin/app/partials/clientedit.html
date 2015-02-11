@@ -11,17 +11,17 @@
                 </div>
             </div>
             <div class="control-group">
-                <label class="control-label" for="inputClientId">REST Client ID</label>
+                <label class="control-label" for="inputClientId">API Key</label>
                 <div class="controls">
-                        <input id="inputClientId" name="inputClientId" ng-model="currentClient.client_id" class="form-control" type="text">
+                        <input id="inputClientId" name="inputClientId" ng-model="currentClient.api_key" class="form-control" type="text">
                         <button type="button" class="btn btn-default" ng-click="createRandomApiKey()">Generiere zufällig</button>
                 </div>
             </div>
 
             <div class="control-group">
-                <label class="control-label" for="inputClientSecret">Client Secret</label>
+                <label class="control-label" for="inputClientSecret">API Secret</label>
                 <div class="controls">
-                    <input id="inputClientSecret" name="inputClientSecret" ng-model="currentClient.client_secret" class="form-control" type="text">
+                    <input id="inputClientSecret" name="inputClientSecret" ng-model="currentClient.api_secret" class="form-control" type="text">
                 </div>
             </div>
 

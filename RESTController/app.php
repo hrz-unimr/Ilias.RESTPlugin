@@ -9,10 +9,7 @@ require 'Slim/Slim.php';
 
 define('REST_PLUGIN_DIR', dirname($_SERVER['SCRIPT_NAME']).'/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/Rest');
 
-// register Slim auto-loader
 \Slim\Slim::registerAutoloader();
-
-// initialize app
 $app = new \Slim\Slim();
 
 $logWriter = new \Slim\LogWriter(fopen(ILIAS_LOG_DIR.'/restplugin.log', 'a'));

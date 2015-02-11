@@ -66,25 +66,25 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
             'fixed' => false,
             'notnull' => false
         ),
-        'ct_client_active' => array(
+        'gt_client_active' => array( // grant type
             'type' => 'integer',
             'length' => 1,
             'notnull' => true,
             'default' => 1
         ),
-        'ct_authcode_active' => array(
+        'gt_authcode_active' => array(
             'type' => 'integer',
             'length' => 1,
             'notnull' => true,
             'default' => 1
         ),
-        'ct_implicit_active' => array(
+        'gt_implicit_active' => array(
             'type' => 'integer',
             'length' => 1,
             'notnull' => true,
             'default' => 1
         ),
-        'ct_userpass_active' => array(
+        'gt_userpass_active' => array(
             'type' => 'integer',
             'length' => 1,
             'notnull' => true,
@@ -96,7 +96,7 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
             'notnull' => true,
             'default' => 1
         ),
-        'ct_client_user' => array(
+        'gt_client_user' => array(
             'type' => 'integer',
             'length' => 4,
             'notnull' => true,
