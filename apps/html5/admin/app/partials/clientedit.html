@@ -1,68 +1,200 @@
 <div>
-    <div class="well">
+    <!--<div class="well">-->
     <form class="form-horizontal">
-        <fieldset>
-        <legend><button class="btn btn-primary" ng-click="backToListView()">Zurück</button>
+       <!-- <fieldset>-->
+       <legend>
+            <button class="btn btn-primary" ng-click="backToListView()">Back</button>
         </legend>
-            <div class="control-group">
-                <label class="control-label" for="cid">ID</label>
-                <div class="controls">
-                    <input class="form-control" id="cid" type="text" ng-model="currentClient.id" class="ng-pristine ng-valid" ng-readonly="true">
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="inputClientId">API Key</label>
-                <div class="controls">
-                        <input id="inputClientId" name="inputClientId" ng-model="currentClient.api_key" class="form-control" type="text">
-                        <button type="button" class="btn btn-default" ng-click="createRandomApiKey()">Generiere zufällig</button>
-                </div>
-            </div>
 
-            <div class="control-group">
-                <label class="control-label" for="inputClientSecret">API Secret</label>
-                <div class="controls">
-                    <input id="inputClientSecret" name="inputClientSecret" ng-model="currentClient.api_secret" class="form-control" type="text">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Basic information</h3>
                 </div>
-            </div>
 
-            <div class="control-group">
-                <label class="control-label" for="inputRedirectionURI">Redirection URI</label>
-                <div class="controls">
-                    <input id="inputRedirectionURI" name="inputRedirectionURI" ng-model="currentClient.redirection_uri" class="form-control" type="text">
+                <div class="panel-body">
+                    <div class="control-group">
+                        <label class="control-label" for="cid">ID</label>
+                        <div class="controls">
+                            <input class="form-control" id="cid" type="text" ng-model="currentClient.id" class="ng-pristine ng-valid" ng-readonly="true">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="inputClientId">API Key</label>
+                        <div class="controls">
+                                <div class="input-group">
+                                    <input id="inputClientId" name="inputClientId" ng-model="currentClient.api_key" class="form-control" type="text">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" type="button" ng-click="createRandomApiKey()">Generate</button>
+                                    </span>
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label" for="inputClientSecret">API Secret</label>
+                        <div class="controls">
+                            <div class="input-group">
+                                <input id="inputClientSecret" name="inputClientSecret" ng-model="currentClient.api_secret" class="form-control" type="text">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default" ng-click="createRandomApiSecret()">Generate</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                  </div>
+
+                <div class="control-group">
+                    <table class="table table-striped table-bordered" id="scopetable">
+                        <thead>
+                        <tr>
+                            <th>Permissions (Scope)</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="permission in currentClient.permissions track by $index">
+                            <td>{{permission}}</td>
+                            <td><button class="btn btn-danger" ng-click="deletePermission($index)">Delete</button></td>
+                        </tr>
+                        <tr>
+                            <td><select class="form-control" ng-model="newPermission" ng-options="label(route.pattern, route.verb) group by route.pattern for route in routes">
+                                <option value="">(Bitte auswählen)</option>
+                            </select>
+                            </td>
+                            <td><button class="btn btn-primary"  ng-click="addPermission(newPermission)">Add route</button></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
 
-            <div class="control-group">
-                <label class="control-label" for="inputDescription">OAuth2 Consent Meldung</label>
-                <div class="controls">
-                    <textarea id="inputDescription" class="form-control" rows="3" ng-model="currentClient.oauth_consent_message"></textarea>
+      
+
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Grant-Type Settings</h3>
+            </div>
+
+            <div class="panel-body">
+                <div class="control-group">
+                    <label class="control-label" for="inputGtClient">Client Credentials</label>
+                    <div class="controls">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="inputGtClient" name="inputGtClient" value="1" checked> Enabled
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="inputGtClientUser">Client Credentials User</label>
+                    <div class="controls">
+                        <input id="inputGtClientUser" name="inputGtClientUser" ng-model="currentClient.gtclientuser" class="form-control" type="text">
+                        Please specify only one ILIAS user_id here. This is typically a user that owns the administration role.
+                    </div>
+                </div>
+
+
+                <div class="control-group">
+                    <label class="control-label" for="inputGtAuth">Authorization Code</label>
+                    <div class="controls">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="inputGtAuth" name="inputGtAuth" value="1" checked> Enabled
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="control-group">
+                    <label class="control-label" for="inputGtImplicit">Implicit Grant</label>
+                    <div class="controls">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="inputGtImplicit" name="inputGtImplicit" value="1" checked> Enabled
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="inputGtUserpass">Resource Owner Credentials</label>
+                    <div class="controls">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="inputGtUserpass" name="inputGtUserpass" value="1" checked> Enabled
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
 
 
-        <table class="table table-striped table-bordered">
-            <thead>
-            <tr>
-                <th>Rechte</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr ng-repeat="permission in currentClient.permissions track by $index">
-                <td>{{permission}}</td>
-                <td><button class="btn btn-danger" ng-click="deletePermission($index)">Löschen</button></td>
-            </tr>
-            <tr>
-                <td><select class="form-control" ng-model="newPermission" ng-options="label(route.pattern, route.verb) group by route.pattern for route in routes">
-                    <option value="">(Bitte auswählen)</option>
-                    </select>
-                </td>
-                <td><button class="btn btn-primary"  ng-click="addPermission(newPermission)">Recht hinzufügen</button></td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">User Binding (Authorization Code, Implicit Grant and Resource Owner only)</h3>
+            </div>
 
-        <button class="btn btn-success" ng-click="saveClient()">Speichern</button>
+            <div class="panel-body">
+                <div class="control-group">
+                    <label class="control-label" for="inputAllUserAccess">Status</label>
+                    <div class="controls">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="inputAllUserAccess" name="inputAllUserAccess" value="1" checked> Every ILIAS User can authorize (default)
+                            </label>
+
+                        </div>
+                        If disabled, a comma separated list of user ids must be provided.
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="inputUserCSV">Allowed ILIAS users</label>
+                    <div class="controls">
+                        <textarea id="inputUserCSV" class="form-control" rows="3" disabled>to be implemented</textarea>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Redirection URI and Consent Message (Authorization Code and Implicit Grant only)</h3>
+            </div>
+
+            <div class="panel-body">
+                <div class="control-group">
+                    <label class="control-label" for="inputRedirectionURI">Redirection URI</label>
+                    <div class="controls">
+                        <input id="inputRedirectionURI" name="inputRedirectionURI" ng-model="currentClient.redirection_uri" class="form-control" type="text">
+                    </div>
+
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="inputDescription">OAuth2 Consent Message</label>
+                    <div class="controls">
+                        <textarea id="inputDescription" class="form-control" rows="3" ng-model="currentClient.oauth_consent_message" disabled></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+        <button class="btn btn-success" ng-click="saveClient()">Save</button>
             </fieldset>
     </form>
     </div>

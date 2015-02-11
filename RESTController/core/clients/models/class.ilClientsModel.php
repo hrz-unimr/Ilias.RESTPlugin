@@ -23,12 +23,12 @@ class ilClientsModel
     /**
      * Creates a new REST client entry
      */
-    function createClient($client_id, $client_secret, $redirection_uri, $oauth_consent_message, $permissions)
+    function createClient($api_key, $api_secret, $redirection_uri, $oauth_consent_message, $permissions)
     {
         global $ilDB;
 
-        $a_columns = array("client_id" => array("text", $client_id),
-            "client_secret" => array("text", $client_secret),
+        $a_columns = array("api_key" => array("text", $api_key),
+            "api_secret" => array("text", $api_secret),
             "redirection_uri" => array("text", $redirection_uri),
             "oauth_consent_message" => array("text", $oauth_consent_message),
             "permissions" => array("text", $permissions));

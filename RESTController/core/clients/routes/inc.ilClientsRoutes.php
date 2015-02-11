@@ -1,7 +1,7 @@
 <?php
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// REST - Client Administration
+// REST - Client / API-Key Administration
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 $app->get('/clients', 'authenticateTokenOnly',  function () use ($app) {
     try {
@@ -73,8 +73,8 @@ $app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ /
             $a_data = json_decode($reqdata, true);
             error_log("(Slim) Updating client...".print_r($a_data,true));
             //var_dump($a_data);
-            $a_Requests['client_id'] = $a_data['data']['client_id'];
-            $a_Requests['client_secret'] = $a_data['data']['client_secret'];
+            $a_Requests['api_key'] = $a_data['data']['api_key'];
+            $a_Requests['api_secret'] = $a_data['data']['api_secret'];
             $a_Requests['oauth_consent_message'] = $a_data['data']['oauth_consent_message'];
             $a_Requests['redirection_uri'] = $a_data['data']['redirection_uri'];
             $a_Requests['permissions'] = addslashes ($a_data['data']['permissions']);
@@ -120,15 +120,15 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
             $reqBodyData = $app->request()->getBody(); // json
             if ($reqBodyData != "") {
                 $requestData = json_decode($reqBodyData, true);
-                $new_client_id = array_key_exists('client_id', $requestData) ? $requestData['client_id'] : null;
-                $new_client_secret = array_key_exists('client_secret', $requestData) ? $requestData['client_secret'] : null;
+                $new_client_id = array_key_exists('api_key', $requestData) ? $requestData['api_key'] : null;
+                $new_client_secret = array_key_exists('api_secret', $requestData) ? $requestData['api_secret'] : null;
                 $new_client_oauth_consent_message= array_key_exists('oauth_consent_message', $requestData) ? $requestData['oauth_consent_message'] : null;
                 $new_client_permissions = array_key_exists('permissions', $requestData) ? $requestData['permissions'] : null;
                 $new_client_redirect_url = array_key_exists('redirection_uri', $requestData) ? $requestData['redirection_uri'] : null;
             } else {
                 $request = $app->request();
-                $new_client_id = $request->params('client_id'); // aka api_key
-                $new_client_secret = $request->params('client_secret');
+                $new_client_id = $request->params('api_key');
+                $new_client_secret = $request->params('api_secret');
                 $new_client_oauth_consent_message = $request->params('oauth_consent_message');
                 $new_client_permissions = $request->params('permissions');
                 $new_client_redirect_url = $request->params('redirection_uri');
@@ -178,7 +178,7 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
     }
 });
 
-// 'authenticate',
+
 $app->delete('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app) {
 
     $request = $app->request();

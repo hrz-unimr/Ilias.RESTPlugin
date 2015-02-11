@@ -56,10 +56,11 @@ app.run(function(editableOptions) {
     $rootScope.$on('$viewContentLoaded', function () {
          console.log('first time');
         AuthFactory.auth({'user_id':$rootScope.user_id,'session_id':$rootScope.session_id, 'rtoken':$rootScope.rtoken,
-'client_id':$rootScope.client_id});
+'api_key':$rootScope.api_key});
     });
     */
 //});
+
 
 app.run(function(authentication, $rootScope, $location) {
     $rootScope.$on('$routeChangeStart', function(evt) {
@@ -69,6 +70,7 @@ app.run(function(authentication, $rootScope, $location) {
     event.preventDefault();
     });
 });
+
 
 // Clear browser cache (in development mode)
 //

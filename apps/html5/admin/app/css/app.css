@@ -32,3 +32,8 @@
 .main_div {
    margin: 15px;
 }
+
+#scopetable {
+  margin: 15px;
+  width: calc(100% - 30px);
+}

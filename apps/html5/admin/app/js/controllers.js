@@ -47,6 +47,8 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
     $scope.setClient = function() {
         $scope.currentClient = {permissions:[]};
         $scope.currentClient.id = -1;
+        $scope.currentClient.gtclientuser = 6;
+        $scope.currentClient.gtclientenabled = 1;
     }
 
     $scope.backToListView = function() {
@@ -80,6 +82,11 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
     $scope.createRandomApiKey = function() {
         $scope.currentClient.api_key='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
     }
+
+    $scope.createRandomApiSecret = function() {
+        $scope.currentClient.api_secret='xxxx.xxxx-xx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
+    }
+
 
     $scope.saveClient = function() {
         if ($scope.currentClient.id==-1) {
