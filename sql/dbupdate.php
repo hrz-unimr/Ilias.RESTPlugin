@@ -95,7 +95,13 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
             'length' => 1,
             'notnull' => true,
             'default' => 1
-        )
+        ),
+        'ct_client_user' => array(
+            'type' => 'integer',
+            'length' => 4,
+            'notnull' => true,
+            'default' => 6
+        ),
     );
     $dropExistingTable = true;
     $ilDB->createTable("rest_apikeys", $fields, $dropExistingTable);
