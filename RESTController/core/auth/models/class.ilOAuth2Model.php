@@ -146,10 +146,10 @@ class ilOAuth2Model
     {
         $response = new ilOauth2Response($app);
         $api_key = $_POST['api_key'];
-        $client_secret = $request->getParam('client_secret');
+        $api_secret = $request->getParam('api_secret');
 
         $ilAuth = & ilAuthLib::getInstance();
-        $authResult = $ilAuth->checkOAuth2ClientCredentials($api_key, $client_secret);
+        $authResult = $ilAuth->checkOAuth2ClientCredentials($api_key, $api_secret);
 
         if (!$authResult) {
             $app->response()->status(401);
@@ -181,11 +181,11 @@ class ilOAuth2Model
 
         $api_key = $_POST['api_key'];
         $app->log->debug("Handle Token-Endpoint > api key" . $api_key);
-        $client_secret = $request->getParam('client_secret'); // also check by other means
+        $api_secret = $request->getParam('api_secret'); // also check by other means
 
         $ilAuth = & ilAuthLib::getInstance();
-        $app->log->debug("Handle Token-Endpoint >checkOAuth2ClientCredentials( ".$api_key.",".$client_secret.")");
-        $isClientAuthorized = $ilAuth->checkOAuth2ClientCredentials($api_key, $client_secret);
+        $app->log->debug("Handle Token-Endpoint >checkOAuth2ClientCredentials( ".$api_key.",".$api_secret.")");
+        $isClientAuthorized = $ilAuth->checkOAuth2ClientCredentials($api_key, $api_secret);
 
         if (!$isClientAuthorized) {
             $app->response()->status(401);
@@ -197,7 +197,7 @@ class ilOAuth2Model
             if (!ilTokenLib::tokenExpired($code_token)){
                 $t_redirect_uri = $code_token['misc'];
                 $t_user = $code_token['user'];
-                $t_client_id = $code_token['api_key']; // TODO
+                $t_client_id = $code_token['api_key'];
 
                 if ($t_redirect_uri == $redirect_uri && $t_client_id == $api_key) {
                     $bearer_token = ilTokenLib::generateBearerToken($t_user, $t_client_id);

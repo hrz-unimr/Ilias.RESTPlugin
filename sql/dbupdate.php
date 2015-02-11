@@ -36,13 +36,13 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
             'length' => 4,
             'notnull' => true
         ),
-        'client_id' => array(
+        'api_key' => array(
             'type' => 'text',
             'length' => 50,
             'fixed' => false,
             'notnull' => false
         ),
-        'client_secret' => array(
+        'api_secret' => array(
             'type' => 'text',
             'length' => 50,
             'fixed' => false,

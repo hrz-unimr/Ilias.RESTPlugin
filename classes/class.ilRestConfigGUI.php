@@ -77,7 +77,9 @@ class ilRestConfigGUI extends ilPluginConfigGUI
         $q = "SELECT * FROM rest_apikeys WHERE id = 1";
         $ret = $ilDB->query($q);
         $rec = $ilDB->fetchAssoc($ret);
-        $client_id = $rec['client_id'];
+        $api_key = $rec['api_key'];
+        //$configHTML .=$api_key;
+
         $inst_folder = dirname($_SERVER['SCRIPT_NAME']);
         $inst_folder = ($inst_folder == '/' ? '' : $inst_folder);
 
@@ -86,7 +88,7 @@ class ilRestConfigGUI extends ilPluginConfigGUI
                 <input type="hidden" name="user_id" value="'.$ilUser->getId().'" />
                 <input type="hidden" name="session_id" value="'.session_id().'" />
                 <input type="hidden" name="rtoken" value="'.$ilCtrl->rtoken.'" />
-                <input type="hidden" name="client_id" value="'.$client_id.'" />
+                <input type="hidden" name="api_key" value="'.$api_key.'" />
                 <input type="hidden" name="inst_folder" value="'.$inst_folder.'" />
                 <input type="submit" value="'.$pl->txt("admin_btn_config").'" />
             </form>

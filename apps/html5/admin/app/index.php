@@ -25,7 +25,7 @@
         user_id : "<?php echo $_POST['user_id']; ?>",
         session_id : "<?php echo $_POST['session_id']; ?>",
         rtoken : "<?php echo $_POST['rtoken']; ?>",
-        client_id : "<?php echo $_POST['client_id']; ?>",
+        api_key : "<?php echo $_POST['api_key']; ?>",
         inst_folder : "<?php echo $_POST['inst_folder']; ?>"
     };
 </script>

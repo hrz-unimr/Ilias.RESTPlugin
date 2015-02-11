@@ -3,7 +3,7 @@
     if (isset($_GET['code'])){ // Exchange OAuth 2 authorization code for bearer token
 
         $api_key = "apollon";
-        $client_secret = "SDCSAJdQK8"; // Top Secret
+        $api_secret = "SDCSAJdQK8"; // Top Secret
         $restUrl = "http://localhost/ilias5/restplugin.php/v1/oauth2/token";
 
         if (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off') {
@@ -19,7 +19,7 @@
         $postBody = array('grant_type'=> 'authorization_code',
                           'code' => $_GET['code'],
                           'api_key' => $api_key,
-                          'client_secret' => $client_secret,
+                          'api_secret' => $api_secret,
                           'redirect_uri' => $redirect_uri
                             );
         //var_dump($postBody);

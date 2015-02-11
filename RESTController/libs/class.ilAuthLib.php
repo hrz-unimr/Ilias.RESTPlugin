@@ -123,14 +123,14 @@ class ilAuthLib {
      * Checks if provided OAuth2 client credentials are valid.
      * Compare with http://tools.ietf.org/html/rfc6749#section-4.4 (client credentials grant type).
      *
-     * @param int client_id
-     * @param string client_secret
+     * @param int api_key
+     * @param string api_secret
      * @return bool
      */
-   static public function checkOAuth2ClientCredentials($client_id, $client_secret)
+   static public function checkOAuth2ClientCredentials($api_key, $api_secret)
    {
        global $ilDB;
-       $query = "SELECT * FROM rest_apikeys WHERE client_id=\"".$client_id."\" AND client_secret=\"".$client_secret."\"";
+       $query = "SELECT * FROM rest_apikeys WHERE api_key=\"".$api_key."\" AND api_secret=\"".$api_secret."\"";
        $set = $ilDB->query($query);
        $ret = $ilDB->fetchAssoc($set);
        if ($ret) {
@@ -142,15 +142,15 @@ class ilAuthLib {
    }
 
     /**
-     * Checks if provided OAuth2 - client_id does exist.
+     * Checks if provided OAuth2 - client (aka api_key) does exist.
      *
-     * @param	int	client_id
+     * @param	int	api_key
      * @return	bool
      */
-    static public function checkOAuth2Client($client_id)
+    static public function checkOAuth2Client($api_key)
     {
         global $ilDB;
-        $query = "SELECT * FROM rest_apikeys WHERE client_id=\"".$client_id."\"";
+        $query = "SELECT * FROM rest_apikeys WHERE api_key=\"".$api_key."\"";
         $set = $ilDB->query($query);
         $ret = $ilDB->fetchAssoc($set);
         if ($ret) {
@@ -164,9 +164,9 @@ class ilAuthLib {
     /**
      * Checks if a rest client is allowed to enter a route (aka REST endpoint).
      *
-     * @param $route
-     * @param $operation
-     * @param $client_id
+     * @param route
+     * @param operation
+     * @param api_key
      * @return bool
      */
     static public function checkOAuth2Scope($route, $operation, $api_key)
@@ -174,7 +174,7 @@ class ilAuthLib {
         global $ilDB;
         if ($api_key == "") return false;
         $operation = strtoupper($operation);
-        $query = "SELECT * FROM rest_apikeys WHERE client_id=\"".$api_key."\"";
+        $query = "SELECT * FROM rest_apikeys WHERE api_key=\"".$api_key."\"";
         $set = $ilDB->query($query);
         $ret = $ilDB->fetchAssoc($set);
         if ($ret) {

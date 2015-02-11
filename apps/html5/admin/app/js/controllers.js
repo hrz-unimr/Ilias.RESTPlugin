@@ -143,10 +143,10 @@ app.controller('LoginCtrl', function($scope, authentication, $location, restAuth
     $scope.loginfromilias = function () {
 
         var v_user_id=$scope.logindata.user_id;
-        var v_client_id = $scope.logindata.client_id;
+        var v_api_key = $scope.logindata.api_key;
         var v_session_id = $scope.logindata.session_id;
         var v_rtoken = $scope.logindata.rtoken;
-        restAuth.getResource().auth({client_id: v_client_id, user_id: v_user_id, session_id: v_session_id, rtoken: v_rtoken }, function (data) {
+        restAuth.getResource().auth({api_key: v_api_key, user_id: v_user_id, session_id: v_session_id, rtoken: v_rtoken }, function (data) {
             console.log('Auth Callback : ',data);
             if (data.status == "success") {
                 $scope.token = data.token;//.access_token;
