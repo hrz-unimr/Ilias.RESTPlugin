@@ -121,18 +121,38 @@ class ilOAuth2Model
         else {
             if (isset($_POST['api_key'])) {
                 $api_key = $_POST['api_key'];
-            } else {
-                $api_key = "";
-            }
+                $clients_model = new ilClientsModel();
+                if ($clients_model->clientExists($api_key)) {
+                    if ($clients_model->is_oauth2_gt_resourceowner_enabled($api_key)) {
+                        $allowed_users = $clients_model->getAllowedUsersForApiKey($api_key);
+                        $access_granted = false;
+                        $uid = (int)ilRestLib::loginToUserId($user);
 
-            $bearer_token = ilTokenLib::generateBearerToken($user, $api_key);
-            $response->setHttpHeader('Cache-Control', 'no-store');
-            $response->setHttpHeader('Pragma', 'no-cache');
-            $response->setField("access_token",$bearer_token['access_token']);
-            $response->setField("expires_in",$bearer_token['expires_in']);
-            $response->setField("token_type",$bearer_token['token_type']);
-            $response->setField("scope",$bearer_token['scope']);
-            //$response->addData("refresh_token",$bearer_token['scope']); // should not be send here
+                        if (in_array(-1, $allowed_users) || in_array($uid, $allowed_users)) {
+                            $access_granted = true;
+                        }
+                        if ($access_granted == true) {
+                            $app->log->debug("access granted");
+                            $bearer_token = ilTokenLib::generateBearerToken($user, $api_key);
+                            $response->setHttpHeader('Cache-Control', 'no-store');
+                            $response->setHttpHeader('Pragma', 'no-cache');
+                            $response->setField("access_token", $bearer_token['access_token']);
+                            $response->setField("expires_in", $bearer_token['expires_in']);
+                            $response->setField("token_type", $bearer_token['token_type']);
+                            $response->setField("scope", $bearer_token['scope']);
+                            //$response->addData("refresh_token",$bearer_token['scope']); // should not be send here
+                        } else {
+                            $response->setHttpStatus(401);
+                        }
+                    } else {
+                        $response->setHttpStatus(401);
+                    }
+                } else {
+                    $response->setHttpStatus(401);
+                }
+            } else {
+                $response->setHttpStatus(401);
+            }
             $response->send();
         }
     }
@@ -149,21 +169,33 @@ class ilOAuth2Model
         $api_secret = $request->getParam('api_secret');
 
         $ilAuth = & ilAuthLib::getInstance();
-        $authResult = $ilAuth->checkOAuth2ClientCredentials($api_key, $api_secret);
+        $clients_model = new ilClientsModel();
+        if ($clients_model->clientExists($api_key)) {
+            if ($clients_model->is_oauth2_gt_clientcredentials_enabled($api_key)) {
+                $uid = $clients_model->getClientCredentialsUser($api_key);
+                $user = (int)ilRestLib::userIdtoLogin($uid);
+                $authResult = $ilAuth->checkOAuth2ClientCredentials($api_key, $api_secret);
+                if (!$authResult) {
+                    $response->setHttpStatus(401);
+                }
+                else {
+                    $bearer_token = ilTokenLib::generateBearerToken($user,$api_key);
+                    $response->setHttpHeader('Cache-Control', 'no-store');
+                    $response->setHttpHeader('Pragma', 'no-cache');
+                    $response->setField("access_token",$bearer_token['access_token']);
+                    $response->setField("expires_in",$bearer_token['expires_in']);
+                    $response->setField("token_type",$bearer_token['token_type']);
+                    $response->setField("scope",$bearer_token['scope']);
+                }
+            } else {
+                $response->setHttpStatus(401);
+            }
+        } else {
+            $response->setHttpStatus(401);
+        }
+        $response->send();
 
-        if (!$authResult) {
-            $app->response()->status(401);
-        }
-        else {
-            $bearer_token = ilTokenLib::generateBearerToken("",$api_key);
-            $response->setHttpHeader('Cache-Control', 'no-store');
-            $response->setHttpHeader('Pragma', 'no-cache');
-            $response->setField("access_token",$bearer_token['access_token']);
-            $response->setField("expires_in",$bearer_token['expires_in']);
-            $response->setField("token_type",$bearer_token['token_type']);
-            $response->setField("scope",$bearer_token['scope']);
-            $response->send();
-        }
+
     }
 
     /**

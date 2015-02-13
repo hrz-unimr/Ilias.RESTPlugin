@@ -32,8 +32,8 @@ require_once "./Services/Utilities/classes/class.ilUtil.php";
 //$list = ilUtil::_getObjectsByOperations("crs","visible,read",$id);
 $dummy = "";
 //$list = ilObjUser::_getAllUserLogins($dummy);
-$list = ilObjUser::_getAllUserData(array('firstname','login','email'),1);
-var_dump($list);
+//$list = ilObjUser::_getAllUserData(array('firstname','login','email'),1);
+//var_dump($list);
 
 function setUserContext($login) {
     global $ilias, $ilInit;
@@ -54,4 +54,7 @@ function initGlobal($a_name, $a_class, $a_source_file = null) {
         $GLOBALS[$a_name] = $a_class;
     }
 }
+
+//
+
 ?>

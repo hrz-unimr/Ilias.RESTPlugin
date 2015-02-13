@@ -117,4 +117,119 @@ class ilClientsModel
         return $numAffRows;
     }
 
+
+    /**
+     * Returns the ILIAS user id associated with the grant type: client credentials.
+     * @param $api_key
+     * @return mixed
+     */
+    function getClientCredentialsUser($api_key)
+    {
+        global $ilDB;
+        $query = "SELECT id, oauth2_gt_client_user FROM rest_apikeys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $set = $ilDB->query($query);
+        $row = $ilDB->fetchAssoc($set);
+        return $row['oauth2_gt_client_user'];
+    }
+
+    /**
+     * Retrieves an array of ILIAS user ids that are allowed to use the grant types:
+     * authcode, implicit and resource owner credentials
+     * @param $api_key
+     * @return array
+     */
+    function getAllowedUsersForApiKey($api_key)
+    {
+        global $ilDB;
+        $query = "SELECT id, oauth2_user_restriction_active FROM rest_apikeys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $set = $ilDB->query($query);
+        $row = $ilDB->fetchAssoc($set);
+        $id = $row['id'];
+        if ($row['oauth2_user_restriction_active'] == 1) {
+            $query2 = "SELECT user_id FROM rest_user_apikey_map WHERE api_id=".$ilDB->quote($id, "integer");
+            $set2 = $ilDB->query($query2);
+            $a_user_ids = array();
+            while($row2 = $ilDB->fetchAssoc($set2))
+            {
+                $a_user_ids[] = (int)$row2['user_id'];
+            }
+            return $a_user_ids;
+        } else {
+            return array(-1);
+        }
+    }
+
+    /**
+     * Checks if a REST client with the specified API KEY does exist or not.
+     * @param $api_key
+     * @return bool
+     */
+    function clientExists($api_key)
+    {
+        global $ilDB;
+        $query = "SELECT id FROM rest_apikeys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $set = $ilDB->query($query);
+        if ($ilDB->numRows($set)>0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if the resource owner grant type is enabled for the specified API KEY.
+     * @param $api_key
+     * @return bool
+     */
+    public function is_oauth2_gt_resourceowner_enabled($api_key) {
+        return $this->is_oauth2_grant_type_enabled($api_key, "oauth2_gt_resourceowner_active");
+    }
+
+    /**
+     * Checks if the implicit grant type is enabled for the specified API KEY.
+     * @param $api_key
+     * @return bool
+     */
+    public function is_oauth2_gt_implicit_enabled($api_key) {
+        return $this->is_oauth2_grant_type_enabled($api_key, "oauth2_gt_implicit_active");
+    }
+
+    /**
+     * Checks if the authcode grant type is enabled for the specified API KEY.
+     * @param $api_key
+     * @return bool
+     */
+    public function is_oauth2_gt_authcode_enabled($api_key) {
+        return $this->is_oauth2_grant_type_enabled($api_key, "oauth2_gt_authcode_active");
+    }
+
+    /**
+     * Checks if the client credentials grant type is enabled for the specified API KEY.
+     * @param $api_key
+     * @return bool
+     */
+    public function is_oauth2_gt_clientcredentials_enabled($api_key) {
+        return $this->is_oauth2_grant_type_enabled($api_key, "oauth2_gt_client_active");
+    }
+
+    /**
+     * Checks if a grant type is enabled for the specified API KEY.
+     * @param $api_key
+     * @param $grant_type
+     * @return bool
+     */
+    private function is_oauth2_grant_type_enabled($api_key, $grant_type)
+    {
+        global $ilDB;
+        $query = "SELECT * FROM rest_apikeys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $set = $ilDB->query($query);
+        if ($ilDB->numRows($set)>0) {
+            $row = $ilDB->fetchAssoc($set);
+            if ($row[$grant_type] == 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

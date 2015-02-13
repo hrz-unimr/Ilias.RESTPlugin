@@ -6,6 +6,22 @@
 
 $app->group('/dev', function () use ($app) {
 
+
+    $app->get('/clientcheck', function () use ($app) {
+        $env = $app->environment();
+        $request = new ilRestRequest($app);
+        $response = new ilRestResponse($app);
+
+        $model = new ilClientsModel();
+        $data1 = $model->getAllowedUsersForApiKey("9065710a-16b9-4b4c-9230-f76dc72d2a2d");
+        $data2 = $model->getClientCredentialsUser("9065710a-16b9-4b4c-9230-f76dc72d2a2d");
+
+        $response->setMessage("Client Check");
+        $response->addData("allowed_users", $data1);
+        $response->addData("cc_user",$data2);
+        $response->send();
+    });
+
     /**
      * Refresh-Token Part 1: extended token-endpoint: hier kann durch ein gültiges refresh-token ein bearer-token erzeugt werden. der code hier geht in jedem fall in den oauth2 token endpunkt ein.
      * Status: DONE
