@@ -5,7 +5,7 @@
                 <th>id</th>
                 <th>api_key</th>
                 <th>api_secret</th>
-                <th>redirection_uri</th>
+                <th>oauth2 redirection_uri</th>
                 <th>oauth2 consent message</th>
                 <th>permissions</th>
             </tr>
@@ -15,8 +15,8 @@
             <td>{{client.id}}</td>
             <td>{{client.api_key}}</td>
             <td>{{client.api_secret}}</td>
-            <td>{{client.redirection_uri}}</td>
-            <td>{{client.oauth_consent_message}}</td>
+            <td>{{client.oauth2_redirection_uri}}</td>
+            <td>{{client.oauth2_consent_message}}</td>
             <td>{{client.permissions}}</td>
             <td><button class="btn btn-primary" ng-click="editClient(client)">Ändern</button></td>
             <td><button class="btn btn-danger" ng-click="deleteClient($index)">Löschen</button></td>

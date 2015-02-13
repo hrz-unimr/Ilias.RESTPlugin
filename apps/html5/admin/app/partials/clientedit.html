@@ -69,7 +69,7 @@
 
             </div>
 
-      
+
 
         <div class="panel panel-primary">
             <div class="panel-heading">
@@ -82,7 +82,7 @@
                     <div class="controls">
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" id="inputGtClient" name="inputGtClient" value="1" checked> Enabled
+                                <input type="checkbox" id="inputGtClient" name="inputGtClient" ng-model="currentClient.oauth2_gt_client_active" value="1" checked> Enabled
                             </label>
                         </div>
                     </div>
@@ -91,7 +91,7 @@
                 <div class="control-group">
                     <label class="control-label" for="inputGtClientUser">Client Credentials User</label>
                     <div class="controls">
-                        <input id="inputGtClientUser" name="inputGtClientUser" ng-model="currentClient.gtclientuser" class="form-control" type="text">
+                        <input id="inputGtClientUser" name="inputGtClientUser" ng-model="currentClient.oauth2_gt_client_user" class="form-control" type="text">
                         Please specify only one ILIAS user_id here. This is typically a user that owns the administration role.
                     </div>
                 </div>
@@ -102,7 +102,7 @@
                     <div class="controls">
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" id="inputGtAuth" name="inputGtAuth" value="1" checked> Enabled
+                                <input type="checkbox" id="inputGtAuth" name="inputGtAuth" value="1" ng-model="currentClient.oauth2_gt_authcode_active" checked> Enabled
                             </label>
                         </div>
                     </div>
@@ -114,7 +114,7 @@
                     <div class="controls">
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" id="inputGtImplicit" name="inputGtImplicit" value="1" checked> Enabled
+                                <input type="checkbox" id="inputGtImplicit" name="inputGtImplicit" value="1" ng-model="currentClient.oauth2_gt_implicit_active" checked> Enabled
                             </label>
                         </div>
                     </div>
@@ -125,7 +125,7 @@
                     <div class="controls">
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" id="inputGtUserpass" name="inputGtUserpass" value="1" checked> Enabled
+                                <input type="checkbox" id="inputGtUserpass" name="inputGtUserpass" value="1" ng-model="currentClient.oauth2_gt_resourceowner_active" checked> Enabled
                             </label>
                         </div>
                     </div>
@@ -145,18 +145,18 @@
                     <div class="controls">
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" id="inputAllUserAccess" name="inputAllUserAccess" value="1" checked> Every ILIAS User can authorize (default)
+                                <input type="checkbox" id="inputAllUserAccess" name="inputAllUserAccess" value="1" ng-model="currentClient.oauth2_user_restriction_active">Specify a comma separated list of allowed ILIAS User Ids (else every ILIAS user can authorize)
                             </label>
 
                         </div>
-                        If disabled, a comma separated list of user ids must be provided.
+
                     </div>
                 </div>
 
                 <div class="control-group">
                     <label class="control-label" for="inputUserCSV">Allowed ILIAS users</label>
                     <div class="controls">
-                        <textarea id="inputUserCSV" class="form-control" rows="3" disabled>to be implemented</textarea>
+                        <textarea id="inputUserCSV" class="form-control" rows="3" ng-model="currentClient.access_user_csv"></textarea>
                     </div>
                 </div>
 
@@ -172,7 +172,7 @@
                 <div class="control-group">
                     <label class="control-label" for="inputRedirectionURI">Redirection URI</label>
                     <div class="controls">
-                        <input id="inputRedirectionURI" name="inputRedirectionURI" ng-model="currentClient.redirection_uri" class="form-control" type="text">
+                        <input id="inputRedirectionURI" name="inputRedirectionURI" ng-model="currentClient.oauth2_redirection_uri" class="form-control" type="text">
                     </div>
 
                 </div>
@@ -180,7 +180,7 @@
                 <div class="control-group">
                     <label class="control-label" for="inputDescription">OAuth2 Consent Message</label>
                     <div class="controls">
-                        <textarea id="inputDescription" class="form-control" rows="3" ng-model="currentClient.oauth_consent_message" disabled></textarea>
+                        <textarea id="inputDescription" class="form-control" rows="3" ng-model="currentClient.oauth2_consent_message" disabled></textarea>
                     </div>
                 </div>
             </div>

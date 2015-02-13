@@ -44,11 +44,11 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
         $location.path("/clientedit");
     }
 
-    $scope.setClient = function() {
+    $scope.setClient = function() { // default options for a new rest client
         $scope.currentClient = {permissions:[]};
         $scope.currentClient.id = -1;
-        $scope.currentClient.gtclientuser = 6;
-        $scope.currentClient.gtclientenabled = 1;
+        $scope.currentClient.oauth2_gt_client_active = 1;
+        $scope.currentClient.oauth2_gt_client_user = 6;
     }
 
     $scope.backToListView = function() {
@@ -91,7 +91,21 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
     $scope.saveClient = function() {
         if ($scope.currentClient.id==-1) {
             console.log("Creating a new Client");
-            restClients.getResource().create({api_key: $scope.currentClient.api_key, api_secret:$scope.currentClient.api_secret, redirection_uri : $scope.currentClient.redirection_uri, oauth_consent_message : $scope.currentClient.oauth_consent_message, permissions: angular.toJson($scope.currentClient.permissions) }, function (data) {
+            restClients.getResource().create(
+                {
+                    api_key: $scope.currentClient.api_key,
+                    api_secret:$scope.currentClient.api_secret,
+                    oauth2_redirection_uri : $scope.currentClient.oauth2_redirection_uri,
+                    oauth2_consent_message : $scope.currentClient.oauth2_consent_message,
+                    permissions: angular.toJson($scope.currentClient.permissions),
+                    oauth2_gt_client_active: $scope.currentClient.oauth2_gt_client_active,
+                    oauth2_gt_client_user: $scope.currentClient.oauth2_gt_client_user,
+                    oauth2_gt_authcode_active: $scope.currentClient.oauth2_gt_authcode_active,
+                    oauth2_gt_implicit_active: $scope.currentClient.oauth2_gt_implicit_active,
+                    oauth2_gt_resourceowner_active: $scope.currentClient.oauth2_gt_resourceowner_active,
+                    oauth2_user_restriction_active: $scope.currentClient.oauth2_user_restriction_active,
+                    access_user_csv: $scope.currentClient.access_user_csv
+                }, function (data) {
                 console.log('Callback : ',data);
                 if (data.status == "success") {
                     $scope.currentClient.id = data.id;
@@ -100,7 +114,24 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
             });
         } else {
             console.log("Saving client with id: "+$scope.currentClient.id);
-            restClient.getResource().update({id: $scope.currentClient.id, data: {api_key: $scope.currentClient.api_key, api_secret:$scope.currentClient.api_secret, redirection_uri : $scope.currentClient.redirection_uri, oauth_consent_message : $scope.currentClient.oauth_consent_message, permissions: angular.toJson($scope.currentClient.permissions) } }, function (data) {
+            restClient.getResource().update(
+                {
+                    id: $scope.currentClient.id,
+                    data: {
+                        api_key: $scope.currentClient.api_key,
+                        api_secret:$scope.currentClient.api_secret,
+                        oauth2_redirection_uri : $scope.currentClient.oauth2_redirection_uri,
+                        oauth2_consent_message : $scope.currentClient.oauth2_consent_message,
+                        permissions: angular.toJson($scope.currentClient.permissions),
+                        oauth2_gt_client_active: $scope.currentClient.oauth2_gt_client_active,
+                        oauth2_gt_client_user: $scope.currentClient.oauth2_gt_client_user,
+                        oauth2_gt_authcode_active: $scope.currentClient.oauth2_gt_authcode_active,
+                        oauth2_gt_implicit_active: $scope.currentClient.oauth2_gt_implicit_active,
+                        oauth2_gt_resourceowner_active: $scope.currentClient.oauth2_gt_resourceowner_active,
+                        oauth2_user_restriction_active: $scope.currentClient.oauth2_user_restriction_active,
+                        access_user_csv: $scope.currentClient.access_user_csv
+                    }
+                }, function (data) {
                 console.log('Callback : ',data);
             });
         }

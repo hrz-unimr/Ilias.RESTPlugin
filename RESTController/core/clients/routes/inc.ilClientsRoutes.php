@@ -57,7 +57,18 @@ $app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ /
     $app->log->debug("slim request: ".$app->request->getPathInfo());
     $result = array();
 
-    //$usr_model = new ilUsersModel();
+
+    $request = new ilRestRequest($app);
+    $app->log->debug("Update data ".print_r($request->getRaw(),true));
+
+    try {
+        $aUpdateData = $request->getParam('data');
+    } catch(Exception $e) {
+        $aUpdateData = array();
+    }
+    $app->log->debug("Update Data ".print_r($aUpdateData,true));
+
+
     $ilRest = new ilRestLib();
     if (!$ilRest->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
         $result['status'] = 'failed';
@@ -66,23 +77,20 @@ $app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ /
     } else {
         $admin_model = new ilClientsModel();
 
-        $a_Requests = $app->request->put();
-        if (count($a_Requests) == 0) {
-            $a_Requests = array();
-            $reqdata = $app->request()->getBody(); // json
-            $a_data = json_decode($reqdata, true);
-            error_log("(Slim) Updating client...".print_r($a_data,true));
-            //var_dump($a_data);
-            $a_Requests['api_key'] = $a_data['data']['api_key'];
-            $a_Requests['api_secret'] = $a_data['data']['api_secret'];
-            $a_Requests['oauth_consent_message'] = $a_data['data']['oauth_consent_message'];
-            $a_Requests['redirection_uri'] = $a_data['data']['redirection_uri'];
-            $a_Requests['permissions'] = addslashes ($a_data['data']['permissions']);
-            }
 
-        foreach ($a_Requests as $key => $value) {
-            //$result["x$key"] = $value;
-            $admin_model->updateClient($id, $key, $value);
+        $aUpdateData['permissions'] = addslashes ($aUpdateData['permissions']);
+
+        if (isset($aUpdateData["oauth2_user_restriction_active"]) && $aUpdateData["oauth2_user_restriction_active"]==1) {
+            if (isset($aUpdateData["access_user_csv"])) {
+                $a_user_csv = explode(',', $aUpdateData["access_user_csv"]);
+                $admin_model->fillApikeyUserMap($id, $a_user_csv);
+            }
+        }
+
+        foreach ($aUpdateData as $key => $value) {
+            if ($key != "access_user_csv") {
+                $admin_model->updateClient($id, $key, $value);
+            }
         }
         $result['status'] = 'success';
 
@@ -97,64 +105,91 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
         $env = $app->environment();
         $authorizedUser = $env['user'];
         $result = array();
-
+        $request = new ilRestRequest($app);
 
         error_log("(Slim) Creating client...");
 
-        //$usr_model = new ilUsersModel();
         $ilRest = new ilRestLib();
         if (!$ilRest->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
             $result['status'] = 'failed';
             $result['msg'] = "Access denied. Administrator permissions required.";
             $result['authuser'] = $authorizedUser;
-
         } else {
 
-            $input_complete = true;
-            $new_client_id = "";
-            $new_client_secret = "";
-            $new_client_oauth_consent_message = "";
-            $new_client_permissions = "";
-            $new_client_redirect_url = "";
+            $app->log->debug("Request data ".print_r($request->getRaw(),true));
 
-            $reqBodyData = $app->request()->getBody(); // json
-            if ($reqBodyData != "") {
-                $requestData = json_decode($reqBodyData, true);
-                $new_client_id = array_key_exists('api_key', $requestData) ? $requestData['api_key'] : null;
-                $new_client_secret = array_key_exists('api_secret', $requestData) ? $requestData['api_secret'] : null;
-                $new_client_oauth_consent_message= array_key_exists('oauth_consent_message', $requestData) ? $requestData['oauth_consent_message'] : null;
-                $new_client_permissions = array_key_exists('permissions', $requestData) ? $requestData['permissions'] : null;
-                $new_client_redirect_url = array_key_exists('redirection_uri', $requestData) ? $requestData['redirection_uri'] : null;
-            } else {
-                $request = $app->request();
-                $new_client_id = $request->params('api_key');
-                $new_client_secret = $request->params('api_secret');
-                $new_client_oauth_consent_message = $request->params('oauth_consent_message');
-                $new_client_permissions = $request->params('permissions');
-                $new_client_redirect_url = $request->params('redirection_uri');
-            }
-
-            if (is_null($new_client_id)) {
-                $input_complete = false;
-            } else {
+            try {
+                $new_api_key = $request->getParam('api_key');
                 $input_complete = true;
+            } catch(Exception $e) {
+                $new_api_key = "";
+                $input_complete = false;
             }
 
-
-            if (is_null($new_client_secret)) {
-                $new_client_secret = "";
+            try {
+                $new_api_secret = $request->getParam('api_secret');
+            } catch(Exception $e) {
+                $new_api_secret = "";
             }
 
-            if (is_null($new_client_oauth_consent_message)) {
-                $new_client_oauth_consent_message = "";
+            try {
+                $new_client_oauth2_consent_message = $request->getParam('oauth2_consent_message');
+            } catch(Exception $e) {
+                $new_client_oauth2_consent_message = "";
             }
 
-            if (is_null($new_client_permissions)) {
+            try {
+                $new_client_permissions = $request->getParam('permissions');
+            } catch(Exception $e) {
                 $new_client_permissions = "";
             }
 
-            if (is_null($new_client_redirect_url)) {
-                $new_client_redirect_url = "";
+            try {
+                $new_client_oauth2_redirect_url = $request->getParam('oauth2_redirection_uri');
+            } catch(Exception $e) {
+                $new_client_oauth2_redirect_url = "";
+            }
+
+            try {
+                $oauth2_gt_client_active = $request->getParam('oauth2_gt_client_active');
+            } catch(Exception $e) {
+                $oauth2_gt_client_active = 0;
+            }
+
+            try {
+                $oauth2_gt_client_user = $request->getParam('oauth2_gt_client_user');
+            } catch(Exception $e) {
+                $oauth2_gt_client_user = "";
+            }
+
+            try {
+                $oauth2_gt_authcode_active = $request->getParam('oauth2_gt_authcode_active');
+            } catch(Exception $e) {
+                $oauth2_gt_authcode_active = 0;
+            }
+
+            try {
+                $oauth2_gt_implicit_active = $request->getParam('oauth2_gt_implicit_active');
+            } catch(Exception $e) {
+                $oauth2_gt_implicit_active = 0;
+            }
+
+            try {
+                $oauth2_gt_resourceowner_active = $request->getParam('oauth2_gt_resourceowner_active');
+            } catch(Exception $e) {
+                $oauth2_gt_resourceowner_active = 0;
+            }
+
+            try {
+                $oauth2_user_restriction_active = $request->getParam('oauth2_user_restriction_active');
+            } catch(Exception $e) {
+                $oauth2_user_restriction_active = 0;
+            }
+
+            try {
+                $access_user_csv = $request->getParam('access_user_csv');
+            } catch(Exception $e) {
+                $access_user_csv = "";
             }
 
             if ($input_complete == false) {
@@ -162,8 +197,20 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
                 $result['msg'] = "Mandatory data is missing.";
             } else {
                 $admin_model = new ilClientsModel();
-                $new_id = $admin_model->createClient($new_client_id, $new_client_secret, $new_client_redirect_url, $new_client_oauth_consent_message, $new_client_permissions);
-                //var_dump($data);
+                $new_id = $admin_model->createClient(
+                    $new_api_key,
+                    $new_api_secret,
+                    $new_client_oauth2_redirect_url,
+                    $new_client_oauth2_consent_message,
+                    $new_client_permissions,
+                    $oauth2_gt_client_active,
+                    $oauth2_gt_authcode_active,
+                    $oauth2_gt_implicit_active,
+                    $oauth2_gt_resourceowner_active,
+                    $oauth2_user_restriction_active,
+                    $oauth2_gt_client_user,
+                    $access_user_csv
+                );
                 $result['id'] = $new_id;
                 $result['status'] = 'success';
             }

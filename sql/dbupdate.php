@@ -48,17 +48,19 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
             'fixed' => false,
             'notnull' => false
         ),
-        'redirection_uri' => array(
+        'oauth2_redirection_uri' => array(
             'type' => 'text',
             'length' => 1024,
             'fixed' => false,
-            'notnull' => false
+            'notnull' => false,
+            'default' => ""
         ),
-        'oauth_consent_message' => array(
+        'oauth2_consent_message' => array(
             'type' => 'text',
             'length' => 4000,
             'fixed' => false,
-            'notnull' => false
+            'notnull' => false,
+            'default' => ""
         ),
         'permissions' => array(
             'type' => 'text',
@@ -66,37 +68,37 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
             'fixed' => false,
             'notnull' => false
         ),
-        'gt_client_active' => array( // grant type
+        'oauth2_gt_client_active' => array( // grant type
             'type' => 'integer',
             'length' => 1,
             'notnull' => true,
             'default' => 1
         ),
-        'gt_authcode_active' => array(
+        'oauth2_gt_authcode_active' => array(
             'type' => 'integer',
             'length' => 1,
             'notnull' => true,
             'default' => 1
         ),
-        'gt_implicit_active' => array(
+        'oauth2_gt_implicit_active' => array(
             'type' => 'integer',
             'length' => 1,
             'notnull' => true,
             'default' => 1
         ),
-        'gt_userpass_active' => array(
+        'oauth2_gt_resourceowner_active' => array(
             'type' => 'integer',
             'length' => 1,
             'notnull' => true,
             'default' => 1
         ),
-        'all_user_access' => array(
+        'oauth2_user_restriction_active' => array(
             'type' => 'integer',
             'length' => 1,
             'notnull' => true,
-            'default' => 1
+            'default' => 0
         ),
-        'gt_client_user' => array(
+        'oauth2_gt_client_user' => array(
             'type' => 'integer',
             'length' => 4,
             'notnull' => true,
@@ -152,8 +154,8 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
     $permissions = '[{"pattern":"/clients","verb":"GET"},{"pattern":"/clients/:id","verb":"PUT"},{"pattern":"/clients/:id","verb":"DELETE"},{"pattern":"/clients/","verb":"POST"},{"pattern":"/routes","verb":"GET"}]';
     $a_columns = array("api_key" => array("text", $api_key),
         "api_secret" => array("text", $api_secret),
-        "redirection_uri" => array("text", $redirection_uri),
-        "oauth_consent_message" => array("text", $oauth_consent_message),
+        "oauth2_redirection_uri" => array("text", $redirection_uri),
+        "oauth2_consent_message" => array("text", $oauth_consent_message),
         "permissions" => array("text", $permissions));
 
     $ilDB->insert("rest_apikeys", $a_columns);
