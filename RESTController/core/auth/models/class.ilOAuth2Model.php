@@ -91,8 +91,16 @@ class ilOAuth2Model
             $user = $authenticity_token['user'];
 
             if (!ilTokenLib::tokenExpired($authenticity_token)) { // send bearer token
-                $bearerToken = ilTokenLib::generateBearerToken($user, $api_key);
-                $url = $redirect_uri . "#access_token=".$bearerToken['access_token']."&token_type=bearer"."&expires_in=".$bearerToken['expires_in']."&state=xyz";
+                $clients_model = new ilClientsModel();
+                if ($clients_model->clientExists($api_key)) {
+                    if ($clients_model->is_oauth2_gt_implicit_enabled($api_key)) {
+                        $bearerToken = ilTokenLib::generateBearerToken($user, $api_key);
+                        $url = $redirect_uri . "#access_token=".$bearerToken['access_token']."&token_type=bearer"."&expires_in=".$bearerToken['expires_in']."&state=xyz";
+                        $app->redirect($url);
+                    }
+                }
+
+                $url = $redirect_uri . "#access_token="."no_access";
                 $app->redirect($url);
             }
 
@@ -232,18 +240,42 @@ class ilOAuth2Model
                 $t_client_id = $code_token['api_key'];
 
                 if ($t_redirect_uri == $redirect_uri && $t_client_id == $api_key) {
-                    $bearer_token = ilTokenLib::generateBearerToken($t_user, $t_client_id);
-                    $response->setHttpHeader('Cache-Control', 'no-store');
-                    $response->setHttpHeader('Pragma', 'no-cache');
-                    $response->setField("access_token",$bearer_token['access_token']);
-                    $response->setField("expires_in",$bearer_token['expires_in']);
-                    $response->setField("token_type",$bearer_token['token_type']);
-                    $response->setField("scope",$bearer_token['scope']);
-                    $response->send();
-                }
-            }
 
+                    $clients_model = new ilClientsModel();
+                    if ($clients_model->clientExists($t_client_id)) {
+                        if ($clients_model->is_oauth2_gt_authcode_enabled($t_client_id)) {
+                            $allowed_users = $clients_model->getAllowedUsersForApiKey($t_client_id);
+                            $access_granted = false;
+                            $uid = (int)ilRestLib::loginToUserId($t_user);
+
+                            if (in_array(-1, $allowed_users) || in_array($uid, $allowed_users)) {
+                                $access_granted = true;
+                            }
+                            if ($access_granted == true) {
+                                $app->log->debug("auth code access granted. user: ".$t_user." key: ".$api_key);
+                                $bearer_token = ilTokenLib::generateBearerToken($t_user, $api_key);
+                                $response->setHttpHeader('Cache-Control', 'no-store');
+                                $response->setHttpHeader('Pragma', 'no-cache');
+                                $response->setField("access_token", $bearer_token['access_token']);
+                                $response->setField("expires_in", $bearer_token['expires_in']);
+                                $response->setField("token_type", $bearer_token['token_type']);
+                                $response->setField("scope", $bearer_token['scope']);
+                                $refresh_token = $this->getRefreshToken(ilTokenLib::deserializeToken($bearer_token['access_token']));
+                                $response->setField("refresh_token", $refresh_token); // optional
+                            } else {
+                                $response->setHttpStatus(401);
+                            }
+                        } else {
+                            $response->setHttpStatus(401);
+                        }
+                    }
+
+                }
+            } else {
+                $response->setHttpStatus(401);
+            }
         }
+        $response->send();
     }
 
     /**

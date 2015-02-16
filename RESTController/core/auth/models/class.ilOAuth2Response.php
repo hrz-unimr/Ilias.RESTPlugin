@@ -17,7 +17,7 @@ class ilOauth2Response {
      * Adds data to the response object and overrides data if already described by the same keyword.
      *
      * @param $keyword string which describes an object in the resulting json
-     * @param $data an array or a string which represents the data
+     * @param $data string|array or a string which represents the data
      */
     public function setField($keyword, $data)
     {
