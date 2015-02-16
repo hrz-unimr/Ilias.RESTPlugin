@@ -40,13 +40,13 @@
     <nav role="navigation" class="navbar navbar-default">
             <a href="#" class="navbar-brand">ILIAS REST Clients Administration</a>
             <p data-ng-show="isAuthenticated()" class="navbar-text ">
-                Angemeldet als {{getUsername()}}
+                Logged in as {{getUsername()}}
             </p>
         <ul class="nav navbar-nav navbar-right">
             <li data-ng-show="isAuthenticated()"><a href="#" ng-click="logout()">Logout</a></li>
         </ul>
     </nav>
-  <div ng-view></div>
+  <div class="{{ pageClass }}" ng-view></div>
 
   </div>
   <!-- In production use:
@@ -59,6 +59,7 @@
   <script src="bower_components/angular-ui-utils/ui-utils.js"></script>
   <script src="bower_components/angular-bootstrap/ui-bootstrap.js"></script>
   <script src="bower_components/angular-animate/angular-animate.js"></script>
+  <script src="bower_components/angular-loading-bar/build/loading-bar.min.js"></script>
   <script src="js/app.js"></script>
   <script src="js/services.js"></script>
   <script src="js/controllers.js"></script>

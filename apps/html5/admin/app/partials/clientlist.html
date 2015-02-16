@@ -5,8 +5,7 @@
                 <th>id</th>
                 <th>api_key</th>
                 <th>api_secret</th>
-                <th>oauth2 redirection_uri</th>
-                <th>oauth2 consent message</th>
+                <th>oauth2 grant types</th>
                 <th>permissions</th>
             </tr>
         </thead>
@@ -15,16 +14,21 @@
             <td>{{client.id}}</td>
             <td>{{client.api_key}}</td>
             <td>{{client.api_secret}}</td>
-            <td>{{client.oauth2_redirection_uri}}</td>
-            <td>{{client.oauth2_consent_message}}</td>
-            <td>{{client.permissions}}</td>
-            <td><button class="btn btn-primary" ng-click="editClient(client)">Ändern</button></td>
-            <td><button class="btn btn-danger" ng-click="deleteClient($index)">Löschen</button></td>
+            <td>
+                <span ng-show="{{client.oauth2_gt_authcode_active}}" class="label label-granttype">AuthCode</span>
+                <span ng-show="{{client.oauth2_gt_implicit_active}}" class="label label-granttype">Implicit</span>
+                <span ng-show="{{client.oauth2_gt_resourceowner_active}}" class="label label-granttype">Resource Owner</span>
+                <span ng-show="{{client.oauth2_gt_client_active}}" class="label label-granttype">Client Credentials</span>
+            </td>
+           <!--<td>{{client.permissions}}</td>-->
+            <td ng-bind-html='client.permissions | format_permissions'></td>
+            <td><button class="btn btn-primary" ng-click="editClient(client)">Modify</button></td>
+            <td><button class="btn btn-danger" ng-click="deleteClient($index)">Delete</button></td>
         </tr>
         </tbody>
     </table>
     <br />
-    <button class="btn btn-primary" ng-click="createNewClient()">Einen neuen Client anlegen</button>
+    <button class="btn btn-primary" ng-click="createNewClient()">Create a new REST client</button>
     <!--<button class="btn" ng-click="loadClients()">Reload</button> -->
     <!--<div>{{getAccessToken()}}</div>-->
 

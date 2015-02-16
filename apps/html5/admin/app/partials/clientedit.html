@@ -82,7 +82,7 @@
                     <div class="controls">
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" id="inputGtClient" name="inputGtClient" ng-model="currentClient.oauth2_gt_client_active" value="1" checked> Enabled
+                                <input type="checkbox" id="inputGtClient" name="inputGtClient" ng-model="currentClient.oauth2_gt_client_active" ng-checked="currentClient.oauth2_gt_client_active"> Enabled
                             </label>
                         </div>
                     </div>
@@ -102,7 +102,7 @@
                     <div class="controls">
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" id="inputGtAuth" name="inputGtAuth" value="1" ng-model="currentClient.oauth2_gt_authcode_active" checked> Enabled
+                                <input type="checkbox" id="inputGtAuth" name="inputGtAuth"  ng-model="currentClient.oauth2_gt_authcode_active" ng-checked="currentClient.oauth2_gt_authcode_active"> Enabled
                             </label>
                         </div>
                     </div>
@@ -114,7 +114,7 @@
                     <div class="controls">
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" id="inputGtImplicit" name="inputGtImplicit" value="1" ng-model="currentClient.oauth2_gt_implicit_active" checked> Enabled
+                                <input type="checkbox" id="inputGtImplicit" name="inputGtImplicit" ng-model="currentClient.oauth2_gt_implicit_active" ng-checked="currentClient.oauth2_gt_implicit_active"> Enabled
                             </label>
                         </div>
                     </div>
@@ -125,7 +125,7 @@
                     <div class="controls">
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" id="inputGtUserpass" name="inputGtUserpass" value="1" ng-model="currentClient.oauth2_gt_resourceowner_active" checked> Enabled
+                                <input type="checkbox" id="inputGtUserpass" name="inputGtUserpass" ng-model="currentClient.oauth2_gt_resourceowner_active" ng-checked="currentClient.oauth2_gt_resourceowner_active"> Enabled
                             </label>
                         </div>
                     </div>
@@ -145,7 +145,7 @@
                     <div class="controls">
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" id="inputAllUserAccess" name="inputAllUserAccess" value="1" ng-model="currentClient.oauth2_user_restriction_active">Specify a comma separated list of allowed ILIAS User Ids (else every ILIAS user can authorize)
+                                <input type="checkbox" id="inputAllUserAccess" name="inputAllUserAccess" ng-model="currentClient.oauth2_user_restriction_active" ng-checked="currentClient.oauth2_user_restriction_active">Specify a comma separated list of allowed ILIAS User Ids (else every ILIAS user can authorize)
                             </label>
 
                         </div>

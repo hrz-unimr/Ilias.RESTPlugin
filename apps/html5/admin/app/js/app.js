@@ -12,8 +12,8 @@ var app = angular.module('myApp', [
     'myApp.controllers',
     'ui.bootstrap',
     'ui.utils',
-    'ngAnimate'
-
+    'ngAnimate',
+    'angular-loading-bar'
 ]);
 
 app.constant("baseUrl", "http://localhost/restplugin.php");

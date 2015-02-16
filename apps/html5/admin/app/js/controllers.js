@@ -6,6 +6,7 @@ var app = angular.module('myApp.controllers', []);
 
 app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, restClient, restClients, $location, authentication, restRoutes) {
     $scope.logindata = postvars;
+    $scope.pageClass = 'page-main';
     $scope.clients = {};
     $scope.routes = {};
     $scope.currentClient = {id:-1, permissions:[]}; // Current Client
@@ -49,6 +50,7 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
         $scope.currentClient.id = -1;
         $scope.currentClient.oauth2_gt_client_active = 1;
         $scope.currentClient.oauth2_gt_client_user = 6;
+        $scope.currentClient.oauth2_gt_resourceowner_active = 1;
     }
 
     $scope.backToListView = function() {
