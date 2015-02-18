@@ -107,6 +107,8 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
                     oauth2_gt_resourceowner_active: $scope.currentClient.oauth2_gt_resourceowner_active,
                     oauth2_user_restriction_active: $scope.currentClient.oauth2_user_restriction_active,
                     oauth2_consent_message_active: $scope.currentClient.oauth2_consent_message_active,
+                    oauth2_gt_authcode_refresh_active: $scope.currentClient.oauth2_gt_authcode_refresh_active,
+                    oauth2_gt_resourceowner_refresh_active: $scope.currentClient.oauth2_gt_resourceowner_refresh_active,
                     access_user_csv: $scope.currentClient.access_user_csv
                 }, function (data) {
                 console.log('Callback : ',data);
@@ -133,6 +135,8 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
                         oauth2_gt_resourceowner_active: $scope.currentClient.oauth2_gt_resourceowner_active,
                         oauth2_user_restriction_active: $scope.currentClient.oauth2_user_restriction_active,
                         oauth2_consent_message_active: $scope.currentClient.oauth2_consent_message_active,
+                        oauth2_gt_authcode_refresh_active: $scope.currentClient.oauth2_gt_authcode_refresh_active,
+                        oauth2_gt_resourceowner_refresh_active: $scope.currentClient.oauth2_gt_resourceowner_refresh_active,
                         access_user_csv: $scope.currentClient.access_user_csv
                     }
                 }, function (data) {

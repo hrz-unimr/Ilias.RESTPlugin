@@ -1,4 +1,4 @@
-<h4>Das Login kann direkt über die REST Plugin Konfiguration in ILIAS erfolgen.</h4>
+<h4>You can log in via the ILIAS platform. Just go to Administration > Plugins > REST Plugin > Configure</h4>
 <div ng-controller="LoginCtrl">
 
     <form ng-submit="loginfromilias(logindata.user_id, logindata.client_id, logindata.session_id, logindata.rtoken)">
@@ -11,7 +11,7 @@
                 <input id="inputUserId" type="text" ng-model="logindata.user_id" class="ng-pristine ng-valid">
             </div>
             <div class="form-group">
-                <label for="inputSessionId">ILIAS Session  </label>
+                <label for="inputSessionId">ILIAS Session</label>
                 <input id="inputSessionId" type="text" ng-model="logindata.session_id" class="ng-pristine ng-valid">
 
                 <label for="inputRtoken">ILIAS rToken</label>
@@ -19,7 +19,7 @@
             </div>
         <br />
         {{loginError}}  {{loggedUser}}
-        <button class="btn btn-success">Einloggen</button>
+        <button class="btn btn-success">Log in</button>
         <!--<button class="btn btn-warning" ng-click="cancel()">Abbruch</button> -->
         </div>
     </form>

@@ -217,7 +217,10 @@ class ilOAuth2Model
                             $response->setField("expires_in", $bearer_token['expires_in']);
                             $response->setField("token_type", $bearer_token['token_type']);
                             $response->setField("scope", $bearer_token['scope']);
-                            //$response->addData("refresh_token",$bearer_token['scope']); // should not be send here
+                            if ($clients_model->is_resourceowner_refreshtoken_enabled($api_key)) {
+                                $refresh_token = $this->getRefreshToken(ilTokenLib::deserializeToken($bearer_token['access_token']));
+                                $response->setField("refresh_token", $refresh_token);
+                            }
                         } else {
                             $response->setHttpStatus(401);
                         }
@@ -329,8 +332,11 @@ class ilOAuth2Model
                                 $response->setField("expires_in", $bearer_token['expires_in']);
                                 $response->setField("token_type", $bearer_token['token_type']);
                                 $response->setField("scope", $bearer_token['scope']);
-                                $refresh_token = $this->getRefreshToken(ilTokenLib::deserializeToken($bearer_token['access_token']));
-                                $response->setField("refresh_token", $refresh_token); // optional
+                                if ($clients_model->is_authcode_refreshtoken_enabled($api_key)) { // optional
+                                    $refresh_token = $this->getRefreshToken(ilTokenLib::deserializeToken($bearer_token['access_token']));
+                                    $response->setField("refresh_token", $refresh_token);
+                                }
+
                             } else {
                                 $response->setHttpStatus(401);
                             }

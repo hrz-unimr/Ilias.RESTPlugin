@@ -252,6 +252,11 @@ class ilClientsModel
         return false;
     }
 
+    /**
+     * Returns the OAuth2 Consent Message
+     * @param $api_key
+     * @return string
+     */
     public function getOAuth2ConsentMessage($api_key) {
         global $ilDB;
         $query = "SELECT * FROM rest_apikeys WHERE api_key=".$ilDB->quote($api_key, "text");
@@ -261,6 +266,42 @@ class ilClientsModel
             return $row['oauth2_consent_message'];
         }
         return "";
+    }
+
+    /**
+     * Checks if the refresh token support for the grant type authorization code is enabled or not.
+     * @param $api_key
+     * @return bool
+     */
+    public function is_authcode_refreshtoken_enabled($api_key) {
+        global $ilDB;
+        $query = "SELECT * FROM rest_apikeys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $set = $ilDB->query($query);
+        if ($ilDB->numRows($set)>0) {
+            $row = $ilDB->fetchAssoc($set);
+            if ($row['oauth2_gt_authcode_refresh_active'] == 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the refresh token support for the grant type resource owner grant is enabled or not.
+     * @param $api_key
+     * @return bool
+     */
+    public function is_resourceowner_refreshtoken_enabled($api_key) {
+        global $ilDB;
+        $query = "SELECT * FROM rest_apikeys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $set = $ilDB->query($query);
+        if ($ilDB->numRows($set)>0) {
+            $row = $ilDB->fetchAssoc($set);
+            if ($row['oauth2_gt_resourceowner_refresh_active'] == 1) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
