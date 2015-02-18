@@ -5,13 +5,18 @@
 </head>
 <body>
     <form id="consentform" accept-charset="UTF-8" action="<?php echo dirname($_SERVER['SCRIPT_NAME']); ?>/restplugin.php/v1/oauth2/auth" method="post">
-    <h3 class="permission-title">Review permissions</h3>
-    <div class="oauth-permissions">
-        <ul>
-            <li>Permission to access my course memberships</li>
-            <li>Permission to read and modify my personal settings</li>
-        </ul>
-    </div>
+    <h3 class="permission-title">The current application requests access to ILIAS on your behalf.</h3>
+        <h4>If you agree with this, you need to press the button "Authorize application" on the bottom of the page.</h4>
+    <?php if (isset($this->data['oauth2_consent_message'])) {
+      ?>
+        In the following, the application states the scope of actions it will perform and/or describes purpose:
+        <div class="oauth-consent-message">
+            <?php echo $this->data['oauth2_consent_message']; ?>
+        </div>
+        <?php
+    }
+    ?>
+
     <p>
         <input name="authenticity_token" type="hidden" value="<?php echo $this->data['authenticity_token']; ?>" /></div>
         <input id="api_key" name="api_key" type="hidden" value="<?php echo $this->data['api_key']; ?>" />

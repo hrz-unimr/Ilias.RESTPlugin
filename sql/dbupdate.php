@@ -104,6 +104,12 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
             'notnull' => true,
             'default' => 6
         ),
+        'oauth2_consent_message_active' => array(
+            'type' => 'integer',
+            'length' => 1,
+            'notnull' => true,
+            'default' => 0
+        ),
     );
     $dropExistingTable = true;
     $ilDB->createTable("rest_apikeys", $fields, $dropExistingTable);

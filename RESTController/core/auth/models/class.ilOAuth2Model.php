@@ -17,6 +17,7 @@ class ilOAuth2Model
     {
 
         $request = $app->request();
+        $response = new ilOauth2Response($app);
         $api_key = $_POST['api_key'];
         $redirect_uri = $request->params('redirect_uri');
         $username = $request->params('username');
@@ -34,10 +35,34 @@ class ilOAuth2Model
             $clientValid = $ilAuth->checkOAuth2Client($api_key);
 
             if ($isAuth == true && $clientValid == true){
-                $temp_authenticity_token = ilTokenLib::serializeToken(ilTokenLib::generateToken($username, $api_key, "", "", 10));
-                $app->render('oauth2grantpermissionform.php', array('api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type, 'authenticity_token' => $temp_authenticity_token));
+
+                $clients_model = new ilClientsModel();
+                if ($clients_model->clientExists($api_key)) {
+                    if ($clients_model->is_oauth2_gt_authcode_enabled($api_key)) {
+                        if($clients_model->is_oauth2_consent_message_enabled($api_key) == true) {
+                            // Standard behaviour of the "authorization code grant": having an additional page with a consent message
+                            $temp_authenticity_token = ilTokenLib::serializeToken(ilTokenLib::generateToken($username, $api_key, "", "", 10));
+                            $oauth2_consent_message = $clients_model->getOAuth2ConsentMessage($api_key);
+                            $app->render('oauth2grantpermissionform.php', array('api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type, 'authenticity_token' => $temp_authenticity_token, 'oauth2_consent_message' => $oauth2_consent_message));
+                        } else {
+                            $tempToken = ilTokenLib::generateToken($username, $api_key, "code", $redirect_uri,10);
+                            $authorization_code = ilTokenLib::serializeToken($tempToken);
+                            $url = $redirect_uri . "?code=".$authorization_code;
+                            $app->redirect($url);
+                        }
+                    } else {
+                        $response->setHttpStatus(401);
+                        $response->send();
+                    }
+                } else {
+                    $response->setHttpStatus(401);
+                    $response->send();
+                }
+
             }else {
-                $app->response()->status(404);
+                $app->render('oauth2loginform.php', array('error_msg' => "Username or password incorrect!",'api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
+                //$response->setHttpStatus(401);
+                //$response->send();
             }
         } elseif ($authenticity_token && $redirect_uri) {
             $authenticity_token = ilTokenLib::deserializeToken($authenticity_token);
@@ -57,6 +82,7 @@ class ilOAuth2Model
      */
     public function handleAuthorizationEndpoint_implicitGrant($app)
     {
+        $response = new ilOauth2Response($app);
         $request = $app->request();
         $api_key = $_POST['api_key'];
         $redirect_uri = $request->params('redirect_uri');
@@ -64,47 +90,89 @@ class ilOAuth2Model
         $password = $request->params('password');
         $response_type = $request->params('response_type');
         $authenticity_token = $request->params('authenticity_token');
-        if ($redirect_uri && $api_key && is_null($authenticity_token) && is_null($username) && is_null($password)) {
-            $app->render('oauth2loginform.php', array('api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
-        } elseif ($username && $password) {
-            $iliasAuth = & ilAuthLib::getInstance();
-            //$isAuth = $iliasAuth->authMDB2($username,$password);
-            $isAuth = $iliasAuth->authenticateViaIlias($username, $password);
-            $clientValid = $iliasAuth->checkOAuth2Client($api_key);
-            if ($isAuth == true) {
-                $app->log->debug("Implicit Grant Flow - Auth valid");
-            } else {
-                $app->log->debug("Implicit Grant Flow - Auth NOT valid");
-            }
-            $app->log->debug("Implicit Grant Flow - Client valid: ".print_r($clientValid,true));
-            if ($isAuth == true && $clientValid != false) {
-                $app->log->debug("Implicit Grant Flow - proceed to grant permission form" );
-                $temp_authenticity_token = ilTokenLib::serializeToken(ilTokenLib::generateToken($username, $api_key, "", "", 10));
-                $app->render('oauth2grantpermissionform.php', array('api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type, 'authenticity_token' => $temp_authenticity_token));
-            }else {
-                // Username/Password wrong or client does not exist (which is less likely)
-                $app->render('oauth2loginform.php', array('error_msg' => "Username or password incorrect!",'api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
-                $app->response()->status(404);
-            }
-        } elseif ($authenticity_token && $redirect_uri) {
-            $authenticity_token = ilTokenLib::deserializeToken($authenticity_token);
-            $user = $authenticity_token['user'];
+        $clients_model = new ilClientsModel();
+        if ($clients_model->clientExists($api_key)) {
+            if ($clients_model->is_oauth2_gt_implicit_enabled($api_key)) {
+                if($clients_model->is_oauth2_consent_message_enabled($api_key)) {
+                    // Standard behaviour of "implicit grant": having an additional page with a consent message
+                    if ($redirect_uri && $api_key && is_null($authenticity_token) && is_null($username) && is_null($password)) {
+                        $app->render('oauth2loginform.php', array('api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
+                    } elseif ($username && $password) {
+                        $iliasAuth = & ilAuthLib::getInstance();
 
-            if (!ilTokenLib::tokenExpired($authenticity_token)) { // send bearer token
-                $clients_model = new ilClientsModel();
-                if ($clients_model->clientExists($api_key)) {
-                    if ($clients_model->is_oauth2_gt_implicit_enabled($api_key)) {
-                        $bearerToken = ilTokenLib::generateBearerToken($user, $api_key);
-                        $url = $redirect_uri . "#access_token=".$bearerToken['access_token']."&token_type=bearer"."&expires_in=".$bearerToken['expires_in']."&state=xyz";
-                        $app->redirect($url);
+                        $isAuth = $iliasAuth->authenticateViaIlias($username, $password);
+                        $clientValid = $iliasAuth->checkOAuth2Client($api_key);
+                        if ($isAuth == true) {
+                            $app->log->debug("Implicit Grant Flow - Auth valid");
+                        } else {
+                            $app->log->debug("Implicit Grant Flow - Auth NOT valid");
+                            $response->setHttpStatus(401);
+                            $response->send();
+                        }
+                        $app->log->debug("Implicit Grant Flow - Client valid: ".print_r($clientValid,true));
+                        if ($isAuth == true && $clientValid != false) {
+                            $app->log->debug("Implicit Grant Flow - proceed to grant permission form" );
+                            $temp_authenticity_token = ilTokenLib::serializeToken(ilTokenLib::generateToken($username, $api_key, "", "", 10));
+                            $oauth2_consent_message = $clients_model->getOAuth2ConsentMessage($api_key);
+                            $app->render('oauth2grantpermissionform.php', array('api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type, 'authenticity_token' => $temp_authenticity_token, 'oauth2_consent_message' => $oauth2_consent_message));
+                        }else {
+                            // Username/Password wrong or client does not exist (which is less likely)
+                            $app->render('oauth2loginform.php', array('error_msg' => "Username or password incorrect!",'api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
+                            //$app->response()->status(404);
+                        }
+                    } elseif ($authenticity_token && $redirect_uri) {
+                        $authenticity_token = ilTokenLib::deserializeToken($authenticity_token);
+                        $user = $authenticity_token['user'];
+
+                        if (!ilTokenLib::tokenExpired($authenticity_token)) { // send bearer token
+                            $clients_model = new ilClientsModel();
+                            if ($clients_model->clientExists($api_key)) {
+                                if ($clients_model->is_oauth2_gt_implicit_enabled($api_key)) {
+                                    $bearerToken = ilTokenLib::generateBearerToken($user, $api_key);
+                                    $url = $redirect_uri . "#access_token=".$bearerToken['access_token']."&token_type=bearer"."&expires_in=".$bearerToken['expires_in']."&state=xyz";
+                                    $app->redirect($url);
+                                }
+                            }
+                            $url = $redirect_uri . "#access_token="."no_access";
+                            $app->redirect($url);
+                        }
                     }
+                } else { // no consent message
+                    $app->log->debug("Implicit Grant Flow - Without Consent Message ");
+                    if ($redirect_uri && $api_key && is_null($authenticity_token) && is_null($username) && is_null($password)) {
+                        $app->log->debug("Implicit Grant Flow - Rendering LoginForm ");
+                        $app->render('oauth2loginform.php', array('api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
+                    } elseif ($username && $password) {
+                        $iliasAuth = & ilAuthLib::getInstance();
+                        $isAuth = $iliasAuth->authenticateViaIlias($username, $password);
+                        $clientValid = $iliasAuth->checkOAuth2Client($api_key);
+
+                        if ($isAuth == true) {
+                            $app->log->debug("Implicit Grant Flow - Auth valid");
+                        } else {
+                            $app->log->debug("Implicit Grant Flow - Auth NOT valid");
+                            $response->setHttpStatus(401);
+                        }
+                        $app->log->debug("Implicit Grant Flow - Client valid: ".print_r($clientValid,true));
+                        if ($isAuth == true && $clientValid != false) {
+                            $bearerToken = ilTokenLib::generateBearerToken($username, $api_key);
+                            $url = $redirect_uri . "#access_token=".$bearerToken['access_token']."&token_type=bearer"."&expires_in=".$bearerToken['expires_in']."&state=xyz";
+                            $app->redirect($url);
+                        }else {
+                            // Username/Password wrong or client does not exist (which is less likely)
+                            $app->render('oauth2loginform.php', array('error_msg' => "Username or password incorrect!",'api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
+                        }
+                    } // username, passw
                 }
-
-                $url = $redirect_uri . "#access_token="."no_access";
-                $app->redirect($url);
+            } else {
+                $response->setHttpStatus(401);
+                $response->send();
             }
-
+        } else {
+            $response->setHttpStatus(401);
+            $response->send();
         }
+
     }
     // ----------------------------------------------------------------------------------------------
     // Token endpoint routines
@@ -123,8 +191,9 @@ class ilOAuth2Model
         $isAuth = $ilAuth->authenticateViaIlias($user, $pass); // this includes ilias auth against the DB
 
         if ($isAuth == false) {
-            $app->response()->status(401);
-            // optional: send msg
+            $response->setHttpStatus(401);
+            // optional message
+            $response->send();
         }
         else {
             if (isset($_POST['api_key'])) {

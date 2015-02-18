@@ -23,7 +23,7 @@ class ilClientsModel
     /**
      * Creates a new REST client entry
      */
-    function createClient($api_key, $api_secret, $oauth2_redirection_uri, $oauth2_consent_message, $permissions,
+    function createClient($api_key, $api_secret, $oauth2_redirection_uri, $oauth2_consent_message, $oauth2_consent_message_active, $permissions,
                           $oauth2_gt_client_active,
                           $oauth2_gt_authcode_active,
                           $oauth2_gt_implicit_active,
@@ -44,7 +44,8 @@ class ilClientsModel
             "oauth2_gt_implicit_active" => array("integer", $oauth2_gt_implicit_active),
             "oauth2_gt_resourceowner_active" => array("integer", $oauth2_gt_resourceowner_active),
             "oauth2_gt_client_user" => array("integer", $oauth2_gt_client_user),
-            "oauth2_user_restriction_active" => array("integer", $oauth2_user_restriction_active)
+            "oauth2_user_restriction_active" => array("integer", $oauth2_user_restriction_active),
+            "oauth2_consent_message_active" => array("integer", $oauth2_consent_message_active)
         );
 
         $ilDB->insert("rest_apikeys", $a_columns);
@@ -230,6 +231,36 @@ class ilClientsModel
             }
         }
         return false;
+    }
+
+    /**
+     * Checks if the oauth2 consent message is enabled, i.e. an additional page for the grant types
+     * "authorization code" and "implicit grant".
+     * @param $api_key
+     * @return bool
+     */
+    public function is_oauth2_consent_message_enabled($api_key) {
+        global $ilDB;
+        $query = "SELECT * FROM rest_apikeys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $set = $ilDB->query($query);
+        if ($ilDB->numRows($set)>0) {
+            $row = $ilDB->fetchAssoc($set);
+            if ($row['oauth2_consent_message_active'] == 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function getOAuth2ConsentMessage($api_key) {
+        global $ilDB;
+        $query = "SELECT * FROM rest_apikeys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $set = $ilDB->query($query);
+        if ($ilDB->numRows($set)>0) {
+            $row = $ilDB->fetchAssoc($set);
+            return $row['oauth2_consent_message'];
+        }
+        return "";
     }
 
 }

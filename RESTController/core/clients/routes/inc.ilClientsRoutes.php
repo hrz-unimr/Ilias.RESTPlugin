@@ -187,6 +187,12 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
             }
 
             try {
+                $oauth2_consent_message_active = $request->getParam('oauth2_consent_message_active');
+            } catch(Exception $e) {
+                $oauth2_consent_message_active = 0;
+            }
+
+            try {
                 $access_user_csv = $request->getParam('access_user_csv');
             } catch(Exception $e) {
                 $access_user_csv = "";
@@ -202,6 +208,7 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
                     $new_api_secret,
                     $new_client_oauth2_redirect_url,
                     $new_client_oauth2_consent_message,
+                    $oauth2_consent_message_active,
                     $new_client_permissions,
                     $oauth2_gt_client_active,
                     $oauth2_gt_authcode_active,

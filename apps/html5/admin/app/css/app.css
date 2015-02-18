@@ -1,5 +1,5 @@
 /* app css stylesheet */
-
+/*
 .menu {
   list-style: none;
   border-bottom: 0.1em solid black;
@@ -28,9 +28,9 @@
   content: "";
   padding: 0;
 }
-
+*/
 .main_div {
-   margin: 15px;
+   margin: 5px;
 }
 
 #scopetable {
@@ -44,6 +44,7 @@
 .label-permission {
   background-color: #6a8c8a;
 }
+
 /* ----------------- ANIMATION PART ------------------- */
 /*
  The animate class is apart of the element and the ng-enter class
