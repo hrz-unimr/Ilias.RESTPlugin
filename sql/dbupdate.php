@@ -110,13 +110,13 @@ $ilDB->addPrimaryKey("rest_config", array("id"));
             'notnull' => true,
             'default' => 0
         ),
-        'oauth2_gt_authcode_refresh_active' => array(
+        'oauth2_authcode_refresh_active' => array( // oauth2_granttype_authorization_code_refresh_active
             'type' => 'integer',
             'length' => 1,
             'notnull' => true,
             'default' => 1
         ),
-        'oauth2_gt_resourceowner_refresh_active' => array(
+        'oauth2_resource_refresh_active' => array( // oauth2_granttype_resourceowner_refresh_active
             'type' => 'integer',
             'length' => 1,
             'notnull' => true,

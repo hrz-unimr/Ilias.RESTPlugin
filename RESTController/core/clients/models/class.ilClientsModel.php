@@ -30,7 +30,9 @@ class ilClientsModel
                           $oauth2_gt_resourceowner_active,
                           $oauth2_user_restriction_active,
                           $oauth2_gt_client_user,
-                          $access_user_csv)
+                          $access_user_csv,
+                        $oauth2_authcode_refresh_active,
+                        $oauth2_resource_refresh_active)
     {
         global $ilDB;
 
@@ -45,7 +47,9 @@ class ilClientsModel
             "oauth2_gt_resourceowner_active" => array("integer", $oauth2_gt_resourceowner_active),
             "oauth2_gt_client_user" => array("integer", $oauth2_gt_client_user),
             "oauth2_user_restriction_active" => array("integer", $oauth2_user_restriction_active),
-            "oauth2_consent_message_active" => array("integer", $oauth2_consent_message_active)
+            "oauth2_consent_message_active" => array("integer", $oauth2_consent_message_active),
+            "oauth2_authcode_refresh_active" => array("integer", $oauth2_authcode_refresh_active),
+            "oauth2_resource_refresh_active" => array("integer", $oauth2_resource_refresh_active),
         );
 
         $ilDB->insert("rest_apikeys", $a_columns);
@@ -279,7 +283,7 @@ class ilClientsModel
         $set = $ilDB->query($query);
         if ($ilDB->numRows($set)>0) {
             $row = $ilDB->fetchAssoc($set);
-            if ($row['oauth2_gt_authcode_refresh_active'] == 1) {
+            if ($row['oauth2_authcode_refresh_active'] == 1) {
                 return true;
             }
         }
@@ -297,7 +301,7 @@ class ilClientsModel
         $set = $ilDB->query($query);
         if ($ilDB->numRows($set)>0) {
             $row = $ilDB->fetchAssoc($set);
-            if ($row['oauth2_gt_resourceowner_refresh_active'] == 1) {
+            if ($row['oauth2_resource_refresh_active'] == 1) {
                 return true;
             }
         }
