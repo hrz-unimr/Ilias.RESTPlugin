@@ -1,35 +1,19 @@
-<h4>You can log in via the ILIAS platform. Just go to Administration > Plugins > REST Plugin > Configure</h4>
 <div ng-controller="LoginCtrl">
 
-    <form ng-submit="loginfromilias(logindata.user_id, logindata.client_id, logindata.session_id, logindata.rtoken)">
-        <div class="well">
-            <div class="form-group">
-                <label for="inputClientId">REST Api Key</label>
-                <input id="inputClientId" type="text" ng-model="logindata.api_key" class="ng-pristine ng-valid">
+    <div data-ng-hide="manual_login">You came from the ILIAS platform. Trying to login automatically ... </div>
+    <div data-ng-show="manual_login">
+        <div class="maccount-wall" style="margin-left: auto;
+    margin-right: auto;vertical-align: middle; padding: 10% 0;">
+            <h5 class="error_msg" data-ng-show="loginHasFailed">Login failed.</h5>
+            <img class="profile-img" src="../../../templates/default/images/v1/HeaderIcon_v1.svg"
+                 alt="">
 
-                <label for="inputUserId">ILIAS User ID</label>
-                <input id="inputUserId" type="text" ng-model="logindata.user_id" class="ng-pristine ng-valid">
-            </div>
-            <div class="form-group">
-                <label for="inputSessionId">ILIAS Session</label>
-                <input id="inputSessionId" type="text" ng-model="logindata.session_id" class="ng-pristine ng-valid">
-
-                <label for="inputRtoken">ILIAS rToken</label>
-                <input id="inputRtoken" type="text" ng-model="logindata.rtoken" class="ng-pristine ng-valid">
-            </div>
-        <br />
-        {{loginError}}  {{loggedUser}}
-        <button class="btn btn-success">Log in</button>
-        <!--<button class="btn btn-warning" ng-click="cancel()">Abbruch</button> -->
+            <form class="form-signin" ng-submit="loginManually(logindata.user_name, logindata.password)">
+                <h4>Login</h4>
+                <input ng-model="logindata.user_name" type="text" class="form-control" placeholder="Username" required autofocus>
+                <input ng-model="logindata.password" type="password" class="form-control" placeholder="Password" required>
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Anmelden</button>
+            </form>
         </div>
-    </form>
-    <!--<div class="panel panel-danger">
-        <div class="panel-heading">
-            <h3 class="panel-title">Debug</h3>
-        </div>
-        <div class="panel-body">
-            {{logindata}}
-            {{access_token}}
-        </div>
-    </div> -->
+    </div>
 </div>

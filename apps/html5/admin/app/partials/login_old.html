@@ -1,0 +1,28 @@
+<div ng-controller="LoginCtrl">
+
+    <div data-ng-hide="manual_login">You came from the ILIAS platform. Trying to login automatically ... </div>
+    <div data-ng-show="manual_login">
+        <form ng-submit="loginfromilias(logindata.user_id, logindata.client_id, logindata.session_id, logindata.rtoken)">
+            <div class="well">
+                <div class="form-group">
+                    <label for="inputClientId">REST Api Key</label>
+                    <input id="inputClientId" type="text" ng-model="logindata.api_key" class="ng-pristine ng-valid">
+
+                    <label for="inputUserId">ILIAS User ID</label>
+                    <input id="inputUserId" type="text" ng-model="logindata.user_id" class="ng-pristine ng-valid">
+                </div>
+                <div class="form-group">
+                    <label for="inputSessionId">ILIAS Session</label>
+                    <input id="inputSessionId" type="text" ng-model="logindata.session_id" class="ng-pristine ng-valid">
+
+                    <label for="inputRtoken">ILIAS rToken</label>
+                    <input id="inputRtoken" type="text" ng-model="logindata.rtoken" class="ng-pristine ng-valid">
+                </div>
+            <br />
+            {{loginError}}  {{loggedUser}}
+            <button class="btn btn-success">Log in</button>
+            <!--<button class="btn btn-warning" ng-click="cancel()">Abbruch</button> -->
+            </div>
+        </form>
+    </div>
+</div>

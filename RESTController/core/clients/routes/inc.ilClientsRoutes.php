@@ -116,7 +116,7 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
             $result['authuser'] = $authorizedUser;
         } else {
 
-            $app->log->debug("Request data ".print_r($request->getRaw(),true));
+            $app->log->debug("Request data (Create Client)".print_r($request->getRaw(),true));
 
             try {
                 $new_api_key = $request->getParam('api_key');
@@ -193,6 +193,21 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
             }
 
             try {
+                $oauth2_authcode_refresh_active = $request->getParam('oauth2_authcode_refresh_active');
+            } catch(Exception $e) {
+                $oauth2_authcode_refresh_active = 0;
+            }
+
+            try {
+                $oauth2_resource_refresh_active = $request->getParam('oauth2_resource_refresh_active');
+            } catch(Exception $e) {
+                $oauth2_resource_refresh_active = 0;
+            }
+
+
+
+
+            try {
                 $access_user_csv = $request->getParam('access_user_csv');
             } catch(Exception $e) {
                 $access_user_csv = "";
@@ -203,6 +218,7 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
                 $result['msg'] = "Mandatory data is missing.";
             } else {
                 $admin_model = new ilClientsModel();
+
                 $new_id = $admin_model->createClient(
                     $new_api_key,
                     $new_api_secret,
@@ -216,8 +232,9 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
                     $oauth2_gt_resourceowner_active,
                     $oauth2_user_restriction_active,
                     $oauth2_gt_client_user,
-                    $access_user_csv
+                    $access_user_csv,$oauth2_authcode_refresh_active,$oauth2_resource_refresh_active
                 );
+                $app->log->debug('Result of createClient: '.$new_id);
                 $result['id'] = $new_id;
                 $result['status'] = 'success';
             }

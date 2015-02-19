@@ -35,7 +35,8 @@ class ilClientsModel
                         $oauth2_resource_refresh_active)
     {
         global $ilDB;
-
+        global $ilLog;
+        $ilLog->write('In createClient');
         $a_columns = array("api_key" => array("text", $api_key),
             "api_secret" => array("text", $api_secret),
             "oauth2_redirection_uri" => array("text", $oauth2_redirection_uri),
@@ -49,12 +50,14 @@ class ilClientsModel
             "oauth2_user_restriction_active" => array("integer", $oauth2_user_restriction_active),
             "oauth2_consent_message_active" => array("integer", $oauth2_consent_message_active),
             "oauth2_authcode_refresh_active" => array("integer", $oauth2_authcode_refresh_active),
-            "oauth2_resource_refresh_active" => array("integer", $oauth2_resource_refresh_active),
+            "oauth2_resource_refresh_active" => array("integer", $oauth2_resource_refresh_active)
         );
 
+
+        $ilLog->write("Try to create mew client db insert data: ".$a_columns);
         $ilDB->insert("rest_apikeys", $a_columns);
         $insertId = $ilDB->getLastInsertId();
-
+        $ilLog->write("Try to create mew client db insert id: ".$insertId);
 
         // process access_user_csv
         if ($oauth2_user_restriction_active==true) {

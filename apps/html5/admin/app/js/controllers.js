@@ -168,6 +168,7 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
 
     $scope.logout = function() {
         authentication.isAuthenticated = false;
+        authentication.manual_login = true;
         $location.url("/login");
     }
 
@@ -185,9 +186,86 @@ app.controller('AuthCtrl', function($scope, $filter, $http, restAuth) {
 });
 
 
-app.controller('LoginCtrl', function($scope, authentication, $location, restAuth) {
-    $scope.loginfromilias = function () {
+app.controller('LoginCtrl', function($scope, authentication, $location, restAuth, restAuthTokenEndpoint) {
+    $scope.logindata = postvars;
+    $scope.manual_login = false;
 
+    $scope.init = function() {
+        if ($scope.logindata.api_key != '' && authentication.manual_login == false) {
+            console.log('Post variables found. Try to login automatically...'+$scope.logindata.api_key);
+            $scope.manual_login = false;
+            $scope.autoLogin();
+        } else {
+            console.log('Post variables not set. Switch to manual login...');
+            $scope.manual_login = true;
+        }
+    }
+
+    $scope.autoLogin = function () {
+        var v_user_id=$scope.logindata.user_id;
+        var v_api_key = $scope.logindata.api_key;
+        var v_session_id = $scope.logindata.session_id;
+        var v_rtoken = $scope.logindata.rtoken;
+        restAuth.getResource().auth({api_key: v_api_key, user_id: v_user_id, session_id: v_session_id, rtoken: v_rtoken }, function (data) {
+            console.log('Auth Callback : ',data);
+            if (data.status == "success") {
+                $scope.token = data.token;//.access_token;
+                $scope.access_token = $scope.token.access_token
+                authentication.isAuthenticated = true;
+                authentication.access_token = $scope.access_token;
+                authentication.user = data.user;
+                authentication.access_token = data.token.access_token;
+                $location.url("/clientlist");
+                $scope.loadClients();
+            } else {
+                authentication.isAuthenticated = false;
+                $scope.manual_login = true;
+                $location.url("/login");
+            }
+        });
+    }
+
+    $scope.loginManually = function () { // login using resource owner grant
+
+        var v_user_name = $scope.logindata.user_name;
+        var v_password = $scope.logindata.password;
+        var api_key = 'apollon'; // default api key for administration
+
+        restAuthTokenEndpoint.getResource().auth({grant_type: 'password', username: v_user_name, password: v_password, api_key: api_key },
+            function (data) {
+                 console.log('Auth Callback : ',data);
+                 if (data.token_type == "bearer") {
+                     $scope.token = data.access_token;
+                     $scope.access_token = $scope.token;//.access_token
+                     console.log($scope.token);
+                     authentication.isAuthenticated = true;
+                     authentication.access_token = $scope.access_token;
+                     authentication.user = $scope.logindata.user_name;
+                     $location.url("/clientlist");
+                     $scope.loadClients();
+                 } else {
+                    authentication.isAuthenticated = false;
+                     $scope.manual_login = true;
+                     $location.url("/login");
+                 }
+             },
+            function (errorResult){
+                 console.log('Auth failed recieved an error from server ');
+                $scope.loginHasFailed = true;
+                authentication.isAuthenticated = false;
+                $scope.manual_login = true;
+                $location.url("/login");
+                //br
+                 /*if (errorResult.status = 401) {
+                    $scope.loginHasFailed = true;
+                    authentication.isAuthenticated = false;
+                    $scope.manual_login = true;
+                 }*/
+            }
+        );
+
+    };
+    /*$scope.loginfromilias = function () {
         var v_user_id=$scope.logindata.user_id;
         var v_api_key = $scope.logindata.api_key;
         var v_session_id = $scope.logindata.session_id;
@@ -208,5 +286,7 @@ app.controller('LoginCtrl', function($scope, authentication, $location, restAuth
                 //$location.url("/login");
             }
         });
-    };
+    };*/
+
+    $scope.init();
 });

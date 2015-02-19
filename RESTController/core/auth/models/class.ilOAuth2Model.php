@@ -186,6 +186,7 @@ class ilOAuth2Model
         $response = new ilOauth2Response($app);
         $user = $request->getParam('username');
         $pass = $request->getParam('password');
+        $api_key = $request->getParam('api_key');
 
         $ilAuth = & ilAuthLib::getInstance();
         $isAuth = $ilAuth->authenticateViaIlias($user, $pass); // this includes ilias auth against the DB
@@ -194,35 +195,29 @@ class ilOAuth2Model
             $response->setHttpStatus(401);
             // optional message
             $response->send();
-        }
-        else {
-            if (isset($_POST['api_key'])) {
-                $api_key = $_POST['api_key'];
-                $clients_model = new ilClientsModel();
-                if ($clients_model->clientExists($api_key)) {
-                    if ($clients_model->is_oauth2_gt_resourceowner_enabled($api_key)) {
-                        $allowed_users = $clients_model->getAllowedUsersForApiKey($api_key);
-                        $access_granted = false;
-                        $uid = (int)ilRestLib::loginToUserId($user);
+        } else {
+            $clients_model = new ilClientsModel();
+            if ($clients_model->clientExists($api_key)) {
+                if ($clients_model->is_oauth2_gt_resourceowner_enabled($api_key)) {
+                    $allowed_users = $clients_model->getAllowedUsersForApiKey($api_key);
+                    $access_granted = false;
+                    $uid = (int)ilRestLib::loginToUserId($user);
 
-                        if (in_array(-1, $allowed_users) || in_array($uid, $allowed_users)) {
-                            $access_granted = true;
-                        }
-                        if ($access_granted == true) {
-                            $app->log->debug("access granted");
-                            $bearer_token = ilTokenLib::generateBearerToken($user, $api_key);
-                            $response->setHttpHeader('Cache-Control', 'no-store');
-                            $response->setHttpHeader('Pragma', 'no-cache');
-                            $response->setField("access_token", $bearer_token['access_token']);
-                            $response->setField("expires_in", $bearer_token['expires_in']);
-                            $response->setField("token_type", $bearer_token['token_type']);
-                            $response->setField("scope", $bearer_token['scope']);
-                            if ($clients_model->is_resourceowner_refreshtoken_enabled($api_key)) {
-                                $refresh_token = $this->getRefreshToken(ilTokenLib::deserializeToken($bearer_token['access_token']));
-                                $response->setField("refresh_token", $refresh_token);
-                            }
-                        } else {
-                            $response->setHttpStatus(401);
+                    if (in_array(-1, $allowed_users) || in_array($uid, $allowed_users)) {
+                        $access_granted = true;
+                    }
+                    if ($access_granted == true) {
+                        $app->log->debug("access granted");
+                        $bearer_token = ilTokenLib::generateBearerToken($user, $api_key);
+                        $response->setHttpHeader('Cache-Control', 'no-store');
+                        $response->setHttpHeader('Pragma', 'no-cache');
+                        $response->setField("access_token", $bearer_token['access_token']);
+                        $response->setField("expires_in", $bearer_token['expires_in']);
+                        $response->setField("token_type", $bearer_token['token_type']);
+                        $response->setField("scope", $bearer_token['scope']);
+                        if ($clients_model->is_resourceowner_refreshtoken_enabled($api_key)) {
+                            $refresh_token = $this->getRefreshToken(ilTokenLib::deserializeToken($bearer_token['access_token']));
+                            $response->setField("refresh_token", $refresh_token);
                         }
                     } else {
                         $response->setHttpStatus(401);
@@ -233,8 +228,8 @@ class ilOAuth2Model
             } else {
                 $response->setHttpStatus(401);
             }
-            $response->send();
         }
+        $response->send();
     }
 
     /**

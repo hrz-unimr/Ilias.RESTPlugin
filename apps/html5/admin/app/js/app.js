@@ -26,41 +26,52 @@ app.config(['$routeProvider', function($routeProvider, $locationProvider) {
 }]);
 
 app.config(function(restRoutesProvider){
-    restRoutesProvider.setBaseUrl(postvars.inst_folder);
+    restRoutesProvider.setBaseUrl(getInstallationFolder());
 });
 
 app.config(function(restClientProvider){
-    restClientProvider.setBaseUrl(postvars.inst_folder);
+    restClientProvider.setBaseUrl(getInstallationFolder());
 });
 
 app.config(function(restClientsProvider){
-    restClientsProvider.setBaseUrl(postvars.inst_folder);
+    restClientsProvider.setBaseUrl(getInstallationFolder());
 });
 
 app.config(function(restAuthProvider){
-    restAuthProvider.setBaseUrl(postvars.inst_folder);
+    restAuthProvider.setBaseUrl(getInstallationFolder());
 });
 
+app.config(function(restAuthTokenEndpointProvider){
+    /*var pathArray = window.location.pathname.split( '/' );
+    var iliasSubFolder = '';
+    for (var i = 0; i<pathArray.length; i++) {
+        console.log("Path array fragment "+ i + " : "+ pathArray[i]);
+        if (pathArray[i] == "Customizing") {
+            if (i>1) {
+                iliasSubFolder = "/" + pathArray[i-1];
+                break;
+            }
+        }
+    }
+    restAuthTokenEndpointProvider.setBaseUrl(iliasSubFolder);
+    */
+    restAuthTokenEndpointProvider.setBaseUrl(getInstallationFolder());
 
-/*app.config(['$httpProvider', function ($httpProvider) {
-    $httpProvider.defaults.headers.common['Authentication'] = 'XYZ';
-}]);
-*/
+});
+
 
 app.run(function(editableOptions) {
     editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
 });
 
-//app.run(function ($rootScope, restAuth) {
-   /*
+/*
+app.run(function (authentication, $rootScope, restAuth) {
     $rootScope.$on('$viewContentLoaded', function () {
-         console.log('first time');
-        AuthFactory.auth({'user_id':$rootScope.user_id,'session_id':$rootScope.session_id, 'rtoken':$rootScope.rtoken,
-'api_key':$rootScope.api_key});
+         console.log('Auto Login');
     });
-    */
-//});
 
+});
+*/
 
 app.run(function(authentication, $rootScope, $location) {
     $rootScope.$on('$routeChangeStart', function(evt) {
@@ -81,3 +92,21 @@ app.run(function ($rootScope, $templateCache) {
 
     });
 });
+
+var getInstallationFolder = function () {
+    if (postvars.inst_folder!="") {
+        return postvars.inst_folder;
+    }
+    var pathArray = window.location.pathname.split( '/' );
+    var iliasSubFolder = '';
+    for (var i = 0; i<pathArray.length; i++) {
+        console.log("Path array fragment "+ i + " : "+ pathArray[i]);
+        if (pathArray[i] == "Customizing") {
+            if (i>1) {
+                iliasSubFolder = "/" + pathArray[i-1];
+                break;
+            }
+        }
+    }
+    return iliasSubFolder;
+};

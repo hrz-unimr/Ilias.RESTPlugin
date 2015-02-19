@@ -70,6 +70,25 @@ services.provider('restAuth', function() {
         }
     };
     this.setBaseUrl = function(baseUrl) {
+        console.log("Setting up baseURl for restAuth: "+baseUrl);
+        this.baseUrl = baseUrl;
+    };
+});
+
+services.provider('restAuthTokenEndpoint', function() {
+    this.baseUrl = '';
+    this.$get = function($resource, TokenHandler) {
+        var baseUrl = this.baseUrl;
+        return {
+            getResource: function() {
+                return $resource(baseUrl + '/restplugin.php/v1/oauth2/token', {}, {
+                    auth: { method: 'POST', params: {}, ignoreLoadingBar: true } //, headers : {'Content-Type': 'application/x-www-form-urlencoded'} }
+                })
+            }
+        }
+    };
+    this.setBaseUrl = function(baseUrl) {
+        console.log("Setting up baseURl for restAuthTokenEntpoint: "+baseUrl);
         this.baseUrl = baseUrl;
     };
 });
@@ -79,7 +98,8 @@ app.factory('authentication', function() {
     return {
         isAuthenticated: false,
         user: null,
-        access_token: null
+        access_token: null,
+        manual_login: false
     }
 });
 
