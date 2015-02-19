@@ -291,4 +291,8 @@ $app->get('/routes', function () use ($app) {
 
 });
 
+$app->get('/rest/config', function () use ($app) {
+    $app->redirect(dirname($_SERVER['SCRIPT_NAME']).'/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/Rest/apps/html5/admin/app/');
+});
+
 ?>

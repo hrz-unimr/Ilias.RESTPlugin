@@ -1,16 +1,16 @@
 <?php
+    require_once('config.ini.php');
    // print_r($_REQUEST);
     if (isset($_GET['code'])){ // Exchange OAuth 2 authorization code for bearer token
-
-        $api_key = "apollon";
-        $api_secret = "o68Hu9A3LA"; // Top Secret
-        $restUrl = "http://localhost/ilias5/restplugin.php/v1/oauth2/token";
 
         if (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off') {
             $protocol = 'http://';
         } else {
             $protocol = 'https://';
         }
+
+        $restUrl =  $protocol . 'localhost' .$subFolder. "/restplugin.php/v1/oauth2/token";
+
         $redirect_uri = $protocol . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF'];
         if ($_SERVER["SERVER_PORT"] != "80") {
             $redirect_uri = $protocol . $_SERVER['SERVER_NAME'] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER['PHP_SELF'];
