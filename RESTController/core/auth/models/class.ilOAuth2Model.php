@@ -18,7 +18,7 @@ class ilOAuth2Model
 
         $request = $app->request();
         $response = new ilOauth2Response($app);
-        $api_key = $_POST['api_key'];
+        $api_key = $request->params('api_key');
         $redirect_uri = $request->params('redirect_uri');
         $username = $request->params('username');
         $password = $request->params('password');
@@ -84,7 +84,7 @@ class ilOAuth2Model
     {
         $response = new ilOauth2Response($app);
         $request = $app->request();
-        $api_key = $_POST['api_key'];
+        $api_key = $request->params('api_key');
         $redirect_uri = $request->params('redirect_uri');
         $username = $request->params('username');
         $password = $request->params('password');
@@ -240,7 +240,7 @@ class ilOAuth2Model
     public function handleTokenEndpoint_clientCredentials($app, $request)
     {
         $response = new ilOauth2Response($app);
-        $api_key = $_POST['api_key'];
+        $api_key = $request->getParam('api_key');
         $api_secret = $request->getParam('api_secret');
 
         $ilAuth = & ilAuthLib::getInstance();

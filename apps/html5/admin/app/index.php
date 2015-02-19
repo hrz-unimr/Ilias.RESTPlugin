@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="bower_components/html5-boilerplate/css/normalize.css">
   <link rel="stylesheet" href="bower_components/html5-boilerplate/css/main.css">
   <link rel="stylesheet" href="css/app.css"/>
+  <link rel="stylesheet" href="css/loginadmin.css"/>
   <link rel="stylesheet" href="bower_components/animate.css/animate.min.css">
   <link rel="stylesheet" href="bower_components/angular-loading-bar/build/loading-bar.min.css">
   <link href="css/bootstrap.min.css" rel="stylesheet"> <!-- v3.0.0 -->
@@ -39,7 +40,7 @@
     <div class="main_div">
 
     <nav role="navigation" class="navbar navbar-default">
-            <a href="#" class="navbar-brand">ILIAS REST Clients Administration</a>
+            <a href="#" class="navbar-brand">ILIAS REST Plugin Clients Administration</a>
             <p data-ng-show="isAuthenticated()" class="navbar-text ">
                 Logged in as {{getUsername()}}
             </p>

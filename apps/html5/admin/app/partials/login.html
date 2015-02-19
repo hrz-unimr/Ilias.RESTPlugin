@@ -4,12 +4,13 @@
     <div data-ng-show="manual_login">
         <div class="maccount-wall" style="margin-left: auto;
     margin-right: auto;vertical-align: middle; padding: 10% 0;">
-            <h5 class="error_msg" data-ng-show="loginHasFailed">Login failed.</h5>
-            <img class="profile-img" src="../../../templates/default/images/v1/HeaderIcon_v1.svg"
+
+            <img class="profile-img" src="img/logo.png"
                  alt="">
 
             <form class="form-signin" ng-submit="loginManually(logindata.user_name, logindata.password)">
                 <h4>Login</h4>
+                <h5 class="error_msg" data-ng-show="loginHasFailed">Login failed.</h5>
                 <input ng-model="logindata.user_name" type="text" class="form-control" placeholder="Username" required autofocus>
                 <input ng-model="logindata.password" type="password" class="form-control" placeholder="Password" required>
                 <button class="btn btn-lg btn-primary btn-block" type="submit">Anmelden</button>
