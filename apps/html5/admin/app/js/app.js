@@ -16,6 +16,10 @@ var app = angular.module('myApp', [
     'angular-loading-bar'
 ]);
 
+app.config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
+        cfpLoadingBarProvider.includeSpinner = false;
+    }])
+
 app.constant("baseUrl", "http://localhost/restplugin.php");
 
 app.config(['$routeProvider', function($routeProvider, $locationProvider) {
