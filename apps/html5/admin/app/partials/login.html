@@ -9,11 +9,11 @@
                  alt="">
 
             <form class="form-signin" ng-submit="loginManually(logindata.user_name, logindata.password)">
-                <h4>Login</h4>
+                <!--<h4>Login</h4>-->
                 <h5 class="error_msg" data-ng-show="loginHasFailed">Login failed.</h5>
                 <input ng-model="logindata.user_name" type="text" class="form-control" placeholder="Username" required autofocus>
                 <input ng-model="logindata.password" type="password" class="form-control" placeholder="Password" required>
-                <button class="btn btn-lg btn-primary btn-block" type="submit">Anmelden</button>
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
             </form>
         </div>
     </div>
