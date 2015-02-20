@@ -40,7 +40,7 @@
     <div class="main_div">
 
     <nav role="navigation" class="navbar navbar-default">
-            <a href="#" class="navbar-brand">ILIAS REST Plugin Clients Administration</a>
+            <a href="#" class="navbar-brand">ILIAS REST Plugin > Clients Administration</a>
             <p data-ng-show="isAuthenticated()" class="navbar-text ">
                 Logged in as {{getUsername()}}
             </p>
