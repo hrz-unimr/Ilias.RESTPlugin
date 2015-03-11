@@ -9,8 +9,8 @@ $app->group('/dev', function () use ($app) {
 
     $app->get('/clientcheck', function () use ($app) {
         $env = $app->environment();
-        $request = new ilRestRequest($app);
-        $response = new ilRestResponse($app);
+        $request = new ilRESTRequest($app);
+        $response = new ilRESTResponse($app);
 
         $model = new ilClientsModel();
         $data1 = $model->getAllowedUsersForApiKey("9065710a-16b9-4b4c-9230-f76dc72d2a2d");
@@ -28,13 +28,13 @@ $app->group('/dev', function () use ($app) {
     */
     $app->get('/reftoken', function () use ($app) {
         $env = $app->environment();
-        $request = new ilRestRequest($app);
-        $response = new ilRestResponse($app);
+        $request = new ilRESTRequest($app);
+        $response = new ilRESTResponse($app);
 
         $refresh_token = $request->getParam("refresh_token");
 
-        ilRestLib::initDefaultRestGlobals();
-        ilRestLib::initAccessHandling();
+        ilRESTLib::initDefaultRESTGlobals();
+        ilRESTLib::initAccessHandling();
 
         global $ilLog;
         $ilLog->write('Hello from REST Plugin - Experimental');
@@ -59,14 +59,14 @@ $app->group('/dev', function () use ($app) {
      */
     $app->get('/refresh', 'authenticate', function () use ($app) {
         $env = $app->environment();
-        $request = new ilRestRequest($app);
-        $response = new ilRestResponse($app);
-        $uid = ilRestLib::loginToUserId($env['user']);
+        $request = new ilRESTRequest($app);
+        $response = new ilRESTResponse($app);
+        $uid = ilRESTLib::loginToUserId($env['user']);
 
         global $ilLog;
         $ilLog->write('Requesting new refresh token for user '.$uid);
-        //ilRestLib::initDefaultRestGlobals();
-        //ilRestLib::initAccessHandling();
+        //ilRESTLib::initDefaultRESTGlobals();
+        //ilRESTLib::initAccessHandling();
 
         // Create new refresh token
         $bearerToken = $env['token'];
@@ -181,7 +181,7 @@ $app->group('/dev', function () use ($app) {
 
     $app->get('/responsetest', function () use ($app) {
 
-        $response = new ilRestResponse($app);
+        $response = new ilRESTResponse($app);
         $env = $app->environment();
 
         $response->addData('status',"success");

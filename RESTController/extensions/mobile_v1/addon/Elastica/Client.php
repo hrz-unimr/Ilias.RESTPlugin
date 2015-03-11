@@ -573,7 +573,7 @@ class Client
      * It's possible to make any REST query directly over this method
      *
      * @param  string            $path   Path to call
-     * @param  string            $method Rest method to use (GET, POST, DELETE, PUT)
+     * @param  string            $method REST method to use (GET, POST, DELETE, PUT)
      * @param  array             $data   OPTIONAL Arguments as array
      * @param  array             $query  OPTIONAL Query params
      * @throws Exception\ConnectionException|\Exception

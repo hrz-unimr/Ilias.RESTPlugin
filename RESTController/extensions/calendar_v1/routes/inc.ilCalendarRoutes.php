@@ -9,21 +9,21 @@ $app->group('/v1', function () use ($app) {
      */
     $app->get('/cal/events/:id', 'authenticate', function ($id) use ($app) {
         $env = $app->environment();
-        $response = new ilRestResponse($app);
-        $authorizedUserId =  ilRestLib::loginToUserId($env['user']);
+        $response = new ilRESTResponse($app);
+        $authorizedUserId =  ilRESTLib::loginToUserId($env['user']);
 
-        if ($authorizedUserId == $id || ilRestLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
+        if ($authorizedUserId == $id || ilRESTLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
             try {
                 $model = new ilCalendarModel();
                 $data = $model->getCalUpcomingEvents($id);
                 $response->setMessage("Upcoming events for user " . $id . ".");
                 $response->addData('items', $data);
             } catch (Exception $e) {
-                $response->setRestCode("-15");
+                $response->setRESTCode("-15");
                 $response->setMessage('Error: Could not retrieve any events for user '.$id.".");
             }
         } else {
-            $response->setRestCode("-13");
+            $response->setRESTCode("-13");
             $response->setMessage('User has no RBAC permissions to access the data.');
         }
         $response->toJSON();
@@ -34,20 +34,20 @@ $app->group('/v1', function () use ($app) {
      */
     $app->get('/cal/icalurl/:id', 'authenticate' , function ($id) use ($app) {
         $env = $app->environment();
-        $response = new ilRestResponse($app);
-        $authorizedUserId =  ilRestLib::loginToUserId($env['user']);
-        if ($authorizedUserId == $id || ilRestLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
+        $response = new ilRESTResponse($app);
+        $authorizedUserId =  ilRESTLib::loginToUserId($env['user']);
+        if ($authorizedUserId == $id || ilRESTLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
             try {
                 $model = new ilCalendarModel();
                 $data = $model->getIcalAdress($id);
                 $response->setMessage("ICAL (ics) address for user " . $id . ".");
                 $response->addData('icalurl', $data);
             } catch (Exception $e) {
-                $response->setRestCode("-15");
+                $response->setRESTCode("-15");
                 $response->setMessage('Error: Could not retrieve ICAL url for user '.$id.".");
             }
         } else {
-            $response->setRestCode("-13");
+            $response->setRESTCode("-13");
             $response->setMessage('User has no RBAC permissions to access the data.');
         }
         $response->toJSON();

@@ -128,7 +128,7 @@ class Snapshot
     }
 
     /**
-     * Restore a snapshot
+     * RESTore a snapshot
      * @param string $repository the name of the repository
      * @param string $name the name of the snapshot
      * @param array $options options for the restore operation

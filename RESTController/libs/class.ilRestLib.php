@@ -2,7 +2,7 @@
 require_once "./Services/User/classes/class.ilObjUser.php";
 require_once "./Services/AccessControl/classes/class.ilRbacReview.php";
 
-class ilRestLib {
+class ilRESTLib {
 
     /**
      * Initialize global instance
@@ -153,7 +153,7 @@ class ilRestLib {
     /**
      *  Sets up some frequently needed global variables.
      */
-    static public function initDefaultRestGlobals()
+    static public function initDefaultRESTGlobals()
     {
         define("DEBUG", FALSE);
         define("IL_VIRUS_SCANNER", "None");

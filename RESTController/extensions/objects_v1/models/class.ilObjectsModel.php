@@ -7,14 +7,14 @@ class ilObjectsModel
    		if(!is_numeric($a_ref_id))
 		{
             $response->setMessage("RefID must be numeric");
-            $response->setRestCode(-100);
+            $response->setRESTCode(-100);
             return;
 		}
 
 		if(!$tmp_obj = ilObjectFactory::getInstanceByRefId($a_ref_id,false))
 		{
             $response->setMessage("Can't create Object");
-            $response->setRestCode(-200);
+            $response->setRESTCode(-200);
             return;
 		}
 
@@ -22,7 +22,7 @@ class ilObjectsModel
 		if(ilObject::_isInTrash($a_ref_id))
 		{
             $response->setMessage("Object has been deleted");
-            $response->setRestCode(0);
+            $response->setRESTCode(0);
             return;
 		}
 

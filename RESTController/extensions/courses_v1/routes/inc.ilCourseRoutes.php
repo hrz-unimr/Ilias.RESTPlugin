@@ -9,9 +9,9 @@ $app->group('/v1', function () use ($app) {
      * Retrieves the content and a description of a course specified by ref_id.
      */
     $app->get('/courses/:ref_id', 'authenticate', function ($ref_id) use ($app) {
-        $response = new ilRestResponse($app);
+        $response = new ilRESTResponse($app);
         $env = $app->environment();
-        $authorizedUserId =  ilRestLib::loginToUserId($env['user']);
+        $authorizedUserId =  ilRESTLib::loginToUserId($env['user']);
         try {
             $crs_model = new ilCoursesModel();
             $data1 =  $crs_model->getCourseContent($ref_id);
@@ -20,7 +20,7 @@ $app->group('/v1', function () use ($app) {
             $response->addData('courseinfo', $data2);
             $response->setMessage("Content of course " . $ref_id . ".");
         } catch (Exception $e) {
-            $response->setRestCode("-15");
+            $response->setRESTCode("-15");
             $response->setMessage('Error: Could not retrieve data for user '.$id.".");
         }
         $response->toJSON();
@@ -28,8 +28,8 @@ $app->group('/v1', function () use ($app) {
 
     $app->post('/courses', 'authenticate', function() use ($app) {
         $env = $app->environment();
-        $response = new ilRestResponse($app);
-        $authorizedUserId =  ilRestLib::loginToUserId($env['user']);
+        $response = new ilRESTResponse($app);
+        $authorizedUserId =  ilRESTLib::loginToUserId($env['user']);
 
         $parent_container_ref_id = 1;
         $new_course_title = "";
@@ -55,13 +55,13 @@ $app->group('/v1', function () use ($app) {
         //$user_id = 6; // root for testing purposes
         $user_id = $authorizedUserId;
 
-        ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        ilRestLib::initDefaultRestGlobals();
-        ilRestLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        ilRESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
+        ilRESTLib::initDefaultRESTGlobals();
+        ilRESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        ilRestLib::initAccessHandling();
+        ilRESTLib::initAccessHandling();
         global $ilAccess;
         
         if(!$ilAccess->checkAccess("create_crs", "", $parent_container_ref_id)) {
@@ -94,9 +94,9 @@ $app->group('/v1', function () use ($app) {
 
     $app->get('/courses/join', 'authenticate', function () use ($app) {
         $env = $app->environment();
-        $response = new ilRestResponse($app);
-        $request = new ilRestRequest($app);
-        $authorizedUserId =  ilRestLib::loginToUserId($env['user']);
+        $response = new ilRESTResponse($app);
+        $request = new ilRESTRequest($app);
+        $authorizedUserId =  ilRESTLib::loginToUserId($env['user']);
         try {
             $ref_id = $request->getParam("ref_id");
             $crsreg_model = new ilCoursesRegistrationModel();
@@ -107,7 +107,7 @@ $app->group('/v1', function () use ($app) {
             $response->addData('courseinfo', $data2);*/
             $response->setMessage("User ".$authorizedUserId." subscribed to course with ref_id = " . $ref_id . " successfully.");
         } catch (Exception $e) {
-            $response->setRestCode("-15");
+            $response->setRESTCode("-15");
             $response->setMessage("Error: Subscribing user ".$authorziedUserid." to course with ref_id = ".$ref_id." failed. Exception:".$e);
             //$response->setMessage('Error: Could not perform action for user '.$id.".".$e);
             $response->setMessage($e);
@@ -117,9 +117,9 @@ $app->group('/v1', function () use ($app) {
 
     $app->get('/courses/leave', 'authenticate', function () use ($app) {
         $env = $app->environment();
-        $response = new ilRestResponse($app);
-        $request = new ilRestRequest($app);
-        $authorizedUserId =  ilRestLib::loginToUserId($env['user']);
+        $response = new ilRESTResponse($app);
+        $request = new ilRESTRequest($app);
+        $authorizedUserId =  ilRESTLib::loginToUserId($env['user']);
         try {
             $ref_id = $request->getParam("ref_id");
             $crsreg_model = new ilCoursesRegistrationModel();
@@ -127,7 +127,7 @@ $app->group('/v1', function () use ($app) {
 
             $response->setMessage("User ".$authorizedUserId." has left course with ref_id = " . $ref_id . ".");
         } catch (Exception $e) {
-            $response->setRestCode("-15");
+            $response->setRESTCode("-15");
             $response->setMessage('Error: Could not perform action for user '.$authorizedUserId.".".$e);
             $response->setMessage($e);
         }

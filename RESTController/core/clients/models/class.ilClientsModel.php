@@ -9,7 +9,7 @@ class ilClientsModel
     function getClients()
     {
         global $ilDB;
-        $query = "SELECT * FROM rest_apikeys order by id";
+        $query = "SELECT * FROM ui_uihk_rest_keys order by id";
         $set = $ilDB->query($query);
 
         while($row = $ilDB->fetchAssoc($set))
@@ -55,7 +55,7 @@ class ilClientsModel
 
 
         $ilLog->write("Try to create mew client db insert data: ".$a_columns);
-        $ilDB->insert("rest_apikeys", $a_columns);
+        $ilDB->insert("ui_uihk_rest_keys", $a_columns);
         $insertId = $ilDB->getLastInsertId();
         $ilLog->write("Try to create mew client db insert id: ".$insertId);
 
@@ -71,7 +71,7 @@ class ilClientsModel
     }
 
     /**
-     * Given a api_key ID and an array of user id numbers, this function writes the mapping to the table "rest_user_apikey_map".
+     * Given a api_key ID and an array of user id numbers, this function writes the mapping to the table "ui_uihk_rest_keymap".
      * Note: Old entries will be deleted.
      *
      * @param $api_key_id
@@ -81,7 +81,7 @@ class ilClientsModel
     {
         global $ilDB;
 
-        $sql = "DELETE FROM rest_user_apikey_map WHERE api_id =".$ilDB->quote($api_key_id, "integer");
+        $sql = "DELETE FROM ui_uihk_rest_keymap WHERE api_id =".$ilDB->quote($api_key_id, "integer");
         $ilDB->manipulate($sql);
 
         foreach ($a_user_csv as $user_id) {
@@ -89,7 +89,7 @@ class ilClientsModel
                 "api_id" => array("integer", $api_key_id),
                 "user_id" => array("integer", $user_id)
             );
-            $ilDB->insert("rest_user_apikey_map", $a_columns);
+            $ilDB->insert("ui_uihk_rest_keymap", $a_columns);
         }
     }
 
@@ -103,7 +103,7 @@ class ilClientsModel
     public function updateClient($id, $fieldname, $newval)
     {
         global $ilDB;
-        $sql = "UPDATE rest_apikeys SET $fieldname = \"$newval\" WHERE id = $id";
+        $sql = "UPDATE ui_uihk_rest_keys SET $fieldname = \"$newval\" WHERE id = $id";
         $numAffRows = $ilDB->manipulate($sql);
         return $numAffRows;
     }
@@ -118,7 +118,7 @@ class ilClientsModel
     {
         global $ilDB;
 
-        $sql = "DELETE FROM rest_apikeys WHERE id =".$ilDB->quote($id, "integer");
+        $sql = "DELETE FROM ui_uihk_rest_keys WHERE id =".$ilDB->quote($id, "integer");
 
         $numAffRows = $ilDB->manipulate($sql);
 
@@ -134,7 +134,7 @@ class ilClientsModel
     function getClientCredentialsUser($api_key)
     {
         global $ilDB;
-        $query = "SELECT id, oauth2_gt_client_user FROM rest_apikeys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $query = "SELECT id, oauth2_gt_client_user FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
         $set = $ilDB->query($query);
         $row = $ilDB->fetchAssoc($set);
         return $row['oauth2_gt_client_user'];
@@ -149,12 +149,12 @@ class ilClientsModel
     function getAllowedUsersForApiKey($api_key)
     {
         global $ilDB;
-        $query = "SELECT id, oauth2_user_restriction_active FROM rest_apikeys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $query = "SELECT id, oauth2_user_restriction_active FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
         $set = $ilDB->query($query);
         $row = $ilDB->fetchAssoc($set);
         $id = $row['id'];
         if ($row['oauth2_user_restriction_active'] == 1) {
-            $query2 = "SELECT user_id FROM rest_user_apikey_map WHERE api_id=".$ilDB->quote($id, "integer");
+            $query2 = "SELECT user_id FROM ui_uihk_rest_keymap WHERE api_id=".$ilDB->quote($id, "integer");
             $set2 = $ilDB->query($query2);
             $a_user_ids = array();
             while($row2 = $ilDB->fetchAssoc($set2))
@@ -175,7 +175,7 @@ class ilClientsModel
     function clientExists($api_key)
     {
         global $ilDB;
-        $query = "SELECT id FROM rest_apikeys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $query = "SELECT id FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
         $set = $ilDB->query($query);
         if ($ilDB->numRows($set)>0) {
             return true;
@@ -229,7 +229,7 @@ class ilClientsModel
     private function is_oauth2_grant_type_enabled($api_key, $grant_type)
     {
         global $ilDB;
-        $query = "SELECT * FROM rest_apikeys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $query = "SELECT * FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
         $set = $ilDB->query($query);
         if ($ilDB->numRows($set)>0) {
             $row = $ilDB->fetchAssoc($set);
@@ -248,7 +248,7 @@ class ilClientsModel
      */
     public function is_oauth2_consent_message_enabled($api_key) {
         global $ilDB;
-        $query = "SELECT * FROM rest_apikeys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $query = "SELECT * FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
         $set = $ilDB->query($query);
         if ($ilDB->numRows($set)>0) {
             $row = $ilDB->fetchAssoc($set);
@@ -266,7 +266,7 @@ class ilClientsModel
      */
     public function getOAuth2ConsentMessage($api_key) {
         global $ilDB;
-        $query = "SELECT * FROM rest_apikeys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $query = "SELECT * FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
         $set = $ilDB->query($query);
         if ($ilDB->numRows($set)>0) {
             $row = $ilDB->fetchAssoc($set);
@@ -282,7 +282,7 @@ class ilClientsModel
      */
     public function is_authcode_refreshtoken_enabled($api_key) {
         global $ilDB;
-        $query = "SELECT * FROM rest_apikeys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $query = "SELECT * FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
         $set = $ilDB->query($query);
         if ($ilDB->numRows($set)>0) {
             $row = $ilDB->fetchAssoc($set);
@@ -300,7 +300,7 @@ class ilClientsModel
      */
     public function is_resourceowner_refreshtoken_enabled($api_key) {
         global $ilDB;
-        $query = "SELECT * FROM rest_apikeys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $query = "SELECT * FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
         $set = $ilDB->query($query);
         if ($ilDB->numRows($set)>0) {
             $row = $ilDB->fetchAssoc($set);

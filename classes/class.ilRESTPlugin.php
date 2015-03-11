@@ -9,10 +9,10 @@ include_once("./Services/UIComponent/classes/class.ilUserInterfaceHookPlugin.php
  * @version $Id$
  *
  */
-class ilRestPlugin extends ilUserInterfaceHookPlugin
+class ilRESTPlugin extends ilUserInterfaceHookPlugin
 {
     function getPluginName() {
-        return "Rest";
+        return "REST";
     }
 
 }

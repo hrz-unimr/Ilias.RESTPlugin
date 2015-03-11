@@ -13,15 +13,15 @@ class ilContactsModel
      */
     function getMyContacts($user_id)
     {
-        ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        ilRestLib::initDefaultRestGlobals();
+        ilRESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
+        ilRESTLib::initDefaultRESTGlobals();
 
 
-        ilRestLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        ilRESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        ilRestLib::initAccessHandling();
+        ilRESTLib::initAccessHandling();
 
         $abook = new ilAddressbook($ilUser->getId());
         $entries = $abook->getEntries();

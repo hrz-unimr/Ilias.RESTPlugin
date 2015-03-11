@@ -7,7 +7,7 @@ require_once "./Services/User/classes/class.ilObjUser.php";
  * to use the ILIAS SOAP webservice.
  */
 
-class ilRestSoapAdapter {
+class ilRESTSoapAdapter {
     //static private $instance = null;
     public $SID = "";
 
@@ -16,9 +16,9 @@ class ilRestSoapAdapter {
      */
     public function loginSOAP()
     {
-        ilRestLib::initDefaultRestGlobals();
-        ilRestLib::initAccessHandling();
-        ilRestLib::initSettings();
+        ilRESTLib::initDefaultRESTGlobals();
+        ilRESTLib::initAccessHandling();
+        ilRESTLib::initSettings();
 
         define ("IL_SOAPMODE", IL_SOAPMODE_INTERNAL);
         include_once "Services/Context/classes/class.ilContext.php";
@@ -41,7 +41,7 @@ class ilRestSoapAdapter {
             return false;
         }
         $ilUser = new ilObjUser($user_id);
-        ilRestLib::initGlobal("ilUser", $ilUser);
+        ilRESTLib::initGlobal("ilUser", $ilUser);
 
         $username = REST_USER;
         $password = REST_PASS;
@@ -54,7 +54,7 @@ class ilRestSoapAdapter {
         // add code 1
         if (!is_object($GLOBALS["ilPluginAdmin"]))
         {
-            ilRestLib::initGlobal("ilPluginAdmin", "ilPluginAdmin",
+            ilRESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin",
                 "./Services/Component/classes/class.ilPluginAdmin.php");
         }
         // add code 2

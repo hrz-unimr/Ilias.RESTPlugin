@@ -432,7 +432,7 @@ class Index implements SearchableInterface
      * Makes calls to the elasticsearch server based on this index
      *
      * @param  string $path Path to call
-     * @param  string $method Rest method to use (GET, POST, DELETE, PUT)
+     * @param  string $method REST method to use (GET, POST, DELETE, PUT)
      * @param  array $data OPTIONAL Arguments as array
      * @param  array $query OPTIONAL Query params
      * @return \Elastica\Response Response object

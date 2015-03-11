@@ -145,7 +145,7 @@ class FunctionScore extends AbstractQuery
     }
 
     /**
-     * Restrict the combined boost of the function_score query and its child query
+     * RESTrict the combined boost of the function_score query and its child query
      * @param float $maxBoost
      * @return \Elastica\Query\FunctionScore
      */

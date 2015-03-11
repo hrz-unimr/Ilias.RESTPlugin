@@ -20,13 +20,13 @@ class ilCoursesModel
      */
     public function getCoursesOfUser($usr_id)
     {
-        ilRestLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        ilRestLib::initDefaultRestGlobals();
-        ilRestLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        ilRESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
+        ilRESTLib::initDefaultRESTGlobals();
+        ilRESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId($usr_id);
         $ilUser->read();
-        ilRestLib::initAccessHandling();
+        ilRESTLib::initAccessHandling();
        // $list = ilUtil::getDataDir();
         $list = ilUtil::_getObjectsByOperations("crs","visible,read",$usr_id); // returns ref_ids
         return $list;
@@ -54,10 +54,10 @@ class ilCoursesModel
     public function getCourseInfo($crs_ref_id)
     {
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        ilRestLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
-        ilRestLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
-        ilRestLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
-        ilRestLib::initGlobal("ilObjDataCache", "ilObjectDataCache",
+        ilRESTLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
+        ilRESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
+        ilRESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
+        ilRESTLib::initGlobal("ilObjDataCache", "ilObjectDataCache",
             "./Services/Object/classes/class.ilObjectDataCache.php");
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilObjDataCache;
         define("DEBUG", FALSE);
@@ -83,9 +83,9 @@ class ilCoursesModel
     {
 
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        ilRestLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
-        ilRestLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
-        ilRestLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
+        ilRESTLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
+        ilRESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
+        ilRESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
         define("DEBUG", FALSE);
 
@@ -95,7 +95,7 @@ class ilCoursesModel
             require_once "./Services/Language/classes/class.ilLanguage.php";
             $lng = new ilLanguage($lang);
             $lng->loadLanguageModule("init");
-            ilRestLib::initGlobal('lng', $lng);
+            ilRESTLib::initGlobal('lng', $lng);
         }
 
 
@@ -125,7 +125,7 @@ class ilCoursesModel
      */
     public function getDevILIASLMContent($lm_ref_id)
     {
-        $lm_obj_id = ilRestUtils::refid_to_objid($lm_ref_id);
+        $lm_obj_id = ilRESTUtils::refid_to_objid($lm_ref_id);
         $lm_data = array();
         $lm_data['lm_obj'] = $lm_obj_id;
 
@@ -192,7 +192,7 @@ class ilCoursesModel
 
     public function deleteCourse($ref_id)
     {
-        $adapter = new ilRestSoapAdapter();
+        $adapter = new ilRESTSoapAdapter();
         $success = $adapter->loginSOAP();
         if ($success == true) {
             $result = $adapter->executeSOAPFunction("deleteCourse", array($adapter->SID, $ref_id));
@@ -207,7 +207,7 @@ class ilCoursesModel
 
     /*public function soapTest()
     {
-        $adapter = new ilRestSoapAdapter();
+        $adapter = new ilRESTSoapAdapter();
         $adapter->loginSOAP();
         //echo $adapter->SID;
        // $result = $adapter->executeSOAPFunction("",array());

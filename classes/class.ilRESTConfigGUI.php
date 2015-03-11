@@ -3,13 +3,13 @@
 include_once("./Services/Component/classes/class.ilPluginConfigGUI.php");
 
 /**
- * Rest Plugin Configuration
+ * REST Plugin Configuration
  *
  * @author Dirk Schaefer <schaefer at hrz.uni-marburg.de>
  * @version $Id$
  *
  */
-class ilRestConfigGUI extends ilPluginConfigGUI
+class ilRESTConfigGUI extends ilPluginConfigGUI
 {
     /**
      * Handles all commmands, default is "configure"
@@ -74,7 +74,7 @@ class ilRestConfigGUI extends ilPluginConfigGUI
         $configHTML .="<p>".$pl->txt("admin_info_config")."</p>";
 
 
-        $q = "SELECT * FROM rest_apikeys WHERE id = 1";
+        $q = "SELECT * FROM ui_uihk_rest_keys WHERE id = 1";
         $ret = $ilDB->query($q);
         $rec = $ilDB->fetchAssoc($ret);
         $api_key = $rec['api_key'];
@@ -84,7 +84,7 @@ class ilRestConfigGUI extends ilPluginConfigGUI
         $inst_folder = ($inst_folder == '/' ? '' : $inst_folder);
 
         $configHTML .= '
-            <form action="./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/Rest/apps/html5/admin/app/index.php" method="post" target="_blank">
+            <form action="./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/apps/html5/admin/app/index.php" method="post" target="_blank">
                 <input type="hidden" name="user_id" value="'.$ilUser->getId().'" />
                 <input type="hidden" name="session_id" value="'.session_id().'" />
                 <input type="hidden" name="rtoken" value="'.$ilCtrl->rtoken.'" />

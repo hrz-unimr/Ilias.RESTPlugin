@@ -17,7 +17,7 @@ $app->group('/m', function () use ($app) {
             $obj_id = $id;
         } else
         {
-            $obj_id = ilRestLib::refid_to_objid($id);
+            $obj_id = ilRESTLib::refid_to_objid($id);
         }
 
         $result = array();
@@ -48,10 +48,10 @@ $app->group('/m', function () use ($app) {
 
         // TODO: extract user_id from valid token
         $user_id = 6;//225;//6;//361; // testuser
-        //$user = ilRestLib::userIdtoLogin($user_id);
+        //$user = ilRESTLib::userIdtoLogin($user_id);
 
-        ilRestLib::initDefaultRestGlobals();
-        ilRestLib::initAccessHandling();
+        ilRESTLib::initDefaultRESTGlobals();
+        ilRESTLib::initAccessHandling();
 
         $userModel = new ilUsersModel();
         $userData = $userModel->getBasicUserData($user_id);
@@ -109,8 +109,8 @@ $app->group('/m', function () use ($app) {
     });
 
     /*$app->get('/search/',  function () use ($app) {
-        $request = new ilRestRequest($app);
-        $response = new ilRestResponse($app);
+        $request = new ilRESTRequest($app);
+        $response = new ilRESTResponse($app);
 
         try {
             $query = $request->getParam('q');

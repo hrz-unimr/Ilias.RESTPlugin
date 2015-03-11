@@ -3,14 +3,14 @@
  * This class eases the formatting of output and also ensures a standardized output schema of the API.
  * 2014 HRZ - Uni-Marburg
  */
-class ilRestResponse {
+class ilRESTResponse {
     public $_data = array();
     public $_msg = "";
     public $_code = "200";
     public $_format = "json";
     private $app;
 
-    public function ilRestResponse($app) {
+    public function ilRESTResponse($app) {
         $this->app = $app;
         $this->setHttpStatus(200);
     }
@@ -71,7 +71,7 @@ class ilRestResponse {
      *
      * @param $code a string
      */
-    public function setRestCode($code)
+    public function setRESTCode($code)
     {
         $this->_code = $code;
     }

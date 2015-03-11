@@ -18,8 +18,8 @@ $app->get('/clients', 'authenticateTokenOnly',  function () use ($app) {
 
 
         // $usr_model = new ilUsersModel();
-        $ilRest = new ilRestLib();
-        if (!$ilRest->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
+        $ilREST = new ilRESTLib();
+        if (!$ilREST->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
 
             $result['status'] = 'failed';
             $result['msg'] = "Access denied. Administrator permissions required.";
@@ -58,7 +58,7 @@ $app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ /
     $result = array();
 
 
-    $request = new ilRestRequest($app);
+    $request = new ilRESTRequest($app);
     $app->log->debug("Update data ".print_r($request->getRaw(),true));
 
     try {
@@ -69,8 +69,8 @@ $app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ /
     $app->log->debug("Update Data ".print_r($aUpdateData,true));
 
 
-    $ilRest = new ilRestLib();
-    if (!$ilRest->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
+    $ilREST = new ilRESTLib();
+    if (!$ilREST->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
         $result['status'] = 'failed';
         $result['msg'] = "Access denied. Administrator permissions required.";
         $result['authuser'] = $authorizedUser;
@@ -105,12 +105,12 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
         $env = $app->environment();
         $authorizedUser = $env['user'];
         $result = array();
-        $request = new ilRestRequest($app);
+        $request = new ilRESTRequest($app);
 
         error_log("(Slim) Creating client...");
 
-        $ilRest = new ilRestLib();
-        if (!$ilRest->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
+        $ilREST = new ilRESTLib();
+        if (!$ilREST->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
             $result['status'] = 'failed';
             $result['msg'] = "Access denied. Administrator permissions required.";
             $result['authuser'] = $authorizedUser;
@@ -261,9 +261,9 @@ $app->delete('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app)
 
     $result = array();
 
-    //$usr_model = new ilUsersModel();//ilRestLib();
-    $ilRest = new ilRestLib();
-    if (!$ilRest->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
+    //$usr_model = new ilUsersModel();//ilRESTLib();
+    $ilREST = new ilRESTLib();
+    if (!$ilREST->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
 
         $result['status'] = 'failed';
         $result['msg'] = "Access denied. Administrator permissions required.";
@@ -309,7 +309,7 @@ $app->get('/routes', function () use ($app) {
 });
 
 $app->get('/rest/config', function () use ($app) {
-    $app->redirect(dirname($_SERVER['SCRIPT_NAME']).'/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/Rest/apps/html5/admin/app/');
+    $app->redirect(dirname($_SERVER['SCRIPT_NAME']).'/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/apps/html5/admin/app/');
 });
 
 ?>

@@ -1,14 +1,14 @@
 <?php
 
 
-class ilRestRequest {
+class ilRESTRequest {
 
     private $app;
     private $content_type;
     public $json_arr;
     private $json_decoded;
 
-    public function ilRestRequest($app) {
+    public function ilRESTRequest($app) {
         $this->app = $app;
         $this->slimReq = $app->request();
         $this->content_type = $app->request()->headers()->get('Content-Type');

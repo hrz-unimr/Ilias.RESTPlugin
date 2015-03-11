@@ -31,8 +31,8 @@ $app->group('/admin', function () use ($app) {
             $t_start = microtime();
             $result = array();
             $result['msg'] = 'Overview Workspaces';
-            ilRestLib::initDefaultRestGlobals();
-            ilRestLib::initAccessHandling();
+            ilRESTLib::initDefaultRESTGlobals();
+            ilRESTLib::initAccessHandling();
             $wa_model = new ilWorkspaceAdminModel();
 
             $result['result'] = $wa_model->scanUsersForWorkspaces($limit, $offset);
@@ -59,8 +59,8 @@ $app->group('/admin', function () use ($app) {
             $result = array();
             $result['msg'] = 'Workspaces of user.';
 
-            ilRestLib::initDefaultRestGlobals();
-            ilRestLib::initAccessHandling();
+            ilRESTLib::initDefaultRESTGlobals();
+            ilRESTLib::initAccessHandling();
             $wa_model = new ilWorkspaceAdminModel();
             $ws_array = $wa_model->getUserWorkspaceItems($user_id);
             $result['data'] = $ws_array;

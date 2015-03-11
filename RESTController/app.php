@@ -7,7 +7,7 @@
  */
 require 'Slim/Slim.php';
 
-define('REST_PLUGIN_DIR', dirname($_SERVER['SCRIPT_NAME']).'/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/Rest');
+define('REST_PLUGIN_DIR', dirname($_SERVER['SCRIPT_NAME']).'/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST');
 
 \Slim\Slim::registerAutoloader();
 $app = new \Slim\Slim();
@@ -20,7 +20,7 @@ $app->config(array(
     'log.writer' => $logWriter
 ));
 
-$app->view()->setTemplatesDirectory("./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/Rest/RESTController/views");
+$app->view()->setTemplatesDirectory("./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/RESTController/views");
 
 $app->log->setEnabled(true);
 $app->log->setLevel(\Slim\Log::DEBUG);
@@ -38,14 +38,14 @@ class ResourceNotFoundException extends Exception {}
 ////////////////////////////////////////////////////////////////////////////////////
 // --------------------------[!! Please do not remove !!]---------------------------
 // The following code belongs the the core of the ILIAS REST plugin.
-require_once('libs/class.ilRestLib.php');
+require_once('libs/class.ilRESTLib.php');
 require_once('libs/class.ilAuthLib.php');
 require_once('libs/class.ilTokenLib.php');
-require_once('libs/class.ilRestResponse.php');
+require_once('libs/class.ilRESTResponse.php');
 require_once('libs/inc.ilAuthMiddleware.php');
-require_once('libs/class.ilRestSoapAdapter.php');
+require_once('libs/class.ilRESTSoapAdapter.php');
 require_once('core/clients/models/class.ilClientsModel.php');
-require_once('libs/class.ilRestRequest.php');
+require_once('libs/class.ilRESTRequest.php');
 
 // --------------------------[!! Please do not remove !!]---------------------------
 ////////////////////////////////////////////////////////////////////////////////////

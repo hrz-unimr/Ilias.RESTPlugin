@@ -5,7 +5,7 @@ include_once("./Services/Init/classes/class.ilInitialisation.php");
 /**
 * ILIAS REST Initialisation
 */
-class ilRestInitialisation extends ilInitialisation
+class ilRESTInitialisation extends ilInitialisation
 {
     function __construct()
     {
@@ -50,11 +50,11 @@ class ilRestInitialisation extends ilInitialisation
     function initRESTSettings()
     {
         global $ilDB;
-        $query = "SELECT * FROM rest_config";// WHERE setting_name='uuid'";
+        $query = "SELECT * FROM ui_uihk_rest_config";// WHERE setting_name='uuid'";
         $set = $ilDB->query($query);
         if (empty($set) == true)
         {
-            echo "Severe problem: uuid value is missing in table rest_config.";
+            echo "Severe problem: uuid value is missing in table ui_uihk_rest_config.";
             http_response_code(500);
             die();
         } else

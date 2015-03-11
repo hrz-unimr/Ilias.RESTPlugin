@@ -7,8 +7,8 @@ $app->group('/m/v1', function () use ($app) {
 
 
     $app->get('/search/',  function () use ($app) {
-        $request = new ilRestRequest($app);
-        $response = new ilRestResponse($app);
+        $request = new ilRESTRequest($app);
+        $response = new ilRESTResponse($app);
 
         try {
             $query = utf8_encode($request->getParam('q'));
@@ -25,8 +25,8 @@ $app->group('/m/v1', function () use ($app) {
     });
 
     $app->post('/search/',  function () use ($app) {
-        $request = new ilRestRequest($app);
-        $response = new ilRestResponse($app);
+        $request = new ilRESTRequest($app);
+        $response = new ilRESTResponse($app);
 
         try {
             $query = utf8_encode($request->getParam('q'));

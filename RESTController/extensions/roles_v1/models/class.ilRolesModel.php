@@ -10,12 +10,12 @@ class ilRolesModel
         // TODO: do it here or in route?
         $app = new \Slim\Slim();
         ilAuthLib::setUserContext($app->environment['user']);  // filled by auth middleware
-        ilRestLib::initAccessHandling();
+        ilRESTLib::initAccessHandling();
 
 
         if(!$rbacsystem->checkAccess('read',ROLE_FOLDER_ID))
         {
-            $resp->setRestCode(-100);
+            $resp->setRESTCode(-100);
             $resp->setMessage("No access to list roles");
             $resp->setHttpStatus(400);
             return;
@@ -45,7 +45,7 @@ class ilRolesModel
             $num_roles = count($roles);
         }
         $resp->setMessage("$num_roles roles found");
-        $resp->setRestCode(200);
+        $resp->setRESTCode(200);
         $resp->setHttpStatus(200);
     }
     

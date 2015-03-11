@@ -13,10 +13,10 @@ $app->group('/v1', function () use ($app) {
      */
     $app->get('/files/:id', 'authenticate',  function ($id) use ($app) {
         $env = $app->environment();
-        $user_id = ilRestLib::loginToUserId($env['user']);
+        $user_id = ilRESTLib::loginToUserId($env['user']);
 
-        $request = new ilRestRequest($app);
-        $response = new ilRestResponse($app);
+        $request = new ilRESTRequest($app);
+        $response = new ilRESTResponse($app);
 
         try {
             $meta_data = $request->getParam('meta_data');
@@ -35,7 +35,7 @@ $app->group('/v1', function () use ($app) {
 
 
         if ($id_type == "ref_id") {
-            $obj_id = ilRestLib::refid_to_objid($id);
+            $obj_id = ilRESTLib::refid_to_objid($id);
         } else {
             $obj_id = $id;
         }
@@ -46,7 +46,7 @@ $app->group('/v1', function () use ($app) {
             $fileObj = $model->getFileObjForUser($obj_id, $user_id);
 
             if (empty($fileObj)) {
-                $response->setRestCode("-1");
+                $response->setRESTCode("-1");
                 $response->setMessage('Could not retrieve file with obj_id = ' . $obj_id . '.');
                // $result['status'] = 'fail';
                // $result['msg'] = 'Could not retrieve file with obj_id = ' . $obj_id . ".";
@@ -69,7 +69,7 @@ $app->group('/v1', function () use ($app) {
             $model = new ilFileModel();
             $fileObj = $model->getFileObjForUser($obj_id, $user_id);
             if (empty($fileObj)) {
-                $response->setRestCode("-1");
+                $response->setRESTCode("-1");
                 $response->setMessage('Could not retrieve file with obj_id = ' . $obj_id . '.');
                 $response->send();
                 echo json_encode($result);

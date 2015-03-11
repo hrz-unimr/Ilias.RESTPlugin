@@ -24,7 +24,7 @@ class ilAuthLib {
 	
 	static public function headerBasicAuth()
     {
-		header('WWW-Authenticate: Basic realm="ILIAS Restservice"');
+		header('WWW-Authenticate: Basic realm="ILIAS RESTservice"');
 		self::headerUnauthorized();
 	}
 	
@@ -58,7 +58,7 @@ class ilAuthLib {
 		$ilUser = new ilObjUser($userId);
 		$ilias->account =& $ilUser;
 		self::$user =& $ilUser;
-        ilRestLib::initGlobal("ilUser", $ilUser);
+        ilRESTLib::initGlobal("ilUser", $ilUser);
 	}
 
     /**
@@ -72,9 +72,9 @@ class ilAuthLib {
     static public function authenticateViaIlias($username, $password)
     {
 
-        ilRestLib::initDefaultRestGlobals();
-        ilRestLib::initAccessHandling();
-        ilRestLib::initSettings();
+        ilRESTLib::initDefaultRESTGlobals();
+        ilRESTLib::initAccessHandling();
+        ilRESTLib::initSettings();
 
         // see initUser
         $_POST['username'] = $username;
@@ -83,7 +83,7 @@ class ilAuthLib {
         // add code 1
         if (!is_object($GLOBALS["ilPluginAdmin"]))
         {
-            ilRestLib::initGlobal("ilPluginAdmin", "ilPluginAdmin",
+            ilRESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin",
                 "./Services/Component/classes/class.ilPluginAdmin.php");
         }
         // add code 2
@@ -130,7 +130,7 @@ class ilAuthLib {
    static public function checkOAuth2ClientCredentials($api_key, $api_secret)
    {
        global $ilDB;
-       $query = "SELECT * FROM rest_apikeys WHERE api_key=\"".$api_key."\" AND api_secret=\"".$api_secret."\"";
+       $query = "SELECT * FROM ui_uihk_rest_keys WHERE api_key=\"".$api_key."\" AND api_secret=\"".$api_secret."\"";
        $set = $ilDB->query($query);
        $ret = $ilDB->fetchAssoc($set);
        if ($ret) {
@@ -150,7 +150,7 @@ class ilAuthLib {
     static public function checkOAuth2Client($api_key)
     {
         global $ilDB;
-        $query = "SELECT * FROM rest_apikeys WHERE api_key=\"".$api_key."\"";
+        $query = "SELECT * FROM ui_uihk_rest_keys WHERE api_key=\"".$api_key."\"";
         $set = $ilDB->query($query);
         $ret = $ilDB->fetchAssoc($set);
         if ($ret) {
@@ -174,7 +174,7 @@ class ilAuthLib {
         global $ilDB;
         if ($api_key == "") return false;
         $operation = strtoupper($operation);
-        $query = "SELECT * FROM rest_apikeys WHERE api_key=\"".$api_key."\"";
+        $query = "SELECT * FROM ui_uihk_rest_keys WHERE api_key=\"".$api_key."\"";
         $set = $ilDB->query($query);
         $ret = $ilDB->fetchAssoc($set);
         if ($ret) {

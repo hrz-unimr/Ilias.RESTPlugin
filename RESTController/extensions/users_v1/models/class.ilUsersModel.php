@@ -147,7 +147,7 @@ class ilUsersModel
         // TODO: do it here or in route?
         $app = new \Slim\Slim();
         ilAuthLib::setUserContext($app->environment['user']);  // filled by auth middleware
-        ilRestLib::initAccessHandling();
+        ilRESTLib::initAccessHandling();
 
 
     	$parser = new ilUserImportParser();
@@ -163,11 +163,11 @@ class ilUsersModel
 
             $resp->setData("num_users", $parser->getUserCount());
             $resp->setMessage("Import successful");
-            $resp->setRestCode(200);
+            $resp->setRESTCode(200);
         } else {
             $resp->setData("ILIAS_log", $parser->getProtocol());
             $resp->setMessage("Import failed, nothing done").
-            $resp->setRestCode(400);
+            $resp->setRESTCode(400);
             $resp->setHttpStatus(400);
         }
 

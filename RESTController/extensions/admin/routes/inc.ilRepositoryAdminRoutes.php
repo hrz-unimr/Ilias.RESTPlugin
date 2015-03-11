@@ -10,8 +10,8 @@ $app->group('/admin', function () use ($app) {
      * In the extreme case, the complete repository (tree) will be retrieved.
      */
     $app->get('/repository/:ref_id', 'authenticateILIASAdminRole', function ($ref_id) use ($app) {
-        $request = new ilRestRequest($app);
-        $response = new ilRestResponse($app);
+        $request = new ilRESTRequest($app);
+        $response = new ilRESTResponse($app);
         $maxDepth = 1000;
         $maxAge = 24; // 24 month
         try {
@@ -36,7 +36,7 @@ $app->group('/admin', function () use ($app) {
      * Get subtree of categories.
      */
     $app->get('/repository/categories/:ref_id', 'authenticateILIASAdminRole', function ($ref_id) use ($app) {
-        $response = new ilRestResponse($app);
+        $response = new ilRESTResponse($app);
         $repModel = new ilRepositoryAdminModel();
         $data = $repModel->getRekNode($ref_id, 0, array('cat'), 0, 1000);
 
@@ -46,8 +46,8 @@ $app->group('/admin', function () use ($app) {
     });
 
     $app->get('/repository/analytics/:ref_id', 'authenticateILIASAdminRole', function ($ref_id) use ($app) {
-        $request = new ilRestRequest($app);
-        $response = new ilRestResponse($app);
+        $request = new ilRESTRequest($app);
+        $response = new ilRESTResponse($app);
         $repModel = new ilRepositoryAdminModel();
         //  $data = $repModel->getSubTree($ref_id);
         $data = $repModel-> getRepositoryReadEvents($ref_id);
@@ -61,8 +61,8 @@ $app->group('/admin', function () use ($app) {
      * Creates a new category within the repository container object specfied by ref_id
      */
     $app->post('/categories', 'authenticateILIASAdminRole', function () use ($app) {
-        $request = new ilRestRequest($app);
-        $response = new ilRestResponse($app);
+        $request = new ilRESTRequest($app);
+        $response = new ilRESTResponse($app);
         $repModel = new ilRepositoryAdminModel();
         $parent_ref_id = $request->getParam("ref_id");
         $title = $request->getParam("title");

@@ -57,7 +57,7 @@ function authenticateILIASAdminRole()
     checkToken();
     $app = \Slim\Slim::getInstance();
     $env = $app->environment();
-    if (ilRestLib::isAdminByUsername($env['user']) == false) {
+    if (ilRESTLib::isAdminByUsername($env['user']) == false) {
         $output=array();
         $output['msg'] = "Admin permission required.";
         echo json_encode($output);

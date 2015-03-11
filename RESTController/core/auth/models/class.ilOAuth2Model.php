@@ -201,7 +201,7 @@ class ilOAuth2Model
                 if ($clients_model->is_oauth2_gt_resourceowner_enabled($api_key)) {
                     $allowed_users = $clients_model->getAllowedUsersForApiKey($api_key);
                     $access_granted = false;
-                    $uid = (int)ilRestLib::loginToUserId($user);
+                    $uid = (int)ilRESTLib::loginToUserId($user);
 
                     if (in_array(-1, $allowed_users) || in_array($uid, $allowed_users)) {
                         $access_granted = true;
@@ -248,7 +248,7 @@ class ilOAuth2Model
         if ($clients_model->clientExists($api_key)) {
             if ($clients_model->is_oauth2_gt_clientcredentials_enabled($api_key)) {
                 $uid = $clients_model->getClientCredentialsUser($api_key);
-                $user = (int)ilRestLib::userIdtoLogin($uid);
+                $user = (int)ilRESTLib::userIdtoLogin($uid);
                 $authResult = $ilAuth->checkOAuth2ClientCredentials($api_key, $api_secret);
                 if (!$authResult) {
                     $response->setHttpStatus(401);
@@ -313,7 +313,7 @@ class ilOAuth2Model
                         if ($clients_model->is_oauth2_gt_authcode_enabled($t_client_id)) {
                             $allowed_users = $clients_model->getAllowedUsersForApiKey($t_client_id);
                             $access_granted = false;
-                            $uid = (int)ilRestLib::loginToUserId($t_user);
+                            $uid = (int)ilRESTLib::loginToUserId($t_user);
 
                             if (in_array(-1, $allowed_users) || in_array($uid, $allowed_users)) {
                                 $access_granted = true;
@@ -356,7 +356,7 @@ class ilOAuth2Model
      */
     public function handleTokenEndpoint_refreshToken2Bearer($app)
     {
-        $request = new ilRestRequest($app);
+        $request = new ilRESTRequest($app);
         $response = new ilOauth2Response($app);
 
         $refresh_token = $request->getParam("refresh_token");
@@ -380,7 +380,7 @@ class ilOAuth2Model
      */
     public function getRefreshToken($bearer_token_array)
     {
-        $user_id = ilRestLib::loginToUserId($bearer_token_array['user']);
+        $user_id = ilRESTLib::loginToUserId($bearer_token_array['user']);
         $api_key = $bearer_token_array['api_key'];
         $entry = $this->_checkRefreshTokenEntry($user_id, $api_key);
 
@@ -405,7 +405,7 @@ class ilOAuth2Model
         $refresh_token_array = ilTokenLib::deserializeToken($refresh_token);
         if (ilTokenLib::tokenValid($refresh_token_array) == true) {
             $user = $refresh_token_array['user'];
-            $user_id = ilRestLib::loginToUserId($user);
+            $user_id = ilRESTLib::loginToUserId($user);
             $api_key = $refresh_token_array['api_key'];
             $entry = $this->_checkRefreshTokenEntry($user_id, $api_key);
             if ($entry == null) {
@@ -436,7 +436,7 @@ class ilOAuth2Model
     private function _issueExistingRefreshToken($user_id, $api_key)
     {
         global $ilDB;
-        $query = "SELECT refresh_token, num_refresh_left FROM rest_oauth2_refresh WHERE user_id=".$user_id." AND api_key='".$api_key."'";
+        $query = "SELECT refresh_token, num_refresh_left FROM ui_uihk_rest_oauth2 WHERE user_id=".$user_id." AND api_key='".$api_key."'";
         $set = $ilDB->query($query);
         if ($set!=null) {
             $entry = $ilDB->fetchAssoc($set);
@@ -461,7 +461,7 @@ class ilOAuth2Model
     private function _resetRefreshTokenEntry($user_id, $api_key, $newRefreshToken)
     {
         global $ilDB;
-        $query = "SELECT num_resets FROM rest_oauth2_refresh WHERE user_id=".$user_id." AND api_key='".$api_key."'";
+        $query = "SELECT num_resets FROM ui_uihk_rest_oauth2 WHERE user_id=".$user_id." AND api_key='".$api_key."'";
         $set = $ilDB->query($query);
         if ($set!=null) {
             $entry = $ilDB->fetchAssoc($set);
@@ -481,7 +481,7 @@ class ilOAuth2Model
      */
     /*public function getRefreshEntryInfo($bearer_token_array)
     {
-        $user_id = ilRestLib::loginToUserId($bearer_token_array['user']);
+        $user_id = ilRESTLib::loginToUserId($bearer_token_array['user']);
         $api_key = $bearer_token_array['api_key'];
 
         $entry = $this->_checkRefreshTokenEntry($user_id, $api_key);
@@ -510,7 +510,7 @@ class ilOAuth2Model
     private function _checkRefreshTokenEntry($user_id, $api_key)
     {
         global $ilDB;
-        $query = "SELECT * FROM rest_oauth2_refresh WHERE user_id=".$user_id." AND api_key='".$api_key."'";
+        $query = "SELECT * FROM ui_uihk_rest_oauth2 WHERE user_id=".$user_id." AND api_key='".$api_key."'";
         $set = $ilDB->query($query);
         $entry = $ilDB->fetchAssoc($set);
         return $entry;
@@ -538,7 +538,7 @@ class ilOAuth2Model
             "num_resets" => array("integer", 0)
         );
 
-        $ilDB->insert("rest_oauth2_refresh", $a_columns);
+        $ilDB->insert("ui_uihk_rest_oauth2", $a_columns);
         return $ilDB->getLastInsertId();
     }
 
@@ -551,7 +551,7 @@ class ilOAuth2Model
     private function _deleteRefreshTokenEntry($user_id, $api_key)
     {
         global $ilDB;
-        $sql = "DELETE FROM rest_oauth2_refresh WHERE user_id =".$ilDB->quote($user_id, "integer")." AND api_key=".$ilDB->quote($api_key, "text");
+        $sql = "DELETE FROM ui_uihk_rest_oauth2 WHERE user_id =".$ilDB->quote($user_id, "integer")." AND api_key=".$ilDB->quote($api_key, "text");
         $numAffRows = $ilDB->manipulate($sql);
         return $numAffRows;
     }
@@ -567,7 +567,7 @@ class ilOAuth2Model
     public function _updateRefreshTokenEntry($user_id, $api_key, $fieldname, $newval)
     {
         global $ilDB;
-        $sql = "UPDATE rest_oauth2_refresh SET $fieldname = \"$newval\" WHERE user_id = ".$user_id." AND api_key='".$api_key."'";
+        $sql = "UPDATE ui_uihk_rest_oauth2 SET $fieldname = \"$newval\" WHERE user_id = ".$user_id." AND api_key='".$api_key."'";
         $numAffRows = $ilDB->manipulate($sql);
         return $numAffRows;
     }
@@ -663,7 +663,7 @@ class ilOAuth2Model
 
         }
         else {
-            $user = ilRestLib::userIdtoLogin($user_id);
+            $user = ilRESTLib::userIdtoLogin($user_id);
             $access_token = ilTokenLib::generateBearerToken($user, $api_key);
             $result['status'] = "success";
             $result['user'] = $user;

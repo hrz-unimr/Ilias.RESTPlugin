@@ -11,9 +11,9 @@ use Elastica\Request;
 use Elastica\Response;
 use Elastica\Connection;
 use Elasticsearch\Method;
-use Elasticsearch\RestResponse;
-use Elasticsearch\RestClient;
-use Elasticsearch\RestRequest;
+use Elasticsearch\RESTResponse;
+use Elasticsearch\RESTClient;
+use Elasticsearch\RESTRequest;
 use Thrift\Transport\TSocket;
 use Thrift\Transport\TFramedTransport;
 use Thrift\Transport\TBufferedTransport;
@@ -30,7 +30,7 @@ use Thrift\Exception\TException;
 class Thrift extends AbstractTransport
 {
     /**
-     * @var RestClient[]
+     * @var RESTClient[]
      */
     protected $_clients = array();
 
@@ -43,8 +43,8 @@ class Thrift extends AbstractTransport
     public function __construct(Connection $connection = null)
     {
         parent::__construct($connection);
-        if (!class_exists('Elasticsearch\\RestClient')) {
-            throw new RuntimeException('Elasticsearch\\RestClient class not found. Check that suggested package munkie/elasticsearch-thrift-php is required in composer.json');
+        if (!class_exists('Elasticsearch\\RESTClient')) {
+            throw new RuntimeException('Elasticsearch\\RESTClient class not found. Check that suggested package munkie/elasticsearch-thrift-php is required in composer.json');
         }
     }
 
@@ -54,7 +54,7 @@ class Thrift extends AbstractTransport
      * @param int $sendTimeout msec
      * @param int $recvTimeout msec
      * @param bool $framedTransport
-     * @return \Elasticsearch\RestClient
+     * @return \Elasticsearch\RESTClient
      */
     protected function _createClient($host, $port, $sendTimeout = null, $recvTimeout = null, $framedTransport = false)
     {
@@ -75,7 +75,7 @@ class Thrift extends AbstractTransport
         }
         $protocol = new TBinaryProtocolAccelerated($transport);
 
-        $client = new RestClient($protocol);
+        $client = new RESTClient($protocol);
 
         $transport->open();
 
@@ -88,7 +88,7 @@ class Thrift extends AbstractTransport
      * @param int $sendTimeout
      * @param int $recvTimeout
      * @param bool $framedTransport
-     * @return \Elasticsearch\RestClient
+     * @return \Elasticsearch\RESTClient
      */
     protected function _getClient($host, $port, $sendTimeout = null, $recvTimeout = null, $framedTransport = false)
     {
@@ -125,7 +125,7 @@ class Thrift extends AbstractTransport
                 $framedTransport
             );
 
-            $restRequest = new RestRequest();
+            $restRequest = new RESTRequest();
             $restRequest->method = array_search($request->getMethod(), Method::$__names);
             $restRequest->uri = $request->getPath();
 
@@ -144,7 +144,7 @@ class Thrift extends AbstractTransport
                 $restRequest->body = $content;
             }
 
-            /* @var $result RestResponse */
+            /* @var $result RESTResponse */
             $start = microtime(true);
 
             $result = $client->execute($restRequest);

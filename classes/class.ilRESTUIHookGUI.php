@@ -8,5 +8,5 @@ include_once("./Services/UIComponent/classes/class.ilUIHookPluginGUI.php");
  * @version $Id$
  * @ingroup ServicesUIComponent
  */
-class ilRestUIHookGUI extends ilUIHookPluginGUI {
+class ilRESTUIHookGUI extends ilUIHookPluginGUI {
 }

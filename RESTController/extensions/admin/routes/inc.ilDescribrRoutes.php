@@ -14,8 +14,8 @@ $app->group('/admin', function () use ($app) {
      * Supported types: obj_id, ref_id, usr_id and file_id
      */
     $app->get('/describe/:id', 'authenticateILIASAdminRole', function ($id) use ($app) {
-        $request = new ilRestRequest($app);
-        $response = new ilRestResponse($app);
+        $request = new ilRESTRequest($app);
+        $response = new ilRESTResponse($app);
 
         try {
             $id_type = $request->getParam('id_type');
@@ -26,7 +26,7 @@ $app->group('/admin', function () use ($app) {
         $model = new ilDescribrModel();
         if ($id_type == 'ref_id' || $id_type == 'obj_id') {
             if ($id_type == 'ref_id') {
-                $obj_id = ilRestLib::refid_to_objid($id);
+                $obj_id = ilRESTLib::refid_to_objid($id);
                 $id_type = 'obj_id';
             }
             //echo "obj_id:".$obj_id;
@@ -43,7 +43,7 @@ $app->group('/admin', function () use ($app) {
                     $id_type = "file_id";
                 }
             } catch (Exception $e) {
-                $response->setRestCode('-11');
+                $response->setRESTCode('-11');
                 $response->setMessage('Error: Object not found.');
                 // Try to explain a user with id = '.$id.' instead.';
                 $id_type = 'usr_id';
@@ -51,14 +51,14 @@ $app->group('/admin', function () use ($app) {
         }
 
         if ($id_type == 'usr_id') {
-            $username = ilRestLib::userIdtoLogin($id);
+            $username = ilRESTLib::userIdtoLogin($id);
             //echo $username;
             try {
                 if ($username == 'User unknown') {
                     $response->setMessage('User not found.');
                     throw new Exception('User does not exist');
                 } else {
-                    ilRestLib::initDefaultRestGlobals();
+                    ilRESTLib::initDefaultRESTGlobals();
                     $usr_model = new ilUsersModel();
                     $usr_basic_info =  $usr_model->getBasicUserData($id);
                     if (empty($usr_basic_info) == true) {
@@ -69,7 +69,7 @@ $app->group('/admin', function () use ($app) {
                     }
                 }
             } catch (Exception $e) {
-                $response->setRestCode('-11');
+                $response->setRESTCode('-11');
                 $response->setMessage('Error: User not found.');
                 // Try to explain a file with id = '.$id.' instead.';
                 $id_type = 'file_id';
@@ -82,7 +82,7 @@ $app->group('/admin', function () use ($app) {
                 $response->addMessage('Description of file with id = '.$id.'.');
                 $response->addData('file', $data);
             } catch (Exception $e) {
-                $response->setRestCode('-11');
+                $response->setRESTCode('-11');
                 $response->setMessage('Error: File not found.');
             }
         }

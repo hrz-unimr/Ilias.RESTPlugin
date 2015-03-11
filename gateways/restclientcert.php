@@ -16,7 +16,7 @@ $ilInit->initILIAS();
 if (isset($oauth_client_id)) { // workaround see https://github.com/eqsoft/RESTPlugin/issues/1
     $_GET['client_id'] = $oauth_client_id;
 }
-require_once("Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/Rest/RESTController/slimnode.php");
+require_once("Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/RESTController/slimnode.php");
 $app->run();
 
 ?>
