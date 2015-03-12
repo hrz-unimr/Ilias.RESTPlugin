@@ -37,8 +37,8 @@ Current release: v.0.7.2-alpha
 * cd ILIAS_DIR/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/
 * wget https://github.com/hrz-unimr/Ilias.RESTPlugin/archive/v.0.7.2-alpha.zip
 * unzip v.0.7.2.zip
-* mv RESTPlugin-v.0.7.2-alpha Rest
-* Copy Rest/gateways/restplugin.php to /
+* mv RESTPlugin-v.0.7.2-alpha REST
+* Copy REST/gateways/restplugin.php to /
 * Plugin directories must be readable by apache process (www-data)
 * Create www-data writable logfile /var/log/restplugin.log
 * Activate Plugin in Administration > Plugins
