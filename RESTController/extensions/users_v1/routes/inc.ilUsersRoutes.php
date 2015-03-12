@@ -70,6 +70,7 @@ $app->get('/v1/users/:user_id', 'authenticateTokenOnly', function ($user_id) use
 
 // bulk import via XML
 // consumes the schema that is produced by Administration -> Users -> Export
+/* mutual exclusive with function below...
 $app->post('/v1/users', 'authenticateILIASAdminRole', function() use ($app) {
     $request = new ilRESTRequest($app);
     $importData = $request->getRaw();
@@ -79,19 +80,24 @@ $app->post('/v1/users', 'authenticateILIASAdminRole', function() use ($app) {
     $import_result = $model->bulkImport($importData, $resp);
     echo($resp->toJSON());
 });
+ */
 
 
 
-/*
 $app->post('/v1/users', 'authenticate', function () use ($app) { // create
     try { // root only
 
         $request = $app->request();
-        $user = $request->params('username');
-        $pass = $request->params('password');
+        $attribs = array("login", "passwd", "firstname", "lastname", "email", "gender", "auth_mode");
+        $user_data = array();
+        foreach($attribs as $a) {
+            $user_data[$a] = $request->params($a);
+        }
+        //$user = $request->params('login');
+//        $pass = $request->params('passwd');
 
-        $user_data['login'] = $user;
-        $user_data['passwd'] = $pass;
+        // http://ildoc.hrz.uni-giessen.de/ildoc/Release_4_4_x_branch/html/de/da1/classilObjUser.html
+        $user_data['profile_incomplete'] = false;
 
         $result = array();
         $usr_model = new ilUsersModel();
@@ -101,6 +107,7 @@ $app->post('/v1/users', 'authenticate', function () use ($app) { // create
 
         if ($status == true) {
             $result['status'] = "User ".$user_id." created.";
+            $result['data'] = array("id" => $user_id);
         }else {
             $result['status'] = "User could not be created!";
         }
@@ -113,7 +120,7 @@ $app->post('/v1/users', 'authenticate', function () use ($app) { // create
         $app->response()->header('X-Status-Reason', $e->getMessage());
     }
 });
-*/
+
 
 $app->put('/v1/users/:user_id', 'authenticate', function ($user_id) use ($app){ // update
     try {

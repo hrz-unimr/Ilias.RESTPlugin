@@ -34,7 +34,11 @@ class ilCoursesRegistrationModel
         ilRESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global $ilUser;
         $ilUser->setId($user_id);
-        $ilUser->read();
+        try {
+            $ilUser->read();
+        } catch (Exception $e) {
+            return false;
+        }
         ilRESTLib::initAccessHandling();
 
         $this->initParticipants();
@@ -44,6 +48,7 @@ class ilCoursesRegistrationModel
         } else {
             //  "user on waiting list!";
         }
+        return true;
     }
 
     /**

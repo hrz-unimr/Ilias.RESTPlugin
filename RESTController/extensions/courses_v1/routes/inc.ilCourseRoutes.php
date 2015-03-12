@@ -91,6 +91,59 @@ $app->group('/v1', function () use ($app) {
         echo json_encode($result);
     });
 
+    /**
+     * Enroll an User to a Course.
+     * Expects a "mode" parameter ("by_login"/"by_id") that determines the
+     * lookup method for the user.
+     * If "mode" is "by_login", the "login" parameter is used for the lookup.
+     * If no user is found, a new LDAP user is created with attributes from
+     * the "data" array.
+     * If "mode" is "by_id", the parameter "usr_id" is used for the lookup.
+     * The user is then enrolled in the course with "crs_ref_id".
+     */
+    $app->post('/courses/enroll', 'authenticateILIASAdminROle', function() use ($app) {
+        $env = $app->environment();
+        $response = new ilRestResponse($app);
+        $request = new ilRestRequest($app);
+        $mode = $request->getParam("mode");
+        if($mode == "by_login") {
+            $login = $request->getParam("login");
+            $user_id = ilRestLib::loginToUserId($login);
+            if(empty($user_id)){
+                $data = $request->getParam("data");
+                $userData = array_merge(array(
+                    "login" => "{$login}",
+                    "auth_mode" => "ldap",
+                ), $data);
+                $um = new ilUsersModel();
+                $user_id = $um->addUser($userData);
+            }
+        } else if ($mode == "by_id") {
+            $user_id = $request->getParam("usr_id");
+        } else {
+            $response->setHttpStatus(400);
+            $response->setMessage("Unsupported or missing mode: '$mode'. Use eiter 'by_login' or 'by_id'");
+            $response->toJSON();
+            return;
+        }
+        $crs_ref_id = $request->getParam("crs_ref_id");
+        try {
+            $crsreg_model = new ilCoursesRegistrationModel();
+            $crsreg_model->joinCourse($user_id, $crs_ref_id);
+        } catch (Exception $e) {
+            $response->setMessage("Error: Subscribing user ".$user_id." to course with ref_id = ".$crs_ref_id." failed. Exception:".$e);
+            $response->setHttpStatus(400);
+            $response->toJSON();
+            return;
+        }
+        if($mode = "by_login") {
+            $response->setMessage("Enrolled user $login to course with id $crs_ref_id");
+        } else {
+            $response->setMessage("Enrolled user with id $user_id to course with id $crs_ref_id");
+        }
+        $response->toJSON();
+
+    });
 
     $app->get('/courses/join', 'authenticate', function () use ($app) {
         $env = $app->environment();

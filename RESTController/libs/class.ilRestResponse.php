@@ -92,6 +92,7 @@ class ilRESTResponse {
     public function setHttpStatus($statusCode)
     {
         $this->app->response()->status($statusCode);
+        $this->setRestCode($statusCode);
     }
 
     /**

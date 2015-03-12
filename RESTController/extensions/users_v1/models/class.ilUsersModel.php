@@ -86,8 +86,6 @@ class ilUsersModel
             $new_user->writeAccepted();
         }
 
-        // Assign role
-        //$rbacadmin->assignUser($global_role_id,$new_user->getId());
 
         // Assign user prefs
         /* $new_user->setLanguage($user_data['user_language']);
@@ -98,8 +96,20 @@ class ilUsersModel
          $new_user->writePrefs();
          */
 
+        $new_user->setLastPasswordChangeToNow();
         $new_user->create();
+        $new_user->setActive(true);
         $new_user->saveAsNew();
+
+        // Assign "User" role per default
+        ilRestLib::initAccessHandling();
+        global $rbacadmin, $rbacreview;
+        $user_role_array = $rbacreview->getRolesByFilter($rbacreview::FILTER_ALL, 0, 'User');
+        $user_role_id = $user_role_array[0]['obj_id'];
+        // Alternatives:
+        // SELECT obj_id FROM object_data JOIN rbac_fa ON obj_id = rol_id WHERE title = "User" AND assign = "y"
+        // Or just use "4"
+        $rbacadmin->assignUser(4,$new_user->getId());
         return $new_user->getId();
     }
 

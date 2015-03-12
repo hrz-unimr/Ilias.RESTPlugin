@@ -65,10 +65,14 @@ class ilCoursesModel
         $crs_info = array();
         $crs_info['ref_id'] = $crs_ref_id;
         $obj = ilObjectFactory::getInstanceByRefId($crs_ref_id,false);
-        $crs_info['title'] = $obj->getTitle();
-        $crs_info['description'] = $obj->getDescription();
-        $crs_info['create_date'] = $obj->create_date;
-        $crs_info['type'] = $obj->getType();
+        if(is_null($obj)) {
+            $crs_info['title'] = "notFound";
+        } else {
+            $crs_info['title'] = $obj->getTitle();
+            $crs_info['description'] = $obj->getDescription();
+            $crs_info['create_date'] = $obj->create_date;
+            $crs_info['type'] = $obj->getType();
+        }
         //var_dump($obj);
         return $crs_info;
     }
