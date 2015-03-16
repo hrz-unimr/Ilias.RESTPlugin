@@ -1,13 +1,21 @@
-<?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
+ob_start();
+define('REST_ROOT', './Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST');
 
-include_once('./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/classes/class.ilRESTInitialisation.php');
+// Load RESTPlugin, which in turn loads required ILIAS components
+include_once(REST_ROOT . '/classes/class.ilRESTInitialisation.php');
 $ilInit = new ilRESTInitialisation();
 $GLOBALS['ilInit'] = $ilInit;
-$ilInit->initIliasREST();//initILIAS();
+$ilInit->initIliasREST();
+ob_end_clean();
 
-require_once('./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/RESTController/app.php');
-$app->run();
-
-?>
+// Run the RESTController or return error-code
+if ($ilPluginAdmin->isActive(IL_COMP_SERVICE, "UIComponent", "uihk", "REST")) {
+    require_once(REST_ROOT . '/RESTController/app.php');
+    $app->run();
+} else {
+    header("HTTP/1.0 405 Disabled");
+    header("Warning: REST-Interface is disabled");
+    echo "REST-Interface is disabled\r\n";
+}
