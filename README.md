@@ -33,13 +33,14 @@ Example 2
 
 ##Installation##
 Current release: v.0.7.2-alpha
-* mkdir -p ILIAS_DIR/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/
-* cd ILIAS_DIR/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/
+* Make sure ${ILIAS_DIR} points to your ILIAS installation folder (eg. /var/www/ilias)
+* ${ILIAS_LOG_DIR} should point to the external logging directory set during ILIAS installation (eg. /var/log or search for the "path" variable under the [log] section inside ${ILIAS_DIR}/ilias.ini.php)
+* mkdir -p ${ILIAS_DIR}/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/
+* cd ${ILIAS_DIR}/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/
 * wget https://github.com/hrz-unimr/Ilias.RESTPlugin/archive/v.0.7.2-alpha.zip
 * unzip v.0.7.2.zip
 * mv RESTPlugin-v.0.7.2-alpha REST
-* Copy REST/gateways/restplugin.php to /
-* Plugin directories must be readable by apache process (www-data)
-* Create www-data writable logfile /var/log/restplugin.log
-* Activate Plugin in Administration > Plugins
-
+* cp REST/gateways/restplugin.php ${ILIAS_DIR}/
+* Plugin directories must be readable by apache process (Default: www-data)
+* Create ${ILIAS_LOG_DIR}/restplugin.log file sucht that it is readable by the apache process (Default: www-data)
+* Activate Plugin under Administration > Plugins
