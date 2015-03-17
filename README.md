@@ -33,14 +33,35 @@ Example 2
 
 ##Installation##
 Current release: v.0.7.2-alpha
-* Make sure ${ILIAS_DIR} points to your ILIAS installation folder (eg. /var/www/ilias)
-* ${ILIAS_LOG_DIR} should point to the external logging directory set during ILIAS installation (eg. /var/log or search for the "path" variable under the [log] section inside ${ILIAS_DIR}/ilias.ini.php)
-* mkdir -p ${ILIAS_DIR}/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/
-* cd ${ILIAS_DIR}/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/
-* wget https://github.com/hrz-unimr/Ilias.RESTPlugin/archive/v.0.7.2-alpha.zip
-* unzip v.0.7.2.zip
-* mv RESTPlugin-v.0.7.2-alpha REST
-* cp REST/gateways/restplugin.php ${ILIAS_DIR}/
-* Plugin directories must be readable by apache process (Default: www-data)
-* Create ${ILIAS_LOG_DIR}/restplugin.log file sucht that it is readable by the apache process (Default: www-data)
-* Activate Plugin under Administration > Plugins
+
+* Create the required folder structure inside your ILIAS installation:  
+  **mkdir** -p *${ILIAS_DIR}*/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/
+* Open the newly created directory:  
+  **cd** *${ILIAS_DIR}*/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/
+* Download latest release version of the RESTPlugin to this directory:  
+  **wget** https://github.com/hrz-unimr/Ilias.RESTPlugin/archive/v.0.7.2-alpha.zip
+* Simply unzip the downloaded zip-file to its current location:  
+  **unzip** v.0.7.2.zip
+* Rename the extracted folder, such that it can be loaded by ILIAS:  
+  **mv** RESTPlugin-v.0.7.2-alpha REST
+* Copy the actual interface for the RESTController into your ILIAS base folder:  
+  **cp** REST/gateways/restplugin.php *${ILIAS_DIR}*/
+* Create the *${ILIAS_LOG_DIR}*/restplugin.log file
+* Open your *${ILIAS_DIR}*/ilias.ini.php file and append:
+````
+    [rest]
+    path = "./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST"
+````
+* You can now update your database and activate the plugin under Administration > Plugins from inside of ILIAS
+  
+###Notes###
+* The variables *${ILIAS_DIR}* and *${ILIAS_LOG_DIR}* should point to your ILIAS installation
+  directory (eg. /var/www/ilias) and the external logging directory set during ILIAS installation
+  (eg /var/log) respectively.  
+  The log directory can also be retrieved by looking at the *path*-variable under the [*log*] section 
+  inside your *${ILIAS_DIR}*/ilias.ini.php file.
+* On a unix-like operating-systems make sure the plugin directories
+  *${ILIAS_DIR}*/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/
+  is readable and the log-file *${ILIAS_LOG_DIR}*/restplugin.log
+  is writeable by the apache process. Normally that mean the user/group *www-data* needs read or 
+  write access to those directories accordingly.

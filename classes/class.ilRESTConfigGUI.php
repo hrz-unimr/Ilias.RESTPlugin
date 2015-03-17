@@ -11,6 +11,24 @@ include_once("./Services/Component/classes/class.ilPluginConfigGUI.php");
  */
 class ilRESTConfigGUI extends ilPluginConfigGUI
 {
+    function __construct()
+    {
+        // Call parent constructor if it exists (currently not the case)
+        if (method_exists(parent, '__construct')) {
+            parent::__construct();
+        }
+        
+        // This allows us to parse the ilias.ini.php, such that we may find the location
+        // of the RESTPlugin. We require this, since __DIR__ only returns server-paths,
+        // but no URLs that could be used to display to a client.
+        require_once("./Services/Init/classes/class.ilIniFile.php");
+        $ilIliasIniFile = new ilIniFile("./ilias.ini.php");				
+        $ilIliasIniFile->read();
+        define("ILIAS_REST_DIR", $ilIliasIniFile->readVariable("rest", "path"));
+        define("ILIAS_REST_URL", $ilIliasIniFile->readVariable("server", "http_path") . "/" . ILIAS_REST_DIR);
+    }
+    
+    
     /**
      * Handles all commmands, default is "configure"
      */
@@ -63,13 +81,13 @@ class ilRESTConfigGUI extends ilPluginConfigGUI
         $pl->txt("admin_info_config");
         $pl->txt("api_btn_config");
         $pl->txt("admin_btn_config");
-// Willkommen zur Konfiguration des ILIAS REST-Plugins
+        // Willkommen zur Konfiguration des ILIAS REST-Plugins
         $configHTML = "<h3>".$pl->txt("welcome_config")."</h3>";
-       // $configHTML .= "<hr />";
-       // $configHTML .= "<p>".$pl->txt("info_config")." <a href=\"https://github.com/eqsoft/RESTPlugin\" target=\"_blank\">https://github.com/eqsoft/RESTPlugin</a>.</p>";
-       // $configHTML .=  $pl->txt("installation_note_config");
-        //$configHTML .= "<hr />";
-        //$configHTML .= "<p>".$pl->txt("api_info_config")."</p>";
+        // $configHTML .= "<hr />";
+        // $configHTML .= "<p>".$pl->txt("info_config")." <a href=\"https://github.com/eqsoft/RESTPlugin\" target=\"_blank\">https://github.com/eqsoft/RESTPlugin</a>.</p>";
+        // $configHTML .=  $pl->txt("installation_note_config");
+        // $configHTML .= "<hr />";
+        // $configHTML .= "<p>".$pl->txt("api_info_config")."</p>";
         $configHTML .= "<hr />";
         $configHTML .="<p>".$pl->txt("admin_info_config")."</p>";
 
@@ -84,7 +102,7 @@ class ilRESTConfigGUI extends ilPluginConfigGUI
         $inst_folder = ($inst_folder == '/' ? '' : $inst_folder);
 
         $configHTML .= '
-            <form action="./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/apps/html5/admin/app/index.php" method="post" target="_blank">
+            <form action="' . ILIAS_REST_DIR . '/apps/html5/admin/app/index.php" method="post" target="_blank">
                 <input type="hidden" name="user_id" value="'.$ilUser->getId().'" />
                 <input type="hidden" name="session_id" value="'.session_id().'" />
                 <input type="hidden" name="rtoken" value="'.$ilCtrl->rtoken.'" />
@@ -94,6 +112,7 @@ class ilRESTConfigGUI extends ilPluginConfigGUI
             </form>
          ';
         $configHTML .= "<hr />";
+        
 
         $tpl->setContent($configHTML);
         //$tpl->setContent($form->getHTML());

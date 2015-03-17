@@ -272,3 +272,14 @@ $ilDB->addPrimaryKey("ui_uihk_rest_config", array("id"));
     $ilDB->addPrimaryKey("ui_uihk_rest_oauth2", array("id"));
     $ilDB->manipulate("ALTER TABLE ui_uihk_rest_oauth2 CHANGE id id INT( 11 ) NOT NULL AUTO_INCREMENT");
 ?>
+
+<#9>
+<?php
+    // This allows us to parse the ilias.ini.php, such that we may find the location
+    // of the RESTPlugin
+    require_once("./Services/Init/classes/class.ilIniFile.php");
+    $ilIliasIniFile = new ilIniFile("./ilias.ini.php");				
+    $ilIliasIniFile->read();
+    define("ILIAS_REST_DIR", $ilIliasIniFile->readVariable("rest", "path"));
+    define("ILIAS_REST_URL", $ilIliasIniFile->readVariable("server", "http_path") . "/" . ILIAS_REST_DIR);
+    copy(ILIAS_REST_DIR . "/gateways/restplugin.php", "./restplugin.php");

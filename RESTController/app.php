@@ -7,8 +7,6 @@
  */
 require 'Slim/Slim.php';
 
-define('REST_PLUGIN_DIR', dirname($_SERVER['SCRIPT_NAME']).'/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST');
-
 \Slim\Slim::registerAutoloader();
 $app = new \Slim\Slim();
 
@@ -16,11 +14,11 @@ $logWriter = new \Slim\LogWriter(fopen(ILIAS_LOG_DIR.'/restplugin.log', 'a'));
 
 $app->config(array(
     'debug' => true,
-    'template.path' => REST_PLUGIN_DIR.'/RESTController/views',
+    'template.path' => ILIAS_REST_DIR . '/RESTController/views',
     'log.writer' => $logWriter
 ));
 
-$app->view()->setTemplatesDirectory("./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/RESTController/views");
+$app->view()->setTemplatesDirectory(ILIAS_REST_DIR . "/RESTController/views");
 
 $app->log->setEnabled(true);
 $app->log->setLevel(\Slim\Log::DEBUG);
