@@ -63,5 +63,5 @@ Current release: v.0.7.2-alpha
 * On a unix-like operating-systems make sure the plugin directories
   *${ILIAS_DIR}*/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/
   is readable and the log-file *${ILIAS_LOG_DIR}*/restplugin.log
-  is writeable by the apache process. Normally that mean the user/group *www-data* needs read or 
+  is writeable by the apache process. Normally that means the user/group *www-data* needs read or 
   write access to those directories accordingly.
