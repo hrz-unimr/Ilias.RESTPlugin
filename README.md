@@ -55,8 +55,9 @@ Current release: v.0.7.3-alpha
   (eg /var/log) respectively.  
   The log directory can also be retrieved by looking at the *path*-variable under the [*log*] section 
   inside your *${ILIAS_DIR}*/ilias.ini.php file.
-* On a unix-like operating-systems make sure the plugin directories
-  *${ILIAS_DIR}*/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/
+* On a unix-like operating-systems make sure the plugin directory
+  *${ILIAS_DIR}*/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST
   is readable and the log-file *${ILIAS_LOG_DIR}*/restplugin.log
-  is writeable by the apache process. Normally that means the user/group *www-data* needs read or 
+  is writeable by the apache process. Normally this means the *www-data* user/group needs read or 
   write access to those directories accordingly.
+* To use the master-branch instead of a release version just replace all occurances of *v.0.7.3-alpha* and *v.0.7.3* with *master*.
