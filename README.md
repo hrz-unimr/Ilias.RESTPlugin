@@ -16,19 +16,10 @@ This is an extensible REST interface that allows developers to create RESTful AP
 * API discovery
 * Based on the PHP SLIM Framework
 
-Examples
----------
-Example 1
+#### Example 
 **Retrieve available routes**
 
     curl -X GET http://localhost/restplugin.php/routes
-
-Example 2
-**Retrieve an OAuth 2.0 Access Token**
-
-    curl -X POST http://localhost/restplugin.php/v1/oauth2/token -d "grant_type=password&username=root&password=homer"| python -m json.tool
-
-
-    curl -H "Authorization: Bearer <ACCESS_TOKEN>" http://...
+    
 
 
