@@ -7,18 +7,30 @@
  */
 require 'Slim/Slim.php';
 
+$ilRESTPlugin = $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, "UIComponent", "uihk", "REST");
+
 \Slim\Slim::registerAutoloader();
 $app = new \Slim\Slim();
 
-$logWriter = new \Slim\LogWriter(fopen(ILIAS_LOG_DIR.'/restplugin.log', 'a'));
+if (is_writable(ILIAS_LOG_DIR.'/restplugin.log')) {
+    $logWriter = new \Slim\LogWriter(fopen(ILIAS_LOG_DIR.'/restplugin.log', 'a'));
+    
+    $app->config(array(
+        'debug' => true,
+        'template.path' => $ilRESTPlugin->getDirectory() . '/RESTController/views',
+        'log.writer' => $logWriter
+    ));
+}
+else {
+    global $ilLog;
+    $ilLog->write('Plugin REST -> Warning: Log file <' . ILIAS_LOG_DIR . '/restplugin.log> is not writeable!');
 
-$ilRESTPlugin = $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, "UIComponent", "uihk", "REST");
-
-$app->config(array(
-    'debug' => true,
-    'template.path' => $ilRESTPlugin->getDirectory() . '/RESTController/views',
-    'log.writer' => $logWriter
-));
+    $app->config(array(
+        'debug' => true,
+        'template.path' => $ilRESTPlugin->getDirectory() . '/RESTController/views',
+        'log.writer' => $ilLog
+    ));
+}
 
 $app->view()->setTemplatesDirectory($ilRESTPlugin->getDirectory() . "/RESTController/views");
 
