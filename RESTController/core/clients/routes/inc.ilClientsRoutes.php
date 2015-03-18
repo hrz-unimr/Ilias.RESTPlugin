@@ -308,8 +308,11 @@ $app->get('/routes', function () use ($app) {
 
 });
 
-$app->get('/rest/config', function () use ($app) {    
-    $app->redirect(ILIAS_REST_URL . '/apps/html5/admin/app/');
+$app->get('/rest/config', function () use ($app) {
+    global $ilPluginAdmin;
+    $ilRESTPlugin = $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, "UIComponent", "uihk", "REST");
+
+    $app->redirect('../../' . $ilRESTPlugin->getDirectory() . '/apps/html5/admin/app/');
 });
 
 ?>

@@ -1,11 +1,11 @@
 <?php
 
 $id = "rest";
-$version = "0.7.2";
+$version = "0.7.3";
 
 $ilias_min_version = "4.0.0";
-$ilias_max_version = "9.9.999";
+$ilias_max_version = "5.2.0";
 
-$responsible = "D. Schaefer, S. Schneider";
-$responsible_mail = "{schaefer|schneider} at hrz.uni-marburg.de";
+$responsible = "D. Schaefer, S. Schneider, T. Hufschmidt";
+$responsible_mail = "{schaefer|schneider|hufschmidt} at hrz.uni-marburg.de";
 ?>

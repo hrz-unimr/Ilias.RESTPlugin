@@ -32,26 +32,21 @@ Example 2
     curl -H "Authorization: Bearer <ACCESS_TOKEN>" http://...
 
 ##Installation##
-Current release: v.0.7.2-alpha
+Current release: v.0.7.3-alpha
 
 * Create the required folder structure inside your ILIAS installation:  
   **mkdir** -p *${ILIAS_DIR}*/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/
 * Open the newly created directory:  
   **cd** *${ILIAS_DIR}*/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/
 * Download latest release version of the RESTPlugin to this directory:  
-  **wget** https://github.com/hrz-unimr/Ilias.RESTPlugin/archive/v.0.7.2-alpha.zip
+  **wget** https://github.com/hrz-unimr/Ilias.RESTPlugin/archive/v.0.7.3-alpha.zip
 * Simply unzip the downloaded zip-file to its current location:  
-  **unzip** v.0.7.2.zip
+  **unzip** v.0.7.3.zip
 * Rename the extracted folder, such that it can be loaded by ILIAS:  
-  **mv** RESTPlugin-v.0.7.2-alpha REST
+  **mv** RESTPlugin-v.0.7.3-alpha REST
 * Copy the actual interface for the RESTController into your ILIAS base folder:  
   **cp** REST/gateways/restplugin.php *${ILIAS_DIR}*/
 * Create the *${ILIAS_LOG_DIR}*/restplugin.log file
-* Open your *${ILIAS_DIR}*/ilias.ini.php file and append:
-````
-    [rest]
-    path = "./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST"
-````
 * You can now update your database and activate the plugin under Administration > Plugins from inside of ILIAS
   
 ###Notes###

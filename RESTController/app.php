@@ -12,13 +12,15 @@ $app = new \Slim\Slim();
 
 $logWriter = new \Slim\LogWriter(fopen(ILIAS_LOG_DIR.'/restplugin.log', 'a'));
 
+$ilRESTPlugin = $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, "UIComponent", "uihk", "REST");
+
 $app->config(array(
     'debug' => true,
-    'template.path' => ILIAS_REST_DIR . '/RESTController/views',
+    'template.path' => $ilRESTPlugin->getDirectory() . '/RESTController/views',
     'log.writer' => $logWriter
 ));
 
-$app->view()->setTemplatesDirectory(ILIAS_REST_DIR . "/RESTController/views");
+$app->view()->setTemplatesDirectory($ilRESTPlugin->getDirectory() . "/RESTController/views");
 
 $app->log->setEnabled(true);
 $app->log->setLevel(\Slim\Log::DEBUG);
