@@ -3,19 +3,59 @@ require_once "./Services/Database/classes/class.ilAuthContainerMDB2.php";
 class ilClientsModel
 {
     /**
+     * addPermissions($id, $perm_json)
+     * Will add all permissions given by $perm_json to the ui_uihk_rest_perm table for the api_key with $id.
+     *
+     *  @params $id - The unique id of the api_key those permissions are for (see. ui_uihk_rest_keys.id)
+     *  @params $perm_json - JSON Array of "pattern" (route), "verb" (HTTP header) pairs of all permission
+     *
+     *  @return NULL
+     */
+    private function addPermissions($id, $perm_json) {
+        global $ilDB;
+         
+        /* 
+         * *************************
+         * RANT: (rot-13 for sanity)
+         * *************************
+         *  Fb, V'q yvxr gb vafreg zhyvgcyr ebjf jvgu bar dhrel hfvat whfg gur fvzcyr
+         *  VAFREG VAGB <gnoyr> (<pby1, pby2, ...>) INYHRF (<iny1_1, iny1_2, ...>), (<iny2_1, iny2_2, ...>) , ...;
+         *  Ohg thrff jung? Jubrire qrfvtarq vyQO qvqa'g nqq fhccbeg sbe guvf gb
+         *  vgf vafreg()-zrgubq... oybbql uryy!
+         *  Naq AB (!!!) genafnpgvbaf nera'g snfgre guna bar fvatyr vafreg.
+         *  uggc://jjj.fjrnerzvcfhz.pbz/?cnentencuf=10&glcr=Ratyvfu&fgnegfjvguyberz=snyfr
+         */
+        $perm = json_decode($perm_json, true);
+        foreach($perm as $value) {
+            $perm_columns = array(
+                "keys_id" => array("integer", $id),
+                "pattern" => array("text", $value["pattern"]),
+                "verb" => array("text", $value["verb"])
+            );
+            $ilDB->insert("ui_uihk_rest_perm", $perm_columns);
+        }
+    }
+    
+    /**
      * Returns all REST clients available in the system.
      * @return bool
      */
-    function getClients()
-    {
+    function getClients() {
         global $ilDB;
-        $query = "SELECT * FROM ui_uihk_rest_keys order by id";
-        $set = $ilDB->query($query);
+        $queryKeys = "SELECT * FROM ui_uihk_rest_keys order by id";
+        $setKeys = $ilDB->query($queryKeys);
 
-        while($row = $ilDB->fetchAssoc($set))
-        {
-            $row['permissions'] = stripslashes($row['permissions']);
-            $res[] = $row;
+        while($rowKeys = $ilDB->fetchAssoc($setKeys)) {
+            $queryPerm = "SELECT `pattern`, `verb` FROM `ui_uihk_rest_perm` WHERE `keys_id` = " . $rowKeys['id'];
+            $setPerm = $ilDB->query($queryPerm);
+            
+            $perm = array();
+            while($rowPerm = $ilDB->fetchAssoc($setPerm)) {
+                $perm[] = $rowPerm;
+            }
+            $rowKeys['permissions'] = $perm;
+            
+            $res[] = $rowKeys;
         }
         return $res;
     }
@@ -23,25 +63,31 @@ class ilClientsModel
     /**
      * Creates a new REST client entry
      */
-    function createClient($api_key, $api_secret, $oauth2_redirection_uri, $oauth2_consent_message, $oauth2_consent_message_active, $permissions,
-                          $oauth2_gt_client_active,
-                          $oauth2_gt_authcode_active,
-                          $oauth2_gt_implicit_active,
-                          $oauth2_gt_resourceowner_active,
-                          $oauth2_user_restriction_active,
-                          $oauth2_gt_client_user,
-                          $access_user_csv,
-                        $oauth2_authcode_refresh_active,
-                        $oauth2_resource_refresh_active)
-    {
+    function createClient(
+        $api_key, 
+        $api_secret, 
+        $oauth2_redirection_uri, 
+        $oauth2_consent_message, 
+        $oauth2_consent_message_active, 
+        $permissions,
+        $oauth2_gt_client_active,
+        $oauth2_gt_authcode_active,
+        $oauth2_gt_implicit_active,
+        $oauth2_gt_resourceowner_active,
+        $oauth2_user_restriction_active,
+        $oauth2_gt_client_user,
+        $access_user_csv,
+        $oauth2_authcode_refresh_active,
+        $oauth2_resource_refresh_active
+    ) {
         global $ilDB;
         global $ilLog;
         $ilLog->write('In createClient');
-        $a_columns = array("api_key" => array("text", $api_key),
+        $a_columns = array(
+            "api_key" => array("text", $api_key),
             "api_secret" => array("text", $api_secret),
             "oauth2_redirection_uri" => array("text", $oauth2_redirection_uri),
             "oauth2_consent_message" => array("text", $oauth2_consent_message),
-            "permissions" => array("text", $permissions),
             "oauth2_gt_client_active" => array("integer", $oauth2_gt_client_active),
             "oauth2_gt_authcode_active" => array("integer", $oauth2_gt_authcode_active),
             "oauth2_gt_implicit_active" => array("integer", $oauth2_gt_implicit_active),
@@ -53,11 +99,12 @@ class ilClientsModel
             "oauth2_resource_refresh_active" => array("integer", $oauth2_resource_refresh_active)
         );
 
-
-        $ilLog->write("Try to create mew client db insert data: ".$a_columns);
+        $ilLog->write("Try to create new client db insert data: ".$a_columns);
         $ilDB->insert("ui_uihk_rest_keys", $a_columns);
         $insertId = $ilDB->getLastInsertId();
-        $ilLog->write("Try to create mew client db insert id: ".$insertId);
+        $ilLog->write("Try to create new client db insert id: ".$insertId);
+        
+        $this->addPermissions($insertId, $permissions);
 
         // process access_user_csv
         if ($oauth2_user_restriction_active==true) {
@@ -77,8 +124,7 @@ class ilClientsModel
      * @param $api_key_id
      * @param $a_user_csv
      */
-    public function fillApikeyUserMap($api_key_id, $a_user_csv)
-    {
+    public function fillApikeyUserMap($api_key_id, $a_user_csv) {
         global $ilDB;
 
         $sql = "DELETE FROM ui_uihk_rest_keymap WHERE api_id =".$ilDB->quote($api_key_id, "integer");
@@ -100,11 +146,15 @@ class ilClientsModel
      * @param $newval
      * @return mixed
      */
-    public function updateClient($id, $fieldname, $newval)
-    {
+    public function updateClient($id, $fieldname, $newval) {
         global $ilDB;
-        $sql = "UPDATE ui_uihk_rest_keys SET $fieldname = \"$newval\" WHERE id = $id";
-        $numAffRows = $ilDB->manipulate($sql);
+        
+        if (strtolower($fieldname) == "permissions") {
+            $ilDB->manipulate("DELETE FROM ui_uihk_rest_perm WHERE keys_id = $id");
+            $this->addPermissions($id, stripslashes($newval));   
+        } else {
+            $numAffRows = $ilDB->manipulate("UPDATE ui_uihk_rest_keys SET $fieldname = \"$newval\" WHERE id = $id");
+        }
         return $numAffRows;
     }
 
@@ -114,12 +164,13 @@ class ilClientsModel
      * @param $id
      * @return mixed
      */
-    public function deleteClient($id)
-    {
+    public function deleteClient($id) {
         global $ilDB;
 
-        $sql = "DELETE FROM ui_uihk_rest_keys WHERE id =".$ilDB->quote($id, "integer");
-
+        $sql = "DELETE FROM ui_uihk_rest_keys WHERE id = ".$ilDB->quote($id, "integer");
+        $numAffRows = $ilDB->manipulate($sql);
+        
+        $sql = "DELETE FROM ui_uihk_rest_perm WHERE keys_id = ".$ilDB->quote($id, "integer");
         $numAffRows = $ilDB->manipulate($sql);
 
         return $numAffRows;
@@ -131,8 +182,7 @@ class ilClientsModel
      * @param $api_key
      * @return mixed
      */
-    function getClientCredentialsUser($api_key)
-    {
+    function getClientCredentialsUser($api_key) {
         global $ilDB;
         $query = "SELECT id, oauth2_gt_client_user FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
         $set = $ilDB->query($query);
@@ -146,8 +196,7 @@ class ilClientsModel
      * @param $api_key
      * @return array
      */
-    function getAllowedUsersForApiKey($api_key)
-    {
+    function getAllowedUsersForApiKey($api_key) {
         global $ilDB;
         $query = "SELECT id, oauth2_user_restriction_active FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
         $set = $ilDB->query($query);
@@ -172,8 +221,7 @@ class ilClientsModel
      * @param $api_key
      * @return bool
      */
-    function clientExists($api_key)
-    {
+    function clientExists($api_key) {
         global $ilDB;
         $query = "SELECT id FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
         $set = $ilDB->query($query);
@@ -226,10 +274,9 @@ class ilClientsModel
      * @param $grant_type
      * @return bool
      */
-    private function is_oauth2_grant_type_enabled($api_key, $grant_type)
-    {
+    private function is_oauth2_grant_type_enabled($api_key, $grant_type) {
         global $ilDB;
-        $query = "SELECT * FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $query = "SELECT " . $grant_type . " FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
         $set = $ilDB->query($query);
         if ($ilDB->numRows($set)>0) {
             $row = $ilDB->fetchAssoc($set);
@@ -248,7 +295,7 @@ class ilClientsModel
      */
     public function is_oauth2_consent_message_enabled($api_key) {
         global $ilDB;
-        $query = "SELECT * FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $query = "SELECT oauth2_consent_message_active FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
         $set = $ilDB->query($query);
         if ($ilDB->numRows($set)>0) {
             $row = $ilDB->fetchAssoc($set);
@@ -266,7 +313,7 @@ class ilClientsModel
      */
     public function getOAuth2ConsentMessage($api_key) {
         global $ilDB;
-        $query = "SELECT * FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $query = "SELECT oauth2_consent_message FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
         $set = $ilDB->query($query);
         if ($ilDB->numRows($set)>0) {
             $row = $ilDB->fetchAssoc($set);
@@ -282,7 +329,7 @@ class ilClientsModel
      */
     public function is_authcode_refreshtoken_enabled($api_key) {
         global $ilDB;
-        $query = "SELECT * FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $query = "SELECT oauth2_authcode_refresh_active FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
         $set = $ilDB->query($query);
         if ($ilDB->numRows($set)>0) {
             $row = $ilDB->fetchAssoc($set);
@@ -300,7 +347,7 @@ class ilClientsModel
      */
     public function is_resourceowner_refreshtoken_enabled($api_key) {
         global $ilDB;
-        $query = "SELECT * FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
+        $query = "SELECT oauth2_resource_refresh_active FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
         $set = $ilDB->query($query);
         if ($ilDB->numRows($set)>0) {
             $row = $ilDB->fetchAssoc($set);

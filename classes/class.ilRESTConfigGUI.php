@@ -63,22 +63,10 @@ class ilRESTConfigGUI extends ilPluginConfigGUI
         $pl->txt("admin_info_config");
         $pl->txt("api_btn_config");
         $pl->txt("admin_btn_config");
-        // Willkommen zur Konfiguration des ILIAS REST-Plugins
+        
         $configHTML = "<h3>".$pl->txt("welcome_config")."</h3>";
-        // $configHTML .= "<hr />";
-        // $configHTML .= "<p>".$pl->txt("info_config")." <a href=\"https://github.com/eqsoft/RESTPlugin\" target=\"_blank\">https://github.com/eqsoft/RESTPlugin</a>.</p>";
-        // $configHTML .=  $pl->txt("installation_note_config");
-        // $configHTML .= "<hr />";
-        // $configHTML .= "<p>".$pl->txt("api_info_config")."</p>";
         $configHTML .= "<hr />";
         $configHTML .="<p>".$pl->txt("admin_info_config")."</p>";
-
-
-        $q = "SELECT * FROM ui_uihk_rest_keys WHERE id = 1";
-        $ret = $ilDB->query($q);
-        $rec = $ilDB->fetchAssoc($ret);
-        $api_key = $rec['api_key'];
-        //$configHTML .=$api_key;
 
         $inst_folder = dirname($_SERVER['SCRIPT_NAME']);
         $inst_folder = ($inst_folder == '/' ? '' : $inst_folder);
@@ -88,7 +76,6 @@ class ilRESTConfigGUI extends ilPluginConfigGUI
                 <input type="hidden" name="user_id" value="'.$ilUser->getId().'" />
                 <input type="hidden" name="session_id" value="'.session_id().'" />
                 <input type="hidden" name="rtoken" value="'.$ilCtrl->rtoken.'" />
-                <input type="hidden" name="api_key" value="'.$api_key.'" />
                 <input type="hidden" name="inst_folder" value="'.$inst_folder.'" />
                 <input type="submit" value="'.$pl->txt("admin_btn_config").'" />
             </form>

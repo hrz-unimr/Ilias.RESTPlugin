@@ -3,43 +3,36 @@
 // REST - Client / API-Key Administration
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-$app->get('/clients', 'authenticateTokenOnly',  function () use ($app) {
+//$app->get('/clients', 'authenticateTokenOnly',  function () use ($app) {
+$app->get('/clients', function () use ($app) {
     try {
         $env = $app->environment();
         $client_id = $env['client_id'];
 
-
         $authorizedUser = $env['user'];
-
-        //$iliasAuth = & ilAuthLib::getInstance();
-        //$iliasAuth->setUserContext($authorizedUser);
-
         $result = array();
 
-
-        // $usr_model = new ilUsersModel();
+        // check if authorized user has admin role
         $ilREST = new ilRESTLib();
-        if (!$ilREST->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
-
+        if (!$ilREST->isAdminByUsername($authorizedUser)) {  
             $result['status'] = 'failed';
             $result['msg'] = "Access denied. Administrator permissions required.";
             $result['authuser'] = $authorizedUser;
-
         } else {
-
             $admin_model = new ilClientsModel();
             $data = $admin_model->getClients();
             $result['status'] = 'success';
             $result['clients'] = $data;
             $result['authuser'] = $authorizedUser;
-
         }
-
+        
+        /*
         $admin_model = new ilClientsModel();
         $data = $admin_model->getClients();
         $result['status'] = 'success';
         $result['clients'] = $data;
         $result['authuser'] = $authorizedUser;
+        */
 
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode($result);
@@ -139,7 +132,7 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
             }
 
             try {
-                $new_client_permissions = $request->getParam('permissions');
+                $new_client_permissions = $request->getParam('permissions');                
             } catch(Exception $e) {
                 $new_client_permissions = "";
             }
