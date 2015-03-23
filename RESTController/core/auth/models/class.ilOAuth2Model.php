@@ -247,8 +247,8 @@ class ilOAuth2Model
         $clients_model = new ilClientsModel();
         if ($clients_model->clientExists($api_key)) {
             if ($clients_model->is_oauth2_gt_clientcredentials_enabled($api_key)) {
-                $uid = $clients_model->getClientCredentialsUser($api_key);
-                $user = (int)ilRESTLib::userIdtoLogin($uid);
+                $uid = (int)$clients_model->getClientCredentialsUser($api_key);
+                $user = ilRESTLib::userIdtoLogin($uid);
                 $authResult = $ilAuth->checkOAuth2ClientCredentials($api_key, $api_secret);
                 if (!$authResult) {
                     $response->setHttpStatus(401);
