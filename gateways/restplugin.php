@@ -9,8 +9,8 @@ include_once "Services/Context/classes/class.ilContext.php";
 ilContext::init(ilContext::CONTEXT_REST);
 
 // The term "client_id" is used twice within this REST context:
-//  (1) ilias client_id
-//  (2) oauth2 client_id (RFC 6749)
+//  (1) ilias client_id                 [Will be ilias_client_id]
+//  (2) oauth2 client_id (RFC 6749)     [Will be api_key]
 // In order to solve the conflict for the variable "client_id" some counter measures are necessary.
 // Solution: it is required to provide the variable ilias_client_id if a specific ilias client needs to be adressed.
 if (isset($_GET['client_id']) || isset($_GET['ilias_client_id'])) {

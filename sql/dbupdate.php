@@ -172,12 +172,13 @@ $ilLog->write('Plugin REST -> DB_Update to #1');
     $api_secret = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',5)),0,10);
     $redirection_uri = "";
     $oauth_consent_message = "";
-    $a_columns = array("api_key" => array("text", $api_key),
+    
+    $a_columns = array(
+        "api_key" => array("text", $api_key),
         "api_secret" => array("text", $api_secret),
         "oauth2_redirection_uri" => array("text", $redirection_uri),
         "oauth2_consent_message" => array("text", $oauth_consent_message)
     );
-
     $ilDB->insert("ui_uihk_rest_keys", $a_columns);
     
     $ilLog->write('Plugin REST -> DB_Update to #5');
@@ -209,7 +210,10 @@ $ilLog->write('Plugin REST -> DB_Update to #1');
         );
     }
     $uuid = gen_uuid();
-    $a_columns = array("setting_name" => array("text", "uuid"), "setting_value" => array("text",$uuid));
+    $a_columns = array(
+        "setting_name" => array("text", "uuid"), 
+        "setting_value" => array("text",$uuid)
+    );
     $ilDB->insert("ui_uihk_rest_config", $a_columns);
     
     $ilLog->write('Plugin REST -> DB_Update to #6');
@@ -220,10 +224,17 @@ $ilLog->write('Plugin REST -> DB_Update to #1');
     global $ilLog;
     
     $rest_user = "rest_sys_user";
-    $a_columns = array("setting_name" => array("text", "rest_system_user"), "setting_value" => array("text",$rest_user));
+    $a_columns = array(
+        "setting_name" => array("text", "rest_system_user"), 
+        "setting_value" => array("text",$rest_user)
+    );
     $ilDB->insert("ui_uihk_rest_config", $a_columns);
+    
     $rest_pass = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',5)),0,10);
-    $a_columns = array("setting_name" => array("text", "rest_user_pass"), "setting_value" => array("text",$rest_pass));
+    $a_columns = array(
+        "setting_name" => array("text", "rest_user_pass"), 
+        "setting_value" => array("text",$rest_pass)
+    );
     $ilDB->insert("ui_uihk_rest_config", $a_columns);
     
     $ilLog->write('Plugin REST -> DB_Update to #7');
@@ -280,7 +291,8 @@ $ilLog->write('Plugin REST -> DB_Update to #1');
     
     global $ilPluginAdmin;
     $ilRESTPlugin = $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, "UIComponent", "uihk", "REST");
-    copy($ilRESTPlugin->getDirectory() . "/gateways/restplugin.php", "./restplugin.php");
+    $target = $ilRESTPlugin->getDirectory() . "/gateways/restplugin.php";
+    copy($target, "./restplugin.php");
 
     $ilLog->write('Plugin REST -> DB_Update to #9');
 ?>

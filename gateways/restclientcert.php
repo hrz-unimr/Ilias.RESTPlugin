@@ -1,7 +1,10 @@
-<?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-// workaround see https://github.com/eqsoft/RESTPlugin/issues/1
+// Buffers all output in order to prevent data from beeing displayed
+// before any header was sent/set, since we are doing REST und not just html
+ob_start();
+
+// Workaround see https://github.com/eqsoft/RESTPlugin/issues/1
 if (isset($_GET['client_id'])) {
     $oauth_client_id = $_GET['client_id'];
     unset($_GET['client_id']);
@@ -17,14 +20,21 @@ $ilInit = new ilInitialisation();
 $GLOBALS['ilInit'] = $ilInit;
 $ilInit->initILIAS();
 
-// workaround see https://github.com/eqsoft/RESTPlugin/issues/1
+// Workaround see https://github.com/eqsoft/RESTPlugin/issues/1
 if (isset($oauth_client_id)) { 
     $_GET['client_id'] = $oauth_client_id;
 }
 
-$ilRESTPlugin = $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, "UIComponent", "uihk", "REST");
+// Stops buffering output and ignores any output writen so far
+ob_end_clean();
 
 // Run the slim-application
-require_once($ilRESTPlugin->getDirectory() . "/RESTController/slimnode.php");
-$app->run();
-
+if ($ilPluginAdmin->isActive(IL_COMP_SERVICE, "UIComponent", "uihk", "REST")) {
+    $ilRESTPlugin = $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, "UIComponent", "uihk", "REST");
+    require_once($ilRESTPlugin->getDirectory() . "/RESTController/slimnode.php");
+    $app->run();
+} else {
+    header("HTTP/1.0 405 Disabled");
+    header("Warning: REST-Interface is disabled");
+    echo "REST-Interface is disabled\r\n";
+}

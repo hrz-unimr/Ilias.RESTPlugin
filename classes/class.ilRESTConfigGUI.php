@@ -1,6 +1,6 @@
 <?php
-
 include_once("./Services/Component/classes/class.ilPluginConfigGUI.php");
+
 
 /**
  * REST Plugin Configuration
@@ -158,4 +158,3 @@ class ilRESTConfigGUI extends ilPluginConfigGUI
     }
 
 }
-?> 

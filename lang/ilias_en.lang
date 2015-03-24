@@ -19,4 +19,3 @@ api_info_config#:#Provides a human readable version about the API
 admin_info_config#:#Enables to administrate REST clients
 api_btn_config#:#Enter API Documentation
 admin_btn_config#:#Enter Administration Panel
-

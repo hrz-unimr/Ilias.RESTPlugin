@@ -1,28 +1,29 @@
 <?php
-    require_once('config.ini.php');
+// Include settings
+require_once('config.ini.php');
 
-    if (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off') {
-        $protocol = 'http://';
-    } else {
-        $protocol = 'https://';
-    }
-    $base_url = $protocol . $_SERVER['SERVER_NAME'] . dirname($_SERVER['PHP_SELF']);
-    if ($_SERVER["SERVER_PORT"] != "80") {
-        $base_url = $protocol . $_SERVER['SERVER_NAME'] . ":" . $_SERVER["SERVER_PORT"] . dirname($_SERVER['PHP_SELF']);
-    }
+// Generate GET/POST URLs
+if (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off') {
+    $protocol = 'http://';
+} else {
+    $protocol = 'https://';
+}
+$base_url = $protocol . $_SERVER['SERVER_NAME'] . dirname($_SERVER['PHP_SELF']);
+if ($_SERVER["SERVER_PORT"] != "80") {
+    $base_url = $protocol . $_SERVER['SERVER_NAME'] . ":" . $_SERVER["SERVER_PORT"] . dirname($_SERVER['PHP_SELF']);
+}
+$loginUrl = $subFolder. "/restplugin.php/v1/oauth2/auth?client_id=".urlencode($api_key);
 
-    $loginUrl = $subFolder. "/restplugin.php/v1/oauth2/auth?client_id=".urlencode($api_key);
-
-    // Prerequisite the demo endpoints are located within the same directory as this script
-    $authGrantUrl = $loginUrl."&redirect_uri=".urlencode($base_url."/authcode_endpoint.php")."&response_type=code";
-    $implicitGrantUrl = $loginUrl."&redirect_uri=".urlencode($base_url."/implicitgrant_endpoint.php")."&response_type=token";
+// This will be the redirect targets for generating bearer tokens via GET (POST contains this info in the header)
+$authGrantUrl = $loginUrl."&redirect_uri=".urlencode($base_url."/authcode_endpoint.php")."&response_type=code";
+$implicitGrantUrl = $loginUrl."&redirect_uri=".urlencode($base_url."/implicitgrant_endpoint.php")."&response_type=token";
 ?>
 <html>
     <head>
         <title>ILIAS REST Plugin - OAuth2 Demo</title>
     </head>
     <body>
-        <h2>Demo: ILIAS REST Plugin and OAuth2 </h2>
+        <h2>ILIAS REST Plugin - OAuth2 Demo</h2>
         <p style="color:red;">Note: it is necessary to adapt the file "config.ini.php"! There you need to specify a valid REST API-Key and API-Secret.</p>
         <h3>Initiating one of the following OAuth2 Grant Mechanism via a GET Request:</h3>
         <ul>
@@ -64,8 +65,8 @@
                     <input type="hidden" name="grant_type" value="password" />
                     <input type="hidden" name="scope" value="" />
                     <input type="hidden" name="api_key" value="<?php echo $api_key; ?>" />
-                    username: <input type="text" name="username" />
-                    password: <input type="password" name="password" />
+                    Username: <input type="text" name="username" /></br>
+                    Password: <input type="password" name="password" /></br>
                     <input type="submit" value="Resource Owner Password Credentials Grant" />
                 </form>
             </li>
