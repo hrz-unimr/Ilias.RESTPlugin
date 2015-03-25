@@ -61,13 +61,14 @@ $implicitGrantUrl = $loginUrl."&redirect_uri=".urlencode($base_url."/implicitgra
             </li>
             <li>
                 <form method="POST" action="<?php echo $subFolder;?>/restplugin.php/v1/oauth2/token">
-
+					<div>
                     <input type="hidden" name="grant_type" value="password" />
                     <input type="hidden" name="scope" value="" />
                     <input type="hidden" name="api_key" value="<?php echo $api_key; ?>" />
-                    Username: <input type="text" name="username" /></br>
-                    Password: <input type="password" name="password" /></br>
+                    <label>Username:</label> <input type="text" name="username" /><br>
+                    <label>Password:</label> <input type="password" name="password" /><br>
                     <input type="submit" value="Resource Owner Password Credentials Grant" />
+                    </div>
                 </form>
             </li>
 

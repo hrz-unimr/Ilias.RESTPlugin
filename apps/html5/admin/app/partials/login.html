@@ -1,4 +1,4 @@
-<div ng-controller="LoginCtrl">
+<div data-ng-controller="LoginCtrl">
 
     <div data-ng-hide="manual_login">You came from the ILIAS platform. Trying to login automatically ... </div>
     <div data-ng-show="manual_login">
@@ -8,11 +8,11 @@
             <img class="profile-img" src="img/logo.png"
                  alt="">
 
-            <form class="form-signin" ng-submit="loginManually(logindata.user_name, logindata.password)">
+            <form class="form-signin" data-ng-submit="loginManually(logindata.user_name, logindata.password)">
                 <!--<h4>Login</h4>-->
                 <h5 class="error_msg" data-ng-show="loginHasFailed">Login failed.</h5>
-                <input ng-model="logindata.user_name" type="text" class="form-control" placeholder="Username" required autofocus>
-                <input ng-model="logindata.password" type="password" class="form-control" placeholder="Password" required>
+                <input data-ng-model="logindata.user_name" type="text" class="form-control" placeholder="Username" required autofocus>
+                <input data-ng-model="logindata.password" type="password" class="form-control" placeholder="Password" required>
                 <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
             </form>
         </div>

@@ -2,10 +2,10 @@
 //var_dump($_POST);
 ?>
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="en" ng-app="myApp" class="no-js"> <!--<![endif]-->
+<!--[if lt IE 7]>      <html lang="en" data-ng-app="myApp" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" data-ng-app="myApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" data-ng-app="myApp" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" data-ng-app="myApp" class="no-js"> <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -31,7 +31,7 @@
     };
 </script>
 </head>
-<body ng-controller="defaultCtrl">
+<body data-ng-controller="defaultCtrl">
 
   <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
@@ -44,10 +44,10 @@
                 Logged in as {{getUsername()}}
             </p>
         <ul class="nav navbar-nav navbar-right">
-            <li data-ng-show="isAuthenticated()"><a href="#" ng-click="logout()">Logout</a></li>
+            <li data-ng-show="isAuthenticated()"><a href="#" data-ng-click="logout()">Logout</a></li>
         </ul>
     </nav>
-  <div class="{{ pageClass }}" ng-view></div>
+  <div class="{{ pageClass }}" data-ng-view></div>
 
   </div>
   <!-- In production use:
