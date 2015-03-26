@@ -737,4 +737,5 @@ class ilOAuth2Model
         ));
     }
 }
+
 ?>

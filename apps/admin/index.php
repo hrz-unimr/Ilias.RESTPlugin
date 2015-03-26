@@ -53,7 +53,7 @@
     
     <div class="main_div">
         <nav role="navigation" class="navbar navbar-default">
-            <a href="#" class="navbar-brand">ILIAS REST Plugin > Clients Administration</a>
+            <a href="#/clientlist" class="navbar-brand">ILIAS REST Plugin > Clients Administration</a>
             <p ng-show="isAuthenticated()" class="navbar-text ">Logged in as {{getUsername()}}</p>
             <ul class="nav navbar-nav navbar-right">
                 <li data-ng-show="isAuthenticated()"><a href="#" data-ng-click="logout()">Logout</a></li>

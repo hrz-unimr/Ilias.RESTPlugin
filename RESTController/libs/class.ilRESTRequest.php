@@ -64,5 +64,3 @@ class ilRESTRequest {
         return $this->app->request()->getBody();
     }
 }
-?>
-

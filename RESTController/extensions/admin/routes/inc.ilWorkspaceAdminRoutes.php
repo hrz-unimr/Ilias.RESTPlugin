@@ -76,4 +76,3 @@ $app->group('/admin', function () use ($app) {
         }
     });
 });
-?>

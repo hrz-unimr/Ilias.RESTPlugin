@@ -145,5 +145,3 @@ function checkRoutePermissions($route)
         //exit;
     }
 }
-
-?>

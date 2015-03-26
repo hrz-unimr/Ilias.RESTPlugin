@@ -134,5 +134,3 @@ $app->post('/v1/ilauth/rtoken2bearer', function () use ($app) {
     $model = new ilOAuth2Model();
     $model->handleRTokenToBearerRequest($app);
 });
-
-?>

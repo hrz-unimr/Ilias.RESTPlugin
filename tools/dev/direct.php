@@ -54,7 +54,3 @@ function initGlobal($a_name, $a_class, $a_source_file = null) {
         $GLOBALS[$a_name] = $a_class;
     }
 }
-
-//
-
-?>

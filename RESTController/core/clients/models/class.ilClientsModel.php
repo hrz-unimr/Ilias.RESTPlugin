@@ -357,5 +357,4 @@ class ilClientsModel
         }
         return false;
     }
-
 }

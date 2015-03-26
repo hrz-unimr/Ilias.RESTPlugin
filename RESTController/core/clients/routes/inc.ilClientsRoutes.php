@@ -304,5 +304,3 @@ $app->get('/rest/config', function () use ($app) {
 
     $app->redirect(dirname($_SERVER['SCRIPT_NAME']) . "/" . $ilRESTPlugin->getDirectory() . '/apps/admin/');
 });
-
-?>
