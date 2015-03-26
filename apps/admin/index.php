@@ -25,10 +25,24 @@
     <script type="text/javascript" src="libs/js/modernizr.js"></script>
     <script>
         var postvars = {
-            user_id : "<?php echo $_POST['user_id']; ?>",
-            session_id : "<?php echo $_POST['session_id']; ?>",
-            rtoken : "<?php echo $_POST['rtoken']; ?>",
-            inst_folder : "<?php echo $_POST['inst_folder']; ?>"
+            user_id: "<?php 
+                echo isset($_POST['user_id']) ? $_POST['user_id'] : "";
+            ?>",
+            session_id: "<?php 
+                echo isset($_POST['session_id']) ? $_POST['session_id'] : ""; 
+            ?>",
+            rtoken: "<?php 
+                echo isset($_POST['rtoken']) ? $_POST['rtoken'] : ""; 
+            ?>",
+            inst_folder: "<?php 
+                if (isset($_POST['inst_folder'])) {
+                    echo $_POST['inst_folder'];
+                }
+                elseif (file_exists('config.ini.php')) {
+                    include_once('config.ini.php');
+                    echo $inst_folder; 
+                }
+            ?>",
         };
     </script>
 </head>
@@ -40,7 +54,7 @@
     <div class="main_div">
         <nav role="navigation" class="navbar navbar-default">
             <a href="#" class="navbar-brand">ILIAS REST Plugin > Clients Administration</a>
-            <p data-ng-show="isAuthenticated()" class="navbar-text ">Logged in as {{getUsername()}}</p>
+            <p ng-show="isAuthenticated()" class="navbar-text ">Logged in as {{getUsername()}}</p>
             <ul class="nav navbar-nav navbar-right">
                 <li data-ng-show="isAuthenticated()"><a href="#" data-ng-click="logout()">Logout</a></li>
             </ul>
