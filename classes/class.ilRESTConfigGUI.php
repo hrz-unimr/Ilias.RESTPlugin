@@ -72,7 +72,7 @@ class ilRESTConfigGUI extends ilPluginConfigGUI
         $inst_folder = ($inst_folder == '/' ? '' : $inst_folder);
 
         $configHTML .= '
-            <form action="' . $pl->getDirectory() . '/apps/html5/admin/app/index.php" method="post" target="_blank">
+            <form action="' . $pl->getDirectory() . '/apps/admin/index.php" method="post" target="_blank">
                 <input type="hidden" name="user_id" value="'.$ilUser->getId().'" />
                 <input type="hidden" name="session_id" value="'.session_id().'" />
                 <input type="hidden" name="rtoken" value="'.$ilCtrl->rtoken.'" />

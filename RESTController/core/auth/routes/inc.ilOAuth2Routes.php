@@ -41,12 +41,20 @@ $app->get('/v1/oauth2/auth', function () use ($app) {
 
         if ($response_type == "code") {
             if ($apikey && $client_redirect_uri && $response_type){
-                $app->render('oauth2loginform.php', array('api_key' => $apikey, 'redirect_uri' => $client_redirect_uri, 'response_type' => $response_type));
+                ilOAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
+                    'api_key' => $apikey, 
+                    'redirect_uri' => $client_redirect_uri, 
+                    'response_type' => $response_type
+                ));
             }
 
-        }else if ($response_type == "token") { // implicit grant
+        } else if ($response_type == "token") { // implicit grant
             if ($apikey && $client_redirect_uri && $response_type){
-                $app->render('oauth2loginform.php', array('api_key' => $apikey, 'redirect_uri' => $client_redirect_uri, 'response_type' => $response_type));
+                ilOAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
+                    'api_key' => $apikey, 
+                    'redirect_uri' => $client_redirect_uri, 
+                    'response_type' => $response_type
+                ));
             }
         }
     } catch (Exception $e) {

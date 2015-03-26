@@ -26,16 +26,17 @@ class ilOAuth2Model
         $authenticity_token = $request->params('authenticity_token');
 
         if ($redirect_uri && $api_key && is_null($authenticity_token) && is_null($username) && is_null($password)) {
-            $app->render('oauth2loginform.php', array('api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
+            ilOAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
+                'api_key' => $api_key, 
+                'redirect_uri' => $redirect_uri, 
+                'response_type' => $response_type
+            ));
         } elseif ($username && $password) {
-
             $ilAuth = & ilAuthLib::getInstance();
             $isAuth = $ilAuth->authenticateViaIlias($username, $password);
 
             $clientValid = $ilAuth->checkOAuth2Client($api_key);
-
             if ($isAuth == true && $clientValid == true){
-
                 $clients_model = new ilClientsModel();
                 if ($clients_model->clientExists($api_key)) {
                     if ($clients_model->is_oauth2_gt_authcode_enabled($api_key)) {
@@ -43,7 +44,14 @@ class ilOAuth2Model
                             // Standard behaviour of the "authorization code grant": having an additional page with a consent message
                             $temp_authenticity_token = ilTokenLib::serializeToken(ilTokenLib::generateToken($username, $api_key, "", "", 10));
                             $oauth2_consent_message = $clients_model->getOAuth2ConsentMessage($api_key);
-                            $app->render('oauth2grantpermissionform.php', array('api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type, 'authenticity_token' => $temp_authenticity_token, 'oauth2_consent_message' => $oauth2_consent_message));
+                            
+                            ilOAuth2Model::render($app, 'REST OAuth - Client autorisieren', 'oauth2grantpermissionform.php', array(
+                                'api_key' => $api_key, 
+                                'redirect_uri' => $redirect_uri, 
+                                'response_type' => $response_type, 
+                                'authenticity_token' => $temp_authenticity_token, 
+                                'oauth2_consent_message' => $oauth2_consent_message
+                            ));
                         } else {
                             $tempToken = ilTokenLib::generateToken($username, $api_key, "code", $redirect_uri,10);
                             $authorization_code = ilTokenLib::serializeToken($tempToken);
@@ -59,10 +67,13 @@ class ilOAuth2Model
                     $response->send();
                 }
 
-            }else {
-                $app->render('oauth2loginform.php', array('error_msg' => "Username or password incorrect!",'api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
-                //$response->setHttpStatus(401);
-                //$response->send();
+            } else {
+                ilOAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
+                    'error_msg' => "Username or password incorrect!",
+                    'api_key' => $api_key, 
+                    'redirect_uri' => $redirect_uri, 
+                    'response_type' => $response_type
+                ));
             }
         } elseif ($authenticity_token && $redirect_uri) {
             $authenticity_token = ilTokenLib::deserializeToken($authenticity_token);
@@ -96,7 +107,11 @@ class ilOAuth2Model
                 if($clients_model->is_oauth2_consent_message_enabled($api_key)) {
                     // Standard behaviour of "implicit grant": having an additional page with a consent message
                     if ($redirect_uri && $api_key && is_null($authenticity_token) && is_null($username) && is_null($password)) {
-                        $app->render('oauth2loginform.php', array('api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
+                        ilOAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
+                            'api_key' => $api_key, 
+                            'redirect_uri' => $redirect_uri, 
+                            'response_type' => $response_type
+                        ));
                     } elseif ($username && $password) {
                         $iliasAuth = & ilAuthLib::getInstance();
 
@@ -114,11 +129,21 @@ class ilOAuth2Model
                             $app->log->debug("Implicit Grant Flow - proceed to grant permission form" );
                             $temp_authenticity_token = ilTokenLib::serializeToken(ilTokenLib::generateToken($username, $api_key, "", "", 10));
                             $oauth2_consent_message = $clients_model->getOAuth2ConsentMessage($api_key);
-                            $app->render('oauth2grantpermissionform.php', array('api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type, 'authenticity_token' => $temp_authenticity_token, 'oauth2_consent_message' => $oauth2_consent_message));
-                        }else {
-                            // Username/Password wrong or client does not exist (which is less likely)
-                            $app->render('oauth2loginform.php', array('error_msg' => "Username or password incorrect!",'api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
-                            //$app->response()->status(404);
+                            
+                            ilOAuth2Model::render($app, 'REST OAuth - Client autorisieren', 'oauth2grantpermissionform.php', array(
+                                'api_key' => $api_key, 
+                                'redirect_uri' => $redirect_uri, 
+                                'response_type' => $response_type, 
+                                'authenticity_token' => $temp_authenticity_token, 
+                                'oauth2_consent_message' => $oauth2_consent_message
+                            ));
+                        } else {
+                            ilOAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
+                                'error_msg' => "Username or password incorrect!",
+                                'api_key' => $api_key, 
+                                'redirect_uri' => $redirect_uri, 
+                                'response_type' => $response_type
+                            ));
                         }
                     } elseif ($authenticity_token && $redirect_uri) {
                         $authenticity_token = ilTokenLib::deserializeToken($authenticity_token);
@@ -141,7 +166,12 @@ class ilOAuth2Model
                     $app->log->debug("Implicit Grant Flow - Without Consent Message ");
                     if ($redirect_uri && $api_key && is_null($authenticity_token) && is_null($username) && is_null($password)) {
                         $app->log->debug("Implicit Grant Flow - Rendering LoginForm ");
-                        $app->render('oauth2loginform.php', array('api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
+                        
+                        ilOAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
+                            'api_key' => $api_key, 
+                            'redirect_uri' => $redirect_uri, 
+                            'response_type' => $response_type
+                        ));
                     } elseif ($username && $password) {
                         $iliasAuth = & ilAuthLib::getInstance();
                         $isAuth = $iliasAuth->authenticateViaIlias($username, $password);
@@ -159,8 +189,12 @@ class ilOAuth2Model
                             $url = $redirect_uri . "#access_token=".$bearerToken['access_token']."&token_type=bearer"."&expires_in=".$bearerToken['expires_in']."&state=xyz";
                             $app->redirect($url);
                         }else {
-                            // Username/Password wrong or client does not exist (which is less likely)
-                            $app->render('oauth2loginform.php', array('error_msg' => "Username or password incorrect!",'api_key' => $api_key, 'redirect_uri' => $redirect_uri, 'response_type' => $response_type));
+                            ilOAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
+                                'error_msg' => "Username or password incorrect!",
+                                'api_key' => $api_key, 
+                                'redirect_uri' => $redirect_uri, 
+                                'response_type' => $response_type
+                            ));
                         }
                     } // username, passw
                 }
@@ -675,5 +709,32 @@ class ilOAuth2Model
         echo json_encode($result); // output-format: {"access_token":"03807cb390319329bdf6c777d4dfae9c0d3b3c35","expires_in":3600,"token_type":"bearer","scope":null}
     }
 
+    
+    /**
+     * Simplifies rendering output by allowing to reuse common code.
+     * Core.php which includes many preset JavaScript and CSS libraries will always
+     * be used as a base template and $file will be included into its body.
+     *
+     * @param $title - Sets the pages <title> tag
+     * @param $file - This file will be included inside <body></body> tags
+     * @param $data - Optional data (may be an array) that is passed to the template
+     */
+    public static function render($app, $title, $file, $data) {
+        // Needed to get relative path to document-root (where restplugin.php is)
+        global $ilPluginAdmin;
+        
+        // Build absolute-path (relative to document-root)
+        $sub_dir = "core/auth/views";
+        $rel_path = $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, "UIComponent", "uihk", "REST")->getDirectory();
+        $abs_path = dirname($_SERVER['SCRIPT_NAME'])."/".$rel_path."/RESTController/".$sub_dir;
+        
+        // Supply data to slim application
+        $app->render($sub_dir.'/core.php', array(
+            'tpl_path' => $abs_path,
+            'tpl_title' => $title,
+            'tpl_file' => $file,
+            'tpl_data' => $data
+        ));
+    }
 }
 ?>
