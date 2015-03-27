@@ -86,7 +86,6 @@ app.run(function(authentication, $rootScope, $location) {
     });
 });
 
-
 // Clear browser cache (in development mode)
 //
 // http://stackoverflow.com/questions/14718826/angularjs-disable-partial-caching-on-dev-machine

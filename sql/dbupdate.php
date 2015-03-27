@@ -25,7 +25,7 @@ $fields = array(
 $ilDB->createTable("ui_uihk_rest_config", $fields, true);
 $ilDB->addPrimaryKey("ui_uihk_rest_config", array("id"));
 
-$ilLog->write('Plugin REST -> DB_Update to #1');
+$ilLog->write('Plugin REST -> Database updated to #1');
 ?>
 
 <#2>
@@ -122,7 +122,7 @@ $ilLog->write('Plugin REST -> DB_Update to #1');
     $ilDB->createTable("ui_uihk_rest_keys", $fields, true);
     $ilDB->addPrimaryKey("ui_uihk_rest_keys", array("id"));
 
-    $ilLog->write('Plugin REST -> DB_Update to #2');
+    $ilLog->write('Plugin REST -> Database updated to #2');
 ?>
 
 <#3>
@@ -149,7 +149,7 @@ $ilLog->write('Plugin REST -> DB_Update to #1');
     $ilDB->createTable("ui_uihk_rest_keymap", $fields, true);
     $ilDB->addPrimaryKey("ui_uihk_rest_keymap", array("id"));
     
-    $ilLog->write('Plugin REST -> DB_Update to #3');
+    $ilLog->write('Plugin REST -> Database updated to #3');
 ?>
 
 <#4>
@@ -160,7 +160,7 @@ $ilLog->write('Plugin REST -> DB_Update to #1');
     $ilDB->manipulate("ALTER TABLE `ui_uihk_rest_keys` CHANGE `id` `id` INT NOT NULL AUTO_INCREMENT");
     $ilDB->manipulate("ALTER TABLE `ui_uihk_rest_keymap` CHANGE `id` `id` INT NOT NULL AUTO_INCREMENT");
     
-    $ilLog->write('Plugin REST -> DB_Update to #4');
+    $ilLog->write('Plugin REST -> Database updated to #4');
 ?>
 
 <#5>
@@ -181,7 +181,7 @@ $ilLog->write('Plugin REST -> DB_Update to #1');
     );
     $ilDB->insert("ui_uihk_rest_keys", $a_columns);
     
-    $ilLog->write('Plugin REST -> DB_Update to #5');
+    $ilLog->write('Plugin REST -> Database updated to #5');
 ?>
 
 <#6>
@@ -216,7 +216,7 @@ $ilLog->write('Plugin REST -> DB_Update to #1');
     );
     $ilDB->insert("ui_uihk_rest_config", $a_columns);
     
-    $ilLog->write('Plugin REST -> DB_Update to #6');
+    $ilLog->write('Plugin REST -> Database updated to #6');
 ?>
 
 <#7>
@@ -237,7 +237,7 @@ $ilLog->write('Plugin REST -> DB_Update to #1');
     );
     $ilDB->insert("ui_uihk_rest_config", $a_columns);
     
-    $ilLog->write('Plugin REST -> DB_Update to #7');
+    $ilLog->write('Plugin REST -> Database updated to #7');
 ?>
 
 <#8>
@@ -282,7 +282,7 @@ $ilLog->write('Plugin REST -> DB_Update to #1');
     $ilDB->addPrimaryKey("ui_uihk_rest_oauth2", array("id"));
     $ilDB->manipulate("ALTER TABLE `ui_uihk_rest_oauth2` CHANGE `id` `id` INT NOT NULL AUTO_INCREMENT");
 
-    $ilLog->write('Plugin REST -> DB_Update to #8');
+    $ilLog->write('Plugin REST -> Database updated to #8');
 ?>
 
 <#9>
@@ -294,7 +294,7 @@ $ilLog->write('Plugin REST -> DB_Update to #1');
     $target = $ilRESTPlugin->getDirectory() . "/gateways/restplugin.php";
     copy($target, "./restplugin.php");
 
-    $ilLog->write('Plugin REST -> DB_Update to #9');
+    $ilLog->write('Plugin REST -> Database updated to #9');
 ?>
 
 <#10>
@@ -349,5 +349,5 @@ $ilLog->write('Plugin REST -> DB_Update to #1');
         "verb" => array("text", 'GET')
     ));
 
-    $ilLog->write('Plugin REST -> DB_Update to #10');
+    $ilLog->write('Plugin REST -> Database updated to #10');
 ?>
