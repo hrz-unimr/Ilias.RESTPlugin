@@ -25,7 +25,7 @@ app.constant("baseUrl", "http://localhost/restplugin.php");
 app.config(['$routeProvider', function($routeProvider, $locationProvider) {
   $routeProvider.when('/clientedit', {templateUrl: 'partials/clientedit.html'});
   $routeProvider.when('/clientlist', {templateUrl: 'partials/clientlist.html'});
-  $routeProvider.when('/login', {templateUrl: 'partials/login.html', controller: 'LoginCtrl'});
+  $routeProvider.when('/login', {templateUrl: 'partials/login.html'});
   $routeProvider.otherwise({redirectTo: '/clientlist'});
 }]);
 

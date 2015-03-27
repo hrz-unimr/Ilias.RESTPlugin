@@ -20,7 +20,6 @@
     <link rel="stylesheet" href="libs/css/angular-xeditable.css">
     
     <link rel="stylesheet" href="css/app.css" />
-    <link rel="stylesheet" href="css/loginadmin.css" />
     
     <script type="text/javascript" src="libs/js/modernizr.js"></script>
     <script>
@@ -44,16 +43,20 @@
         <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
-	<div class="main_div">
-		<nav role="navigation" class="navbar navbar-default">
-			<a href="#/clientlist" class="navbar-brand">ILIAS REST Plugin > Clients Administration</a>
-			<p data-ng-show="isAuthenticated()" class="navbar-text ">Logged in as {{getUsername()}}</p>
-			<ul class="nav navbar-nav navbar-right">
-				<li data-ng-show="isAuthenticated()"><a href="#" data-ng-click="logout()">Logout</a></li>
-			</ul>
-		</nav>
-		<div class="{{ pageClass }}" data-ng-view></div>
-	</div>
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<!-- Brand and toggle get grouped for better mobile display -->
+			<div class="navbar-header navbar-left">
+				<a class="navbar-brand" href="#/clientlist">ILIAS REST Plugin > Clients Administration</a>
+			</div>
+			<div class="navbar-right" data-ng-show="isAuthenticated()">
+				<p class="navbar-text">Logged in as {{getUsername()}}</p>
+				<button class="btn btn-default navbar-btn" type="button" data-ng-click="logout()">Logout</button>
+			</div>
+		</div>
+	</nav>
+
+	<div class="{{ pageClass }}" data-ng-view></div>
 
 	<script src="libs/js/jquery.js"></script>
 	<script src="libs/js/less.js"></script>

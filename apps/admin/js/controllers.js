@@ -191,25 +191,18 @@ app.controller('LoginCtrl', function($scope, authentication, $location, restAuth
     $scope.manual_login = false;
 
     $scope.init = function() {
-        if ($scope.logindata.api_key != '' && authentication.manual_login == false) {
-            console.log('Post variables found. Try to login automatically...'+$scope.logindata.api_key);
-            $scope.manual_login = false;
-            $scope.autoLogin();
-        } else {
-            console.log('Post variables not set. Switch to manual login...');
-            $scope.manual_login = true;
-        }
+        $scope.autoLogin();
     }
 
     $scope.autoLogin = function () {
-        var v_user_id=$scope.logindata.user_id;
+        var v_user_id= $scope.logindata.user_id;
         var v_api_key = $scope.logindata.api_key;
         var v_session_id = $scope.logindata.session_id;
         var v_rtoken = $scope.logindata.rtoken;
+		
         restAuth.getResource().auth({api_key: v_api_key, user_id: v_user_id, session_id: v_session_id, rtoken: v_rtoken }, function (data) {
-            console.log('Auth Callback : ',data);
             if (data.status == "success") {
-                $scope.token = data.token;//.access_token;
+                $scope.token = data.token;
                 $scope.access_token = $scope.token.access_token
                 authentication.isAuthenticated = true;
                 authentication.access_token = $scope.access_token;
@@ -265,28 +258,6 @@ app.controller('LoginCtrl', function($scope, authentication, $location, restAuth
         );
 
     };
-    /*$scope.loginfromilias = function () {
-        var v_user_id=$scope.logindata.user_id;
-        var v_api_key = $scope.logindata.api_key;
-        var v_session_id = $scope.logindata.session_id;
-        var v_rtoken = $scope.logindata.rtoken;
-        restAuth.getResource().auth({api_key: v_api_key, user_id: v_user_id, session_id: v_session_id, rtoken: v_rtoken }, function (data) {
-            console.log('Auth Callback : ',data);
-            if (data.status == "success") {
-                $scope.token = data.token;//.access_token;
-                $scope.access_token = $scope.token.access_token
-                authentication.isAuthenticated = true;
-                authentication.access_token = $scope.access_token;
-                authentication.user = data.user;
-                authentication.access_token = data.token.access_token;
-                $location.url("/clientlist");
-                $scope.loadClients();
-            } else {
-                authentication.isAuthenticated = false;
-                //$location.url("/login");
-            }
-        });
-    };*/
 
     $scope.init();
 });

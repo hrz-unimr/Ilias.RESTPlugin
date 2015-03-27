@@ -70,7 +70,6 @@ services.provider('restAuth', function() {
         }
     };
     this.setBaseUrl = function(baseUrl) {
-        console.log("Setting up baseURl for restAuth: "+baseUrl);
         this.baseUrl = baseUrl;
     };
 });
@@ -88,7 +87,6 @@ services.provider('restAuthTokenEndpoint', function() {
         }
     };
     this.setBaseUrl = function(baseUrl) {
-        console.log("Setting up baseURl for restAuthTokenEntpoint: "+baseUrl);
         this.baseUrl = baseUrl;
     };
 });

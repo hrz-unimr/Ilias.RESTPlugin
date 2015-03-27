@@ -1,19 +1,21 @@
 <div data-ng-controller="LoginCtrl">
-	<div data-ng-hide="manual_login">You came from the ILIAS platform. Trying to login automatically ...</div>
+	<div data-ng-hide="manual_login" class="alert alert-info" role="alert">You came from the ILIAS platform. Trying to login automatically ...</div>
+	
 	<div data-ng-show="manual_login">
-		<div class="account-wall" style="margin-left: auto; margin-right: auto; vertical-align: middle; padding: 10% 0;">
-			<img class="profile-img" src="img/logo.png" alt="">
-
-			<form class="form-signin" data-ng-submit="loginManually(logindata.user_name, logindata.password)">
-				<!--<h4>Login</h4>-->
-				<h5 class="error_msg" data-ng-show="loginHasFailed">Login failed.</h5>
-				<input data-ng-model="logindata.user_name" type="text" class="form-control" placeholder="Username" required autofocus>
-				<input data-ng-model="logindata.password" type="password" class="form-control" placeholder="Password" required>
-				<button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
-			</form>
-		</div>
+		<div data-ng-show="loginHasFailed" class="alert alert-danger" role="alert">Login attempt has failed!</div>
+		
+		<img class="login-img" src="img/logo.png" alt="Logo">
+		
+		<form class="form-signin" data-ng-submit="loginManually(logindata.user_name, logindata.password)">
+			<h2 class="form-signin-heading">REST Administration</h2>
+			
+			<label for="inputUser" class="sr-only">Username</label>
+			<input data-ng-model="logindata.user_name" type="text" id="inputUser" class="form-control" placeholder="Username" required autofocus>
+			
+			<label for="inputPassword" class="sr-only">Password</label>
+			<input data-ng-model="logindata.password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+			
+			<button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+		</form>
 	</div>
 </div>
-<script>
-    console.log("Loaded...");
-</script>
