@@ -2,9 +2,9 @@
 
 /*
  * Services
- *
+ * 
  * http://draptik.github.io/blog/2013/07/28/restful-crud-with-angularjs/
- *
+ * 
  */
 var services = angular.module('myApp.services', ['ngResource']);
 
@@ -16,7 +16,6 @@ services.factory('TokenHandler', ['authentication', function(authentication) {
 
     tokenHandler.get = function() {
         var token = authentication.access_token;
-        console.log('Tokenhandler > get()' , token);
         return token;
     };
 
@@ -49,14 +48,6 @@ services.factory('TokenHandler', ['authentication', function(authentication) {
     return tokenHandler;
 }]);
 
-/*
-services.factory('AuthFactory', function ($resource) {
-    return $resource('../../../../../../../../../../../restplugin.php/v1/ilauth/rtoken2bearer', {}, {
-        auth: { method: 'POST', params: {} } //, headers : {'Content-Type': 'application/x-www-form-urlencoded'} }
-    })
-});
-*/
-
 services.provider('restAuth', function() {
     this.baseUrl = '';
     this.$get = function($resource, TokenHandler) {
@@ -64,7 +55,7 @@ services.provider('restAuth', function() {
         return {
             getResource: function() {
                 return $resource(baseUrl + '/restplugin.php/v1/ilauth/rtoken2bearer', {}, {
-                    auth: { method: 'POST', params: {} } //, headers : {'Content-Type': 'application/x-www-form-urlencoded'} }
+                    auth: { method: 'POST', params: {} }
                 })
             }
         }
@@ -81,7 +72,7 @@ services.provider('restAuthTokenEndpoint', function() {
         return {
             getResource: function() {
                 return $resource(baseUrl + '/restplugin.php/v1/oauth2/token', {}, {
-                    auth: { method: 'POST', params: {}, ignoreLoadingBar: true } //, headers : {'Content-Type': 'application/x-www-form-urlencoded'} }
+                    auth: { method: 'POST', params: {}, ignoreLoadingBar: true }
                 })
             }
         }
@@ -108,9 +99,8 @@ services.provider('restClients', function() {
         return {
             getResource: function() {
                 var resource = $resource(baseUrl + '/restplugin.php/clients', {}, {
-                    query: { method: 'GET', params: {}},//, isArray: false },
-                    create: { method: 'POST', params: {} } //, headers : {'Content-Type': 'application/x-www-form-urlencoded'} }
-                    // create: {method: 'POST', params: {}, isArray:false, headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'}}
+                    query: { method: 'GET', params: {}},
+                    create: { method: 'POST', params: {} }
                 });
                 resource = TokenHandler.wrapActions(resource, ["query","create"]);
                 return resource;
@@ -135,7 +125,6 @@ services.provider('restClient', function() {
                     delete: { method: 'DELETE', params: {id: '@id'} }
                 });
                 resource = TokenHandler.wrapActions( resource, ["show", "update", "delete"] );
-                //TokenHandler.get();
                 return resource;
             }
         }
@@ -153,7 +142,7 @@ services.provider('restRoutes', function() {
         return {
             getResource: function() {
                 return $resource(baseUrl+'/restplugin.php/routes', {}, {
-                    query: { method: 'GET', params: {} } //isArray: true
+                    query: { method: 'GET', params: {} } 
                 })
             }
         }

@@ -15,37 +15,27 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
 
     $scope.loadClients = function() {
         restClients.getResource().query({}, function(response) {
-            console.log("Clients get response: ",response);
+			console.log(response);
             $scope.clients = response.clients;
         });
     }
 
     restRoutes.getResource().get(function(response) {
-        // $scope.data = response;
         $scope.routes = response.routes;
     });
-
-    /*RoutesFactory.get(function(response) {
-        // $scope.data = response;
-        $scope.routes = response.routes;
-    });*/
 
     $scope.createNewClient = function() {
         $scope.setClient();
         $location.path("/clientedit");
-        console.log("Create new client invoked");
-        console.log("edit obj id: "+$scope.currentClient.id);
     }
 
     $scope.editClient = function(client) {
         $scope.currentClient = client;
         $scope.currentClient.permissions = angular.fromJson($scope.currentClient.permissions);
-        console.log(client);
-        console.log("Edit Client invoked "+$scope.currentClient.id);
         $location.path("/clientedit");
     }
 
-    $scope.setClient = function() { // default options for a new rest client
+    $scope.setClient = function() {
         $scope.currentClient = {permissions:[]};
         $scope.currentClient.id = -1;
         $scope.currentClient.oauth2_gt_client_active = 1;
@@ -62,9 +52,6 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
     }
 
     $scope.addPermission = function(permission) {
-        console.log("Trying to add newPermission : " + permission);
-        //console.log("Current Permission : " + $scope.newPermission);
-        console.log($scope.currentClient);
         if (angular.isDefined($scope.currentClient.permissions) && $scope.currentClient.permissions!=null) {
             $scope.currentClient.permissions.push(permission);
         } else {
@@ -75,9 +62,6 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
     }
 
     $scope.deletePermission = function(index) {
-        /*if (!confirm('Confirm delete')) {
-            return;
-        }*/
         var aDelPerm= $scope.currentClient.permissions.splice(index, 1);
     }
 
@@ -91,8 +75,9 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
 
 
     $scope.saveClient = function() {
+    	console.log($scope.currentClient);
+    	
         if ($scope.currentClient.id==-1) {
-            console.log("Creating a new Client");
             restClients.getResource().create(
                 {
                     api_key: $scope.currentClient.api_key,
@@ -111,14 +96,12 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
                     oauth2_resource_refresh_active: $scope.currentClient.oauth2_resource_refresh_active,
                     access_user_csv: $scope.currentClient.access_user_csv
                 }, function (data) {
-                console.log('Callback : ',data);
-                if (data.status == "success") {
-                    $scope.currentClient.id = data.id;
-                    $scope.clients.push($scope.currentClient);
+                	if (data.status == "success") {
+                		$scope.currentClient.id = data.id;
+                		$scope.clients.push($scope.currentClient);
                 }
             });
         } else {
-            console.log("Saving client with id: "+$scope.currentClient.id);
             restClient.getResource().update(
                 {
                     id: $scope.currentClient.id,
@@ -140,7 +123,6 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
                         access_user_csv: $scope.currentClient.access_user_csv
                     }
                 }, function (data) {
-                console.log('Callback : ',data);
             });
         }
         $location.url("/clientlist");
@@ -152,10 +134,7 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
         }
         var aDelItems = $scope.clients.splice(index, 1);
         var delItem = aDelItems[0];
-        console.log('Invoking REST Delete for item id: '+delItem.id);
-        restClient.getResource().delete({id: delItem.id}, function (data) {
-            console.log('Delete Callback: ',data)
-        });
+        restClient.getResource().delete({id: delItem.id}, function (data) {});
     }
 
     $scope.isAuthenticated = function() {
@@ -180,7 +159,6 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
 app.controller('AuthCtrl', function($scope, $filter, $http, restAuth) {
     $scope.data = {};
     restAuth.authorize(function(data) {
-        console.log('Query auth provider');
         return restAuth.getResource().auth();
     });
 });
@@ -226,11 +204,9 @@ app.controller('LoginCtrl', function($scope, authentication, $location, restAuth
 
         restAuthTokenEndpoint.getResource().auth({grant_type: 'password', username: v_user_name, password: v_password, api_key: api_key },
             function (data) {
-                 console.log('Auth Callback : ',data);
                  if (data.token_type == "bearer") {
                      $scope.token = data.access_token;
-                     $scope.access_token = $scope.token;//.access_token
-                     console.log($scope.token);
+                     $scope.access_token = $scope.token;
                      authentication.isAuthenticated = true;
                      authentication.access_token = $scope.access_token;
                      authentication.user = $scope.logindata.user_name;
@@ -243,17 +219,10 @@ app.controller('LoginCtrl', function($scope, authentication, $location, restAuth
                  }
              },
             function (errorResult){
-                 console.log('Auth failed recieved an error from server ');
                 $scope.loginHasFailed = true;
                 authentication.isAuthenticated = false;
                 $scope.manual_login = true;
                 $location.url("/login");
-                //br
-                 /*if (errorResult.status = 401) {
-                    $scope.loginHasFailed = true;
-                    authentication.isAuthenticated = false;
-                    $scope.manual_login = true;
-                 }*/
             }
         );
 

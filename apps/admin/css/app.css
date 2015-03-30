@@ -1,4 +1,8 @@
 /* app css stylesheet */
+.main-div {
+	margin: 15px;
+}
+
 .label-granttype {
 	background-color: #363635;
 }

@@ -21,8 +21,8 @@
 					<div data-ng-show="{{client.oauth2_gt_authcode_active}}"><span data-ng-show="{{client.oauth2_gt_client_active}}" class="label label-granttype">Client Credentials</span><br/></div>
 				</td>
 				<td data-ng-bind-html='client.permissions | format_permissions'></td>
-				<td style="vertical-align: middle;"><button class="btn btn-primary" data-ng-click="editClient(client)">Modify</button></td>
-				<td style="vertical-align: middle;"><button class="btn btn-danger" data-ng-click="deleteClient($index)">Delete</button></td>
+				<td style="vertical-align: middle;"><div class="text-center"><button class="btn btn-primary" data-ng-click="editClient(client)">Modify</button></div></td>
+				<td style="vertical-align: middle;"><div class="text-center"><button class="btn btn-danger" data-ng-click="deleteClient($index)">Delete</button></div></td>
 			</tr>
 		</tbody>
 	</table>
