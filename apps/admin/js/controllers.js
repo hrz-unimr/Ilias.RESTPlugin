@@ -9,13 +9,12 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
     $scope.pageClass = 'page-main';
     $scope.clients = {};
     $scope.routes = {};
-    $scope.currentClient = {id:-1, permissions:[]}; // Current Client
+    $scope.currentClient = {id:-1, permissions:[]};
     $scope.newPermission = "";
 
 
     $scope.loadClients = function() {
         restClients.getResource().query({}, function(response) {
-			console.log(response);
             $scope.clients = response.clients;
         });
     }
@@ -75,8 +74,6 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
 
 
     $scope.saveClient = function() {
-    	console.log($scope.currentClient);
-    	
         if ($scope.currentClient.id==-1) {
             restClients.getResource().create(
                 {

@@ -2,16 +2,18 @@
 	<table class="table table-striped table-bordered">
 		<thead>
 			<tr >
-				<th style="vertical-align: middle;"><div class="text-center">ID</div></th>
+				<th style="vertical-align: middle; width:1px;"><div class="text-center">ID</div></th>
 				<th style="vertical-align: middle;"><div class="text-center">API-Key</div></th>
 				<th style="vertical-align: middle;"><div class="text-center">API-Secret</div></th>
-				<th style="vertical-align: middle;"><div class="text-center">Grant-Types</div></th>
+				<th style="vertical-align: middle; width:1px;"><div class="text-center">Grant-Types</div></th>
 				<th style="vertical-align: middle;"><div class="text-center">Route-Permissions</div></th>
+                <th style="vertical-align: middle; width:1px;"><div class="text-center">Modify</div></th>
+                <th style="vertical-align: middle; width:1px;"><div class="text-center">Delete</div></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr data-ng-repeat="client in clients">
-				<td>{{client.id}}</td>
+				<td style="width:1px;"><div class="text-center">{{client.id}}</div></td>
 				<td>{{client.api_key}}</td>
 				<td>{{client.api_secret}}</td>
 				<td>
@@ -21,8 +23,8 @@
 					<div data-ng-show="{{client.oauth2_gt_authcode_active}}"><span data-ng-show="{{client.oauth2_gt_client_active}}" class="label label-granttype">Client Credentials</span><br/></div>
 				</td>
 				<td data-ng-bind-html='client.permissions | format_permissions'></td>
-				<td style="vertical-align: middle;"><div class="text-center"><button class="btn btn-primary" data-ng-click="editClient(client)">Modify</button></div></td>
-				<td style="vertical-align: middle;"><div class="text-center"><button class="btn btn-danger" data-ng-click="deleteClient($index)">Delete</button></div></td>
+				<td style="vertical-align: middle;"><div class="text-center"><button class="btn btn-primary btn-xs" data-ng-click="editClient(client)">Modify</button></div></td>
+				<td style="vertical-align: middle;"><div class="text-center"><button class="btn btn-danger btn-xs" data-ng-click="deleteClient($index)">Delete</button></div></td>
 			</tr>
 		</tbody>
 	</table>

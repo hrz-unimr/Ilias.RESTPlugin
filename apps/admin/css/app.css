@@ -1,40 +1,45 @@
-/* app css stylesheet */
+/* Applied to top.level div (adds a little margin) */
 .main-div {
 	margin: 15px;
 }
 
+
+/* Style for route-premissions */
 .label-granttype {
 	background-color: #363635;
 }
-
 .label-permission {
 	background-color: #6a8c8a;
 }
 
+
+/* REST-Logos */
 .login-img {
 	width: 150px;
 	height: 150px;
 	margin: 0 auto 10px;
 	display: block;
-	/*-moz-border-radius: 50%;
-    -webkit-border-radius: 50%;
-    border-radius: 50%;*/
+}
+.navbar-brand > .brand-img {
+	width: 20px; 
+	height: 20px; 
+	vertical-align: bottom;
+	display: inline; 
 }
 
+
+/* Customize login-form */
 .form-signin {
 	max-width: 330px;
 	padding: 5px;
 	margin: 0 auto;
 }
-
 .form-signin .form-signin-heading, .form-signin .checkbox {
 	margin-bottom: 10px;
 }
-
 .form-signin .checkbox {
 	font-weight: normal;
 }
-
 .form-signin .form-control {
 	position: relative;
 	font-size: 16px;
@@ -44,89 +49,21 @@
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 }
-
 .form-signin .form-control:focus {
 	z-index: 2;
 }
-
 .form-signin input[type="text"] {
 	margin-bottom: -1px;
 	border-bottom-left-radius: 0;
 	border-bottom-right-radius: 0;
 }
-
 .form-signin input[type="password"] {
 	margin-bottom: 10px;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
 
-
-/* ----------------- ANIMATION PART ------------------- */
-.page-login.ng-enter {
-	-webkit-transition: .2s linear all; /* Safari/Chrome */
-	-moz-transition: .2s linear all; /* Firefox */
-	-o-transition: .2s linear all; /* Opera */
-	transition: .2s linear all; /* IE10+ and Future Browsers */
-}
-
-/**
- * Pre animation -> enter
- */
-.page-login.ng-enter {
-	/* The animation preparation code */
-	opacity: 0;
-}
-
-/**
- * Post animation -> enter
- */
-.page-main.ng-enter.ng-enter-active {
-	/* The animation code itself */
-	opacity: 1;
-}
-
-.page-main.ng-enter {
-	-webkit-transition: .1s linear all; /* Safari/Chrome */
-	-moz-transition: .1s linear all; /* Firefox */
-	-o-transition: .1s linear all; /* Opera */
-	transition: .1s linear all; /* IE10+ and Future Browsers */
-}
-
-/**
- * Pre animation -> enter
- */
-.page-main.ng-enter {
-	/* The animation preparation code */
-	opacity: 0;
-}
-
-.view-animate {
-	padding: 0px;
-}
-
-.view-animate.ng-enter, .view-animate.ng-leave {
-	-webkit-transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-	transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-	display: block;
-	width: 100%;
-	border-left: 0px solid white;
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	padding: 0px;
-}
-
-.view-animate.ng-enter {
-	left: 100%;
-}
-
-.view-animate.ng-enter.ng-enter-active {
-	left: 0;
-}
-
-.view-animate.ng-leave.ng-leave-active {
-	left: -100%;
+/* Adds some padding to last navbar-right item of class addRightPadding */
+.navbar .addRightPadding:last-of-type {
+	padding-right: 15px;
 }

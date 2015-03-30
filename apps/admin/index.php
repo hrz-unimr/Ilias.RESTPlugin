@@ -60,9 +60,9 @@
     		<div class="container-fluid">
     			<!-- Brand and toggle get grouped for better mobile display -->
     			<div class="navbar-header navbar-left">
-    				<a class="navbar-brand" href="#/clientlist">ILIAS REST Plugin > Clients Administration</a>
+    				<p><a class="navbar-brand" href="#/clientlist"><img class="brand-img" alt="Logo" src="img/icon.png"> ILIAS REST Plugin > Clients Administration</a></p>
     			</div>
-    			<div class="navbar-right" data-ng-show="isAuthenticated()">
+    			<div class="navbar-right addRightPadding" data-ng-show="isAuthenticated()">
     				<p class="navbar-text">Logged in as {{getUsername()}}</p>
     				<button class="btn btn-default navbar-btn" type="button" data-ng-click="logout()">Logout</button>
     			</div>
