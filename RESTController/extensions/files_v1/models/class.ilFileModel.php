@@ -163,13 +163,13 @@ class ilFileModel
 
             try
             {
-                // 	processZipFile (
-                //		Dir to unzip,
-                //		Path to uploaded file,
-                //		should a structure be created (+ permission check)?
-                //		ref_id of parent
-                //		object that contains files (folder or category)
-                //		should sendInfo be persistent?)
+                //     processZipFile (
+                //        Dir to unzip,
+                //        Path to uploaded file,
+                //        should a structure be created (+ permission check)?
+                //        ref_id of parent
+                //        object that contains files (folder or category)
+                //        should sendInfo be persistent?)
                 ilFileUtils::processZipFile(
                     $newDir,
                     $temp_name,

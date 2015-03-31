@@ -24,12 +24,6 @@ $app->get('/clients', 'authenticateTokenOnly',  function () use ($app) {
             $result['clients'] = $data;
             $result['authuser'] = $authorizedUser;
         }
-        
-        $admin_model = new ilClientsModel();
-        $data = $admin_model->getClients();
-        $result['status'] = 'success';
-        $result['clients'] = $data;
-        $result['authuser'] = $authorizedUser;
 
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode($result);

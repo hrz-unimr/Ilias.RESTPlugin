@@ -10,6 +10,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <title>ILIAS REST Plugin - Administration</title>
+    
+    <link rel="icon" href="img/icon.png">
+    <link rel="shortcut icon" href="img/logo.png">
+    <link rel="apple-touch-icon" href="img/logo.png">
 
     <link rel="stylesheet" href="libs/css/normalize.css">
     <link rel="stylesheet" href="libs/css/animate.css">
@@ -52,41 +56,41 @@
 </head>
 <body data-ng-controller="defaultCtrl">
     <div class="main-div">
-    	<!--[if lt IE 7]>
+        <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
     
-    	<nav class="navbar navbar-default">
-    		<div class="container-fluid">
-    			<!-- Brand and toggle get grouped for better mobile display -->
-    			<div class="navbar-header navbar-left">
-    				<p><a class="navbar-brand" href="#/clientlist"><img class="brand-img" alt="Logo" src="img/icon.png"> ILIAS REST Plugin > Clients Administration</a></p>
-    			</div>
-    			<div class="navbar-right addRightPadding" data-ng-show="isAuthenticated()">
-    				<p class="navbar-text">Logged in as {{getUsername()}}</p>
-    				<button class="btn btn-default navbar-btn" type="button" data-ng-click="logout()">Logout</button>
-    			</div>
-    		</div>
-    	</nav>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header navbar-left">
+                    <p><a class="navbar-brand" href="#/clientlist"><img class="brand-img" alt="Logo" src="img/icon.png"> ILIAS REST Plugin > Clients Administration</a></p>
+                </div>
+                <div class="navbar-right addRightPadding" data-ng-show="isAuthenticated()">
+                    <p class="navbar-text">Logged in as {{getUsername()}}</p>
+                    <button class="btn btn-default navbar-btn" type="button" data-ng-click="logout()">Logout</button>
+                </div>
+            </div>
+        </nav>
     
-    	<div class="{{ pageClass }}" data-ng-view></div>
-	</div>
+        <div class="{{ pageClass }}" data-ng-view></div>
+    </div>
     
-	<script src="libs/js/angular.js"></script>
-	<script src="libs/js/angular-route.js"></script>
-	<script src="libs/js/angular-resource.js"></script>
-	<script src="libs/js/angular-xeditable.js"></script>
-	<script src="libs/js/angular-ui-utils.js"></script>
-	<script src="libs/js/angular-ui-bootstrap.js"></script>
-	<script src="libs/js/angular-animate.js"></script>
-	<script src="libs/js/angular-loading-bar.js"></script>
+    <script src="libs/js/angular.js"></script>
+    <script src="libs/js/angular-route.js"></script>
+    <script src="libs/js/angular-resource.js"></script>
+    <script src="libs/js/angular-xeditable.js"></script>
+    <script src="libs/js/angular-ui-utils.js"></script>
+    <script src="libs/js/angular-ui-bootstrap.js"></script>
+    <script src="libs/js/angular-animate.js"></script>
+    <script src="libs/js/angular-loading-bar.js"></script>
     <script src="libs/js/jquery.js"></script>
-	<script src="libs/js/less.js"></script>
+    <script src="libs/js/less.js"></script>
 
-	<script src="js/app.js"></script>
-	<script src="js/services.js"></script>
-	<script src="js/controllers.js"></script>
-	<script src="js/filters.js"></script>
-	<script src="js/directives.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/filters.js"></script>
+    <script src="js/directives.js"></script>
 </body>
 </html>

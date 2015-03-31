@@ -2,7 +2,12 @@
 
 /* Controllers */
 
+
+
+
+
 var app = angular.module('myApp.controllers', []);
+
 
 app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, restClient, restClients, $location, authentication, restRoutes) {
     $scope.logindata = postvars;
@@ -93,9 +98,9 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
                     oauth2_resource_refresh_active: $scope.currentClient.oauth2_resource_refresh_active,
                     access_user_csv: $scope.currentClient.access_user_csv
                 }, function (data) {
-                	if (data.status == "success") {
-                		$scope.currentClient.id = data.id;
-                		$scope.clients.push($scope.currentClient);
+                    if (data.status == "success") {
+                        $scope.currentClient.id = data.id;
+                        $scope.clients.push($scope.currentClient);
                 }
             });
         } else {
@@ -174,7 +179,7 @@ app.controller('LoginCtrl', function($scope, authentication, $location, restAuth
         var v_api_key = $scope.logindata.api_key;
         var v_session_id = $scope.logindata.session_id;
         var v_rtoken = $scope.logindata.rtoken;
-		
+        
         restAuth.getResource().auth({api_key: v_api_key, user_id: v_user_id, session_id: v_session_id, rtoken: v_rtoken }, function (data) {
             if (data.status == "success") {
                 $scope.token = data.token;

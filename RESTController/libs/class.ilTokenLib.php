@@ -79,8 +79,8 @@ class ilTokenLib
     {
         $rehash = self::hash(self::getTokenString($token));
         if($rehash != $token["h"]) {
-			return false;
-		}
+            return false;
+        }
         return true;
     }
 

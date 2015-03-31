@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-    	<title>OAuth2: Authorization Code Endpoint</title>
-	</head>
-	<body>	
+    <head>
+        <title>OAuth2: Authorization Code Endpoint</title>
+    </head>
+    <body>    
 <?php
 /**
  * "My ILIAS (via OAuth2 - Authorization Code)" (start.php) will use this as 
@@ -56,20 +56,20 @@ if (isset($_GET['code'])){
         $decoded = json_decode($curl_response, true);
         
         ?>
-		<h3>OAuth2 Token via Authorization Code Workflow Retrieved!</h3>
-		<pre>Bearer-Token: <?php echo $decoded["access_token"]; ?></pre>
-		<h4> The client can continue now making further API requests with the obtained bearer token.</h4>
+        <h3>OAuth2 Token via Authorization Code Workflow Retrieved!</h3>
+        <pre>Bearer-Token: <?php echo $decoded["access_token"]; ?></pre>
+        <h4> The client can continue now making further API requests with the obtained bearer token.</h4>
         <?php
     }
     else {
         ?>
-		<h3>The Server has authenticated your request and generated an authentication code that can be traded for a bearer token.</h3>
-		<pre>Authorization Code: <?php echo $_GET['code']; ?></pre>
-		<a href='<?php echo $_SERVER['REQUEST_URI']; ?>&make_curl_call=1'>Trade authentication code for bearer token</a><br><br>
+        <h3>The Server has authenticated your request and generated an authentication code that can be traded for a bearer token.</h3>
+        <pre>Authorization Code: <?php echo $_GET['code']; ?></pre>
+        <a href='<?php echo $_SERVER['REQUEST_URI']; ?>&make_curl_call=1'>Trade authentication code for bearer token</a><br><br>
         <?php
     }
 }
 ?>
     <a href='../'>Back to the demo</a>
-	</body>
+    </body>
 </html>

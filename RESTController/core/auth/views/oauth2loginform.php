@@ -1,9 +1,9 @@
 <div id="ilAll">
-	<div class="ilStartupFrame">
-		<div id="ilStartupLogo">
-			<img src="<?php echo $tpl_path; ?>/img/ilias.png" alt="Logo" />
-		</div>
-		<div id="ilStartupContent">
+    <div class="ilStartupFrame">
+        <div id="ilStartupLogo">
+            <img src="<?php echo $tpl_path; ?>/img/ilias.png" alt="Logo" />
+        </div>
+        <div id="ilStartupContent">
             <div class="ilMessageBox">
                 <p style="color:#ff0000;">
                     <?php
@@ -51,7 +51,7 @@
                 </div>
             </form>
         </div>
-	</div>
-	<div class="il_Footer">Powered by ILIAS | <a href="http://localhost/goto.php?target=impr_0" target="_blank">Impressum</a> | <a href="mailto:">Administration kontaktieren</a>
-	</div>
+    </div>
+    <div class="il_Footer">Powered by ILIAS | <a href="http://localhost/goto.php?target=impr_0" target="_blank">Impressum</a> | <a href="mailto:">Administration kontaktieren</a>
+    </div>
 </div>

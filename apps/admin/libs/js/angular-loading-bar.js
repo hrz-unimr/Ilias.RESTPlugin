@@ -115,7 +115,7 @@ angular.module('cfp.loadingBarInterceptor', ['cfp.loadingBar'])
         'response': function(response) {
           if (!response || !response.config) {
             $log.error('Broken interceptor detected: Config object not supplied in response:\n https://github.com/chieffancypants/angular-loading-bar/pull/50');
-            return response;
+            return response || $q.reject(response);
           }
 
           if (!response.config.ignoreLoadingBar && !isCached(response.config)) {

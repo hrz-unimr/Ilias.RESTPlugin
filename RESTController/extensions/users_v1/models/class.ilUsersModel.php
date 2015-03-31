@@ -160,10 +160,10 @@ class ilUsersModel
         ilRESTLib::initAccessHandling();
 
 
-    	$parser = new ilUserImportParser();
+        $parser = new ilUserImportParser();
         // TODO/Problem: can't pass mode in constructor if no file is given
         $parser->mode = IL_VERIFY;
-    	$parser->setXMLContent($xmlData);
+        $parser->setXMLContent($xmlData);
         $parser->startParsing();
 
         if ($parser->isSuccess()) {

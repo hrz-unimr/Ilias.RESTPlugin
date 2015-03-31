@@ -3,63 +3,63 @@ require_once "./Services/Database/classes/class.ilAuthContainerMDB2.php";
 require_once "./Services/User/classes/class.ilObjUser.php";
 
 class ilAuthLib {
-	
-	static private $instance = null;
-	static private $db_container = null;
-	static public $user = null;
-	
-	static public function getInstance()
-    {
-		if (null === self::$instance) {
-			self::$db_container = new ilAuthContainerMDB2();
-			self::$instance = new self;
-		}
-		return self::$instance;
-	}
     
-	static public function authMDB2($user,$pwd)
+    static private $instance = null;
+    static private $db_container = null;
+    static public $user = null;
+    
+    static public function getInstance()
     {
-		return self::$db_container->fetchData($user,$pwd);
-	}	
-	
-	static public function headerBasicAuth()
+        if (null === self::$instance) {
+            self::$db_container = new ilAuthContainerMDB2();
+            self::$instance = new self;
+        }
+        return self::$instance;
+    }
+    
+    static public function authMDB2($user,$pwd)
     {
-		header('WWW-Authenticate: Basic realm="ILIAS RESTservice"');
-		self::headerUnauthorized();
-	}
-	
-	static public function headerNoCache()
+        return self::$db_container->fetchData($user,$pwd);
+    }    
+    
+    static public function headerBasicAuth()
     {
-		header( 'Expires: Sat, 26 Jul 1997 05:00:00 GMT' ); 
-		header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s' ) . ' GMT' ); 
-		header( 'Cache-Control: no-store, no-cache, must-revalidate' ); 
-		header( 'Cache-Control: post-check=0, pre-check=0', false ); 
-		header( 'Pragma: no-cache' ); 
-	}
-	
-	static public function headerUnauthorized()
+        header('WWW-Authenticate: Basic realm="ILIAS RESTservice"');
+        self::headerUnauthorized();
+    }
+    
+    static public function headerNoCache()
     {
-		header('HTTP/1.1 401 Unauthorized'); 
-	}
-	
-	static public function headerForbidden()
+        header( 'Expires: Sat, 26 Jul 1997 05:00:00 GMT' ); 
+        header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s' ) . ' GMT' ); 
+        header( 'Cache-Control: no-store, no-cache, must-revalidate' ); 
+        header( 'Cache-Control: post-check=0, pre-check=0', false ); 
+        header( 'Pragma: no-cache' ); 
+    }
+    
+    static public function headerUnauthorized()
     {
-		header('HTTP/1.1 403 Forbidden'); 
-	}
-	
-	static public function setUserContext($login)
+        header('HTTP/1.1 401 Unauthorized'); 
+    }
+    
+    static public function headerForbidden()
     {
-		global $ilias, $ilInit;
-		$userId = ilObjUser::_lookupId($login);
-		if (!$userId) { 
-			self::headerUnauthorized();
-			exit;
-		}
-		$ilUser = new ilObjUser($userId);
-		$ilias->account =& $ilUser;
-		self::$user =& $ilUser;
+        header('HTTP/1.1 403 Forbidden'); 
+    }
+    
+    static public function setUserContext($login)
+    {
+        global $ilias, $ilInit;
+        $userId = ilObjUser::_lookupId($login);
+        if (!$userId) { 
+            self::headerUnauthorized();
+            exit;
+        }
+        $ilUser = new ilObjUser($userId);
+        $ilias->account =& $ilUser;
+        self::$user =& $ilUser;
         ilRESTLib::initGlobal("ilUser", $ilUser);
-	}
+    }
 
     /**
      * Authentication via the ILIAS Auth mechanisms.
@@ -134,18 +134,18 @@ class ilAuthLib {
        $set = $ilDB->query($query);
        $ret = $ilDB->fetchAssoc($set);
        if ($ret) {
-		   return $ret;
-	   }
-	   else {
-		   return false;
-	   }
+           return $ret;
+       }
+       else {
+           return false;
+       }
    }
 
     /**
      * Checks if provided OAuth2 - client (aka api_key) does exist.
      *
-     * @param	int	api_key
-     * @return	bool
+     * @param    int    api_key
+     * @return    bool
      */
     static public function checkOAuth2Client($api_key)
     {
