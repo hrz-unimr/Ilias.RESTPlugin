@@ -66,10 +66,12 @@
                     <span class="navbar-brand"><img class="brand-img" alt="Logo" src="img/icon.png"> ILIAS REST</span>
                 </ul>
             
-                <ul class="nav navbar-nav navbar-left" data-ng-show="isAuthenticated()" data-ng-cloak>
+                <ul class="nav navbar-nav navbar-left" data-ng-cloak>
                     <ul class="breadcrumb breadcrumb-brand list-inline">
-                        <li><a href="#/">Clients</a></li>
-                        <li data-ng-show="isActive('/clientedit')">Edit</li>
+                        <li ng-repeat="breadcrumb in breadcrumbs.get() track by breadcrumb.path" ng-class="{ active: $last }">
+                            <a ng-if="!$last" ng-href="#{{ breadcrumb.path }}" ng-bind="breadcrumb.label" class="margin-right-xs"></a>
+                            <span ng-if="$last" ng-bind="breadcrumb.label"></span>
+                        </li>
                     </ul>
                 </ul>
                 
@@ -79,6 +81,14 @@
                 </ul>
             </div>
         </nav>
+        <!--
+        <ol class="ab-nav breadcrumb">
+            <li ng-repeat="breadcrumb in breadcrumbs.get() track by breadcrumb.path" ng-class="{ active: $last }">
+                <a ng-if="!$last" ng-href="#{{ breadcrumb.path }}" ng-bind="breadcrumb.label" class="margin-right-xs"></a>
+                <span ng-if="$last" ng-bind="breadcrumb.label"></span>
+            </li>
+        </ol>
+        -->
     
         <div data-ng-cloak data-ng-show="noAccessRights" class="alert alert-danger" role="alert">You do not have the required permissions to continue...</div>
         <div data-ng-hide="noAccessRights" class="{{ pageClass }}" data-ng-view></div>
@@ -106,6 +116,7 @@
     <script src="libs/js/angular-ui-bootstrap.js"></script>
     <script src="libs/js/angular-animate.js"></script>
     <script src="libs/js/angular-loading-bar.js"></script>
+    <script src="libs/js/angular-breadcrumbs.js"></script>
     <script src="libs/js/jquery.js"></script>
     <script src="libs/js/less.js"></script>
 

@@ -5,7 +5,9 @@
 var app = angular.module('myApp.controllers', []);
 
 
-app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, restClient, restClients, $location, authentication, restRoutes) {
+app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, restClient, restClients, $location, authentication, restRoutes, breadcrumbs) {
+    $scope.breadcrumbs = breadcrumbs;
+    
     $scope.logindata = postvars;
     $scope.pageClass = 'page-main';
     $scope.clients = {};
@@ -13,12 +15,6 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
     $scope.currentClient = {id:-1, permissions:[]};
     $scope.newPermission = "";
     $scope.noAccessRights = false;
-    
-    
-    $scope.isActive = function (viewLocation) { 
-        return viewLocation === $location.path();
-    };
-
 
     $scope.loadClients = function() {
         restClients.getResource().query({}, function(response) {
@@ -37,13 +33,13 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
 
     $scope.createNewClient = function() {
         $scope.setClient();
-        $location.path("/clientedit");
+        $location.path("/clientlist/clientedit");
     };
 
     $scope.editClient = function(client) {
         $scope.currentClient = client;
         $scope.currentClient.permissions = angular.fromJson($scope.currentClient.permissions);
-        $location.path("/clientedit");
+        $location.path("/clientlist/clientedit");
     };
 
     $scope.setClient = function() {

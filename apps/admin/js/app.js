@@ -13,7 +13,8 @@ var app = angular.module('myApp', [
     'ui.bootstrap', 
     'ui.utils', 
     'ngAnimate',
-    'angular-loading-bar'
+    'angular-loading-bar',
+    'ng-breadcrumbs'
 ]);
 
 
@@ -25,14 +26,17 @@ app.config([ 'cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
 app.constant("baseUrl", "http://localhost/restplugin.php");
 
 app.config([ '$routeProvider', function($routeProvider, $locationProvider) {
-    $routeProvider.when('/clientedit', {
-        templateUrl : 'partials/clientedit.html'
+    $routeProvider.when('/clientlist/clientedit', {
+        templateUrl: 'partials/clientedit.html',
+        label: 'Edit'
     });
     $routeProvider.when('/clientlist', {
-        templateUrl : 'partials/clientlist.html'
+        templateUrl : 'partials/clientlist.html',
+        label: 'Clients'
     });
     $routeProvider.when('/login', {
-        templateUrl : 'partials/login.html'
+        templateUrl : 'partials/login.html',
+        label: 'Login'
     });
     $routeProvider.otherwise({
         redirectTo : '/clientlist'
