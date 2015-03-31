@@ -67,3 +67,26 @@
 .navbar .addRightPadding:last-of-type {
     padding-right: 15px;
 }
+
+/* 
+ * For load-time reason we load AngularJS after all content, but this
+ * can cause some flashing of ng-cloak, ng-show, ng-hide fields when
+ * the page is loading.
+ * By adding this code here and loading the app.css inside of <head>
+ * this should be fixed.
+ */
+[ng-cloak], .ng-cloak , [data-ng-cloak], .data-ng-cloak  { 
+    display: none !important;
+}
+
+/* Make navbar breadcrumb behave with navbar-brand (must be used in conjunction with class="breadcrumb") */
+.nav .breadcrumb-brand {
+    float: left;
+    margin: 7px 10px;
+}
+    
+/* Centers navbar-text (must be used in conjunction with class="navbar-text"  */
+.navbar-text-center {
+    width: 100%;
+    text-align: center;
+}

@@ -60,21 +60,42 @@
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
     
-        <nav class="navbar navbar-default">
+        <nav class="navbar navbar-default" role="navigation">
             <div class="container-fluid">
-                <!-- Brand and toggle get grouped for better mobile display -->
-                <div class="navbar-header navbar-left">
-                    <p><a class="navbar-brand" href="#/clientlist"><img class="brand-img" alt="Logo" src="img/icon.png"> ILIAS REST Plugin > Clients Administration</a></p>
-                </div>
-                <div class="navbar-right addRightPadding" data-ng-show="isAuthenticated()">
-                    <p class="navbar-text">Logged in as {{getUsername()}}</p>
-                    <button class="btn btn-default navbar-btn" type="button" data-ng-click="logout()">Logout</button>
-                </div>
+                <ul class="nav navbar-header">
+                    <span class="navbar-brand"><img class="brand-img" alt="Logo" src="img/icon.png"> ILIAS REST</span>
+                </ul>
+            
+                <ul class="nav navbar-nav navbar-left" data-ng-show="isAuthenticated()" data-ng-cloak>
+                    <ul class="breadcrumb breadcrumb-brand list-inline">
+                        <li><a href="#/">Clients</a></li>
+                        <li data-ng-show="isActive('/clientedit')">Edit</li>
+                    </ul>
+                </ul>
+                
+                <ul class="nav navbar-nav navbar-right addRightPadding" data-ng-show="isAuthenticated()" data-ng-cloak >
+                    <li><span class="navbar-text">Logged in as {{getUsername()}}</span></li>
+                    <li><button class="btn btn-default navbar-btn" type="button" data-ng-click="logout()">Logout</button></li>
+                </ul>
             </div>
         </nav>
     
-        <div data-ng-show="noAccessRights" class="alert alert-danger" role="alert">You do not have the required permissions to continue...</div>
+        <div data-ng-cloak data-ng-show="noAccessRights" class="alert alert-danger" role="alert">You do not have the required permissions to continue...</div>
         <div data-ng-hide="noAccessRights" class="{{ pageClass }}" data-ng-view></div>
+        
+        <nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
+            <span class="navbar-text navbar-text-center">
+                Version:</strong> <span data-app-version></span> is powered by 
+                <a href="https://angularjs.org/" data-tooltip="Version: Unknown" data-angularjs-version target="_blank">AngularJS</a>, 
+                <a href="https://jquery.com/" data-tooltip="Version: Unknown" data-jquery-version target="_blank">jQuery</a>, 
+                <a href="http://modernizr.com" data-tooltip="Version: Unknown" data-modernizr-version target="_blank">Modernizr</a>, 
+                <a href="http://lesscss.org" data-tooltip="Version: Unknown" data-less-version target="_blank">LESS</a>, 
+                <a href="http://getbootstrap.com/" data-tooltip="Version: Unknown" data-bootstrap-version target="_blank">Bootstrap</a>, 
+                <a href="https://html5boilerplate.com/" data-tooltip="Version: Unknown" data-boilerplate-version target="_blank">HTML5 Boilerplates</a>, 
+                <a href="http://necolas.github.io/normalize.css/" data-tooltip="Version: Unknown" data-normalize-version target="_blank">Normalize.css</a> and 
+                <a href="http://daneden.github.io/animate.css/" data-tooltip="Version: Unknown" data-animatecss-version target="_blank">Animate.css</a>
+            </span>
+        </nav>
     </div>
     
     <script src="libs/js/angular.js"></script>

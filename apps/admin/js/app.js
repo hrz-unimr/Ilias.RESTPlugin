@@ -1,3 +1,4 @@
+// Use ECMAScript 5 restricted variant of Javascript
 'use strict';
 
 // Declare app level module which depends on filters, and services

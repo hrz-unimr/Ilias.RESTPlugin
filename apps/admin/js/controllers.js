@@ -1,11 +1,7 @@
+// Use ECMAScript 5 restricted variant of Javascript
 'use strict';
 
 /* Controllers */
-
-
-
-
-
 var app = angular.module('myApp.controllers', []);
 
 
@@ -17,6 +13,11 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
     $scope.currentClient = {id:-1, permissions:[]};
     $scope.newPermission = "";
     $scope.noAccessRights = false;
+    
+    
+    $scope.isActive = function (viewLocation) { 
+        return viewLocation === $location.path();
+    };
 
 
     $scope.loadClients = function() {

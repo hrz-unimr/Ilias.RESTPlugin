@@ -1,3 +1,4 @@
+// Use ECMAScript 5 restricted variant of Javascript
 'use strict';
 
 /*
@@ -8,8 +9,7 @@
  */
 var services = angular.module('myApp.services', ['ngResource']);
 
-services.value('version', '0.3');
-services.value('debug', true);
+services.value('version', '0.5');
 
 services.factory('TokenHandler', ['authentication', function(authentication) {
     var tokenHandler = {};
