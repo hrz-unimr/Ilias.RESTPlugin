@@ -16,7 +16,7 @@ filters.filter('xx', function() {
         } else {
             return value;
         }
-    }
+    };
 });
 
 filters.filter('format_permissions', function($sce) {
@@ -44,5 +44,5 @@ filters.filter('format_permissions', function($sce) {
         }
         resultHtml += '</table>';
         return $sce.trustAsHtml(resultHtml);
-    }
+    };
 });

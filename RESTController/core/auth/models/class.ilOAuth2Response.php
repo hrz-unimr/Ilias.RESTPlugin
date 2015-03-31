@@ -84,7 +84,7 @@ class ilOauth2Response {
     {
         switch ($this->_format) {
             case "json": $this->toJSON(); break;
-            default: $this->toJSON();
+            default: $this->setHttpHeader('Content-Type', 'text/plain'); break;
         }
     }
 }

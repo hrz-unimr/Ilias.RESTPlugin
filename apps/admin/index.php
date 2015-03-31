@@ -73,7 +73,8 @@
             </div>
         </nav>
     
-        <div class="{{ pageClass }}" data-ng-view></div>
+        <div data-ng-show="noAccessRights" class="alert alert-danger" role="alert">You do not have the required permissions to continue...</div>
+        <div data-ng-hide="noAccessRights" class="{{ pageClass }}" data-ng-view></div>
     </div>
     
     <script src="libs/js/angular.js"></script>

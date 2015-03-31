@@ -38,7 +38,7 @@ services.factory('TokenHandler', ['authentication', function(authentication) {
         // create new action wrapping the original and sending token
         resource[action] = function( data, success, error){
             return resource['_' + action](
-                angular.extend({}, data || {}, {token: tokenHandler.get()}, {'Authorization':tokenHandler.get()}),
+                angular.extend({}, data || {}, {token: tokenHandler.get()}, {Authorization:tokenHandler.get()}),
                 success,
                 error
             );
@@ -56,9 +56,9 @@ services.provider('restAuth', function() {
             getResource: function() {
                 return $resource(baseUrl + '/restplugin.php/v1/ilauth/rtoken2bearer', {}, {
                     auth: { method: 'POST', params: {} }
-                })
+                });
             }
-        }
+        };
     };
     this.setBaseUrl = function(baseUrl) {
         this.baseUrl = baseUrl;
@@ -73,9 +73,9 @@ services.provider('restAuthTokenEndpoint', function() {
             getResource: function() {
                 return $resource(baseUrl + '/restplugin.php/v1/oauth2/token', {}, {
                     auth: { method: 'POST', params: {}, ignoreLoadingBar: true }
-                })
+                });
             }
-        }
+        };
     };
     this.setBaseUrl = function(baseUrl) {
         this.baseUrl = baseUrl;
@@ -89,7 +89,7 @@ app.factory('authentication', function() {
         user: null,
         access_token: null,
         manual_login: false
-    }
+    };
 });
 
 services.provider('restClients', function() {
@@ -102,10 +102,10 @@ services.provider('restClients', function() {
                     query: { method: 'GET', params: {}},
                     create: { method: 'POST', params: {} }
                 });
-                resource = TokenHandler.wrapActions(resource, ["query","create"]);
+                resource = TokenHandler.wrapActions(resource, ['query','create']);
                 return resource;
             }
-        }
+        };
     };
 
     this.setBaseUrl = function(baseUrl) {
@@ -122,12 +122,13 @@ services.provider('restClient', function() {
                 var resource =  $resource(baseUrl+'/restplugin.php/clients/:id', {}, {
                     show: { method: 'GET' },
                     update: { method: 'PUT', params: {id: '@id'}},
-                    delete: { method: 'DELETE', params: {id: '@id'} }
+                    // Use quotes to pamper the syntax-validator (delete is a keyword)
+                    'delete': { method: 'DELETE', params: {id: '@id'}},
                 });
-                resource = TokenHandler.wrapActions( resource, ["show", "update", "delete"] );
+                resource = TokenHandler.wrapActions( resource, ['show', 'update', 'delete'] );
                 return resource;
             }
-        }
+        };
     };
 
     this.setBaseUrl = function(baseUrl) {
@@ -143,9 +144,9 @@ services.provider('restRoutes', function() {
             getResource: function() {
                 return $resource(baseUrl+'/restplugin.php/routes', {}, {
                     query: { method: 'GET', params: {} } 
-                })
+                });
             }
-        }
+        };
     };
 
     this.setBaseUrl = function(baseUrl) {

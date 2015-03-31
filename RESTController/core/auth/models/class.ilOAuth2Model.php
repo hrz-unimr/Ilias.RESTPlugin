@@ -227,6 +227,7 @@ class ilOAuth2Model
 
         if ($isAuth == false) {
             $response->setHttpStatus(401);
+            $response->setOutputFormat('plain');
             $response->send();
         } else {
             $clients_model = new ilClientsModel();
@@ -261,8 +262,9 @@ class ilOAuth2Model
             } else {
                 $response->setHttpStatus(401);
             }
+            $response->send();
         }
-        $response->send();
+        
     }
 
     /**

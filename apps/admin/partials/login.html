@@ -3,8 +3,8 @@
     
     <div data-ng-show="manual_login">
         <div data-ng-show="loginHasFailed" class="alert alert-danger" role="alert">Login attempt has failed! 
-            <div data-ng-show="noAccessRights">You do not have the required permissions to continue...</div>
-            <div data-ng-show="noResponse">No response from the REST-Interface. It could be disabled or offline...</div>
+            <span data-ng-show="notCorrect">Wrong Username or Passwort. (<a href="#" data-tooltip="{{errorStatus}}">Status</a>)</span>
+            <span data-ng-show="noResponse">No response from the REST-Interface. It could be disabled or offline. (<a href="#" data-tooltip="{{errorStatus}}">Status</a>)</span>
         </div>
         
         <img class="login-img" src="img/logo.png" alt="Logo">
