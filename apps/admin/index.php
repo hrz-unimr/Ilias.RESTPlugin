@@ -40,10 +40,10 @@
         }
         
         // Make it save
-        $user_id = htmlspecialchars($user_id, ENT_COMPAT | ENT_HTML5);
-        $session_id = htmlspecialchars($session_id, ENT_COMPAT | ENT_HTML5); 
-        $rtoken = htmlspecialchars($rtoken, ENT_COMPAT | ENT_HTML5);
-        $inst_folder = htmlspecialchars($inst_folder, ENT_COMPAT | ENT_HTML5);
+        $user_id = addslashes (htmlspecialchars($user_id, ENT_COMPAT | ENT_HTML5));
+        $session_id = addslashes (htmlspecialchars($session_id, ENT_COMPAT | ENT_HTML5)); 
+        $rtoken = addslashes (htmlspecialchars($rtoken, ENT_COMPAT | ENT_HTML5));
+        $inst_folder = addslashes (htmlspecialchars($inst_folder, ENT_COMPAT | ENT_HTML5));
         ?>
     
         var postvars = {
@@ -81,14 +81,6 @@
                 </ul>
             </div>
         </nav>
-        <!--
-        <ol class="ab-nav breadcrumb">
-            <li ng-repeat="breadcrumb in breadcrumbs.get() track by breadcrumb.path" ng-class="{ active: $last }">
-                <a ng-if="!$last" ng-href="#{{ breadcrumb.path }}" ng-bind="breadcrumb.label" class="margin-right-xs"></a>
-                <span ng-if="$last" ng-bind="breadcrumb.label"></span>
-            </li>
-        </ol>
-        -->
     
         <div data-ng-cloak data-ng-show="noAccessRights" class="alert alert-danger" role="alert">You do not have the required permissions to continue...</div>
         <div data-ng-hide="noAccessRights" class="{{ pageClass }}" data-ng-view></div>

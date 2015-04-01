@@ -69,6 +69,7 @@ class ilRESTConfigGUI extends ilPluginConfigGUI
         $configHTML .="<p>".$pl->txt("admin_info_config")."</p>";
 
         $inst_folder = dirname($_SERVER['SCRIPT_NAME']);
+        $inst_folder = str_replace('\\', '/', $inst_folder);
         $inst_folder = ($inst_folder == '/' ? '' : $inst_folder);
 
         $configHTML .= '
@@ -81,10 +82,8 @@ class ilRESTConfigGUI extends ilPluginConfigGUI
             </form>
          ';
         $configHTML .= "<hr />";
-        
 
         $tpl->setContent($configHTML);
-        //$tpl->setContent($form->getHTML());
 
     }
 

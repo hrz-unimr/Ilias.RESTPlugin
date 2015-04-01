@@ -133,7 +133,9 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
         $location.url("/clientlist");
     };
 
+    // TODO: Ebenfalls client übergeben und dann client.id nutzen!
     $scope.deleteClient = function(index) {
+        // Bootstrapdialog einbauen! (http://ethaizone.github.io/Bootstrap-Confirmation/#)
         if (!confirm('Confirm delete')) {
             return;
         }

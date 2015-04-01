@@ -245,7 +245,6 @@ $app->delete('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app)
 
     $result = array();
 
-    //$usr_model = new ilUsersModel();//ilRESTLib();
     $ilREST = new ilRESTLib();
     if (!$ilREST->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
 
@@ -280,9 +279,7 @@ $app->get('/routes', function () use ($app) {
     $routes = $app->router()->getNamedRoutes();
 
     foreach($routes as $route) {
-        //echo $route->getName();
-        //echo print_r($route->getHttpMethods(),true);
-        $multiVerbs = $route->getHttpMethods(); //the "head" verb occurs as second verb for the "get" verb, which we omit
+        $multiVerbs = $route->getHttpMethods();
         $verb = $multiVerbs[0];
         $result[] = array("pattern"=>$route->getPattern(), "verb"=>$verb);
     }
@@ -296,5 +293,8 @@ $app->get('/rest/config', function () use ($app) {
     global $ilPluginAdmin;
     $ilRESTPlugin = $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, "UIComponent", "uihk", "REST");
 
-    $app->redirect(dirname($_SERVER['SCRIPT_NAME']) . "/" . $ilRESTPlugin->getDirectory() . '/apps/admin/');
+    $inst_folder = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+    $inst_folder = ($inst_folder == '/' ? '' : $inst_folder);
+    
+    $app->redirect($inst_folder . "/" . $ilRESTPlugin->getDirectory() . '/apps/admin/');
 });

@@ -9,8 +9,10 @@ var directives = angular.module('myApp.directives', []);
 
 /*
  * Set version number on HTML-Element using data-<xxx>-version as tag.
- * Pay attention to use lower case, as '-' will convert the next letter
- * into uppercase (to conform to camelCase notation).
+ * When using eg <span data-app-version></span> make sure to use all 
+ * lower-case letters, as '-' will convert the following letter into 
+ * upper-case in order to conform to the camelCase notation (JS),
+ * while the DOM is case-less.
  */
 directives.directive('appVersion', [
     'version', 

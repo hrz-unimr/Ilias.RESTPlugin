@@ -18,9 +18,9 @@
                 <td>{{client.api_secret}}</td>
                 <td>
                     <div data-ng-show="{{client.oauth2_gt_authcode_active}}"><span class="label label-granttype">Authentification Code</span><br/></div> 
-                    <div data-ng-show="{{client.oauth2_gt_authcode_active}}"><span data-ng-show="{{client.oauth2_gt_implicit_active}}" class="label label-granttype">Implicit</span><br/></div>
-                    <div data-ng-show="{{client.oauth2_gt_authcode_active}}"><span data-ng-show="{{client.oauth2_gt_resourceowner_active}}" class="label label-granttype">Resource Owner</span><br/></div> 
-                    <div data-ng-show="{{client.oauth2_gt_authcode_active}}"><span data-ng-show="{{client.oauth2_gt_client_active}}" class="label label-granttype">Client Credentials</span><br/></div>
+                    <div data-ng-show="{{client.oauth2_gt_implicit_active}}"><span class="label label-granttype">Implicit</span><br/></div>
+                    <div data-ng-show="{{client.oauth2_gt_resourceowner_active}}"><span class="label label-granttype">Resource Owner</span><br/></div> 
+                    <div data-ng-show="{{client.oauth2_gt_client_active}}"><span class="label label-granttype">Client Credentials</span><br/></div>
                 </td>
                 <td data-ng-bind-html='client.permissions | format_permissions'></td>
                 <td style="vertical-align: middle;"><div class="text-center"><button class="btn btn-primary btn-xs" data-ng-click="editClient(client)">Modify</button></div></td>
