@@ -5,7 +5,7 @@
 var app = angular.module('myApp.controllers', []);
 
 
-app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, restClient, restClients, $location, authentication, restRoutes, breadcrumbs) {
+app.controller("defaultCtrl", function($scope, $window, $resource, restClient, restClients, $location, authentication, restRoutes, breadcrumbs) {
     $scope.breadcrumbs = breadcrumbs;
     
     $scope.logindata = postvars;
@@ -17,7 +17,7 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
     $scope.noAccessRights = false;
 
     $scope.loadClients = function() {
-        restClients.getResource().query({}, function(response) {
+        restClients.query({}, function(response) {
             if (response.status == "success") {
                 $scope.clients = response.clients;
             }
@@ -27,7 +27,7 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
         });
     };
 
-    restRoutes.getResource().get(function(response) {
+    restRoutes.get(function(response) {
         $scope.routes = response.routes;
     });
 
@@ -83,7 +83,7 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
 
     $scope.saveClient = function() {
         if ($scope.currentClient.id==-1) {
-            restClients.getResource().create(
+            restClients.create(
                 {
                     api_key: $scope.currentClient.api_key,
                     api_secret:$scope.currentClient.api_secret,
@@ -107,7 +107,9 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
                 }
             });
         } else {
-            restClient.getResource().update(
+            // Don't edit the admin api-key's value (warning)
+            
+            restClient.update(
                 {
                     id: $scope.currentClient.id,
                     data: {
@@ -142,7 +144,9 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
         var aDelItems = $scope.clients.splice(index, 1);
         var delItem = aDelItems[0];
         // Use array-notation + quotes to pamper the syntax-validator (delete is a keyword)
-        restClient.getResource()['delete']({id: delItem.id}, function (data) {});
+        restClient['delete']({id: delItem.id}, function (data) {});
+        
+        // Don't delete the admin api-key (warning)
     };
 
     $scope.isAuthenticated = function() {
@@ -168,12 +172,12 @@ app.controller("defaultCtrl", function($scope, $window, $resource, baseUrl, rest
 app.controller('AuthCtrl', function($scope, $filter, $http, restAuth) {
     $scope.data = {};
     restAuth.authorize(function(data) {
-        return restAuth.getResource().auth();
+        return restAuth.auth();
     });
 });
 
 
-app.controller('LoginCtrl', function($scope, authentication, $location, restAuth, restAuthTokenEndpoint) {
+app.controller('LoginCtrl', function($scope, authentication, $location, restAuth, restAuthToken) {
     $scope.logindata = postvars;
     $scope.manual_login = false;
 
@@ -187,7 +191,7 @@ app.controller('LoginCtrl', function($scope, authentication, $location, restAuth
         var v_session_id = $scope.logindata.session_id;
         var v_rtoken = $scope.logindata.rtoken;
         
-        restAuth.getResource().auth({api_key: v_api_key, user_id: v_user_id, session_id: v_session_id, rtoken: v_rtoken }, 
+        restAuth.auth({api_key: v_api_key, user_id: v_user_id, session_id: v_session_id, rtoken: v_rtoken }, 
             function (data) {
                 if (data.status == "success") {
                     postvars={};
@@ -219,7 +223,7 @@ app.controller('LoginCtrl', function($scope, authentication, $location, restAuth
         var v_password = $scope.logindata.password;
         var api_key = 'apollon'; // default api key for administration
 
-        restAuthTokenEndpoint.getResource().auth({grant_type: 'password', username: v_user_name, password: v_password, api_key: api_key },
+        restAuthToken.auth({grant_type: 'password', username: v_user_name, password: v_password, api_key: api_key },
             function (data) {
                 if (data.token_type == "bearer") {
                     $scope.token = data.access_token;

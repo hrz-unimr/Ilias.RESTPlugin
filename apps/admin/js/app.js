@@ -1,8 +1,10 @@
 // Use ECMAScript 5 restricted variant of Javascript
 'use strict';
 
-// Declare app level module which depends on filters, and services
-var app = angular.module('myApp', [ 
+/*
+ * Declare app level module which depends on filters, and services
+ */
+var app = angular.module('myApp', [
     'ngRoute', 
     'ngResource', 
     'xeditable',
@@ -18,77 +20,64 @@ var app = angular.module('myApp', [
 ]);
 
 
-app.config([ 'cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
-    cfpLoadingBarProvider.includeSpinner = false;
-} ]);
+/*
+ * Some (important) global constants, all in one place
+ */
+app.constant('version',             '0.6');                               // Application version
+app.constant('restIliasLoginURL',   '/v1/ilauth/rtoken2bearer');          // rToken to Bearer-Token Endpoint
+app.constant('restTokenURL',        '/v1/oauth2/token');                  // Bearer-Token from Username, Password, API-Key pair Endpoint
+app.constant('restClientsURL',      '/clients');                          // Client-list Endpoint
+app.constant('restClientURL',       '/clients/:id');                      // View / Edit client Endpoint
+app.constant('restRoutesURL',       '/routes');                           // Routes Endpoint
 
-
-app.constant("baseUrl", "http://localhost/restplugin.php");
-
-app.config([ '$routeProvider', function($routeProvider, $locationProvider) {
-    $routeProvider.when('/clientlist/clientedit', {
-        templateUrl: 'partials/clientedit.html',
-        label: 'Edit'
-    });
-    $routeProvider.when('/clientlist', {
-        templateUrl : 'partials/clientlist.html',
-        label: 'Clients'
-    });
+/*
+ * Different templates used to render certain UI's
+ */
+app.config(['$routeProvider', function($routeProvider, $locationProvider) {
+    // Login page
     $routeProvider.when('/login', {
         templateUrl : 'partials/login.html',
         label: 'Login'
     });
+    
+    // Client-list
+    $routeProvider.when('/clientlist', {
+        templateUrl : 'partials/clientlist.html',
+        label: 'Clients'
+    });
+    
+    // Edit client
+    $routeProvider.when('/clientlist/clientedit', {
+        templateUrl: 'partials/clientedit.html',
+        label: 'Edit'
+    });
+    
+    // Default URL
     $routeProvider.otherwise({
         redirectTo : '/clientlist'
     });
 } ]);
 
-app.config(function(restRoutesProvider) {
-    restRoutesProvider.setBaseUrl(getInstallationFolder());
-});
 
-app.config(function(restClientProvider) {
-    restClientProvider.setBaseUrl(getInstallationFolder());
-});
+// Disable Spinner-Icon for Angular (REST-) Loadingbar
+app.config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
+    cfpLoadingBarProvider.includeSpinner = false;
+}]);
 
-app.config(function(restClientsProvider) {
-    restClientsProvider.setBaseUrl(getInstallationFolder());
-});
 
-app.config(function(restAuthProvider) {
-    restAuthProvider.setBaseUrl(getInstallationFolder());
-});
-
-app.config(function(restAuthTokenEndpointProvider) {
-    restAuthTokenEndpointProvider.setBaseUrl(getInstallationFolder());
-});
-
-app.run(function(editableOptions) {
-    editableOptions.theme = 'bs3';
-});
-
+// Make sure authentification is cheched on each view (route)
 app.run(function(authentication, $rootScope, $location) {
     $rootScope.$on('$routeChangeStart', function(evt) {
         if (!authentication.isAuthenticated) {
             $location.url("/login");
         }
+        
         event.preventDefault();
     });
 });
 
-var getInstallationFolder = function() {
-    if (postvars.inst_folder != "") {
-        return postvars.inst_folder;
-    }
-    var pathArray = window.location.pathname.split('/');
-    var iliasSubFolder = '';
-    for (var i = 0; i < pathArray.length; i++) {
-        if (pathArray[i] == "Customizing") {
-            if (i > 1) {
-                iliasSubFolder = "/" + pathArray[i - 1];
-                break;
-            }
-        }
-    }
-    return iliasSubFolder;
-};
+
+// Set AngularJS-Editable theme to bootstrap3
+app.run(function(editableOptions) {
+    editableOptions.theme = 'bs3';
+});

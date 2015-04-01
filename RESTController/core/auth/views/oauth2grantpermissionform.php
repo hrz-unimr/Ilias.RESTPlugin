@@ -1,4 +1,9 @@
-<form id="consentform" accept-charset="UTF-8" action="<?php echo dirname($_SERVER['SCRIPT_NAME']); ?>/restplugin.php/v1/oauth2/auth" method="post">
+<?php
+$restAPI = dirname($_SERVER['SCRIPT_NAME']);
+$restAPI = str_replace('\\', '/', $restAPI);
+$restAPI = ($restAPI == '/' ? '' : $restAPI);
+?>
+<form id="consentform" accept-charset="UTF-8" action="<?php echo $restAPI; ?>/v1/oauth2/auth" method="post">
     <h3 class="permission-title">The current application requests access to ILIAS on your behalf.</h3>
     <h4>If you agree with this, you need to press the button "Authorize application" on the bottom of the page.</h4>
     

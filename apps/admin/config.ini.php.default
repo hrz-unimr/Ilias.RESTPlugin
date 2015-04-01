@@ -1,4 +1,0 @@
-<?php
-    // URL of ILIAS document-root 
-    // This will be used as fallback, if 'inst_folder' ist not found in POST
-    $inst_folder = "http://localhost/dev/ilias";

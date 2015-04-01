@@ -7,9 +7,9 @@
 <?php
 /**
  * "My ILIAS (via OAuth2 - Authorization Code)" (start.php) will use this as 
- * redirect after ...restplugin.php/v1/oauth2/auth has generated a (temporary).
+ * redirect after .../v1/oauth2/auth has generated a (temporary).
  * Authentification code, which can be used by the client (this file) to generate a
- * token via restplugin.php/v1/oauth2/token (see $postBody for POST body)
+ * token via /v1/oauth2/token (see $postBody for POST body)
  */
 
 // Include settings
@@ -25,9 +25,6 @@ if (isset($_GET['code'])){
             $protocol = 'https://';
         }
 
-        // Endpoint (url) used for curl call
-        $restUrl =  $protocol . 'localhost' .$subFolder. "/restplugin.php/v1/oauth2/token";
-
         // Redirection URL (but into body) 
         $redirect_uri = $protocol . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF'];
         if ($_SERVER["SERVER_PORT"] != "80") {
@@ -42,6 +39,9 @@ if (isset($_GET['code'])){
             'api_secret' => $api_secret,
             'redirect_uri' => $redirect_uri
         );
+        
+        // Endpoint (url) used for curl call
+        $restUrl =  $subFolder. "/v1/oauth2/token";
 
         // Construct and execute curl (REST) POST-request
         $ch = curl_init();

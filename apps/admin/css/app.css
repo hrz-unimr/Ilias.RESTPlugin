@@ -91,3 +91,9 @@
     width: 100%;
     text-align: center;
 }
+
+
+/* Make sure the bottom navbar is not hidding something */
+body {
+    padding-bottom: 50px;
+}

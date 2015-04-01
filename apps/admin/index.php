@@ -34,9 +34,8 @@
         $rtoken = isset($_POST['rtoken']) ? $_POST['rtoken'] : '';
         if (isset($_POST['inst_folder'])) {
             $inst_folder = $_POST['inst_folder'];
-        } elseif (file_exists('config.ini.php')) {
-            include_once ('config.ini.php');
-            echo $inst_folder;
+        } else {
+            $inst_folder = "";
         }
         
         // Make it save
@@ -87,7 +86,7 @@
         
         <nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
             <span class="navbar-text navbar-text-center">
-                Version:</strong> <span data-app-version></span> is powered by 
+                <strong>Version:</strong> <span data-app-version></span> is powered by 
                 <a href="https://angularjs.org/" data-tooltip="Version: Unknown" data-angularjs-version target="_blank">AngularJS</a>, 
                 <a href="https://jquery.com/" data-tooltip="Version: Unknown" data-jquery-version target="_blank">jQuery</a>, 
                 <a href="http://modernizr.com" data-tooltip="Version: Unknown" data-modernizr-version target="_blank">Modernizr</a>, 

@@ -1,16 +1,26 @@
 // Use ECMAScript 5 restricted variant of Javascript
 'use strict';
 
+
 /*
- * Services
- * 
- * http://draptik.github.io/blog/2013/07/28/restful-crud-with-angularjs/
- * 
+ *
  */
 var services = angular.module('myApp.services', ['ngResource']);
 
-services.value('version', '0.5');
 
+app.factory('authentication', function() {
+    return {
+        isAuthenticated: false,
+        user: null,
+        access_token: null,
+        manual_login: false
+    };
+});
+
+
+/*
+ *
+ */
 services.factory('TokenHandler', ['authentication', function(authentication) {
     var tokenHandler = {};
 
@@ -48,108 +58,87 @@ services.factory('TokenHandler', ['authentication', function(authentication) {
     return tokenHandler;
 }]);
 
+
+/*
+ *
+ */
+services.value('getRestURL', function() {
+    // Use value given by postvars
+    if (postvars.inst_folder != "") {
+        return postvars.inst_folder;
+    }
+    
+    // Explode path from window.location, searching for "Customizing" folder
+    var pathArray = window.location.pathname.split('/');
+    var iliasSubFolder = '';
+    for (var i = 0; i < pathArray.length; i++) {
+        if (pathArray[i] == "Customizing") {
+            if (i > 1) {
+                iliasSubFolder = "/" + pathArray[i - 1];
+                break;
+            }
+        }
+    }
+    return iliasSubFolder;
+});
+
+
+/*
+ *
+ */
 services.provider('restAuth', function() {
-    this.baseUrl = '';
-    this.$get = function($resource, TokenHandler) {
-        var baseUrl = this.baseUrl;
-        return {
-            getResource: function() {
-                return $resource(baseUrl + '/restplugin.php/v1/ilauth/rtoken2bearer', {}, {
-                    auth: { method: 'POST', params: {} }
-                });
-            }
-        };
-    };
-    this.setBaseUrl = function(baseUrl) {
-        this.baseUrl = baseUrl;
+    this.$get = function($resource, restIliasLoginURL, getRestURL) {
+        var restURL = getRestURL();
+        return $resource(restURL + restIliasLoginURL, {}, {
+            auth: { method: 'POST', params: {} }
+        });
     };
 });
 
-services.provider('restAuthTokenEndpoint', function() {
-    this.baseUrl = '';
-    this.$get = function($resource, TokenHandler) {
-        var baseUrl = this.baseUrl;
-        return {
-            getResource: function() {
-                return $resource(baseUrl + '/restplugin.php/v1/oauth2/token', {}, {
-                    auth: { method: 'POST', params: {}, ignoreLoadingBar: true }
-                });
-            }
-        };
-    };
-    this.setBaseUrl = function(baseUrl) {
-        this.baseUrl = baseUrl;
+services.provider('restAuthToken', function() {
+    this.$get = function($resource, restTokenURL, getRestURL) {
+        var restURL = getRestURL();
+        return $resource(restURL + restTokenURL, {}, {
+            auth: { method: 'POST', params: {}, ignoreLoadingBar: true }
+        });
     };
 });
 
 
-app.factory('authentication', function() {
-    return {
-        isAuthenticated: false,
-        user: null,
-        access_token: null,
-        manual_login: false
-    };
-});
+
 
 services.provider('restClients', function() {
-    this.baseUrl = '';
-    this.$get = function($resource, TokenHandler) {
-        var baseUrl = this.baseUrl;
-        return {
-            getResource: function() {
-                var resource = $resource(baseUrl + '/restplugin.php/clients', {}, {
-                    query: { method: 'GET', params: {}},
-                    create: { method: 'POST', params: {} }
-                });
-                resource = TokenHandler.wrapActions(resource, ['query','create']);
-                return resource;
-            }
-        };
-    };
-
-    this.setBaseUrl = function(baseUrl) {
-        this.baseUrl = baseUrl;
+    this.$get = function($resource, TokenHandler, restClientsURL, getRestURL) {
+        var restURL = getRestURL();
+      
+        var resource = $resource(restURL + restClientsURL, {}, {
+            query: { method: 'GET', params: {}},
+            create: { method: 'POST', params: {} }
+        });
+        resource = TokenHandler.wrapActions(resource, ['query','create']);
+        return resource;
     };
 });
 
 services.provider('restClient', function() {
-    this.baseUrl = '';
-    this.$get = function($resource, TokenHandler) {
-        var baseUrl = this.baseUrl;
-        return {
-            getResource: function() {
-                var resource =  $resource(baseUrl+'/restplugin.php/clients/:id', {}, {
-                    show: { method: 'GET' },
-                    update: { method: 'PUT', params: {id: '@id'}},
-                    // Use quotes to pamper the syntax-validator (delete is a keyword)
-                    'delete': { method: 'DELETE', params: {id: '@id'}},
-                });
-                resource = TokenHandler.wrapActions( resource, ['show', 'update', 'delete'] );
-                return resource;
-            }
-        };
-    };
-
-    this.setBaseUrl = function(baseUrl) {
-        this.baseUrl = baseUrl;
+    this.$get = function($resource, TokenHandler, restClientURL, getRestURL) {
+        var restURL = getRestURL();
+        
+        var resource =  $resource(restURL + restClientURL, {}, {
+            show: { method: 'GET' },
+            update: { method: 'PUT', params: {id: '@id'}},
+            'delete': { method: 'DELETE', params: {id: '@id'}},                         // Use quotes to pamper the syntax-validator (delete is a keyword)
+        });
+        resource = TokenHandler.wrapActions( resource, ['show', 'update', 'delete'] );
+        return resource;
     };
 });
 
 services.provider('restRoutes', function() {
-    this.baseUrl = '';
-    this.$get = function($resource) {
-        var baseUrl = this.baseUrl;
-        return {
-            getResource: function() {
-                return $resource(baseUrl+'/restplugin.php/routes', {}, {
-                    query: { method: 'GET', params: {} } 
-                });
-            }
-        };
-    };
-
-    this.setBaseUrl = function(baseUrl) {
-        this.baseUrl = baseUrl;
+    this.$get = function($resource, restRoutesURL, getRestURL) {
+        var restURL = getRestURL();
+        return $resource(restURL + restRoutesURL, {}, {
+            query: { method: 'GET', params: {} } 
+        });
     };
 });

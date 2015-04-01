@@ -727,7 +727,10 @@ class ilOAuth2Model
         // Build absolute-path (relative to document-root)
         $sub_dir = "core/auth/views";
         $rel_path = $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, "UIComponent", "uihk", "REST")->getDirectory();
-        $abs_path = dirname($_SERVER['SCRIPT_NAME'])."/".$rel_path."/RESTController/".$sub_dir;
+        $scriptName = dirname($_SERVER['SCRIPT_NAME']);
+        $scriptName = str_replace('\\', '/', $scriptName);
+        $scriptName = ($scriptName == '/' ? '' : $scriptName);
+        $abs_path = $scriptName."/".$rel_path."/RESTController/".$sub_dir;
         
         // Supply data to slim application
         $app->render($sub_dir.'/core.php', array(

@@ -1,3 +1,8 @@
+<?php
+$restAPI = dirname($_SERVER['SCRIPT_NAME']);
+$restAPI = str_replace('\\', '/', $restAPI);
+$restAPI = ($restAPI == '/' ? '' : $restAPI);
+?>
 <div id="ilAll">
     <div class="ilStartupFrame">
         <div id="ilStartupLogo">
@@ -13,7 +18,7 @@
                     ?>
                 </p>
             </div>
-            <form id="form_" id="formlogin" action="<?php echo dirname($_SERVER['SCRIPT_NAME']); ?>/restplugin.php/v1/oauth2/auth" method="post">
+            <form id="form_" id="formlogin" action="<?php echo $restAPI; ?>/v1/oauth2/auth" method="post">
                 <div class="ilForm">
                     <div class="ilFormRow">
                         <h3 class="ilFormHeader"><a id="il_form_top">Bei ILIAS anmelden</a></h3>

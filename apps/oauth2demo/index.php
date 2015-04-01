@@ -19,7 +19,7 @@
             if ($_SERVER["SERVER_PORT"] != "80") {
                 $base_url = $protocol . $_SERVER['SERVER_NAME'] . ":" . $_SERVER["SERVER_PORT"] . dirname($_SERVER['PHP_SELF']);
             }
-            $loginUrl = $subFolder. "/restplugin.php/v1/oauth2/auth?client_id=".urlencode($api_key);
+            $loginUrl = $subFolder. "/v1/oauth2/auth?client_id=".urlencode($api_key);
 
             // This will be the redirect targets for generating bearer tokens via GET (POST contains this info in the header)
             $authGrantUrl = $loginUrl."&redirect_uri=".urlencode($base_url."/endpoints/authcode_endpoint.php")."&response_type=code";
@@ -27,13 +27,13 @@
             ?>
             <h3>Initiating one of the following OAuth2 Grant Mechanism via a GET Request:</h3>
             <ul>
-                <li><a href = "<?php echo $authGrantUrl; ?>">My ILIAS (via OAuth2 - Authorization Code)</a></li>
-                <li><a href = "<?php echo $implicitGrantUrl; ?>"> My ILIAS (via OAuth2 - Implicit Grant) </a></li>
+                <li><a href="<?php echo $authGrantUrl; ?>">My ILIAS (via OAuth2 - Authorization Code)</a></li>
+                <li><a href="<?php echo $implicitGrantUrl; ?>"> My ILIAS (via OAuth2 - Implicit Grant) </a></li>
             </ul>
             <h3>Initiating one of the following OAuth2 Grant Mechanism via a POST Request:</h3>
             <ul>
                 <li>
-                    <form method="POST" action="<?php echo $subFolder;?>/restplugin.php/v1/oauth2/auth">
+                    <form method="POST" action="<?php echo $subFolder;?>/v1/oauth2/auth">
                         <input type="hidden" name="api_key" value="<?php echo $api_key; ?>" />
                         <input type="hidden" name="response_type" value="code" />
                         <input type="hidden" name="redirect_uri" value="<?php echo $base_url."/endpoints/authcode_endpoint.php";?>" />
@@ -42,7 +42,7 @@
 
                 </li>
                 <li>
-                    <form method="POST" action="<?php echo $subFolder;?>/restplugin.php/v1/oauth2/auth">
+                    <form method="POST" action="<?php echo $subFolder;?>/v1/oauth2/auth">
                         <input type="hidden" name="api_key" value="<?php echo $api_key; ?>" />
                         <input type="hidden" name="response_type" value="token" />
                         <input type="hidden" name="redirect_uri" value="<?php echo $base_url."/endpoints/implicitgrant_endpoint.php"; ?>" />
@@ -50,7 +50,7 @@
                     </form>
                 </li>
                 <li>
-                    <form method="POST" action="<?php echo $subFolder;?>/restplugin.php/v1/oauth2/token">
+                    <form method="POST" action="<?php echo $subFolder;?>/v1/oauth2/token">
 
                         <input type="hidden" name="grant_type" value="client_credentials" />
                         <input type="hidden" name="scope" value="" />
@@ -60,7 +60,7 @@
                     </form>
                 </li>
                 <li>
-                    <form method="POST" action="<?php echo $subFolder;?>/restplugin.php/v1/oauth2/token">
+                    <form method="POST" action="<?php echo $subFolder;?>/v1/oauth2/token">
                         <div>
                         <input type="hidden" name="grant_type" value="password" />
                         <input type="hidden" name="scope" value="" />
