@@ -190,6 +190,8 @@ app.controller('LoginCtrl', function($scope, authentication, $location, restAuth
         restAuth.getResource().auth({api_key: v_api_key, user_id: v_user_id, session_id: v_session_id, rtoken: v_rtoken }, 
             function (data) {
                 if (data.status == "success") {
+                    postvars={};
+                    
                     $scope.token = data.token;
                     $scope.access_token = $scope.token.access_token;
                     authentication.isAuthenticated = true;
