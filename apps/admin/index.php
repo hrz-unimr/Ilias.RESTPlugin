@@ -29,43 +29,39 @@
     <script>
         <?php
         // Fetch POST data
-        $user_id =  isset($_POST['user_id']) ? $_POST['user_id'] : '';
-        $session_id = isset($_POST['session_id']) ? $_POST['session_id'] : '';
+        $userId =  isset($_POST['userId']) ? $_POST['userId'] : '';
+        $sessionId = isset($_POST['sessionId']) ? $_POST['sessionId'] : '';
         $rtoken = isset($_POST['rtoken']) ? $_POST['rtoken'] : '';
-        if (isset($_POST['inst_folder'])) {
-            $inst_folder = $_POST['inst_folder'];
-        } else {
-            $inst_folder = "";
-        }
+        $restEndpoint = isset($_POST['restEndpoint']) ? $_POST['restEndpoint'] : '';
         
         // Make it save
-        $user_id = addslashes (htmlspecialchars($user_id, ENT_COMPAT | ENT_HTML5));
-        $session_id = addslashes (htmlspecialchars($session_id, ENT_COMPAT | ENT_HTML5)); 
+        $userId = addslashes (htmlspecialchars($userId, ENT_COMPAT | ENT_HTML5));
+        $sessionId = addslashes (htmlspecialchars($sessionId, ENT_COMPAT | ENT_HTML5)); 
         $rtoken = addslashes (htmlspecialchars($rtoken, ENT_COMPAT | ENT_HTML5));
-        $inst_folder = addslashes (htmlspecialchars($inst_folder, ENT_COMPAT | ENT_HTML5));
+        $restEndpoint = addslashes (htmlspecialchars($restEndpoint, ENT_COMPAT | ENT_HTML5));
         ?>
     
-        var postvars = {
-            user_id: "<?php echo $user_id; ?>",
-            session_id: "<?php echo $session_id; ?>",
+        var postVars = {
+            userId: "<?php echo $userId; ?>",
+            sessionId: "<?php echo $sessionId; ?>",
             rtoken: "<?php echo $rtoken;  ?>",
-            inst_folder: "<?php echo $inst_folder; ?>",
+            restEndpoint: "<?php echo $restEndpoint; ?>",
         };
     </script>
 </head>
-<body data-ng-controller="defaultCtrl">
-    <div class="main-div">
+<body>
+    <div class="main-div" data-ng-controller="MainCtrl">
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
-    
+        
         <nav class="navbar navbar-default" role="navigation">
             <div class="container-fluid">
                 <ul class="nav navbar-header">
                     <span class="navbar-brand"><img class="brand-img" alt="Logo" src="img/icon.png"> ILIAS REST</span>
                 </ul>
             
-                <ul class="nav navbar-nav navbar-left" data-ng-cloak>
+                <ul class="nav navbar-nav navbar-left" data-ng-show="breadcrumbs.breadcrumbs.length > 0" data-ng-cloak>
                     <ul class="breadcrumb breadcrumb-brand list-inline">
                         <li ng-repeat="breadcrumb in breadcrumbs.get() track by breadcrumb.path" ng-class="{ active: $last }">
                             <a ng-if="!$last" ng-href="#{{ breadcrumb.path }}" ng-bind="breadcrumb.label" class="margin-right-xs"></a>
@@ -74,15 +70,15 @@
                     </ul>
                 </ul>
                 
-                <ul class="nav navbar-nav navbar-right addRightPadding" data-ng-show="isAuthenticated()" data-ng-cloak >
-                    <li><span class="navbar-text">Logged in as {{getUsername()}}</span></li>
-                    <li><button class="btn btn-default navbar-btn" type="button" data-ng-click="logout()">Logout</button></li>
+                <ul class="nav navbar-nav navbar-right addRightPadding" data-ng-show="authentication.isAuthenticated()" data-ng-cloak>
+                    <li><span class="navbar-text">Logged in as {{authentication.getUserName()}}</span></li>
+                    <li><button class="btn btn-default navbar-btn" type="button" data-ng-click="authentication.logout()">Logout</button></li>
                 </ul>
             </div>
         </nav>
     
-        <div data-ng-cloak data-ng-show="noAccessRights" class="alert alert-danger" role="alert">You do not have the required permissions to continue...</div>
-        <div data-ng-hide="noAccessRights" class="{{ pageClass }}" data-ng-view></div>
+        <div data-ng-show="authentication.hasError()" class="alert alert-danger" role="alert" data-ng-cloak><div ng-bind-html-compile="authentication.getError()"></div></div>
+        <div data-ng-show="!authentication.hasError() || isLoginRoute()" class="page-main" data-ng-view></div>
         
         <nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
             <span class="navbar-text navbar-text-center">
@@ -100,6 +96,7 @@
     </div>
     
     <script src="libs/js/angular.js"></script>
+    <script src="libs/js/angular-sanitize.js"></script>
     <script src="libs/js/angular-route.js"></script>
     <script src="libs/js/angular-resource.js"></script>
     <script src="libs/js/angular-xeditable.js"></script>

@@ -1,4 +1,6 @@
 <div>
+    <div data-ng-show="warning" class="alert alert-warning" role="alert" data-ng-cloak><div ng-bind-html-compile="warning"></div></div>
+    
     <table class="table table-striped table-bordered">
         <thead>
             <tr >
@@ -22,7 +24,7 @@
                     <div data-ng-show="{{client.oauth2_gt_resourceowner_active}}"><span class="label label-granttype">Resource Owner</span><br/></div> 
                     <div data-ng-show="{{client.oauth2_gt_client_active}}"><span class="label label-granttype">Client Credentials</span><br/></div>
                 </td>
-                <td data-ng-bind-html='client.permissions | format_permissions'></td>
+                <td data-ng-bind-html='client.permissions | formatListPermissions'></td>
                 <td style="vertical-align: middle;"><div class="text-center"><button class="btn btn-primary btn-xs" data-ng-click="editClient(client)">Modify</button></div></td>
                 <td style="vertical-align: middle;"><div class="text-center"><button class="btn btn-danger btn-xs" data-ng-click="deleteClient($index)">Delete</button></div></td>
             </tr>

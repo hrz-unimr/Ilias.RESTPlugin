@@ -2,11 +2,13 @@
 'use strict';
 
 /*
- * Declare app level module which depends on filters, and services
+ * Declare main AngularJS application as well as 
+ * libraries that should get injected into the app.
  */
 var app = angular.module('myApp', [
     'ngRoute', 
     'ngResource', 
+    'ngSanitize',
     'xeditable',
     'myApp.filters', 
     'myApp.services', 
@@ -23,7 +25,8 @@ var app = angular.module('myApp', [
 /*
  * Some (important) global constants, all in one place
  */
-app.constant('version',             '0.6');                               // Application version
+app.constant('version',             '1.0');                               // Application version
+app.constant('apiKey',              'apollon');                           // API-Key used to log into admin-panel (via username/password)
 app.constant('restIliasLoginURL',   '/v1/ilauth/rtoken2bearer');          // rToken to Bearer-Token Endpoint
 app.constant('restTokenURL',        '/v1/oauth2/token');                  // Bearer-Token from Username, Password, API-Key pair Endpoint
 app.constant('restClientsURL',      '/clients');                          // Client-list Endpoint
@@ -37,19 +40,22 @@ app.config(['$routeProvider', function($routeProvider, $locationProvider) {
     // Login page
     $routeProvider.when('/login', {
         templateUrl : 'partials/login.html',
-        label: 'Login'
+        label: 'Login',
+        controller: 'LoginCtrl'
     });
     
     // Client-list
     $routeProvider.when('/clientlist', {
         templateUrl : 'partials/clientlist.html',
-        label: 'Clients'
+        label: 'Clients',
+        controller: 'ClientListCtrl'
     });
     
     // Edit client
     $routeProvider.when('/clientlist/clientedit', {
         templateUrl: 'partials/clientedit.html',
-        label: 'Edit'
+        label: 'Edit',
+        controller: 'ClientEditCtrl'
     });
     
     // Default URL
@@ -65,10 +71,10 @@ app.config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
 }]);
 
 
-// Make sure authentification is cheched on each view (route)
+// Make sure authentification is checked on each view (route)
 app.run(function(authentication, $rootScope, $location) {
     $rootScope.$on('$routeChangeStart', function(evt) {
-        if (!authentication.isAuthenticated) {
+        if (!authentication.isAuthenticated()) {
             $location.url("/login");
         }
         

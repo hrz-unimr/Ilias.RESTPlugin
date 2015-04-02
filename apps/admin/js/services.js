@@ -5,16 +5,62 @@
 /*
  *
  */
-var services = angular.module('myApp.services', ['ngResource']);
+var services = angular.module('myApp.services', []);
 
-
-app.factory('authentication', function() {
-    return {
+/*
+ * 
+ */
+app.factory('authentication', function($location) {    
+    var authHandler = {};
+    var data = {
         isAuthenticated: false,
-        user: null,
-        access_token: null,
-        manual_login: false
+        userName: null,
+        token: null,
+        autoLogin: (postVars.userId.length > 0),
+        error: null,
     };
+    
+    authHandler.getToken = function() {
+        return data.token;
+    };
+    authHandler.getUserName = function() {
+        return data.userName;
+    };
+    authHandler.isAuthenticated = function() {
+        return data.isAuthenticated;
+    };
+    
+    authHandler.login = function(userName, token) {
+        data.userName = userName;
+        data.token = token;
+        data.isAuthenticated = true;
+        
+        data.autoLogin = false;
+        authHandler.setError();
+    };
+    authHandler.logout = function() {
+        data.userName = null;
+        data.token = null;
+        data.isAuthenticated = false;
+        $location.url("/login");
+    };
+    
+    
+    authHandler.tryAutoLogin = function() {
+        return data.autoLogin;
+    };
+    
+    authHandler.hasError = function() {
+        return data.error != null;
+    };
+    authHandler.getError = function() {
+        return data.error;
+    };
+    authHandler.setError = function(error) {
+        data.error = error;
+    };
+    
+    return authHandler;
 });
 
 
@@ -25,7 +71,7 @@ services.factory('TokenHandler', ['authentication', function(authentication) {
     var tokenHandler = {};
 
     tokenHandler.get = function() {
-        var token = authentication.access_token;
+        var token = authentication.getToken();
         return token;
     };
 
@@ -62,10 +108,11 @@ services.factory('TokenHandler', ['authentication', function(authentication) {
 /*
  *
  */
+// ADD AJAX setup for / or restplugin.php/
 services.value('getRestURL', function() {
-    // Use value given by postvars
-    if (postvars.inst_folder != "") {
-        return postvars.inst_folder;
+    // Use value given by postVars
+    if (postVars.restEndpoint != "") {
+        return postVars.restEndpoint;
     }
     
     // Explode path from window.location, searching for "Customizing" folder
@@ -79,8 +126,68 @@ services.value('getRestURL', function() {
             }
         }
     }
-    return iliasSubFolder;
+    //console.log(iliasSubFolder);
+    
+    return iliasSubFolder+"/restplugin.php";
 });
+
+
+services.factory('clientService', function() {
+    var handler = {};
+    var data = {
+        clients: [],
+        current: null
+    };
+    
+    handler.getClients = function() {
+        return data.clients;
+    };
+    handler.setClients = function(clients) {
+        data.clients = clients;
+    };
+    
+    handler.hasClients = function() {
+        return data.clients.length > 0;
+    };
+    
+    handler.addClient = function(client) {
+        return data.clients.push(client);
+    };
+    
+    handler.getCurrent = function() {
+        return data.current;
+    };
+    handler.setCurrent = function(client) {
+        data.current = client;
+    };
+    
+    handler.getDefault = function() {
+        return {
+            id: "-1",
+            permissions: [],
+            oauth2_gt_client_active: "1",
+            oauth2_gt_client_user: "1",
+            oauth2_gt_resourceowner_active: "1"
+        };
+    };
+    
+    return handler;
+});
+
+
+
+// SERVICE!!! oder besser sogar filter
+function addslashes( str ) {
+    return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+}
+
+
+function randomize(c) {
+    var r = Math.random() * 16 | 0;
+    var v = ((c == 'x') ? r : (r & 0x3 | 0x8));
+    
+    return v.toString(16);
+}
 
 
 /*

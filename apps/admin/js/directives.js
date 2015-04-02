@@ -9,10 +9,6 @@ var directives = angular.module('myApp.directives', []);
 
 /*
  * Set version number on HTML-Element using data-<xxx>-version as tag.
- * When using eg <span data-app-version></span> make sure to use all 
- * lower-case letters, as '-' will convert the following letter into 
- * upper-case in order to conform to the camelCase notation (JS),
- * while the DOM is case-less.
  */
 directives.directive('appVersion', [
     'version', 
@@ -78,3 +74,22 @@ directives.directive('animatecssVersion', [
         }
     }
 ]);
+
+
+/*
+ * Alternative to ngBindHtml when the attribute-value (html-code)
+ * also contains AngularJS directives. (eg. data-tooltip)
+ * Those need to be compiled, since otherwise directives
+ * won't work.
+ */
+directives.directive('ngBindHtmlCompile', function($compile) {
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs) {
+            scope.$watch(attrs.ngBindHtmlCompile, function(newValue, oldValue) {
+                element.html(newValue);
+                $compile(element.contents())(scope);
+            });
+        }
+    }
+});

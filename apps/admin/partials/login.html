@@ -1,22 +1,17 @@
-<div data-ng-controller="LoginCtrl">
-    <div data-ng-hide="manual_login" class="alert alert-info" role="alert">You came from the ILIAS platform. Trying to login automatically ...</div>
+<div>
+    <div data-ng-show="authentication.tryAutoLogin()" class="alert alert-info" role="alert">You came from the ILIAS platform. Trying to login automatically ...</div>
     
-    <div data-ng-show="manual_login">
-        <div data-ng-cloak data-ng-show="loginHasFailed" class="alert alert-danger" role="alert">Login attempt has failed! 
-            <span data-ng-show="notCorrect">Wrong Username or Passwort. (<a href="#" data-tooltip="{{errorStatus}}">Status</a>)</span>
-            <span data-ng-show="noResponse">No response from the REST-Interface. It could be disabled or offline. (<a href="#" data-tooltip="{{errorStatus}}">Status</a>)</span>
-        </div>
-        
+    <div data-ng-hide="authentication.tryAutoLogin()">
         <img class="login-img" src="img/logo.png" alt="Logo">
         
-        <form class="form-signin" data-ng-submit="loginManually(logindata.user_name, logindata.password)">
+        <form class="form-signin" data-ng-submit="manualLogin()">
             <h2 class="form-signin-heading">REST Administration</h2>
             
             <label for="inputUser" class="sr-only">Username</label>
-            <input data-ng-model="logindata.user_name" type="text" id="inputUser" class="form-control" placeholder="Username" required autofocus>
+            <input data-ng-model="formData.userName" type="text" id="inputUser" class="form-control" placeholder="Username" required autofocus>
             
             <label for="inputPassword" class="sr-only">Password</label>
-            <input data-ng-model="logindata.password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+            <input data-ng-model="formData.password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
             
             <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
         </form>

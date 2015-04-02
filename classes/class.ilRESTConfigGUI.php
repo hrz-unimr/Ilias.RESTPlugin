@@ -74,10 +74,10 @@ class ilRESTConfigGUI extends ilPluginConfigGUI
 
         $configHTML .= '
             <form action="' . $pl->getDirectory() . '/apps/admin/index.php" method="post" target="_blank">
-                <input type="hidden" name="user_id" value="'.$ilUser->getId().'" />
-                <input type="hidden" name="session_id" value="'.session_id().'" />
+                <input type="hidden" name="userId" value="'.$ilUser->getId().'" />
+                <input type="hidden" name="sessionId" value="'.session_id().'" />
                 <input type="hidden" name="rtoken" value="'.$ilCtrl->rtoken.'" />
-                <input type="hidden" name="inst_folder" value="'.$inst_folder.'" />
+                <input type="hidden" name="restEndpoint" value="'.$inst_folder.'" />
                 <input type="submit" value="'.$pl->txt("admin_btn_config").'" />
             </form>
          ';
