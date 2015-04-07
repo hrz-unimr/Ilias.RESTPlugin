@@ -18,7 +18,10 @@ var app = angular.module('myApp', [
     'ui.utils', 
     'ngAnimate',
     'angular-loading-bar',
-    'ng-breadcrumbs'
+    'ng-breadcrumbs',
+    'pascalprecht.translate',
+    'dialogs.default-translations',
+    'dialogs.main'
 ]);
 
 
@@ -33,6 +36,7 @@ app.constant('restClientsURL',      '/clients');                          // Cli
 app.constant('restClientURL',       '/clients/:id');                      // View / Edit client Endpoint
 app.constant('restRoutesURL',       '/routes');                           // Routes Endpoint
 
+
 /*
  * Different templates used to render certain UI's
  */
@@ -41,21 +45,36 @@ app.config(['$routeProvider', function($routeProvider, $locationProvider) {
     $routeProvider.when('/login', {
         templateUrl : 'partials/login.html',
         label: 'Login',
-        controller: 'LoginCtrl'
+        controller: 'LoginCtrl',
+        resolve: {
+            'RestEndpointData': function(restEndpoint){
+                return restEndpoint.promise;
+            }
+        }
     });
     
     // Client-list
     $routeProvider.when('/clientlist', {
         templateUrl : 'partials/clientlist.html',
         label: 'Clients',
-        controller: 'ClientListCtrl'
+        controller: 'ClientListCtrl',
+        resolve: {
+            'RestEndpointData': function(restEndpoint){
+                return restEndpoint.promise;
+            }
+        }
     });
     
     // Edit client
     $routeProvider.when('/clientlist/clientedit', {
         templateUrl: 'partials/clientedit.html',
         label: 'Edit',
-        controller: 'ClientEditCtrl'
+        controller: 'ClientEditCtrl',
+        resolve: {
+            'RestEndpointData': function(restEndpoint){
+                return restEndpoint.promise;
+            }
+        }
     });
     
     // Default URL
@@ -74,9 +93,8 @@ app.config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
 // Make sure authentification is checked on each view (route)
 app.run(function(authentication, $rootScope, $location) {
     $rootScope.$on('$routeChangeStart', function(evt) {
-        if (!authentication.isAuthenticated()) {
+        if (!authentication.isAuthenticated()) 
             $location.url("/login");
-        }
         
         event.preventDefault();
     });

@@ -50,6 +50,7 @@
     </script>
 </head>
 <body>
+    
     <div class="main-div" data-ng-controller="MainCtrl">
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
@@ -77,7 +78,8 @@
             </div>
         </nav>
     
-        <div data-ng-show="authentication.hasError()" class="alert alert-danger" role="alert" data-ng-cloak><div ng-bind-html-compile="authentication.getError()"></div></div>
+        <div data-ng-show="!restEndpoint.hasEndpoint()" class="alert alert-danger" role="alert" data-ng-cloak><strong>Error:</strong> Could not locate the REST-API endpoint, unable to proceed!</div>
+        <div data-ng-show="authentication.hasError()" class="alert alert-warning" role="alert" data-ng-cloak><div ng-bind-html-compile="authentication.getError()"></div></div>
         <div data-ng-show="!authentication.hasError() || isLoginRoute()" class="page-main" data-ng-view></div>
         
         <nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
@@ -95,6 +97,9 @@
         </nav>
     </div>
     
+    <script src="libs/js/jquery.js"></script>
+    <script src="libs/js/less.js"></script>
+    <script src="libs/js/bootstrap.js"></script>
     <script src="libs/js/angular.js"></script>
     <script src="libs/js/angular-sanitize.js"></script>
     <script src="libs/js/angular-route.js"></script>
@@ -105,8 +110,9 @@
     <script src="libs/js/angular-animate.js"></script>
     <script src="libs/js/angular-loading-bar.js"></script>
     <script src="libs/js/angular-breadcrumbs.js"></script>
-    <script src="libs/js/jquery.js"></script>
-    <script src="libs/js/less.js"></script>
+    <script src="libs/js/angular-translate.js"></script>
+    <script src="libs/js/angular-dialogs-default-translations.js"></script>
+    <script src="libs/js/angular-dialogs.js"></script>
 
     <script src="js/app.js"></script>
     <script src="js/services.js"></script>

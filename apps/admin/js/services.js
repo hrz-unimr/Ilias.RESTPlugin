@@ -7,11 +7,97 @@
  */
 var services = angular.module('myApp.services', []);
 
+
+
+
+// SERVICE!!! oder besser sogar filter
+function addslashes( str ) {
+    return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+}
+
+
+function randomize(c) {
+    var r = Math.random() * 16 | 0;
+    var v = ((c == 'x') ? r : (r & 0x3 | 0x8));
+    
+    return v.toString(16);
+}
+
+
+app.service('restEndpoint', function($q, $http) {
+    var deferred = $q.defer();
+    var restEndpoint = ""
+    
+    if (postVars.restEndpoint != "") {
+        restEndpoint = postVars.restEndpoint;
+        deferred.resolve(restEndpoint);
+    }
+    else {
+        var pathArray = window.location.pathname.split('/');
+        var iliasSubFolder = '';
+        for (var i = 0; i < pathArray.length; i++) 
+            if (pathArray[i] == "Customizing") 
+                if (i > 1) {
+                    iliasSubFolder = "/" + pathArray[i - 1];
+                    break;
+                }
+        
+        var apiPath = null;
+        var phpPath = null;
+        
+        var apiQuery = $http.get(iliasSubFolder+'/routes');
+        var phpQuery = $http.get(iliasSubFolder+'/restplugin.php/routes');
+        
+        apiQuery.success(function(data, status, headers, config) {
+            apiPath = true;
+            if (phpPath != true) {
+                restEndpoint = iliasSubFolder;
+                deferred.resolve(restEndpoint);               
+            }
+        });
+        phpQuery.success(function(data, status, headers, config) {
+            phpPath = true;
+            if (apiPath != true) {
+                restEndpoint = iliasSubFolder+"/restplugin.php";
+                deferred.resolve(restEndpoint); 
+            }                
+        });
+        
+        apiQuery.error(function(data, status, headers, config) {
+            apiPath = false;
+            if (phpPath == false) {
+                restEndpoint = null;
+                deferred.resolve(null);
+            }
+        });
+        phpQuery.error(function(data, status, headers, config) {
+            phpPath = false;
+            if (apiPath == false) {
+                restEndpoint = null;
+                deferred.resolve(null);
+            }
+        });
+    }
+
+    return {
+        promise: deferred.promise,
+        getEndpoint: function () {
+            return restEndpoint;
+        },
+        hasEndpoint: function() {
+            return restEndpoint != null;
+        }
+    };
+});
+
+
+
+
 /*
  * 
  */
 app.factory('authentication', function($location) {    
-    var authHandler = {};
+    var handler = {};
     var data = {
         isAuthenticated: false,
         userName: null,
@@ -20,25 +106,25 @@ app.factory('authentication', function($location) {
         error: null,
     };
     
-    authHandler.getToken = function() {
+    handler.getToken = function() {
         return data.token;
     };
-    authHandler.getUserName = function() {
+    handler.getUserName = function() {
         return data.userName;
     };
-    authHandler.isAuthenticated = function() {
+    handler.isAuthenticated = function() {
         return data.isAuthenticated;
     };
     
-    authHandler.login = function(userName, token) {
+    handler.login = function(userName, token) {
         data.userName = userName;
         data.token = token;
         data.isAuthenticated = true;
         
         data.autoLogin = false;
-        authHandler.setError();
+        handler.setError();
     };
-    authHandler.logout = function() {
+    handler.logout = function() {
         data.userName = null;
         data.token = null;
         data.isAuthenticated = false;
@@ -46,21 +132,21 @@ app.factory('authentication', function($location) {
     };
     
     
-    authHandler.tryAutoLogin = function() {
+    handler.tryAutoLogin = function() {
         return data.autoLogin;
     };
     
-    authHandler.hasError = function() {
+    handler.hasError = function() {
         return data.error != null;
     };
-    authHandler.getError = function() {
+    handler.getError = function() {
         return data.error;
     };
-    authHandler.setError = function(error) {
+    handler.setError = function(error) {
         data.error = error;
     };
     
-    return authHandler;
+    return handler;
 });
 
 
@@ -68,21 +154,21 @@ app.factory('authentication', function($location) {
  *
  */
 services.factory('TokenHandler', ['authentication', function(authentication) {
-    var tokenHandler = {};
+    var handler = {};
 
-    tokenHandler.get = function() {
+    handler.get = function() {
         var token = authentication.getToken();
         return token;
     };
 
     // wrap given actions of a resource to send auth token with every
     // request
-    tokenHandler.wrapActions = function( resource, actions ) {
+    handler.wrapActions = function( resource, actions ) {
         // copy original resource
         var wrappedResource = resource;
-        for (var i=0; i < actions.length; i++) {
+        for (var i=0; i < actions.length; i++) 
             tokenWrapper( wrappedResource, actions[i] );
-        };
+        
         // return modified copy of resource
         return wrappedResource;
     };
@@ -94,45 +180,21 @@ services.factory('TokenHandler', ['authentication', function(authentication) {
         // create new action wrapping the original and sending token
         resource[action] = function( data, success, error){
             return resource['_' + action](
-                angular.extend({}, data || {}, {token: tokenHandler.get()}, {Authorization:tokenHandler.get()}),
+                angular.extend({}, data || {}, {token: handler.get()}, {Authorization:handler.get()}),
                 success,
                 error
             );
         };
 
     };
-    return tokenHandler;
+    return handler;
 }]);
 
 
 /*
  *
  */
-// ADD AJAX setup for / or restplugin.php/
-services.value('getRestURL', function() {
-    // Use value given by postVars
-    if (postVars.restEndpoint != "") {
-        return postVars.restEndpoint;
-    }
-    
-    // Explode path from window.location, searching for "Customizing" folder
-    var pathArray = window.location.pathname.split('/');
-    var iliasSubFolder = '';
-    for (var i = 0; i < pathArray.length; i++) {
-        if (pathArray[i] == "Customizing") {
-            if (i > 1) {
-                iliasSubFolder = "/" + pathArray[i - 1];
-                break;
-            }
-        }
-    }
-    //console.log(iliasSubFolder);
-    
-    return iliasSubFolder+"/restplugin.php";
-});
-
-
-services.factory('clientService', function() {
+services.factory('clientStorage', function() {
     var handler = {};
     var data = {
         clients: [],
@@ -175,48 +237,35 @@ services.factory('clientService', function() {
 });
 
 
-
-// SERVICE!!! oder besser sogar filter
-function addslashes( str ) {
-    return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
-}
-
-
-function randomize(c) {
-    var r = Math.random() * 16 | 0;
-    var v = ((c == 'x') ? r : (r & 0x3 | 0x8));
-    
-    return v.toString(16);
-}
+/*
+ *
+ */
+services.factory('restAuth', function($resource, restIliasLoginURL, restEndpoint) {
+        var restURL = restEndpoint.getEndpoint();
+        
+        return $resource(restURL + restIliasLoginURL, {}, {
+            auth: { method: 'POST', params: {} }
+        });
+});
 
 
 /*
  *
  */
-services.provider('restAuth', function() {
-    this.$get = function($resource, restIliasLoginURL, getRestURL) {
-        var restURL = getRestURL();
-        return $resource(restURL + restIliasLoginURL, {}, {
-            auth: { method: 'POST', params: {} }
-        });
-    };
-});
-
-services.provider('restAuthToken', function() {
-    this.$get = function($resource, restTokenURL, getRestURL) {
-        var restURL = getRestURL();
+services.factory('restAuthToken', function($resource, restTokenURL, restEndpoint) {
+        var restURL = restEndpoint.getEndpoint();
+        
         return $resource(restURL + restTokenURL, {}, {
             auth: { method: 'POST', params: {}, ignoreLoadingBar: true }
         });
-    };
 });
 
 
-
-
-services.provider('restClients', function() {
-    this.$get = function($resource, TokenHandler, restClientsURL, getRestURL) {
-        var restURL = getRestURL();
+/*
+ *
+ */
+services.factory('restClients', function($resource, TokenHandler, restClientsURL, restEndpoint) {
+        var restURL = restEndpoint.getEndpoint();
       
         var resource = $resource(restURL + restClientsURL, {}, {
             query: { method: 'GET', params: {}},
@@ -224,12 +273,14 @@ services.provider('restClients', function() {
         });
         resource = TokenHandler.wrapActions(resource, ['query','create']);
         return resource;
-    };
 });
 
-services.provider('restClient', function() {
-    this.$get = function($resource, TokenHandler, restClientURL, getRestURL) {
-        var restURL = getRestURL();
+
+/*
+ *
+ */
+services.factory('restClient', function($resource, TokenHandler, restClientURL, restEndpoint) {
+        var restURL = restEndpoint.getEndpoint();
         
         var resource =  $resource(restURL + restClientURL, {}, {
             show: { method: 'GET' },
@@ -238,14 +289,16 @@ services.provider('restClient', function() {
         });
         resource = TokenHandler.wrapActions( resource, ['show', 'update', 'delete'] );
         return resource;
-    };
 });
 
-services.provider('restRoutes', function() {
-    this.$get = function($resource, restRoutesURL, getRestURL) {
-        var restURL = getRestURL();
+
+/*
+ *
+ */
+services.factory('restRoutes', function($resource, restRoutesURL, restEndpoint) {
+        var restURL = restEndpoint.getEndpoint();
+        
         return $resource(restURL + restRoutesURL, {}, {
             query: { method: 'GET', params: {} } 
         });
-    };
 });
