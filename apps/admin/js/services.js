@@ -8,31 +8,11 @@
 var services = angular.module('myApp.services', []);
 
 
-
-
-// SERVICE!!! oder besser sogar filter
-function addslashes( str ) {
-    return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
-}
-
-
-function randomize(c) {
-    var r = Math.random() * 16 | 0;
-    var v = ((c == 'x') ? r : (r & 0x3 | 0x8));
-    
-    return v.toString(16);
-}
-
-
-app.service('restEndpoint', function($q, $http) {
+app.service('restEndpoint', function($q, $http, $location, restRoutesURL) {
     var deferred = $q.defer();
     var restEndpoint = ""
     
-    if (postVars.restEndpoint != "") {
-        restEndpoint = postVars.restEndpoint;
-        deferred.resolve(restEndpoint);
-    }
-    else {
+    var getInstallDir = function() {
         var pathArray = window.location.pathname.split('/');
         var iliasSubFolder = '';
         for (var i = 0; i < pathArray.length; i++) 
@@ -42,24 +22,33 @@ app.service('restEndpoint', function($q, $http) {
                     break;
                 }
         
+        return iliasSubFolder;
+    }
+    
+    if (postVars.restEndpoint != "") {
+        restEndpoint = postVars.restEndpoint;
+        deferred.resolve(restEndpoint);
+    }
+    else {
+        var dir = getInstallDir();
         var apiPath = null;
         var phpPath = null;
         
-        var apiQuery = $http.get(iliasSubFolder+'/routes');
-        var phpQuery = $http.get(iliasSubFolder+'/restplugin.php/routes');
+        var apiQuery = $http.get(dir+restRoutesURL);
+        var phpQuery = $http.get(dir+'/restplugin.php'+restRoutesURL);
         
         apiQuery.success(function(data, status, headers, config) {
             apiPath = true;
             if (phpPath != true) {
-                restEndpoint = iliasSubFolder;
+                restEndpoint = dir;
                 deferred.resolve(restEndpoint);               
             }
         });
         phpQuery.success(function(data, status, headers, config) {
             phpPath = true;
             if (apiPath != true) {
-                restEndpoint = iliasSubFolder+"/restplugin.php";
-                deferred.resolve(restEndpoint); 
+                restEndpoint = dir+"/restplugin.php";
+                deferred.resolve(restEndpoint);
             }                
         });
         
@@ -67,14 +56,14 @@ app.service('restEndpoint', function($q, $http) {
             apiPath = false;
             if (phpPath == false) {
                 restEndpoint = null;
-                deferred.resolve(null);
+                deferred.reject("NoEndpoint");
             }
         });
         phpQuery.error(function(data, status, headers, config) {
             phpPath = false;
             if (apiPath == false) {
                 restEndpoint = null;
-                deferred.resolve(null);
+                deferred.reject("NoEndpoint");
             }
         });
     }
@@ -85,12 +74,11 @@ app.service('restEndpoint', function($q, $http) {
             return restEndpoint;
         },
         hasEndpoint: function() {
-            return restEndpoint != null;
-        }
+            return restEndpoint != null && restEndpoint != "";
+        },
+        getInstallDir: getInstallDir
     };
 });
-
-
 
 
 /*
@@ -241,11 +229,11 @@ services.factory('clientStorage', function() {
  *
  */
 services.factory('restAuth', function($resource, restIliasLoginURL, restEndpoint) {
-        var restURL = restEndpoint.getEndpoint();
-        
-        return $resource(restURL + restIliasLoginURL, {}, {
-            auth: { method: 'POST', params: {} }
-        });
+    var restURL = restEndpoint.getEndpoint();
+    
+    return $resource(restURL + restIliasLoginURL, {}, {
+        auth: { method: 'POST', params: {} }
+    });
 });
 
 
@@ -253,26 +241,26 @@ services.factory('restAuth', function($resource, restIliasLoginURL, restEndpoint
  *
  */
 services.factory('restAuthToken', function($resource, restTokenURL, restEndpoint) {
-        var restURL = restEndpoint.getEndpoint();
-        
-        return $resource(restURL + restTokenURL, {}, {
-            auth: { method: 'POST', params: {}, ignoreLoadingBar: true }
-        });
+    var restURL = restEndpoint.getEndpoint();
+    
+    return $resource(restURL + restTokenURL, {}, {
+        auth: { method: 'POST', params: {}, ignoreLoadingBar: true }
+    });
 });
 
 
 /*
  *
  */
-services.factory('restClients', function($resource, TokenHandler, restClientsURL, restEndpoint) {
-        var restURL = restEndpoint.getEndpoint();
-      
-        var resource = $resource(restURL + restClientsURL, {}, {
-            query: { method: 'GET', params: {}},
-            create: { method: 'POST', params: {} }
-        });
-        resource = TokenHandler.wrapActions(resource, ['query','create']);
-        return resource;
+services.factory('restClients', function($resource, TokenHandler, restClientsURL, restEndpoint) {    
+    var restURL = restEndpoint.getEndpoint();
+  
+    var resource = $resource(restURL + restClientsURL, {}, {
+        query: { method: 'GET', params: {}},
+        create: { method: 'POST', params: {} }
+    });
+    resource = TokenHandler.wrapActions(resource, ['query','create']);
+    return resource;
 });
 
 
@@ -280,15 +268,16 @@ services.factory('restClients', function($resource, TokenHandler, restClientsURL
  *
  */
 services.factory('restClient', function($resource, TokenHandler, restClientURL, restEndpoint) {
-        var restURL = restEndpoint.getEndpoint();
-        
-        var resource =  $resource(restURL + restClientURL, {}, {
-            show: { method: 'GET' },
-            update: { method: 'PUT', params: {id: '@id'}},
-            'delete': { method: 'DELETE', params: {id: '@id'}},                         // Use quotes to pamper the syntax-validator (delete is a keyword)
-        });
-        resource = TokenHandler.wrapActions( resource, ['show', 'update', 'delete'] );
-        return resource;
+    var restURL = restEndpoint.getEndpoint();
+    
+    var resource =  $resource(restURL + restClientURL, {}, {
+        show: { method: 'GET' },
+        update: { method: 'PUT', params: {id: '@id'}},
+        // Note: Use array-notation to pamper the syntax-validator (delete is a keyword)
+        'delete': { method: 'DELETE', params: {id: '@id'}},
+    });
+    resource = TokenHandler.wrapActions( resource, ['show', 'update', 'delete'] );
+    return resource;
 });
 
 
@@ -296,9 +285,9 @@ services.factory('restClient', function($resource, TokenHandler, restClientURL, 
  *
  */
 services.factory('restRoutes', function($resource, restRoutesURL, restEndpoint) {
-        var restURL = restEndpoint.getEndpoint();
-        
-        return $resource(restURL + restRoutesURL, {}, {
-            query: { method: 'GET', params: {} } 
-        });
+    var restURL = restEndpoint.getEndpoint();
+    
+    return $resource(restURL + restRoutesURL, {}, {
+        query: { method: 'GET', params: {} } 
+    });
 });

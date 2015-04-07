@@ -44,12 +44,12 @@
             </thead>
             <tbody>
                 <tr data-ng-repeat="permission in current.permissions track by $index">
-                    <td data-ng-bind-html="permission | formatEditPermissions"></td>
+                    <td data-ng-bind-html="permission | formatEditPermission"></td>
                     <td><button class="btn btn-danger btn-sm" data-ng-click="deletePermission($index)">Delete</button></td>
                 </tr>
                 <tr>
                     <td><select class="form-control" data-ng-model="newPermission"
-                        data-ng-options="label(route.pattern, route.verb) group by route.pattern for route in routes">
+                        data-ng-options="formatPermissionOption(route.pattern, route.verb) group by route.pattern for route in routes">
                             <option value="">(Bitte ausw&auml;hlen)</option>
                     </select></td>
                     <td><button class="btn btn-primary btn-sm" data-ng-click="addPermission(newPermission)">Add route</button></td>

@@ -1,0 +1,12 @@
+<div class="alert alert-danger center-block" role="alert" data-ng-cloak>
+    <h4 class="alert-heading">Warning!</h4>
+    Could not locate/contact the REST-API endpoint(s) at:
+    <ul>
+        <li><strong><a href="{{postEndPoint}}routes">{{postEndPoint}}</a></strong> [POST information]</li>
+        <li><strong><a href="{{installDir}}restplugin.php/routes">{{installDir}}restplugin.php</a></strong> [File URL]</li>
+        <li><strong><a href="{{installDir}}routes">{{installDir}}</a></strong> [Subdomain URL]</li>
+    </ul><br/>
+    The Admin-Panel requires an active REST-Endpoint to work.
+</div>
+
+<button class="btn btn-primary btn-sm center-block" data-ng-click="retry()">Retry</button>

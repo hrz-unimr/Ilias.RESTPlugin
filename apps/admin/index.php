@@ -78,7 +78,6 @@
             </div>
         </nav>
     
-        <div data-ng-show="!restEndpoint.hasEndpoint()" class="alert alert-danger" role="alert" data-ng-cloak><strong>Error:</strong> Could not locate the REST-API endpoint, unable to proceed!</div>
         <div data-ng-show="authentication.hasError()" class="alert alert-warning" role="alert" data-ng-cloak><div ng-bind-html-compile="authentication.getError()"></div></div>
         <div data-ng-show="!authentication.hasError() || isLoginRoute()" class="page-main" data-ng-view></div>
         

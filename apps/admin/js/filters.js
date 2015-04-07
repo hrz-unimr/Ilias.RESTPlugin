@@ -23,12 +23,12 @@ filters.filter('interpolate', [
 /*
  * Replace INFO variable with additional formated warning information.
  */
-filters.filter('restInfo',function() {
+filters.filter('restInfo',function($sce, $sanitize) {
     return function(text, status, data) {
-        var statusClean = addslashes(status);
-        var dataClean = addslashes(data);
+        var statusClean = status;
+        var dataClean = $sce.trustAsHtml(data.replace(/"/g, '\\&quot;'));
                 
-        return String(text).replace(/\%INFO\%/mg, '(Status: <u><span href="#" tooltip="'+dataClean+'">'+statusClean+'</span></u>)');
+        return String(text).replace(/\%INFO\%/mg, '<span class="restInfo">(Status: <u><span href="#" tooltip-html-unsafe="'+dataClean+'" tooltip-placement="left">'+statusClean+'</span></u>)</span>');
     };
 });
 
@@ -71,7 +71,7 @@ filters.filter('formatListPermissions', function($sce) {
         return "";
     };
 });
-filters.filter('formatEditPermissions', function($sce) {
+filters.filter('formatEditPermission', function($sce) {
     return function(value) {
         if (typeof value != 'undefined') {
             var jsonValue = angular.fromJson(value);
