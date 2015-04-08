@@ -5,7 +5,7 @@
 /*
  * This variable stores all AngularJS controllers
  */
-var app = angular.module('myApp.controllers', []);
+var ctrl = angular.module('myApp.controllers', []);
 
 
 /*
@@ -13,7 +13,7 @@ var app = angular.module('myApp.controllers', []);
  * navigation (breadcrumbs) and login-information.
  * In addition, all other controllers inherit from this one.
  */
-app.controller("MainCtrl", function($scope, $location, breadcrumbs, authentication, restEndpoint) {
+ctrl.controller("MainCtrl", function($scope, $location, breadcrumbs, authentication, restEndpoint) {
     /*
      * Called during (every) instantiation of this controller.
      *
@@ -46,7 +46,7 @@ app.controller("MainCtrl", function($scope, $location, breadcrumbs, authenticati
  * such as displaying, adding and removing clients as well as
  * redirecting to client-edit route.
  */
-app.controller("ClientListCtrl", function($scope, $location, dialogs, clientStorage, restClient, restClients, restInfoFilter, apiKey) {
+ctrl.controller("ClientListCtrl", function($scope, $location, dialogs, clientStorage, restClient, restClients, restInfoFilter, apiKey) {
     /*
      * Called during (every) instantiation of this controller.
      *
@@ -165,7 +165,7 @@ app.controller("ClientListCtrl", function($scope, $location, dialogs, clientStor
  * as loading and formating routes, permissions, remotely applying changes and
  * generating random keys and secrets.
  */
-app.controller("ClientEditCtrl", function($scope, dialogs, clientStorage, restClient, restClients, $location, restRoutes, restInfoFilter, apiKey) {
+ctrl.controller("ClientEditCtrl", function($scope, dialogs, clientStorage, restClient, restClients, $location, restRoutes, restInfoFilter, apiKey) {
     /*
      * Replaces an 'x' with another randomly permuated character.
      * Used to generate random keys and secrets.
@@ -360,7 +360,7 @@ app.controller("ClientEditCtrl", function($scope, dialogs, clientStorage, restCl
 /*
  * This controller handles the login-page as well as all/most login related messages.
  */
-app.controller('LoginCtrl', function($scope, $location, apiKey, restAuth, restAuthToken, restInfoFilter) {
+ctrl.controller('LoginCtrl', function($scope, $location, apiKey, restAuth, restAuthToken, restInfoFilter) {
     /*
      * Called during (every) instantiation of this controller.
      *
@@ -473,7 +473,7 @@ app.controller('LoginCtrl', function($scope, $location, apiKey, restAuth, restAu
  * unavailable during page-load. (Nothing happens when the "connection"
  * is lost after AngularJS was loaded and initialized)
  */
-app.controller('OfflineCtrl', function($scope, $location, restEndpoint) {
+ctrl.controller('OfflineCtrl', function($scope, $location, restEndpoint) {
     /*
      * Called during (every) instantiation of this controller.
      *

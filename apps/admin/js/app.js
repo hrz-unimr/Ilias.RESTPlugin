@@ -38,9 +38,9 @@ app.constant('restRoutesURL',       '/routes');                           // Rou
 
 
 /*
- * Different templates used to render certain UI's
+ * Setup all routes (used to display different functionality)
  */
-app.config(['$routeProvider', function($routeProvider, $locationProvider) {
+app.config(function($routeProvider, $locationProvider) {
     // Login page
     $routeProvider.when('/offline', {
         templateUrl : 'partials/offline.html',
@@ -88,16 +88,69 @@ app.config(['$routeProvider', function($routeProvider, $locationProvider) {
     $routeProvider.otherwise({
         redirectTo : '/clientlist'
     });
-} ]);
+});
 
 
-// Disable Spinner-Icon for Angular (REST-) Loadingbar
-app.config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
+/*
+ * Disable Spinner-Icon for Angular (REST-) Loadingbar
+ */
+app.config(function(cfpLoadingBarProvider) {
     cfpLoadingBarProvider.includeSpinner = false;
-}]);
+});
 
 
-// Make sure authentification is checked on each view (route)
+/*
+ * Add bearer-token to restClients & restClient resources
+ * since we need to be authenticated to use those endpoints.
+ */
+app.config(function($provide, authenticationProvider) {
+    // Wraps the given action on resource by prefixing the
+    // old action with '_' and replacing it with a modified
+    // one that has token information added.
+    var addToken = function(resource, action) {
+        // Move old action
+        resource['_' + action]  = resource[action];
+        
+        // Create new action
+        resource[action] = function(data, success, error) {
+            // Call old action with extra data
+            return resource['_' + action](
+                angular.extend(
+                    {}, 
+                    data || {}, 
+                    { token: authenticationProvider.getToken() }, 
+                    { Authorization: authenticationProvider.getToken() }
+                ),
+                success,
+                error
+            );
+        };
+
+    };
+    
+    // Wraps all actions (array) on given resource
+    var wrapActions = function(resource, actions) {
+        // Wrap all actions
+        for (var i = 0; i < actions.length; i++) 
+            addToken(resource, actions[i]);
+
+        // return modified resource
+        return resource;
+    };
+
+    // Both /clients & /client/:id require a bearer-token to work
+    $provide.decorator('restClients', function($delegate) {
+        return wrapActions($delegate, ['query', 'create']);
+    });
+    $provide.decorator('restClient', function($delegate) {
+        return wrapActions($delegate, ['show', 'update', 'delete']);
+    });
+});
+
+
+/*
+ * Make sure authentification is checked on each view (route)
+ */
 app.run(function($rootScope, $location, authentication, restEndpoint, $templateCache) {
     // Go to login page if not logged in (and we should not display the offline notification)
     $rootScope.$on('$routeChangeStart', function(evt) {
@@ -117,7 +170,9 @@ app.run(function($rootScope, $location, authentication, restEndpoint, $templateC
 });
 
 
-// Set AngularJS-Editable theme to bootstrap3
+/*
+ * Set AngularJS-Editable theme to bootstrap3
+ */
 app.run(function(editableOptions) {
     editableOptions.theme = 'bs3';
 });

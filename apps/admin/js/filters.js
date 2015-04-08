@@ -10,20 +10,17 @@ var filters = angular.module('myApp.filters', []);
 /*
  * Replace VERSION string with given version number.
  */
-filters.filter('interpolate', [ 
-    'version', 
-    function(version) {
-        return function(text) {
-            return String(text).replace(/\%VERSION\%/mg, version);
-        };
-    } 
-]);
+filters.filter('interpolate', function(version) {
+    return function(text) {
+        return String(text).replace(/\%VERSION\%/mg, version);
+    };
+});
 
 
 /*
  * Replace INFO variable with additional formated warning information.
  */
-filters.filter('restInfo',function($sce, $sanitize) {
+filters.filter('restInfo',function($sce) {
     return function(text, status, data) {
         var statusClean = status;
         var dataClean = $sce.trustAsHtml(data.replace(/"/g, '\\&quot;'));
@@ -105,8 +102,8 @@ filters.filter('formatEditPermission', function($sce) {
  * Convert a (html) string to a (possibly) unsafe but trusted string
  * such that it can be used in ng-bind-html (or else).
  */
-filters.filter('toTrusted', ['$sce', function($sce){
+filters.filter('toTrusted', function($sce) {
     return function(text) {
         return $sce.trustAsHtml(text);
     };
-}]);
+});
