@@ -4,13 +4,13 @@
     <table class="table table-striped table-bordered">
         <thead>
             <tr >
-                <th style="vertical-align: middle; width:1px;"><div class="text-center">ID</div></th>
-                <th style="vertical-align: middle;"><div class="text-center">API-Key</div></th>
-                <th style="vertical-align: middle;"><div class="text-center">API-Secret</div></th>
-                <th style="vertical-align: middle; width:1px;"><div class="text-center">Grant-Types</div></th>
-                <th style="vertical-align: middle;"><div class="text-center">Route-Permissions</div></th>
-                <th style="vertical-align: middle; width:1px;"><div class="text-center">Modify</div></th>
-                <th style="vertical-align: middle; width:1px;"><div class="text-center">Delete</div></th>
+                <th style="vertical-align: middle; width:1px;"><div class="text-center">{{'LIST_ID' | translate}}</div></th>
+                <th style="vertical-align: middle;"><div class="text-center">{{'LIST_API_KEY' | translate}}</div></th>
+                <th style="vertical-align: middle;"><div class="text-center">{{'LIST_API_SECRET' | translate}}</div></th>
+                <th style="vertical-align: middle; width:1px;"><div class="text-center">{{'LIST_GRANT_TYPES' | translate}}</div></th>
+                <th style="vertical-align: middle;"><div class="text-center">{{'LIST_PERMISSION' | translate}}</div></th>
+                <th style="vertical-align: middle; width:1px;"><div class="text-center">{{'LIST_MODIFY' | translate}}</div></th>
+                <th style="vertical-align: middle; width:1px;"><div class="text-center">{{'LIST_DELETE' | translate}}</div></th>
             </tr>
         </thead>
         <tbody>
@@ -19,21 +19,21 @@
                 <td>{{client.api_key}}</td>
                 <td>{{client.api_secret}}</td>
                 <td>
-                    <div data-ng-show="{{client.oauth2_gt_authcode_active}}"><span class="label label-granttype">Authentification Code</span><br/></div> 
-                    <div data-ng-show="{{client.oauth2_gt_implicit_active}}"><span class="label label-granttype">Implicit</span><br/></div>
-                    <div data-ng-show="{{client.oauth2_gt_resourceowner_active}}"><span class="label label-granttype">Resource Owner</span><br/></div> 
-                    <div data-ng-show="{{client.oauth2_gt_client_active}}"><span class="label label-granttype">Client Credentials</span><br/></div>
+                    <div data-ng-show="{{client.oauth2_gt_authcode_active}}"><span class="label label-granttype">{{'LIST_GRANT_AC' | translate}}</span><br/></div> 
+                    <div data-ng-show="{{client.oauth2_gt_implicit_active}}"><span class="label label-granttype">{{'LIST_GRANT_I' | translate}}</span><br/></div>
+                    <div data-ng-show="{{client.oauth2_gt_resourceowner_active}}"><span class="label label-granttype">{{'LIST_GRANT_R' | translate}}</span><br/></div> 
+                    <div data-ng-show="{{client.oauth2_gt_client_active}}"><span class="label label-granttype">{{'LIST_GRANT_CC' | translate}}</span><br/></div>
                 </td>
                 <td data-ng-bind-html='client.permissions | formatListPermissions'></td>
                 <td style="vertical-align: middle;">
-                    <div class="text-center"><button class="btn btn-primary btn-xs" data-ng-click="editClient(client)">Modify</button></div>
+                    <div class="text-center"><button class="btn btn-primary btn-xs" data-ng-click="editClient(client)">{{'LIST_MODIFY' | translate}}</button></div>
                 </td>
                 <td style="vertical-align: middle;">
-                    <div class="text-center"><button class="btn btn-danger btn-xs" data-ng-click="deleteClient($index)">Delete</button></div>
+                    <div class="text-center"><button class="btn btn-danger btn-xs" data-ng-click="deleteClient($index)">{{'LIST_DELETE' | translate}}</button></div>
                 </td>
             </tr>
         </tbody>
     </table>
     <br />
-    <button class="btn btn-primary" data-ng-click="createNewClient()">Create a new REST client</button>
+    <button class="btn btn-primary" data-ng-click="createNewClient()">{{'LIST_NEW_CLIENT' | translate}}</button>
 </div>

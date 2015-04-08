@@ -13,7 +13,7 @@ var ctrl = angular.module('myApp.controllers', []);
  * navigation (breadcrumbs) and login-information.
  * In addition, all other controllers inherit from this one.
  */
-ctrl.controller("MainCtrl", function($scope, $location, breadcrumbs, authentication, restEndpoint) {
+ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, authentication, restEndpoint) {
     /*
      * Called during (every) instantiation of this controller.
      *
@@ -21,9 +21,23 @@ ctrl.controller("MainCtrl", function($scope, $location, breadcrumbs, authenticat
      * doing it directly inside the controller.     
      */ 
     $scope.init = function() {
+        // Add breadcrumbs to scope and setup translations
+        breadcrumbs.options = {
+            'LABEL_LOGIN': $filter('translate')('LABEL_LOGIN'),
+            'LABEL_OFFLINE': $filter('translate')('LABEL_OFFLINE'),
+            'LABEL_CLIENTS': $filter('translate')('LABEL_CLIENTS'),
+            'LABEL_EDIT': $filter('translate')('LABEL_EDIT')
+        };
         $scope.breadcrumbs = breadcrumbs;
+        
+        // Add authentification and ebdpoint to scope
         $scope.authentication = authentication;
         $scope.restEndpoint = restEndpoint;
+        
+        // Required for translation data to work
+        $scope.translationData = {
+            authentication: authentication
+        };
     };
     
     
@@ -46,7 +60,7 @@ ctrl.controller("MainCtrl", function($scope, $location, breadcrumbs, authenticat
  * such as displaying, adding and removing clients as well as
  * redirecting to client-edit route.
  */
-ctrl.controller("ClientListCtrl", function($scope, $location, dialogs, clientStorage, restClient, restClients, restInfoFilter, apiKey) {
+ctrl.controller("ClientListCtrl", function($scope, $location, $filter, dialogs, clientStorage, restClient, restClients, apiKey) {
     /*
      * Called during (every) instantiation of this controller.
      *
@@ -82,12 +96,12 @@ ctrl.controller("ClientListCtrl", function($scope, $location, dialogs, clientSto
                 // Note: We could additionally check response.msg
                 else {
                     $scope.authentication.logout();
-                    $scope.authentication.setError('You have been logged out because you don\'t have enough permissions to access this menu.');
+                    $scope.authentication.setError($filter('translate')('AUTH_PERM'));
                 }
             },
             // Failure
             function(response) {                
-                $scope.warning = restInfoFilter('<strong>Warning:</strong> Could not contact REST-Interface to fetch client data! %INFO%', response.status, response.data);
+                $scope.warning = $filter('restInfo')($filter('translate')('NO_CLIENTS'), response.status, response.data);
             }
         );
     };
@@ -130,9 +144,9 @@ ctrl.controller("ClientListCtrl", function($scope, $location, dialogs, clientSto
         // Adds a special warning when trying to delete the Admin-Panel API-Key
         var dialog;
         if ($scope.clients[index].api_key != apiKey) 
-            dialog = dialogs.confirm('Delete Client', 'Do you really want to remove this client?');
+            dialog = dialogs.confirm($filter('translate')('DIALOG_DELETE'), $filter('translate')('DIALOG_DELETE_MSG'));
         else 
-            dialog = dialogs.confirm('Delete Admin-Panel Client', 'This clients API-Key is required by the the Admin-Panel, you should change the default api-key (inside app.js) first!<br/><br/>Do you really want to remove this client?');
+            dialog = dialogs.confirm($filter('translate')('DIALOG_DELETE_AP'), $filter('translate')('DIALOG_DELETE_AP_MSG'));
         
         // Start remote deletion once confirmed
         dialog.result.then(function(button){
@@ -148,7 +162,7 @@ ctrl.controller("ClientListCtrl", function($scope, $location, dialogs, clientSto
                 function (response) { },
                 // Failure
                 function (response) {
-                    $scope.warning = restInfoFilter('<strong>Warning:</strong> Delete-Operation failed, could not contact REST-Interface! %INFO%', response.status, response.data);
+                    $scope.warning = $filter('restInfo')($filter('translate')('DEL_FAILED_REMOTE'), response.status, response.data);
                 }
             );
         });
@@ -165,7 +179,7 @@ ctrl.controller("ClientListCtrl", function($scope, $location, dialogs, clientSto
  * as loading and formating routes, permissions, remotely applying changes and
  * generating random keys and secrets.
  */
-ctrl.controller("ClientEditCtrl", function($scope, dialogs, clientStorage, restClient, restClients, $location, restRoutes, restInfoFilter, apiKey) {
+ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStorage, restClient, restClients, $location, restRoutes, apiKey) {
     /*
      * Replaces an 'x' with another randomly permuated character.
      * Used to generate random keys and secrets.
@@ -285,11 +299,11 @@ ctrl.controller("ClientEditCtrl", function($scope, dialogs, clientStorage, restC
                         clientStorage.addClient($scope.current);
                     }
                     else
-                        $scope.warning = restInfoFilter('<strong>Warning:</strong> Save-Operation failed, for unknown reason! %INFO%', response.status, response.data);
+                        $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_UNKOWN'), response.status, response.data);
                 }, 
                 // Failure
                 function (data) {
-                    $scope.warning = restInfoFilter('<strong>Warning:</strong> Save-Operation failed, could not contact REST-Interface! %INFO%', response.status, response.data);
+                    $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_REMOTE'), response.status, response.data);
                 }
             );
             
@@ -325,11 +339,11 @@ ctrl.controller("ClientEditCtrl", function($scope, dialogs, clientStorage, restC
                     // Success
                     function (data) {
                         if (data.status != "success") 
-                            $scope.warning = restInfoFilter('<strong>Warning:</strong> Save-Operation failed, for unknown reason! %INFO%', response.status, response.data);
+                            $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_UNKOWN'), response.status, response.data);
                     }, 
                     // Failure
                     function (data) {
-                        $scope.warning = restInfoFilter('<strong>Warning:</strong> Save-Operation failed, could not contact REST-Interface! %INFO%', response.status, response.data);
+                        $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_REMOTE'), response.status, response.data);
                     }
                 );
                 
@@ -340,8 +354,8 @@ ctrl.controller("ClientEditCtrl", function($scope, dialogs, clientStorage, restC
             // Check if the Admin-Panel key was changed and show a warning in this case
             if ($scope.oldKey == apiKey && $scope.oldKey != $scope.current.api_key) {
                 var dialog = dialogs.confirm(
-                    'Update Admin-Panel Client', 
-                    'This clients API-Key is required by the the Admin-Panel, you should change the default api-key (inside app.js) first!<br/><br/>Do you really want to apply this changes?'
+                    $filter('translate')('DIALOG_UPDATE'), 
+                    $filter('translate')('DIALOG_UPDATE_MSG') 
                 );
                 dialog.result.then(doUpdate);
             }
@@ -360,7 +374,7 @@ ctrl.controller("ClientEditCtrl", function($scope, dialogs, clientStorage, restC
 /*
  * This controller handles the login-page as well as all/most login related messages.
  */
-ctrl.controller('LoginCtrl', function($scope, $location, apiKey, restAuth, restAuthToken, restInfoFilter) {
+ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAuth, restAuthToken) {
     /*
      * Called during (every) instantiation of this controller.
      *
@@ -447,11 +461,11 @@ ctrl.controller('LoginCtrl', function($scope, $location, apiKey, restAuth, restA
             function (response){
                 // Try to decode the more common error-codes 
                 if (response.status == 401) 
-                    $scope.authentication.setError(restInfoFilter('<strong>Login failed:</strong> Username/Password combination was rejected. %INFO%', response.status, response.data));
+                    $scope.authentication.setError($filter('restInfo')($filter('translate')('LOGIN_REJECTED'), response.status, response.data));
                 else if (response.status == 405) 
-                    $scope.authentication.setError(restInfoFilter('<strong>Login failed:</strong> REST-Interface is disabled! %INFO%', response.status, response.data));
+                    $scope.authentication.setError($filter('restInfo')($filter('translate')('LOGIN_DISABLED'), response.status, response.data));
                 else if (response.status != 200) 
-                    $scope.authentication.setError(restInfoFilter('<strong>Login failed:</strong> An unknown error occured while trying to contact the REST-Interface. %INFO%', response.status, response.data));
+                    $scope.authentication.setError($filter('restInfo')($filter('translate')('LOGIN_UNKNOWN'), response.status, response.data));
                 
                 // Logout and redirect
                 $scope.authentication.logout();

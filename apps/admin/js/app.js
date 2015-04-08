@@ -9,19 +9,20 @@ var app = angular.module('myApp', [
     'ngRoute', 
     'ngResource', 
     'ngSanitize',
+    'ngAnimate',
+    'ng-breadcrumbs',
+    'angular-loading-bar',
+    'ui.bootstrap', 
+    'ui.utils', 
     'xeditable',
+    'pascalprecht.translate',
+    'dialogs.main',
+    'myApp.translate.en-US',
+    'myApp.translate.de-DE',
     'myApp.filters', 
     'myApp.services', 
     'myApp.directives',
-    'myApp.controllers', 
-    'ui.bootstrap', 
-    'ui.utils', 
-    'ngAnimate',
-    'angular-loading-bar',
-    'ng-breadcrumbs',
-    'pascalprecht.translate',
-    'dialogs.default-translations',
-    'dialogs.main'
+    'myApp.controllers'
 ]);
 
 
@@ -40,18 +41,18 @@ app.constant('restRoutesURL',       '/routes');                           // Rou
 /*
  * Setup all routes (used to display different functionality)
  */
-app.config(function($routeProvider, $locationProvider) {
+app.config(function($routeProvider) {
     // Login page
     $routeProvider.when('/offline', {
         templateUrl : 'partials/offline.html',
-        label: 'Offline',
+        label: 'LABEL_LATER', // This will be replaced later!
         controller: 'OfflineCtrl'
     });
     
     // Login page
     $routeProvider.when('/login', {
         templateUrl : 'partials/login.html',
-        label: 'Login',
+        label: 'LABEL_LOGIN', // This will be replaced later!
         controller: 'LoginCtrl',
         resolve: {
             'RestEndpointData': function(restEndpoint){
@@ -63,7 +64,7 @@ app.config(function($routeProvider, $locationProvider) {
     // Client-list
     $routeProvider.when('/clientlist', {
         templateUrl : 'partials/clientlist.html',
-        label: 'Clients',
+        label: 'LABEL_CLIENTS', // This will be replaced later!
         controller: 'ClientListCtrl',
         resolve: {
             'RestEndpointData': function(restEndpoint){
@@ -75,7 +76,7 @@ app.config(function($routeProvider, $locationProvider) {
     // Edit client
     $routeProvider.when('/clientlist/clientedit', {
         templateUrl: 'partials/clientedit.html',
-        label: 'Edit',
+        label: 'LABEL_EDIT', // This will be replaced later!
         controller: 'ClientEditCtrl',
         resolve: {
             'RestEndpointData': function(restEndpoint){

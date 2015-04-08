@@ -9,7 +9,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
-    <title>ILIAS REST Plugin - Administration</title>
+    <title>{{'INDEX_TITLE' | translate}}</title>
     
     <link rel="icon" href="img/icon.png">
     <link rel="shortcut icon" href="img/logo.png">
@@ -59,7 +59,7 @@
         <nav class="navbar navbar-default" role="navigation">
             <div class="container-fluid">
                 <ul class="nav navbar-header">
-                    <span class="navbar-brand"><img class="brand-img" alt="Logo" src="img/icon.png"> ILIAS REST</span>
+                    <span class="navbar-brand"><img class="brand-img" alt="Logo" src="img/icon.png"> {{'INDEX_BRAND' | translate}}</span>
                 </ul>
             
                 <ul class="nav navbar-nav navbar-left" data-ng-show="breadcrumbs.breadcrumbs.length > 0" data-ng-cloak>
@@ -72,8 +72,8 @@
                 </ul>
                 
                 <ul class="nav navbar-nav navbar-right addRightPadding" data-ng-show="authentication.isAuthenticated()" data-ng-cloak>
-                    <li><span class="navbar-text">Logged in as {{authentication.getUserName()}}</span></li>
-                    <li><button class="btn btn-default navbar-btn" type="button" data-ng-click="authentication.logout()">Logout</button></li>
+                    <li><span class="navbar-text">{{'INDEX_LOGGED_IN' | translate:translationData}}</span></li>
+                    <li><button class="btn btn-default navbar-btn" type="button" data-ng-click="authentication.logout()">{{'INDEX_LOGOUT' | translate}}</button></li>
                 </ul>
             </div>
         </nav>
@@ -83,14 +83,14 @@
         
         <nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
             <span class="navbar-text navbar-text-center">
-                <strong>Version:</strong> <span data-app-version></span> is powered by 
+                <strong>{{'INDEX_VERSION' | translate}}:</strong> <span data-app-version></span> {{'INDEX_POWERED' | translate}} 
                 <a href="https://angularjs.org/" data-tooltip="Version: Unknown" data-angularjs-version target="_blank">AngularJS</a>, 
                 <a href="https://jquery.com/" data-tooltip="Version: Unknown" data-jquery-version target="_blank">jQuery</a>, 
                 <a href="http://modernizr.com" data-tooltip="Version: Unknown" data-modernizr-version target="_blank">Modernizr</a>, 
                 <a href="http://lesscss.org" data-tooltip="Version: Unknown" data-less-version target="_blank">LESS</a>, 
                 <a href="http://getbootstrap.com/" data-tooltip="Version: Unknown" data-bootstrap-version target="_blank">Bootstrap</a>, 
                 <a href="https://html5boilerplate.com/" data-tooltip="Version: Unknown" data-boilerplate-version target="_blank">HTML5 Boilerplates</a>, 
-                <a href="http://necolas.github.io/normalize.css/" data-tooltip="Version: Unknown" data-normalize-version target="_blank">Normalize.css</a> and 
+                <a href="http://necolas.github.io/normalize.css/" data-tooltip="Version: Unknown" data-normalize-version target="_blank">Normalize.css</a> &amp; 
                 <a href="http://daneden.github.io/animate.css/" data-tooltip="Version: Unknown" data-animatecss-version target="_blank">Animate.css</a>
             </span>
         </nav>
@@ -110,9 +110,11 @@
     <script src="libs/js/angular-loading-bar.js"></script>
     <script src="libs/js/angular-breadcrumbs.js"></script>
     <script src="libs/js/angular-translate.js"></script>
-    <script src="libs/js/angular-dialogs-default-translations.js"></script>
     <script src="libs/js/angular-dialogs.js"></script>
 
+    <script src="lang/angular_en-US.js"></script>
+    <script src="lang/angular_de-DE.js"></script>
+    
     <script src="js/app.js"></script>
     <script src="js/services.js"></script>
     <script src="js/controllers.js"></script>
