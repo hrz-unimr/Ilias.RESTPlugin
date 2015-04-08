@@ -48,15 +48,23 @@ class ilClientsModel
         while($rowKeys = $ilDB->fetchAssoc($setKeys)) {
             $queryPerm = "SELECT `pattern`, `verb` FROM `ui_uihk_rest_perm` WHERE `keys_id` = " . $rowKeys['id'];
             $setPerm = $ilDB->query($queryPerm);
-            
             $perm = array();
             while($rowPerm = $ilDB->fetchAssoc($setPerm)) {
                 $perm[] = $rowPerm;
             }
             $rowKeys['permissions'] = $perm;
             
+            $queryCSV = "SELECT `user_id` FROM `ui_uihk_rest_keymap` WHERE `api_id` = " . $rowKeys['id'];
+            $setCSV = $ilDB->query($queryCSV);
+            $csv = array();
+            while($rowCSV = $ilDB->fetchAssoc($setCSV)) {
+                $csv[] = $rowCSV['user_id'];
+            }
+            $rowKeys['access_user_csv'] = $csv;
+            
             $res[] = $rowKeys;
         }
+        
         return $res;
     }
 

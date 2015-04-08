@@ -57,11 +57,11 @@ while ($row = $ilDB->fetchAssoc($set)) {
         case "uuid" :
             define("UUID", $row['setting_value']);
             break;
-        case "rest_system_user":
-            define("REST_USER", $row['setting_value']);
+        case "rest_soap_user":
+            define("REST_SOAP_USER", $row['setting_value']);
             break;
-        case "rest_user_pass":
-            define("REST_PASS", $row['setting_value']);
+        case "rest_soap_pass":
+            define("REST_SOAP_PASS", $row['setting_value']);
             break;
     }
 }

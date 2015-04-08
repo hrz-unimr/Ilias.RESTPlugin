@@ -223,17 +223,17 @@ $ilLog->write('Plugin REST -> Database updated to #1');
 <?php
     global $ilLog;
     
-    $rest_user = "rest_sys_user";
+    $rest_soap_user = "rest_sys_user";
     $a_columns = array(
-        "setting_name" => array("text", "rest_system_user"), 
-        "setting_value" => array("text",$rest_user)
+        "setting_name" => array("text", "rest_soap_user"), 
+        "setting_value" => array("text", $rest_soap_user)
     );
     $ilDB->insert("ui_uihk_rest_config", $a_columns);
     
-    $rest_pass = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',5)),0,10);
+    $rest_soap_pass = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',5)),0,10);
     $a_columns = array(
-        "setting_name" => array("text", "rest_user_pass"), 
-        "setting_value" => array("text",$rest_pass)
+        "setting_name" => array("text", "rest_soap_pass"), 
+        "setting_value" => array("text", $rest_soap_pass)
     );
     $ilDB->insert("ui_uihk_rest_config", $a_columns);
     

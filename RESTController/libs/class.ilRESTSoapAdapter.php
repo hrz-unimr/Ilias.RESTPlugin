@@ -43,8 +43,8 @@ class ilRESTSoapAdapter {
         $ilUser = new ilObjUser($user_id);
         ilRESTLib::initGlobal("ilUser", $ilUser);
 
-        $username = REST_USER;
-        $password = REST_PASS;
+        $username = REST_SOAP_USER;
+        $password = REST_SOAP_PASS;
         // see initUser
         $_POST['username'] = $username;
         $_POST['password'] = $password;
