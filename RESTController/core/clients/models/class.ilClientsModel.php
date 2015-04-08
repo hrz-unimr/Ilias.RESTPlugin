@@ -117,10 +117,10 @@ class ilClientsModel
         // process access_user_csv
         if ($oauth2_user_restriction_active==true) {
             $a_user_csv = array();
-            if (isset($access_user_csv)) {
+            if (isset($access_user_csv) && strlen($access_user_csv) > 0) {
                 $a_user_csv = explode(',', $access_user_csv);
+                $this->fillApikeyUserMap($insertId, $a_user_csv);
             }
-            $this->fillApikeyUserMap($insertId, $a_user_csv);
         }
         return $insertId;
     }

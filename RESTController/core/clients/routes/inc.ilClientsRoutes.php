@@ -61,14 +61,15 @@ $app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ /
     } else {
         $admin_model = new ilClientsModel();
 
-
         $aUpdateData['permissions'] = addslashes ($aUpdateData['permissions']);
 
-        if (isset($aUpdateData["oauth2_user_restriction_active"]) && $aUpdateData["oauth2_user_restriction_active"]==1) {
-            if (isset($aUpdateData["access_user_csv"])) {
+        if (isset($aUpdateData["access_user_csv"])) {
+            if (strlen($aUpdateData["access_user_csv"]) > 0) {
                 $a_user_csv = explode(',', $aUpdateData["access_user_csv"]);
                 $admin_model->fillApikeyUserMap($id, $a_user_csv);
             }
+            else
+                $admin_model->fillApikeyUserMap($id, array());
         }
 
         foreach ($aUpdateData as $key => $value) {
@@ -216,7 +217,9 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
                     $oauth2_gt_resourceowner_active,
                     $oauth2_user_restriction_active,
                     $oauth2_gt_client_user,
-                    $access_user_csv,$oauth2_authcode_refresh_active,$oauth2_resource_refresh_active
+                    $access_user_csv,
+                    $oauth2_authcode_refresh_active,
+                    $oauth2_resource_refresh_active
                 );
                 $app->log->debug('Result of createClient: '.$new_id);
                 $result['id'] = $new_id;

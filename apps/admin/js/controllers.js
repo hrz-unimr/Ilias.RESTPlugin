@@ -293,16 +293,16 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
                     access_user_csv: $scope.current.access_user_csv
                 }, 
                 // Success
-                function (data) {
-                    if (data.status == "success") {
-                        $scope.current.id = data.id;
+                function (response) {
+                    if (response.status == "success") {
+                        $scope.current.id = response.id;
                         clientStorage.addClient($scope.current);
                     }
                     else
                         $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_UNKOWN'), response.status, response.data);
                 }, 
                 // Failure
-                function (data) {
+                function (response) {
                     $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_REMOTE'), response.status, response.data);
                 }
             );
@@ -337,12 +337,13 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
                         }
                     }, 
                     // Success
-                    function (data) {
-                        if (data.status != "success") 
+                    function (response) {
+                        console.log(response)
+                        if (response.status != "success") 
                             $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_UNKOWN'), response.status, response.data);
                     }, 
                     // Failure
-                    function (data) {
+                    function (response) {
                         $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_REMOTE'), response.status, response.data);
                     }
                 );
