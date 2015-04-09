@@ -409,7 +409,6 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
             }, 
             // Success
             function (response) {
-                console.log(response);
                 // Login return OK (Login internally and redirect)
                 if (response.status == "success") {
                     $scope.postVars = {};
@@ -459,6 +458,7 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
             },
             // Failure  (Logout internally and redirdct)
             function (response){
+                console.log("NOT OK");
                 // Try to decode the more common error-codes 
                 if (response.status == 401) 
                     $scope.authentication.setError($filter('restInfo')($filter('translate')('LOGIN_REJECTED'), response.status, response.data));

@@ -23,7 +23,7 @@ filters.filter('interpolate', function(version) {
 filters.filter('restInfo',function($sce) {
     return function(text, status, data) {
         var statusClean = status;
-        var dataClean = $sce.trustAsHtml(data.replace(/"/g, '\\&quot;'));
+        var dataClean = $sce.trustAsHtml(data.replace(/"/g, '\\&quot;').replace(/'/g, '\\&#39;'));
                 
         return String(text).replace(/\%INFO\%/mg, '<span class="restInfo">(Status: <u><span href="#" tooltip-html-unsafe="'+dataClean+'" tooltip-placement="left">'+statusClean+'</span></u>)</span>');
     };

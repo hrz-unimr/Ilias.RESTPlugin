@@ -471,7 +471,7 @@ class ilOAuth2Model
     private function _issueExistingRefreshToken($user_id, $api_key)
     {
         global $ilDB;
-        $query = "SELECT refresh_token, num_refresh_left FROM ui_uihk_rest_oauth2 WHERE user_id=".$user_id." AND api_key='".$api_key."'";
+        $query = "SELECT refresh_token, num_refresh_left FROM ui_uihk_rest_oauth2 WHERE user_id=".$user_id." AND api_id=".$ilDB->quote($this->_apiIdFromKey($api_key), "integer");
         $set = $ilDB->query($query);
         if ($set!=null) {
             $entry = $ilDB->fetchAssoc($set);
@@ -496,7 +496,7 @@ class ilOAuth2Model
     private function _resetRefreshTokenEntry($user_id, $api_key, $newRefreshToken)
     {
         global $ilDB;
-        $query = "SELECT num_resets FROM ui_uihk_rest_oauth2 WHERE user_id=".$user_id." AND api_key='".$api_key."'";
+        $query = "SELECT num_resets FROM ui_uihk_rest_oauth2 WHERE user_id=".$user_id." AND api_id=".$ilDB->quote($this->_apiIdFromKey($api_key), "integer");
         $set = $ilDB->query($query);
         if ($set!=null) {
             $entry = $ilDB->fetchAssoc($set);
