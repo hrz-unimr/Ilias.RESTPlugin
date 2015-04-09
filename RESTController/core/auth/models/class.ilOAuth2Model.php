@@ -545,10 +545,24 @@ class ilOAuth2Model
     private function _checkRefreshTokenEntry($user_id, $api_key)
     {
         global $ilDB;
-        $query = "SELECT * FROM ui_uihk_rest_oauth2 WHERE user_id=".$user_id." AND api_key='".$api_key."'";
+        $query = "SELECT * FROM ui_uihk_rest_oauth2 WHERE user_id=".$ilDB->quote($user_id, "integer")." AND api_key=".$ilDB->quote(_apiIdFromKey($api_key), "integer");
         $set = $ilDB->query($query);
         $entry = $ilDB->fetchAssoc($set);
         return $entry;
+    }
+    
+    /**
+     *
+     */
+    private function _apiIdFromKey($api_key) {
+        $sql = "SELECT id FROM ui_uihk_rest_keys WHERE api_key = ".$ilDB->quote($api_key, "integer");
+        $query = $ilDB->query($sql);
+        if (!empty($query)) {
+            $row = $ilDB->fetchAssoc($query);
+            return $row['api_key'];
+        }
+        // TODO: Throw error / Respond with error
+        return -1;
     }
 
     /**
@@ -565,7 +579,7 @@ class ilOAuth2Model
 
         $a_columns = array(
             "user_id" => array("text", $user_id),
-            "api_key" => array("text", $api_key),
+            "api_id" => array("text", _apiIdFromKey($api_key)),
             "refresh_token" => array("text", $refresh_token),
             "num_refresh_left" => array("integer", 10000),
             "last_refresh_timestamp" => array("date", date("Y-m-d H:i:s",0)),
@@ -586,7 +600,7 @@ class ilOAuth2Model
     private function _deleteRefreshTokenEntry($user_id, $api_key)
     {
         global $ilDB;
-        $sql = "DELETE FROM ui_uihk_rest_oauth2 WHERE user_id =".$ilDB->quote($user_id, "integer")." AND api_key=".$ilDB->quote($api_key, "text");
+        $sql = "DELETE FROM ui_uihk_rest_oauth2 WHERE user_id =".$ilDB->quote($user_id, "integer")." AND api_id=".$ilDB->quote(_apiIdFromKey($api_key), "integer");
         $numAffRows = $ilDB->manipulate($sql);
         return $numAffRows;
     }
@@ -602,7 +616,7 @@ class ilOAuth2Model
     public function _updateRefreshTokenEntry($user_id, $api_key, $fieldname, $newval)
     {
         global $ilDB;
-        $sql = "UPDATE ui_uihk_rest_oauth2 SET $fieldname = \"$newval\" WHERE user_id = ".$user_id." AND api_key='".$api_key."'";
+        $sql = "UPDATE ui_uihk_rest_oauth2 SET $fieldname = \"$newval\" WHERE user_id = ".$ilDB->quote($user_id, "integer")." AND api_id=".$ilDB->quote(_apiIdFromKey($api_key), "integer");
         $numAffRows = $ilDB->manipulate($sql);
         return $numAffRows;
     }

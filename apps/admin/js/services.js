@@ -183,13 +183,12 @@ services.factory('restEndpoint', function($q, $http, restRoutesURL) {
     var getInstallDir = function() {
         var pathArray = window.location.pathname.split('/');
         var iliasSubFolder = '';
-        for (var i = 0; i < pathArray.length; i++) 
-            if (pathArray[i] == "Customizing") 
-                if (i > 1) {
-                    iliasSubFolder = "/" + pathArray[i - 1];
-                    break;
-                }
-        
+        for (var i = 0; i < pathArray.length; i++) {
+            if (pathArray[i] == 'Customizing') 
+                break;
+            if (pathArray[i] != '')
+                iliasSubFolder += '/'+pathArray[i];
+        }
         return iliasSubFolder;
     }
     

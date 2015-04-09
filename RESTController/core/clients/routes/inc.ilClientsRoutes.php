@@ -64,7 +64,7 @@ $app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ /
         $aUpdateData['permissions'] = addslashes ($aUpdateData['permissions']);
 
         if (isset($aUpdateData["access_user_csv"])) {
-            if (strlen($aUpdateData["access_user_csv"]) > 0) {
+            if (is_string($aUpdateData["access_user_csv"]) && strlen($aUpdateData["access_user_csv"]) > 0) {
                 $a_user_csv = explode(',', $aUpdateData["access_user_csv"]);
                 $admin_model->fillApikeyUserMap($id, $a_user_csv);
             }
@@ -284,12 +284,12 @@ $app->get('/routes', function () use ($app) {
     foreach($routes as $route) {
         $multiVerbs = $route->getHttpMethods();
         $verb = $multiVerbs[0];
-        $result[] = array("pattern"=>$route->getPattern(), "verb"=>$verb);
+        $middle = $route->getMiddleware();
+        $result[] = array("pattern"=>$route->getPattern(), "verb"=>$verb, "middleware"=>(isset($middle[0]) ? $middle[0] : "none"));
     }
     $r = array("routes"=>$result);
     $app->response()->header('Content-Type', 'application/json');
     echo json_encode($r);
-
 });
 
 $app->get('/rest/config', function () use ($app) {

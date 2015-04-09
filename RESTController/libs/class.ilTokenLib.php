@@ -1,7 +1,20 @@
 <?php
 
-define("TOKEN_SALT", UUID);     // Used to lift entropy
-define("DEFAULT_LIFETIME", 30); // 30 minutes
+
+// Load rest plugin settings from database
+$query = "SELECT `setting_name`, `setting_value` FROM `ui_uihk_rest_config`";
+$set = $ilDB->query($query);
+while (!empty($set) && $row = $ilDB->fetchAssoc($set)) {
+    // Make rest plugin settings globally available
+    switch ($row['setting_name']) {
+        case "token_salt" :
+            define("TOKEN_SALT", $row['setting_value']);
+            break;
+        case "token_ttl" :
+            define("TOKEN_TTL", $row['setting_value']);
+            break;
+    }
+}
 
 class ilTokenLib
 {
@@ -21,7 +34,7 @@ class ilTokenLib
      */
     public static function generateBearerToken($user, $api_key)
     {
-        $token = self::generateToken($user, $api_key, "bearer", "", DEFAULT_LIFETIME);
+        $token = self::generateToken($user, $api_key, "bearer", "", TOKEN_TTL);
         $ttl = self::getRemainingTime($token);
         $serializedToken = self::serializeToken($token);
         $result = array();
@@ -130,7 +143,7 @@ class ilTokenLib
             $api_key = $token['api_key'];
             $type = $token['type'];
             $misc = $token['misc'];
-            return self::generateToken($user, $api_key, $type, $misc, DEFAULT_LIFETIME);
+            return self::generateToken($user, $api_key, $type, $misc, TOKEN_TTL);
         }
         return $token;
     }
@@ -153,7 +166,6 @@ class ilTokenLib
      */
     private static function hash($val)
     {
-         //return md5(TOKEN_SALT . $val);
          return hash('sha256', TOKEN_SALT . $val);
     }
 

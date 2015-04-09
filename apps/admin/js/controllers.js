@@ -338,7 +338,6 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
                     }, 
                     // Success
                     function (response) {
-                        console.log(response)
                         if (response.status != "success") 
                             $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_UNKOWN'), response.status, response.data);
                     }, 

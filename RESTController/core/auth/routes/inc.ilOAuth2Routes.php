@@ -94,7 +94,7 @@ $app->post('/v1/oauth2/token', function () use ($app) {
 /*
  * Refresh Endpoint
  *
- * This endpoint allows for exchanging a bearer token with a ong-lasting refresh token.
+ * This endpoint allows for exchanging a bearer token with a long-lasting refresh token.
  * Note: a client needs the appropriate permission to use this endpoint.
  */
 $app->get('/v1/oauth2/refresh', 'authenticate', function () use ($app) {

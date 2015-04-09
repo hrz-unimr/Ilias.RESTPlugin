@@ -28,7 +28,7 @@ class ilClientsModel
         $perm = json_decode($perm_json, true);
         foreach($perm as $value) {
             $perm_columns = array(
-                "keys_id" => array("integer", $id),
+                "api_id" => array("integer", $id),
                 "pattern" => array("text", $value["pattern"]),
                 "verb" => array("text", $value["verb"])
             );
@@ -46,7 +46,7 @@ class ilClientsModel
         $setKeys = $ilDB->query($queryKeys);
 
         while($rowKeys = $ilDB->fetchAssoc($setKeys)) {
-            $queryPerm = "SELECT `pattern`, `verb` FROM `ui_uihk_rest_perm` WHERE `keys_id` = " . $rowKeys['id'];
+            $queryPerm = "SELECT `pattern`, `verb` FROM `ui_uihk_rest_perm` WHERE `api_id` = " . $rowKeys['id'];
             $setPerm = $ilDB->query($queryPerm);
             $perm = array();
             while($rowPerm = $ilDB->fetchAssoc($setPerm)) {
@@ -158,9 +158,11 @@ class ilClientsModel
         global $ilDB;
         
         if (strtolower($fieldname) == "permissions") {
-            $ilDB->manipulate("DELETE FROM ui_uihk_rest_perm WHERE keys_id = $id");
+            $ilDB->manipulate("DELETE FROM ui_uihk_rest_perm WHERE api_id = $id");
             $this->addPermissions($id, stripslashes($newval));   
         } else {
+            //var_dump($fieldname);
+            // !!! TODO: When api_key changes, delete ui_uihk_rest_oauth2 entry
             $numAffRows = $ilDB->manipulate("UPDATE ui_uihk_rest_keys SET $fieldname = \"$newval\" WHERE id = $id");
         }
         return $numAffRows;
@@ -178,8 +180,14 @@ class ilClientsModel
         $sql = "DELETE FROM ui_uihk_rest_keys WHERE id = ".$ilDB->quote($id, "integer");
         $numAffRows = $ilDB->manipulate($sql);
         
-        $sql = "DELETE FROM ui_uihk_rest_perm WHERE keys_id = ".$ilDB->quote($id, "integer");
-        $numAffRows = $ilDB->manipulate($sql);
+        $sql = "DELETE FROM ui_uihk_rest_perm WHERE api_id = ".$ilDB->quote($id, "integer");
+        $ilDB->manipulate($sql);
+        
+        $sql = "DELETE FROM ui_uihk_rest_keymap WHERE api_id = ".$ilDB->quote($id, "integer");
+        $ilDB->manipulate($sql);
+        
+        $sql = "DELETE FROM ui_uihk_rest_oauth2 WHERE api_id = ".$ilDB->quote($id, "integer");
+        $ilDB->manipulate($sql);
 
         return $numAffRows;
     }

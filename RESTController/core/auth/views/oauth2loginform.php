@@ -1,6 +1,4 @@
 <?php
-echo $_SERVER['SCRIPT_NAME'];
-
 $restAPI = dirname($_SERVER['SCRIPT_NAME']);
 $restAPI = str_replace('\\', '/', $restAPI);
 $restAPI = ($restAPI == '/' ? '' : $restAPI);

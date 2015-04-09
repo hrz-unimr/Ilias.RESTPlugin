@@ -24,17 +24,28 @@ class ilRESTSoapAdapter {
         include_once "Services/Context/classes/class.ilContext.php";
         ilContext::init(ilContext::CONTEXT_SOAP);
 
-        /*
-        include_once('webservice/soap/include/inc.soap_functions.php');
-        $soapServer = new SoapServer("http://localhost"."/webservice/soap/nusoapserver.php?wsdl");
-        $soapServer->setClass("ilSoapFunctions");
-        $soapServer->handle();
-        */
+        $query = "SELECT `setting_name`, `setting_value` FROM `ui_uihk_rest_config` WHERE `setting_name` IN ('rest_system_user', 'rest_user_pass')";
+        $set = $ilDB->query($query);
+        while ($row = $ilDB->fetchAssoc($set)) {
+            // Make rest plugin settings globally available
+            switch ($row['setting_name']) {
+                case "rest_soap_user":
+                    $username = $row['setting_value'];
+                    break;
+                case "rest_soap_pass":
+                    $password = $row['setting_value'];
+                    break;
+            }
+        }
+        if (!isset($username) || !isset($password)) {
+            // TODO: Throw an error header here!
+            logoutSOAP();
+        }
 
         // Get username and password
         require_once "./Services/Calendar/classes/class.ilDatePresentation.php";
         require_once "./Services/User/classes/class.ilObjUser.php";
-        $user_id = ilObjUser::getUserIdByLogin(REST_USER);
+        $user_id = ilObjUser::getUserIdByLogin($username);
 
         if ($user_id == 0)
         {
@@ -43,13 +54,8 @@ class ilRESTSoapAdapter {
         $ilUser = new ilObjUser($user_id);
         ilRESTLib::initGlobal("ilUser", $ilUser);
 
-        $username = REST_SOAP_USER;
-        $password = REST_SOAP_PASS;
-        // see initUser
         $_POST['username'] = $username;
         $_POST['password'] = $password;
-
-
 
         // add code 1
         if (!is_object($GLOBALS["ilPluginAdmin"]))
