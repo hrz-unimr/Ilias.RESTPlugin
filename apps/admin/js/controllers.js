@@ -436,7 +436,7 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
      * a an API-Key to generate a bearer-token that will
      * then be used to talk to the REST interface.
      */
-    $scope.manualLogin = function () {
+    $scope.manualLogin = function () {        
         // REST AJAJ invocation
         restAuthToken.auth({
             // Data
