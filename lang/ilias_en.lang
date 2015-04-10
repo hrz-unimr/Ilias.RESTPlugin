@@ -3,19 +3,7 @@
 //
  
 <!-- language file start -->
-config#:#Configuration
-save_success#:#Save succesful
-save_failure#:#Save failed!
-nothing_changed#:#Nothing changed
-plugin_configuration#:#Configuration
-req_header#:#Request Header
-req_header_info#:#Here some infos
-setting_1#:#Setting 1
-setting_2#:#Setting 2.
-welcome_config#:#Welcome to the configuration panel of the REST Plugin
-info_config#:#Information about the plugin and its extensions can be found at
-installation_note_config#:#Note: it is required that the gateway files "plugin/RESTController/restplugin.php" and "restclientcert.php" are located at the webroot. i.e. the following URL must be available: http:\\yourhost/restplugin.php/routes
-api_info_config#:#Provides a human readable version about the API
-admin_info_config#:#Enables to administrate REST clients
-api_btn_config#:#Enter API Documentation
-admin_btn_config#:#Enter Administration Panel
+welcome_config#:#Welcome to the the REST Plugin configuration panel
+welcome_redirect#:#In the next 3 seconds you will be automatically redirected to the Administration Panel...
+welcome_fail#:#Alternatively you can also enter the Administration Panel by clicking on the button below.
+button_redirect#:#Start Administration Panel

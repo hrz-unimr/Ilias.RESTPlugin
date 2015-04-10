@@ -67,7 +67,6 @@ var ctrlrs; // will be dialogs.controllers module
 // determine if Angular-Translate is available, if not use the substitute
 try{
     angular.module('pascalprecht.translate'); // throws error if module not loaded
-    console.log('Angular-Translate: OK');
     
     // dialogs.controllers: module declaration
     ctrlrs = angular.module('dialogs.controllers',['ui.bootstrap.modal','pascalprecht.translate']);
