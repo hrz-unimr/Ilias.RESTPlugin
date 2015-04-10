@@ -1,15 +1,4 @@
 <?php
-/*
-$app->error(function (\Exception $e) use ($app) {
-    $app->render('error.php');
-});
-
-$app->notFound(function () use ($app) {
-    $app->render('404.html');
-});
-*/
-
-
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
@@ -44,6 +33,13 @@ $app->view()->setTemplatesDirectory($path);
 // REST doesn't use cookies
 $app->hook('slim.after.router', function () {
     header_remove('Set-Cookie');
+});
+
+$app->error(function (\Exception $e) use ($app) {
+    $app->render('views/error.php');
+});
+$app->notFound(function () use ($app) {
+    $app->render('views/404.php');
 });
 
 // Global information that should be available to all routes/models
