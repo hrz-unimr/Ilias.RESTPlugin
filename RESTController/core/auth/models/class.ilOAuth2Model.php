@@ -5,17 +5,16 @@
  * This model provides methods to accomplish the OAuth2 mechanism for ILIAS.
  * Note: In contrast to the original specification, we renamed the term OAuth2 "client_id" to "api_key".
  */
-class ilOAuth2Model
-{
+class ilOAuth2Model {
     // ----------------------------------------------------------------------------------------------
     // Authorization endpoint routines
+    
+    
     /**
      * The authorization endpoint part of the authorization credendials flow.
      * @param $app
      */
-    public function handleAuthorizationEndpoint_authorizationCode($app)
-    {
-
+    public function handleAuthorizationEndpoint_authorizationCode($app) {
         $request = $app->request();
         $response = new ilOauth2Response($app);
         $api_key = $request->params('api_key');
@@ -87,12 +86,13 @@ class ilOAuth2Model
             }
         }
     }
+    
+    
     /**
      * The authorization endpoint part of the implicit grant flow.
      * @param $app
      */
-    public function handleAuthorizationEndpoint_implicitGrant($app)
-    {
+    public function handleAuthorizationEndpoint_implicitGrant($app) {
         $response = new ilOauth2Response($app);
         $request = $app->request();
         $api_key = $request->params('api_key');
@@ -210,13 +210,14 @@ class ilOAuth2Model
     }
     // ----------------------------------------------------------------------------------------------
     // Token endpoint routines
+    
+    
     /**
      * The token endpoint part of the user credentials auth flow.
      * @param $app
      * @param $request
      */
-    public function handleTokenEndpoint_userCredentials($app, $request)
-    {
+    public function handleTokenEndpoint_userCredentials($app, $request) {
         $response = new ilOauth2Response($app);
         $user = $request->getParam('username');
         $pass = $request->getParam('password');
@@ -266,14 +267,14 @@ class ilOAuth2Model
         }
         
     }
+    
 
     /**
      * The token endpoint part of the client credentials auth flow.
      * @param $app
      * @param $request
      */
-    public function handleTokenEndpoint_clientCredentials($app, $request)
-    {
+    public function handleTokenEndpoint_clientCredentials($app, $request) {
         $response = new ilOauth2Response($app);
         $api_key = $request->getParam('api_key');
         $api_secret = $request->getParam('api_secret');
@@ -308,14 +309,14 @@ class ilOAuth2Model
 
     }
 
+    
     /**
      * The token endpoint part of the authorization auth flow.
      * This method exchanges an authorization code with a bearer token.
      * @param $app
      * @param $request
      */
-    public function handleTokenEndpoint_authorizationCode($app, $request)
-    {
+    public function handleTokenEndpoint_authorizationCode($app, $request) {
         $app->log->debug("Handle Token-Endpoint > AuthCode Request");
         $response = new ilOauth2Response($app);
         $code = $request->getParam("code");
@@ -331,7 +332,7 @@ class ilOAuth2Model
 
         if (!$isClientAuthorized) {
             $app->response()->status(401);
-        }else {
+        } else {
             $app->log->debug("Handle Token-Endpoint > HERE ");
             $code_token = ilTokenLib::deserializeToken($code);
             $app->log->debug("Handle Token-Endpoint > code token" . print_r($code_token,true));
@@ -383,14 +384,14 @@ class ilOAuth2Model
         $response->send();
     }
 
+    
     /**
      * Token-endpoint for refresh tokens.
      * Cf. RFC6749 Chapter 6.  Refreshing an Access Token
      * @param $app
      * @throws Exception
      */
-    public function handleTokenEndpoint_refreshToken2Bearer($app)
-    {
+    public function handleTokenEndpoint_refreshToken2Bearer($app) {
         $request = new ilRESTRequest($app);
         $response = new ilOauth2Response($app);
 
@@ -405,16 +406,16 @@ class ilOAuth2Model
         $response->setField("scope",$bearer_token['scope']);
         $response->send();
     }
-
     // ----------------------------------------------------------------------------------------------
     // Refresh Token Support
+    
+    
     /**
      * Returns a refresh token for a valid bearer token.
      * @param $bearer_token_array
      * @return string
      */
-    public function getRefreshToken($bearer_token_array)
-    {
+    public function getRefreshToken($bearer_token_array) {
         $user_id = ilRESTLib::loginToUserId($bearer_token_array['user']);
         $api_key = $bearer_token_array['api_key'];
         $entry = $this->_checkRefreshTokenEntry($user_id, $api_key);
@@ -429,14 +430,14 @@ class ilOAuth2Model
         }
     }
 
+    
     /**
      * Returns a new bearer token for a valid refresh token.
      * Validation check and bookkeeping is realized via an internal refresh token table.
      * @param $refresh_token
      * @return array|bool
      */
-    public function getBearerTokenForRefreshToken($refresh_token)
-    {
+    public function getBearerTokenForRefreshToken($refresh_token) {
         $refresh_token_array = ilTokenLib::deserializeToken($refresh_token);
         if (ilTokenLib::tokenValid($refresh_token_array) == true) {
             $user = $refresh_token_array['user'];
@@ -463,18 +464,25 @@ class ilOAuth2Model
             return "Token not valid.";
         }
     }
+    
 
     /**
      * Returns the refresh token for an existing refresh token entry.
      * Decreases num_refresh_left field and updates the issuing time stamp.
      */
-    private function _issueExistingRefreshToken($user_id, $api_key)
-    {
+    private function _issueExistingRefreshToken($user_id, $api_key) {
         global $ilDB;
-        $query = "SELECT refresh_token, num_refresh_left FROM ui_uihk_rest_oauth2 WHERE user_id=".$user_id." AND api_id=".$ilDB->quote($this->_apiIdFromKey($api_key), "integer");
+        
+        $query = "
+            SELECT refresh_token, num_refresh_left 
+            FROM ui_uihk_rest_oauth2 
+            JOIN ui_uihk_rest_keys 
+            ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id 
+            AND ui_uihk_rest_oauth2.user_id=".$user_id." 
+            AND ui_uihk_rest_keys.api_key='".$api_key."'
+        ";
         $set = $ilDB->query($query);
-        if ($set!=null) {
-            $entry = $ilDB->fetchAssoc($set);
+        if ($set != null && $entry = $ilDB->fetchAssoc($set)) {
             $ct_num_refresh_left = $entry['num_refresh_left'];
             $refresh_token = $entry['refresh_token'];
 
@@ -485,7 +493,6 @@ class ilOAuth2Model
     }
 
 
-
     /**
      * Resets an existing refresh token entry:
      *  - Overwrites refresh token field
@@ -493,13 +500,20 @@ class ilOAuth2Model
      *  - Overwrites field num_refresh_left
      *  - Overwrites last_refresh_timestamp
      */
-    private function _resetRefreshTokenEntry($user_id, $api_key, $newRefreshToken)
-    {
+    private function _resetRefreshTokenEntry($user_id, $api_key, $newRefreshToken) {
         global $ilDB;
-        $query = "SELECT num_resets FROM ui_uihk_rest_oauth2 WHERE user_id=".$user_id." AND api_id=".$ilDB->quote($this->_apiIdFromKey($api_key), "integer");
+        
+        $query = "
+            SELECT num_resets 
+            FROM ui_uihk_rest_oauth2 
+            JOIN ui_uihk_rest_keys 
+            ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id 
+            AND ui_uihk_rest_oauth2.user_id=".$user_id." 
+            AND ui_uihk_rest_keys.api_key='".$api_key."'
+        ";
+        
         $set = $ilDB->query($query);
-        if ($set!=null) {
-            $entry = $ilDB->fetchAssoc($set);
+        if ($set != null && $entry = $ilDB->fetchAssoc($set)) {
             $ct_num_resets = $entry['num_resets'];
 
             $this->_updateRefreshTokenEntry($user_id, $api_key, "refresh_token", $newRefreshToken);
@@ -531,6 +545,7 @@ class ilOAuth2Model
         return array();
     }*/
 
+    
     /**
      * Provides information about an entry:
      * 1) Entry exists: yes or no.
@@ -542,31 +557,25 @@ class ilOAuth2Model
      * @param $api_key
      * @return array
      */
-    private function _checkRefreshTokenEntry($user_id, $api_key)
-    {
+    private function _checkRefreshTokenEntry($user_id, $api_key) {
         global $ilDB;
-        $query = "SELECT * FROM ui_uihk_rest_oauth2 WHERE user_id=".$ilDB->quote($user_id, "integer")." AND api_id=".$ilDB->quote($this->_apiIdFromKey($api_key), "integer");
+
+        $query = "
+            SELECT * 
+            FROM ui_uihk_rest_oauth2 
+            JOIN ui_uihk_rest_keys 
+            ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id 
+            AND ui_uihk_rest_oauth2.user_id=".$user_id." 
+            AND ui_uihk_rest_keys.api_key='".$api_key."'
+        ";
         $set = $ilDB->query($query);
-        $entry = $ilDB->fetchAssoc($set);
-        return $entry;
-    }
-    
-    /**
-     *
-     */
-    private function _apiIdFromKey($api_key) {
-        global $ilDB;
-        
-        $sql = "SELECT id FROM ui_uihk_rest_keys WHERE api_key = '".$api_key."'";
-        $query = $ilDB->query($sql);
-        if (!empty($query)) {
-            $row = $ilDB->fetchAssoc($query);
-            return $row['id'];
-        }
-        // TODO: Throw error / Respond with error
-        return -1;
+        if ($set != null && $entry = $ilDB->fetchAssoc($set))
+            return $entry;
+        else
+            return null;
     }
 
+    
     /**
      * Creates a new Refresh-Token Entry (helper).
      *
@@ -575,38 +584,53 @@ class ilOAuth2Model
      * @param $refresh_token
      * @return mixed the insertion id
      */
-    private function _createNewRefreshTokenEntry($user_id, $api_key, $refresh_token)
-    {
+    private function _createNewRefreshTokenEntry($user_id, $api_key, $refresh_token) {
         global $ilDB;
+        
+        $sql = "SELECT id FROM ui_uihk_rest_keys WHERE api_key = '".$api_key."'";
+        $query = $ilDB->query($sql);
+        if ($query != null && $row = $ilDB->fetchAssoc($query)) {
+            $api_id = $row['id'];
 
-        $a_columns = array(
-            "user_id" => array("text", $user_id),
-            "api_id" => array("text", $this->_apiIdFromKey($api_key)),
-            "refresh_token" => array("text", $refresh_token),
-            "num_refresh_left" => array("integer", 10000),
-            "last_refresh_timestamp" => array("date", date("Y-m-d H:i:s",0)),
-            "init_timestamp" => array("date", date("Y-m-d H:i:s",time())),
-            "num_resets" => array("integer", 0)
-        );
+            $a_columns = array(
+                "user_id" => array("text", $user_id),
+                "api_id" => array("text", $api_id),
+                "refresh_token" => array("text", $refresh_token),
+                "num_refresh_left" => array("integer", 10000),
+                "last_refresh_timestamp" => array("date", date("Y-m-d H:i:s",0)),
+                "init_timestamp" => array("date", date("Y-m-d H:i:s",time())),
+                "num_resets" => array("integer", 0)
+            );
 
-        $ilDB->insert("ui_uihk_rest_oauth2", $a_columns);
-        return $ilDB->getLastInsertId();
+            $ilDB->insert("ui_uihk_rest_oauth2", $a_columns);
+            return $ilDB->getLastInsertId();
+        }
     }
 
+    
     /**
      * Deletes a Refresh Token Entry
      * @param $user_id
      * @param $api_key
      * @return mixed
      */
-    private function _deleteRefreshTokenEntry($user_id, $api_key)
-    {
+    private function _deleteRefreshTokenEntry($user_id, $api_key) {
         global $ilDB;
-        $sql = "DELETE FROM ui_uihk_rest_oauth2 WHERE user_id =".$ilDB->quote($user_id, "integer")." AND api_id=".$ilDB->quote($this->_apiIdFromKey($api_key), "integer");
-        $numAffRows = $ilDB->manipulate($sql);
+        
+        $query = "
+            DELETE ui_uihk_rest_oauth2
+            FROM ui_uihk_rest_oauth2 
+            JOIN ui_uihk_rest_keys 
+            ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id 
+            AND ui_uihk_rest_oauth2.user_id=".$user_id." 
+            AND ui_uihk_rest_keys.api_key='".$api_key."'
+        ";
+        $numAffRows = $ilDB->manipulate($query);
+        
         return $numAffRows;
     }
 
+    
     /**
      * Updates a refresh token entry (helper).
      * @param $user_id
@@ -615,17 +639,25 @@ class ilOAuth2Model
      * @param $newval
      * @return mixed
      */
-    public function _updateRefreshTokenEntry($user_id, $api_key, $fieldname, $newval)
-    {
+    public function _updateRefreshTokenEntry($user_id, $api_key, $fieldname, $newval) {
         global $ilDB;
-        $sql = "UPDATE ui_uihk_rest_oauth2 SET $fieldname = \"$newval\" WHERE user_id = ".$ilDB->quote($user_id, "integer")." AND api_id=".$ilDB->quote($this->_apiIdFromKey($api_key), "integer");
-        $numAffRows = $ilDB->manipulate($sql);
+        
+        $query = "
+            UPDATE ui_uihk_rest_oauth2
+            JOIN ui_uihk_rest_keys 
+            ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id 
+            AND ui_uihk_rest_oauth2.user_id=".$user_id." 
+            AND ui_uihk_rest_keys.api_key='".$api_key."'
+            SET ".$fieldname." = \"".$newval."\"
+        ";
+        $numAffRows = $ilDB->manipulate($query);
+        
         return $numAffRows;
     }
-
-
     // ----------------------------------------------------------------------------------------------
     // Further OAuth2 routines
+    
+    
     /**
      * Tokeninfo - Tokens obtained via the implicit code grant MUST by validated by the Javascript client
      * to prevent the "confused deputy problem".
@@ -670,6 +702,7 @@ class ilOAuth2Model
         echo json_encode($result);
     }
 
+    
     /**
      * Allows for exchanging an ilias session to a bearer token.
      * This is used for administration purposes.

@@ -5,22 +5,15 @@ require_once "./Services/User/classes/class.ilObjUser.php";
 class ilAuthLib {
     
     static private $instance = null;
-    static private $db_container = null;
     static public $user = null;
     
     static public function getInstance()
     {
         if (null === self::$instance) {
-            self::$db_container = new ilAuthContainerMDB2();
             self::$instance = new self;
         }
         return self::$instance;
     }
-    
-    static public function authMDB2($user,$pwd)
-    {
-        return self::$db_container->fetchData($user,$pwd);
-    }    
     
     static public function headerBasicAuth()
     {
@@ -98,20 +91,8 @@ class ilAuthLib {
 
         $ilAuth->start();
         $checked_in = $ilAuth->getAuth();
-
-        /*if ($checked_in == true)
-        {
-            $result['msg'] = "User logged in successfully.";
-        } else
-        {
-            $result['msg'] = "User could not be logged in.";
-        }
-        */
-        //echo "sessid: ".session_name().' // '.session_id();
-        //(session_id().'::'.$client)
-
+        
         $ilAuth->logout();
-
         session_destroy();
         header_remove('Set-Cookie');
 
@@ -153,12 +134,10 @@ class ilAuthLib {
         $query = "SELECT * FROM ui_uihk_rest_keys WHERE api_key=\"".$api_key."\"";
         $set = $ilDB->query($query);
         $ret = $ilDB->fetchAssoc($set);
-        if ($ret) {
+        if ($ret) 
             return $ret;
-        }
-        else {
+        else 
             return false;
-        }
     }
 
     /**
@@ -169,23 +148,27 @@ class ilAuthLib {
      * @param api_key
      * @return bool
      */
-    static public function checkOAuth2Scope($route, $operation, $api_key)
-    {
+    static public function checkOAuth2Scope($route, $operation, $api_key) {
         global $ilDB;
-        if ($api_key == "") return false;
+        
+        if ($api_key == "") 
+            return false;
         $operation = strtoupper($operation);
-        $query = "SELECT * FROM ui_uihk_rest_keys WHERE api_key=\"".$api_key."\"";
-        $set = $ilDB->query($query);
-        $ret = $ilDB->fetchAssoc($set);
-        if ($ret) {
-            $a_permissions = json_decode($ret['permissions'],true);
-            foreach ($a_permissions as $entry) {
-                if ($entry['pattern'] == $route && $entry['verb'] == $operation) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        
+        $query = "
+            SELECT pattern, verb 
+            FROM ui_uihk_rest_perm 
+            JOIN ui_uihk_rest_keys 
+            ON ui_uihk_rest_keys.api_key='".$api_key."' 
+            AND ui_uihk_rest_keys.id = ui_uihk_rest_perm.api_id 
+            AND ui_uihk_rest_perm.pattern='".$route."'
+            AND ui_uihk_rest_perm.verb='".$operation."'
+        ";
+        $ret = $ilDB->fetchAssoc($ilDB->query($query));
+        if ($ret) 
+            return true;
+        else
+            return false;
     }
 
     /**
