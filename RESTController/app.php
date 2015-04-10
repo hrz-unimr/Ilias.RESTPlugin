@@ -1,4 +1,15 @@
 <?php
+/*
+$app->error(function (\Exception $e) use ($app) {
+    $app->render('error.php');
+});
+
+$app->notFound(function () use ($app) {
+    $app->render('404.html');
+});
+*/
+
+
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
