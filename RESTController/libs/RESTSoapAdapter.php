@@ -1,4 +1,12 @@
 <?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+ 
+ 
 require_once "./Services/User/classes/class.ilObjUser.php";
 
 /**
@@ -7,7 +15,7 @@ require_once "./Services/User/classes/class.ilObjUser.php";
  * to use the ILIAS SOAP webservice.
  */
 
-class ilRESTSoapAdapter {
+class RESTSoapAdapter {
     //static private $instance = null;
     public $SID = "";
 
@@ -16,9 +24,9 @@ class ilRESTSoapAdapter {
      */
     public function loginSOAP()
     {
-        ilRESTLib::initDefaultRESTGlobals();
-        ilRESTLib::initAccessHandling();
-        ilRESTLib::initSettings();
+        RESTLib::initDefaultRESTGlobals();
+        RESTLib::initAccessHandling();
+        RESTLib::initSettings();
 
         define ("IL_SOAPMODE", IL_SOAPMODE_INTERNAL);
         include_once "Services/Context/classes/class.ilContext.php";
@@ -52,7 +60,7 @@ class ilRESTSoapAdapter {
             return false;
         }
         $ilUser = new ilObjUser($user_id);
-        ilRESTLib::initGlobal("ilUser", $ilUser);
+        RESTLib::initGlobal("ilUser", $ilUser);
 
         $_POST['username'] = $username;
         $_POST['password'] = $password;
@@ -60,7 +68,7 @@ class ilRESTSoapAdapter {
         // add code 1
         if (!is_object($GLOBALS["ilPluginAdmin"]))
         {
-            ilRESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin",
+            RESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin",
                 "./Services/Component/classes/class.ilPluginAdmin.php");
         }
         // add code 2

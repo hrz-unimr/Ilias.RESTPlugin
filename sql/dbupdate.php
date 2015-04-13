@@ -1,3 +1,12 @@
+<?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+?>
+ 
 <#1>
 <?php
     global $ilLog;
@@ -64,7 +73,7 @@
             'notnull' => false,
             'default' => ""
         ),
-        'oauth2_gt_client_active' => array( // grant type
+        'oauth2_gt_client_active' => array(
             'type' => 'integer',
             'length' => 1,
             'notnull' => true,
@@ -106,13 +115,13 @@
             'notnull' => true,
             'default' => 0
         ),
-        'oauth2_authcode_refresh_active' => array( // oauth2_granttype_authorization_code_refresh_active
+        'oauth2_authcode_refresh_active' => array(
             'type' => 'integer',
             'length' => 1,
             'notnull' => true,
             'default' => 1
         ),
-        'oauth2_resource_refresh_active' => array( // oauth2_granttype_resourceowner_refresh_active
+        'oauth2_resource_refresh_active' => array(
             'type' => 'integer',
             'length' => 1,
             'notnull' => true,
@@ -274,8 +283,8 @@
             'length' => 4,
             'notnull' => true
         ),
-        'last_refresh_timestamp' => array('type' => 'timestamp'), // -> will be datetime in mysql!
-        'init_timestamp' => array('type' => 'timestamp'),        // -> will be datetime in mysql!
+        'last_refresh_timestamp' => array('type' => 'timestamp'),
+        'init_timestamp' => array('type' => 'timestamp'),
         'num_resets' => array('type' => 'integer', 'length' => 4, 'notnull' => true)
     );
     $ilDB->createTable("ui_uihk_rest_oauth2", $fields, true);

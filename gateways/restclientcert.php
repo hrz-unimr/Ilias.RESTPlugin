@@ -1,4 +1,11 @@
-<?php /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+ 
 
 // Buffers all output in order to prevent data from beeing displayed
 // before any header was sent/set, since we are doing REST und not just html

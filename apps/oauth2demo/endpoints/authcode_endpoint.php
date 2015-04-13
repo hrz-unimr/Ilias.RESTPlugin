@@ -57,7 +57,7 @@ if (isset($_GET['code'])){
         
         ?>
         <h3>OAuth2 Token via Authorization Code Workflow Retrieved!</h3>
-        <pre>Bearer-Token: <?php echo $decoded["access_token"]; ?></pre>
+        <pre>Bearer-Token: <?php echo (isset($decoded["access_token"])) ? $decoded["access_token"] : "[ ]"; ?></pre>
         <h4> The client can continue now making further API requests with the obtained bearer token.</h4>
         <?php
     }

@@ -12,7 +12,7 @@ $app->get('/clients', 'authenticateTokenOnly',  function () use ($app) {
         $result = array();
 
         // check if authorized user has admin role
-        $ilREST = new ilRESTLib();
+        $ilREST = new RESTLib();
         if (!$ilREST->isAdminByUsername($authorizedUser)) {  
             $result['status'] = 'failed';
             $result['msg'] = "Access denied. Administrator permissions required.";
@@ -42,7 +42,7 @@ $app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ /
     $result = array();
 
 
-    $request = new ilRESTRequest($app);
+    $request = new RESTRequest($app);
     $app->log->debug("Update data ".print_r($request->getRaw(),true));
 
     try {
@@ -53,7 +53,7 @@ $app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ /
     $app->log->debug("Update Data ".print_r($aUpdateData,true));
 
 
-    $ilREST = new ilRESTLib();
+    $ilREST = new RESTLib();
     if (!$ilREST->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
         $result['status'] = 'failed';
         $result['msg'] = "Access denied. Administrator permissions required.";
@@ -90,11 +90,11 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
         $env = $app->environment();
         $authorizedUser = $env['user'];
         $result = array();
-        $request = new ilRESTRequest($app);
+        $request = new RESTRequest($app);
 
         error_log("(Slim) Creating client...");
 
-        $ilREST = new ilRESTLib();
+        $ilREST = new RESTLib();
         if (!$ilREST->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
             $result['status'] = 'failed';
             $result['msg'] = "Access denied. Administrator permissions required.";
@@ -248,7 +248,7 @@ $app->delete('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app)
 
     $result = array();
 
-    $ilREST = new ilRESTLib();
+    $ilREST = new RESTLib();
     if (!$ilREST->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
 
         $result['status'] = 'failed';
@@ -274,12 +274,9 @@ $app->delete('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app)
 
 
 $app->get('/routes', function () use ($app) {
-
     $env = $app->environment();
-
     $result = array();
-
-    $routes = $app->router()->getNamedRoutes();
+    $routes = $app->router()->getRoutes();
 
     foreach($routes as $route) {
         $multiVerbs = $route->getHttpMethods();
@@ -287,6 +284,7 @@ $app->get('/routes', function () use ($app) {
         $middle = $route->getMiddleware();
         $result[] = array("pattern"=>$route->getPattern(), "verb"=>$verb, "middleware"=>(isset($middle[0]) ? $middle[0] : "none"));
     }
+    
     $r = array("routes"=>$result);
     $app->response()->header('Content-Type', 'application/json');
     echo json_encode($r);

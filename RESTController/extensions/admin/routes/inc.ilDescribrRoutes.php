@@ -14,8 +14,8 @@ $app->group('/admin', function () use ($app) {
      * Supported types: obj_id, ref_id, usr_id and file_id
      */
     $app->get('/describe/:id', 'authenticateILIASAdminRole', function ($id) use ($app) {
-        $request = new ilRESTRequest($app);
-        $response = new ilRESTResponse($app);
+        $request = new RESTRequest($app);
+        $response = new RESTResponse($app);
 
         try {
             $id_type = $request->getParam('id_type');
@@ -26,7 +26,7 @@ $app->group('/admin', function () use ($app) {
         $model = new ilDescribrModel();
         if ($id_type == 'ref_id' || $id_type == 'obj_id') {
             if ($id_type == 'ref_id') {
-                $obj_id = ilRESTLib::refid_to_objid($id);
+                $obj_id = RESTLib::refid_to_objid($id);
                 $id_type = 'obj_id';
             }
             //echo "obj_id:".$obj_id;
@@ -51,14 +51,14 @@ $app->group('/admin', function () use ($app) {
         }
 
         if ($id_type == 'usr_id') {
-            $username = ilRESTLib::userIdtoLogin($id);
+            $username = RESTLib::userIdtoLogin($id);
             //echo $username;
             try {
                 if ($username == 'User unknown') {
                     $response->setMessage('User not found.');
                     throw new Exception('User does not exist');
                 } else {
-                    ilRESTLib::initDefaultRESTGlobals();
+                    RESTLib::initDefaultRESTGlobals();
                     $usr_model = new ilUsersModel();
                     $usr_basic_info =  $usr_model->getBasicUserData($id);
                     if (empty($usr_basic_info) == true) {

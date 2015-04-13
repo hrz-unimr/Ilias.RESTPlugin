@@ -10,7 +10,7 @@ class ilExperimentalModel
     {
         global $ilSetting;
 
-        ilRESTLib::initGlobal("ilSetting", "ilSetting",
+        RESTLib::initGlobal("ilSetting", "ilSetting",
             "Services/Administration/classes/class.ilSetting.php");
 
         // check correct setup

@@ -9,9 +9,9 @@ $app->group('/v1', function () use ($app) {
      * Retrieves the content and a description of a course specified by ref_id.
      */
     $app->get('/courses/:ref_id', 'authenticate', function ($ref_id) use ($app) {
-        $response = new ilRESTResponse($app);
+        $response = new RESTResponse($app);
         $env = $app->environment();
-        $authorizedUserId =  ilRESTLib::loginToUserId($env['user']);
+        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
         try {
             $crs_model = new ilCoursesModel();
             $data1 =  $crs_model->getCourseContent($ref_id);
@@ -28,8 +28,8 @@ $app->group('/v1', function () use ($app) {
 
     $app->post('/courses', 'authenticate', function() use ($app) {
         $env = $app->environment();
-        $response = new ilRESTResponse($app);
-        $authorizedUserId =  ilRESTLib::loginToUserId($env['user']);
+        $response = new RESTResponse($app);
+        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
 
         $parent_container_ref_id = 1;
         $new_course_title = "";
@@ -55,13 +55,13 @@ $app->group('/v1', function () use ($app) {
         //$user_id = 6; // root for testing purposes
         $user_id = $authorizedUserId;
 
-        ilRESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        ilRESTLib::initDefaultRESTGlobals();
-        ilRESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
+        RESTLib::initDefaultRESTGlobals();
+        RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        ilRESTLib::initAccessHandling();
+        RESTLib::initAccessHandling();
         global $ilAccess;
         
         if(!$ilAccess->checkAccess("create_crs", "", $parent_container_ref_id)) {
@@ -103,12 +103,12 @@ $app->group('/v1', function () use ($app) {
      */
     $app->post('/courses/enroll', 'authenticateILIASAdminROle', function() use ($app) {
         $env = $app->environment();
-        $response = new ilRestResponse($app);
-        $request = new ilRestRequest($app);
+        $response = new RESTResponse($app);
+        $request = new RESTRequest($app);
         $mode = $request->getParam("mode");
         if($mode == "by_login") {
             $login = $request->getParam("login");
-            $user_id = ilRestLib::loginToUserId($login);
+            $user_id = RESTLib::loginToUserId($login);
             if(empty($user_id)){
                 $data = $request->getParam("data");
                 $userData = array_merge(array(
@@ -147,9 +147,9 @@ $app->group('/v1', function () use ($app) {
 
     $app->get('/courses/join', 'authenticate', function () use ($app) {
         $env = $app->environment();
-        $response = new ilRESTResponse($app);
-        $request = new ilRESTRequest($app);
-        $authorizedUserId =  ilRESTLib::loginToUserId($env['user']);
+        $response = new RESTResponse($app);
+        $request = new RESTRequest($app);
+        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
         try {
             $ref_id = $request->getParam("ref_id");
             $crsreg_model = new ilCoursesRegistrationModel();
@@ -170,9 +170,9 @@ $app->group('/v1', function () use ($app) {
 
     $app->get('/courses/leave', 'authenticate', function () use ($app) {
         $env = $app->environment();
-        $response = new ilRESTResponse($app);
-        $request = new ilRESTRequest($app);
-        $authorizedUserId =  ilRESTLib::loginToUserId($env['user']);
+        $response = new RESTResponse($app);
+        $request = new RESTRequest($app);
+        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
         try {
             $ref_id = $request->getParam("ref_id");
             $crsreg_model = new ilCoursesRegistrationModel();

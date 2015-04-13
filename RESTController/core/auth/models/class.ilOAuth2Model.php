@@ -31,17 +31,16 @@ class ilOAuth2Model {
                 'response_type' => $response_type
             ));
         } elseif ($username && $password) {
-            $ilAuth = & ilAuthLib::getInstance();
-            $isAuth = $ilAuth->authenticateViaIlias($username, $password);
+            $isAuth = AuthLib::authenticateViaIlias($username, $password);
 
-            $clientValid = $ilAuth->checkOAuth2Client($api_key);
+            $clientValid = AuthLib::checkOAuth2Client($api_key);
             if ($isAuth == true && $clientValid == true){
                 $clients_model = new ilClientsModel();
                 if ($clients_model->clientExists($api_key)) {
                     if ($clients_model->is_oauth2_gt_authcode_enabled($api_key)) {
                         if($clients_model->is_oauth2_consent_message_enabled($api_key) == true) {
                             // Standard behaviour of the "authorization code grant": having an additional page with a consent message
-                            $temp_authenticity_token = ilTokenLib::serializeToken(ilTokenLib::generateToken($username, $api_key, "", "", 10));
+                            $temp_authenticity_token = TokenLib::generateSerializedToken($username, $api_key, "", "", 10);
                             $oauth2_consent_message = $clients_model->getOAuth2ConsentMessage($api_key);
                             
                             ilOAuth2Model::render($app, 'REST OAuth - Client autorisieren', 'oauth2grantpermissionform.php', array(
@@ -52,8 +51,7 @@ class ilOAuth2Model {
                                 'oauth2_consent_message' => $oauth2_consent_message
                             ));
                         } else {
-                            $tempToken = ilTokenLib::generateToken($username, $api_key, "code", $redirect_uri,10);
-                            $authorization_code = ilTokenLib::serializeToken($tempToken);
+                            $authorization_code = TokenLib::generateSerializedToken($username, $api_key, "code", $redirect_uri,10);
                             $url = $redirect_uri . "?code=".$authorization_code;
                             $app->redirect($url);
                         }
@@ -75,12 +73,11 @@ class ilOAuth2Model {
                 ));
             }
         } elseif ($authenticity_token && $redirect_uri) {
-            $authenticity_token = ilTokenLib::deserializeToken($authenticity_token);
+            $authenticity_token = TokenLib::deserializeToken($authenticity_token);
             $user = $authenticity_token['user'];
 
-            if (!ilTokenLib::tokenExpired($authenticity_token)) {
-                $tempToken = ilTokenLib::generateToken($user, $api_key, "code", $redirect_uri,10);
-                $authorization_code = ilTokenLib::serializeToken($tempToken);
+            if (!TokenLib::tokenExpired($authenticity_token)) {
+                $authorization_code = TokenLib::generateSerializedToken($user, $api_key, "code", $redirect_uri,10);
                 $url = $redirect_uri . "?code=".$authorization_code;
                 $app->redirect($url);
             }
@@ -113,10 +110,8 @@ class ilOAuth2Model {
                             'response_type' => $response_type
                         ));
                     } elseif ($username && $password) {
-                        $iliasAuth = & ilAuthLib::getInstance();
-
-                        $isAuth = $iliasAuth->authenticateViaIlias($username, $password);
-                        $clientValid = $iliasAuth->checkOAuth2Client($api_key);
+                        $isAuth = AuthLib::authenticateViaIlias($username, $password);
+                        $clientValid = AuthLib::checkOAuth2Client($api_key);
                         if ($isAuth == true) {
                             $app->log->debug("Implicit Grant Flow - Auth valid");
                         } else {
@@ -127,7 +122,7 @@ class ilOAuth2Model {
                         $app->log->debug("Implicit Grant Flow - Client valid: ".print_r($clientValid,true));
                         if ($isAuth == true && $clientValid != false) {
                             $app->log->debug("Implicit Grant Flow - proceed to grant permission form" );
-                            $temp_authenticity_token = ilTokenLib::serializeToken(ilTokenLib::generateToken($username, $api_key, "", "", 10));
+                            $temp_authenticity_token = TokenLib::generateSerializedToken($username, $api_key, "", "", 10);
                             $oauth2_consent_message = $clients_model->getOAuth2ConsentMessage($api_key);
                             
                             ilOAuth2Model::render($app, 'REST OAuth - Client autorisieren', 'oauth2grantpermissionform.php', array(
@@ -146,14 +141,14 @@ class ilOAuth2Model {
                             ));
                         }
                     } elseif ($authenticity_token && $redirect_uri) {
-                        $authenticity_token = ilTokenLib::deserializeToken($authenticity_token);
+                        $authenticity_token = TokenLib::deserializeToken($authenticity_token);
                         $user = $authenticity_token['user'];
 
-                        if (!ilTokenLib::tokenExpired($authenticity_token)) { // send bearer token
+                        if (!TokenLib::tokenExpired($authenticity_token)) { // send bearer token
                             $clients_model = new ilClientsModel();
                             if ($clients_model->clientExists($api_key)) {
                                 if ($clients_model->is_oauth2_gt_implicit_enabled($api_key)) {
-                                    $bearerToken = ilTokenLib::generateBearerToken($user, $api_key);
+                                    $bearerToken = TokenLib::generateBearerToken($user, $api_key);
                                     $url = $redirect_uri . "#access_token=".$bearerToken['access_token']."&token_type=bearer"."&expires_in=".$bearerToken['expires_in']."&state=xyz";
                                     $app->redirect($url);
                                 }
@@ -173,9 +168,8 @@ class ilOAuth2Model {
                             'response_type' => $response_type
                         ));
                     } elseif ($username && $password) {
-                        $iliasAuth = & ilAuthLib::getInstance();
-                        $isAuth = $iliasAuth->authenticateViaIlias($username, $password);
-                        $clientValid = $iliasAuth->checkOAuth2Client($api_key);
+                        $isAuth = AuthLib::authenticateViaIlias($username, $password);
+                        $clientValid = AuthLib::checkOAuth2Client($api_key);
 
                         if ($isAuth == true) {
                             $app->log->debug("Implicit Grant Flow - Auth valid");
@@ -185,7 +179,7 @@ class ilOAuth2Model {
                         }
                         $app->log->debug("Implicit Grant Flow - Client valid: ".print_r($clientValid,true));
                         if ($isAuth == true && $clientValid != false) {
-                            $bearerToken = ilTokenLib::generateBearerToken($username, $api_key);
+                            $bearerToken = TokenLib::generateBearerToken($username, $api_key);
                             $url = $redirect_uri . "#access_token=".$bearerToken['access_token']."&token_type=bearer"."&expires_in=".$bearerToken['expires_in']."&state=xyz";
                             $app->redirect($url);
                         }else {
@@ -222,9 +216,8 @@ class ilOAuth2Model {
         $user = $request->getParam('username');
         $pass = $request->getParam('password');
         $api_key = $request->getParam('api_key');
-
-        $ilAuth = & ilAuthLib::getInstance();
-        $isAuth = $ilAuth->authenticateViaIlias($user, $pass); // this includes ilias auth against the DB
+        
+        $isAuth = AuthLib::authenticateViaIlias($user, $pass);
 
         if ($isAuth == false) {
             $response->setHttpStatus(401);
@@ -236,14 +229,14 @@ class ilOAuth2Model {
                 if ($clients_model->is_oauth2_gt_resourceowner_enabled($api_key)) {
                     $allowed_users = $clients_model->getAllowedUsersForApiKey($api_key);
                     $access_granted = false;
-                    $uid = (int)ilRESTLib::loginToUserId($user);
+                    $uid = (int)RESTLib::loginToUserId($user);
 
                     if (in_array(-1, $allowed_users) || in_array($uid, $allowed_users)) {
                         $access_granted = true;
                     }
                     if ($access_granted == true) {
                         $app->log->debug("access granted");
-                        $bearer_token = ilTokenLib::generateBearerToken($user, $api_key);
+                        $bearer_token = TokenLib::generateBearerToken($user, $api_key);
                         $response->setHttpHeader('Cache-Control', 'no-store');
                         $response->setHttpHeader('Pragma', 'no-cache');
                         $response->setField("access_token", $bearer_token['access_token']);
@@ -251,7 +244,7 @@ class ilOAuth2Model {
                         $response->setField("token_type", $bearer_token['token_type']);
                         $response->setField("scope", $bearer_token['scope']);
                         if ($clients_model->is_resourceowner_refreshtoken_enabled($api_key)) {
-                            $refresh_token = $this->getRefreshToken(ilTokenLib::deserializeToken($bearer_token['access_token']));
+                            $refresh_token = $this->getRefreshToken(TokenLib::deserializeToken($bearer_token['access_token']));
                             $response->setField("refresh_token", $refresh_token);
                         }
                     } else {
@@ -279,18 +272,17 @@ class ilOAuth2Model {
         $api_key = $request->getParam('api_key');
         $api_secret = $request->getParam('api_secret');
 
-        $ilAuth = & ilAuthLib::getInstance();
         $clients_model = new ilClientsModel();
         if ($clients_model->clientExists($api_key)) {
             if ($clients_model->is_oauth2_gt_clientcredentials_enabled($api_key)) {
                 $uid = (int)$clients_model->getClientCredentialsUser($api_key);
-                $user = ilRESTLib::userIdtoLogin($uid);
-                $authResult = $ilAuth->checkOAuth2ClientCredentials($api_key, $api_secret);
+                $user = RESTLib::userIdtoLogin($uid);
+                $authResult = AuthLib::checkOAuth2ClientCredentials($api_key, $api_secret);
                 if (!$authResult) {
                     $response->setHttpStatus(401);
                 }
                 else {
-                    $bearer_token = ilTokenLib::generateBearerToken($user,$api_key);
+                    $bearer_token = TokenLib::generateBearerToken($user,$api_key);
                     $response->setHttpHeader('Cache-Control', 'no-store');
                     $response->setHttpHeader('Pragma', 'no-cache');
                     $response->setField("access_token",$bearer_token['access_token']);
@@ -323,21 +315,19 @@ class ilOAuth2Model {
         $redirect_uri = $request->getParam("redirect_uri");
 
         $api_key = $_POST['api_key'];
-        $app->log->debug("Handle Token-Endpoint > api key" . $api_key);
+        $app->log->debug("Handle Token-Endpoint > api-key " . $api_key);
         $api_secret = $request->getParam('api_secret'); // also check by other means
 
-        $ilAuth = & ilAuthLib::getInstance();
-        $app->log->debug("Handle Token-Endpoint >checkOAuth2ClientCredentials( ".$api_key.",".$api_secret.")");
-        $isClientAuthorized = $ilAuth->checkOAuth2ClientCredentials($api_key, $api_secret);
-
+        $app->log->debug("Handle Token-Endpoint > checkOAuth2ClientCredentials( ".$api_key.",".$api_secret.")");
+        $isClientAuthorized = AuthLib::checkOAuth2ClientCredentials($api_key, $api_secret);
+        
         if (!$isClientAuthorized) {
             $app->response()->status(401);
         } else {
             $app->log->debug("Handle Token-Endpoint > HERE ");
-            $code_token = ilTokenLib::deserializeToken($code);
-            $app->log->debug("Handle Token-Endpoint > code token" . print_r($code_token,true));
-            // $valid = ilTokenLib::tokenValid($code_token); // this line is not needed, because tokenExpired also checks the validity of a token
-            if (!ilTokenLib::tokenExpired($code_token)){
+            $code_token = TokenLib::deserializeToken($code);
+            $app->log->debug("Handle Token-Endpoint > code token " . print_r($code_token,true));
+            if (!TokenLib::tokenExpired($code_token)){
                 $t_redirect_uri = $code_token['misc'];
                 $t_user = $code_token['user'];
                 $t_client_id = $code_token['api_key'];
@@ -349,14 +339,14 @@ class ilOAuth2Model {
                         if ($clients_model->is_oauth2_gt_authcode_enabled($t_client_id)) {
                             $allowed_users = $clients_model->getAllowedUsersForApiKey($t_client_id);
                             $access_granted = false;
-                            $uid = (int)ilRESTLib::loginToUserId($t_user);
+                            $uid = (int)RESTLib::loginToUserId($t_user);
 
                             if (in_array(-1, $allowed_users) || in_array($uid, $allowed_users)) {
                                 $access_granted = true;
                             }
                             if ($access_granted == true) {
                                 $app->log->debug("auth code access granted. user: ".$t_user." key: ".$api_key);
-                                $bearer_token = ilTokenLib::generateBearerToken($t_user, $api_key);
+                                $bearer_token = TokenLib::generateBearerToken($t_user, $api_key);
                                 $response->setHttpHeader('Cache-Control', 'no-store');
                                 $response->setHttpHeader('Pragma', 'no-cache');
                                 $response->setField("access_token", $bearer_token['access_token']);
@@ -364,7 +354,7 @@ class ilOAuth2Model {
                                 $response->setField("token_type", $bearer_token['token_type']);
                                 $response->setField("scope", $bearer_token['scope']);
                                 if ($clients_model->is_authcode_refreshtoken_enabled($api_key)) { // optional
-                                    $refresh_token = $this->getRefreshToken(ilTokenLib::deserializeToken($bearer_token['access_token']));
+                                    $refresh_token = $this->getRefreshToken(TokenLib::deserializeToken($bearer_token['access_token']));
                                     $response->setField("refresh_token", $refresh_token);
                                 }
 
@@ -392,7 +382,7 @@ class ilOAuth2Model {
      * @throws Exception
      */
     public function handleTokenEndpoint_refreshToken2Bearer($app) {
-        $request = new ilRESTRequest($app);
+        $request = new RESTRequest($app);
         $response = new ilOauth2Response($app);
 
         $refresh_token = $request->getParam("refresh_token");
@@ -416,11 +406,11 @@ class ilOAuth2Model {
      * @return string
      */
     public function getRefreshToken($bearer_token_array) {
-        $user_id = ilRESTLib::loginToUserId($bearer_token_array['user']);
+        $user_id = RESTLib::loginToUserId($bearer_token_array['user']);
         $api_key = $bearer_token_array['api_key'];
         $entry = $this->_checkRefreshTokenEntry($user_id, $api_key);
 
-        $newRefreshToken = ilTokenLib::serializeToken(ilTokenLib::generateOAuth2RefreshToken($bearer_token_array['user'], $bearer_token_array['api_key']));
+        $newRefreshToken = TokenLib::serializeToken(TokenLib::generateOAuth2RefreshToken($bearer_token_array['user'], $bearer_token_array['api_key']));
         if ($entry == null) { // Create new entry
             $this->_createNewRefreshTokenEntry($user_id,  $api_key, $newRefreshToken);
             return $newRefreshToken;
@@ -438,10 +428,10 @@ class ilOAuth2Model {
      * @return array|bool
      */
     public function getBearerTokenForRefreshToken($refresh_token) {
-        $refresh_token_array = ilTokenLib::deserializeToken($refresh_token);
-        if (ilTokenLib::tokenValid($refresh_token_array) == true) {
+        $refresh_token_array = TokenLib::deserializeToken($refresh_token);
+        if (TokenLib::tokenValid($refresh_token_array) == true) {
             $user = $refresh_token_array['user'];
-            $user_id = ilRESTLib::loginToUserId($user);
+            $user_id = RESTLib::loginToUserId($user);
             $api_key = $refresh_token_array['api_key'];
             $entry = $this->_checkRefreshTokenEntry($user_id, $api_key);
             if ($entry == null) {
@@ -450,7 +440,7 @@ class ilOAuth2Model {
                 if ($entry['num_refresh_left'] > 0 ) {
                     if ($entry['refresh_token'] == $refresh_token) {
                         $this->_issueExistingRefreshToken($user_id, $api_key);
-                        $bearer_token = ilTokenLib::generateBearerToken($user, $api_key);
+                        $bearer_token = TokenLib::generateBearerToken($user, $api_key);
                         return $bearer_token;
                     } else {
                         return false;
@@ -530,7 +520,7 @@ class ilOAuth2Model {
      */
     /*public function getRefreshEntryInfo($bearer_token_array)
     {
-        $user_id = ilRESTLib::loginToUserId($bearer_token_array['user']);
+        $user_id = RESTLib::loginToUserId($bearer_token_array['user']);
         $api_key = $bearer_token_array['api_key'];
 
         $entry = $this->_checkRefreshTokenEntry($user_id, $api_key);
@@ -685,15 +675,15 @@ class ilOAuth2Model {
             }
         }
 
-        $token = ilTokenLib::deserializeToken($access_token);
-        $valid = ilTokenLib::tokenValid($token);
+        $token = TokenLib::deserializeToken($access_token);
+        $valid = TokenLib::tokenValid($token);
         $result = array();
         if ($valid) {
             $result['api_key'] = $token['api_key'];
             // scope
             $result['user'] =  $token['user'];
             $result['type'] =  $token['type'];
-            $result['expires_in'] = ilTokenLib::getRemainingTime($token);
+            $result['expires_in'] = TokenLib::getRemainingTime($token);
 
         } else {
             $app->response()->status(400);
@@ -734,8 +724,7 @@ class ilOAuth2Model {
             $api_key = $request->params('api_key');
         }
 
-        $ilAuth = & ilAuthLib::getInstance();
-        $isAuth = $ilAuth->authFromIlias($user_id, $rtoken, $session_id);
+        $isAuth = AuthLib::authFromIlias($user_id, $rtoken, $session_id);
 
         if ($isAuth == false) {
             //$app->response()->status(400);
@@ -747,8 +736,8 @@ class ilOAuth2Model {
 
         }
         else {
-            $user = ilRESTLib::userIdtoLogin($user_id);
-            $access_token = ilTokenLib::generateBearerToken($user, $api_key);
+            $user = RESTLib::userIdtoLogin($user_id);
+            $access_token = TokenLib::generateBearerToken($user, $api_key);
             $result['status'] = "success";
             $result['user'] = $user;
             $result['token'] = $access_token;

@@ -75,7 +75,7 @@ $app->get('/v1/oauth2/auth', function () use ($app) {
 */
 $app->post('/v1/oauth2/token', function () use ($app) {
 
-    $request = new ilRESTRequest($app);
+    $request = new RESTRequest($app);
     $model = new ilOAuth2Model();
     $app->log->debug("Entering Token-Endpoint ... GC: ".$request->getParam('grant_type'));
     if ($request->getParam('grant_type') == "password") { // = user credentials grant
@@ -99,7 +99,7 @@ $app->post('/v1/oauth2/token', function () use ($app) {
  */
 $app->get('/v1/oauth2/refresh', 'authenticate', function () use ($app) {
     $env = $app->environment();
-    $uid = ilRESTLib::loginToUserId($env['user']);
+    $uid = RESTLib::loginToUserId($env['user']);
     $response = new ilOauth2Response($app);
     global $ilLog;
     $ilLog->write('Requesting new refresh token for user '.$uid);

@@ -1,8 +1,16 @@
 <?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+ 
+ 
 require_once "./Services/User/classes/class.ilObjUser.php";
 require_once "./Services/AccessControl/classes/class.ilRbacReview.php";
 
-class ilRESTLib {
+class RESTLib {
 
     /**
      * Initialize global instance

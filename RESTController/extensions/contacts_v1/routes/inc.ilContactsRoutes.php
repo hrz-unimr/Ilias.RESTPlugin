@@ -10,9 +10,9 @@ $app->group('/v1', function () use ($app) {
      */
     $app->get('/contacts/:id', 'authenticate', function ($id) use ($app) {
         $env = $app->environment();
-        $response = new ilRESTResponse($app);
-        $authorizedUserId =  ilRESTLib::loginToUserId($env['user']);
-        if ($authorizedUserId == $id || ilRESTLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
+        $response = new RESTResponse($app);
+        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
+        if ($authorizedUserId == $id || RESTLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
             try {
                 $model = new ilContactsModel();
                 $data = $model->getMyContacts($id);

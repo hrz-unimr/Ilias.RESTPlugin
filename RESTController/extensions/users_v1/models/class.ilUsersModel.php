@@ -102,7 +102,7 @@ class ilUsersModel
         $new_user->saveAsNew();
 
         // Assign "User" role per default
-        ilRestLib::initAccessHandling();
+        RESTLib::initAccessHandling();
         global $rbacadmin, $rbacreview;
         $user_role_array = $rbacreview->getRolesByFilter($rbacreview::FILTER_ALL, 0, 'User');
         $user_role_id = $user_role_array[0]['obj_id'];
@@ -156,8 +156,8 @@ class ilUsersModel
 
         // TODO: do it here or in route?
         $app = new \Slim\Slim();
-        ilAuthLib::setUserContext($app->environment['user']);  // filled by auth middleware
-        ilRESTLib::initAccessHandling();
+        AuthLib::setUserContext($app->environment['user']);  // filled by auth middleware
+        RESTLib::initAccessHandling();
 
 
         $parser = new ilUserImportParser();

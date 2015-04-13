@@ -4,8 +4,8 @@ class ilRepositoryAdminModel
 {
     public function getChildrenOfRoot()
     {
-        ilRESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        ilRESTLib::initDefaultRESTGlobals();
+        RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
+        RESTLib::initDefaultRESTGlobals();
 
         $tree = new ilTree(ROOT_FOLDER_ID);
         $childs = $tree->getChilds(ROOT_FOLDER_ID);
@@ -14,8 +14,8 @@ class ilRepositoryAdminModel
 
     public function getChildren($ref_id)
     {
-        ilRESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        ilRESTLib::initDefaultRESTGlobals();
+        RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
+        RESTLib::initDefaultRESTGlobals();
 
         $tree = new ilTree(ROOT_FOLDER_ID);
         $childs = $tree->getChilds($ref_id);
@@ -76,8 +76,8 @@ class ilRepositoryAdminModel
     {
        // echo "Running getRekNode (".$ref_id.",".$parent_ref_id.") \n";
         // Step: get node data
-        $obj_id = ilRESTLib::refid_to_objid($ref_id);
-        $node_data = ilRESTLib::getObjectData($obj_id, array('create_date','description','title','type'));
+        $obj_id = RESTLib::refid_to_objid($ref_id);
+        $node_data = RESTLib::getObjectData($obj_id, array('create_date','description','title','type'));
         $node_data['ref_id'] = "$ref_id";
 
         // Step: get children (crs, cat)
@@ -158,8 +158,8 @@ class ilRepositoryAdminModel
     {
         // echo "Running getRekNode (".$ref_id.",".$parent_ref_id.") \n";
         // Step: get node data
-        $obj_id = ilRESTLib::refid_to_objid($ref_id);
-        $node_data = ilRESTLib::getObjectData($obj_id, array('create_date','description','title','type'));
+        $obj_id = RESTLib::refid_to_objid($ref_id);
+        $node_data = RESTLib::getObjectData($obj_id, array('create_date','description','title','type'));
         $node_data['ref_id'] = "$ref_id";
 
         // Step: get children (crs, cat)
@@ -169,8 +169,8 @@ class ilRepositoryAdminModel
         //$a_timestamps = array();
         foreach ($childs as $item) {
             // Check if the current item has been read within the last $max_timeinterval
-            $ct_obj_id = ilRESTLib::refid_to_objid($item['ref_id']);
-            $ct_last_read = ilRESTLib::getLatestReadEventTimestamp($ct_obj_id);
+            $ct_obj_id = RESTLib::refid_to_objid($item['ref_id']);
+            $ct_last_read = RESTLib::getLatestReadEventTimestamp($ct_obj_id);
             if (time() - $max_timeinterval < $ct_last_read) {
                // echo "within! last read event: ".date('Y-m-d H-i-s', $ct_last_read)."\n";
                 //$a_timestamps [] = date('Y-m-d H-i-s', $ct_last_read);
@@ -214,12 +214,12 @@ class ilRepositoryAdminModel
     {
         // echo "Running getRekNode (".$ref_id.",".$parent_ref_id.") \n";
         // Step: get node data
-        $obj_id = ilRESTLib::refid_to_objid($ref_id);
+        $obj_id = RESTLib::refid_to_objid($ref_id);
         $node_data = array();
-        //$node_data = ilRESTLib::getObjectData($obj_id, array('create_date','description','title','type'));
-        $obj_id = ilRESTLib::refid_to_objid($ref_id);
+        //$node_data = RESTLib::getObjectData($obj_id, array('create_date','description','title','type'));
+        $obj_id = RESTLib::refid_to_objid($ref_id);
         $node_data['obj_id'] = "$obj_id";
-        $a_timestamps = ilRESTLib::getTopKReadEventTimestamp($obj_id, $k);
+        $a_timestamps = RESTLib::getTopKReadEventTimestamp($obj_id, $k);
         $node_data['timestamps'] = $a_timestamps;
 
         // Step: get children (crs, cat)
@@ -260,13 +260,13 @@ class ilRepositoryAdminModel
      */
     public function createNewCategoryAsUser($parent_ref_id, $title, $desc)
     {
-        ilRESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        ilRESTLib::initDefaultRESTGlobals();
-        ilRESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
+        RESTLib::initDefaultRESTGlobals();
+        RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId(6);
         $ilUser->read();
-        ilRESTLib::initAccessHandling();
+        RESTLib::initAccessHandling();
 
         include_once("Modules/Category/classes/class.ilObjCategory.php");
         $newObj = new ilObjCategory();

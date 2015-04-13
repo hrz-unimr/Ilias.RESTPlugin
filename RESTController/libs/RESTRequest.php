@@ -1,14 +1,20 @@
 <?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
 
 
-class ilRESTRequest {
+class RESTRequest {
 
     private $app;
     private $content_type;
     public $json_arr;
     private $json_decoded;
 
-    public function ilRESTRequest($app) {
+    public function RESTRequest($app) {
         $this->app = $app;
         $this->slimReq = $app->request();
         $this->content_type = $app->request()->headers()->get('Content-Type');

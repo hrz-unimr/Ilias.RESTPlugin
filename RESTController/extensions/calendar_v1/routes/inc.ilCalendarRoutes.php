@@ -9,10 +9,10 @@ $app->group('/v1', function () use ($app) {
      */
     $app->get('/cal/events/:id', 'authenticate', function ($id) use ($app) {
         $env = $app->environment();
-        $response = new ilRESTResponse($app);
-        $authorizedUserId =  ilRESTLib::loginToUserId($env['user']);
+        $response = new RESTResponse($app);
+        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
 
-        if ($authorizedUserId == $id || ilRESTLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
+        if ($authorizedUserId == $id || RESTLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
             try {
                 $model = new ilCalendarModel();
                 $data = $model->getCalUpcomingEvents($id);
@@ -34,9 +34,9 @@ $app->group('/v1', function () use ($app) {
      */
     $app->get('/cal/icalurl/:id', 'authenticate' , function ($id) use ($app) {
         $env = $app->environment();
-        $response = new ilRESTResponse($app);
-        $authorizedUserId =  ilRESTLib::loginToUserId($env['user']);
-        if ($authorizedUserId == $id || ilRESTLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
+        $response = new RESTResponse($app);
+        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
+        if ($authorizedUserId == $id || RESTLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
             try {
                 $model = new ilCalendarModel();
                 $data = $model->getIcalAdress($id);

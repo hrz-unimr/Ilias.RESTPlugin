@@ -11,8 +11,8 @@ $app->group('/admin', function () use ($app) {
 
 
     $app->get('/testquestion/:question_id', 'authenticateILIASAdminRole', function ($question_id) use ($app) {
-        $request = new ilRESTRequest($app);
-        $response = new ilRESTResponse($app);
+        $request = new RESTRequest($app);
+        $response = new RESTResponse($app);
 
         $model = new ilTestQuestionModel();
         $data = $model->getQuestion($question_id);

@@ -13,10 +13,10 @@ $app->group('/v1', function () use ($app) {
      */
     $app->get('/files/:id', 'authenticate',  function ($id) use ($app) {
         $env = $app->environment();
-        $user_id = ilRESTLib::loginToUserId($env['user']);
+        $user_id = RESTLib::loginToUserId($env['user']);
 
-        $request = new ilRESTRequest($app);
-        $response = new ilRESTResponse($app);
+        $request = new RESTRequest($app);
+        $response = new RESTResponse($app);
 
         try {
             $meta_data = $request->getParam('meta_data');
@@ -35,7 +35,7 @@ $app->group('/v1', function () use ($app) {
 
 
         if ($id_type == "ref_id") {
-            $obj_id = ilRESTLib::refid_to_objid($id);
+            $obj_id = RESTLib::refid_to_objid($id);
         } else {
             $obj_id = $id;
         }

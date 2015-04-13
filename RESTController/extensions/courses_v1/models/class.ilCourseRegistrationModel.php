@@ -24,14 +24,14 @@ class ilCoursesRegistrationModel
     public function joinCourse($user_id, $ref_id)
     {
 
-        ilRESTLib::initDefaultRESTGlobals();
+        RESTLib::initDefaultRESTGlobals();
 
         $this->user_id = $user_id;
         $this->ref_id = $ref_id;
-        $this->obj_id = ilRESTLib::refid_to_objid($ref_id);
+        $this->obj_id = RESTLib::refid_to_objid($ref_id);
         $this->container = ilObjectFactory::getInstanceByRefId($this->ref_id, false);
 
-        ilRESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global $ilUser;
         $ilUser->setId($user_id);
         try {
@@ -39,7 +39,7 @@ class ilCoursesRegistrationModel
         } catch (Exception $e) {
             return false;
         }
-        ilRESTLib::initAccessHandling();
+        RESTLib::initAccessHandling();
 
         $this->initParticipants();
         $this->initWaitingList();
@@ -59,14 +59,14 @@ class ilCoursesRegistrationModel
      */
     public function leaveCourse($user_id, $ref_id)
     {
-        ilRESTLib::initDefaultRESTGlobals();
+        RESTLib::initDefaultRESTGlobals();
         $this->container = ilObjectFactory::getInstanceByRefId($ref_id, false);
 
-        ilRESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        ilRESTLib::initAccessHandling();
+        RESTLib::initAccessHandling();
         if ($this->checkUnsubscribeConditions() == false) {
             echo "User cannot leave the course, because she is the last course admin.";
         } else {

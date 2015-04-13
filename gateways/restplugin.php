@@ -1,4 +1,10 @@
-<?php /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
 
 
 // Buffers all output in order to prevent data from beeing displayed
@@ -49,12 +55,20 @@ ob_end_clean();
 
 // Run the RESTController or return error-code
 if ($ilPluginAdmin->isActive(IL_COMP_SERVICE, "UIComponent", "uihk", "REST")) {
+    // Fetch plugin object
     $ilRESTPlugin = $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, "UIComponent", "uihk", "REST");
+    
+    // Include RESTController (containing REST-Logic)
     require_once($ilRESTPlugin->getDirectory() . '/RESTController/app.php');
     
+    // Run RESTController app
     $app->run();
 } else {
-    header("HTTP/1.0 405 Disabled");
-    header("Warning: REST-Interface is disabled");
-    echo "REST-Interface is disabled\r\n";
+    // Display an appropriate error-message
+    header('HTTP/1.0 404 Disabled');
+    header('Warning: REST-Interface is disabled.');
+    header('Content-Type: application/json');
+    echo '{
+        "msg": "REST-Interface is disabled."
+    }';
 }

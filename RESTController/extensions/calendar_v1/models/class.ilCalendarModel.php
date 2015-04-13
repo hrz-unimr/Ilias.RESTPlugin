@@ -12,22 +12,22 @@ class ilCalendarModel
      */
     function getCalUpcomingEvents($user_id)
     {
-        ilRESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        ilRESTLib::initDefaultRESTGlobals();
+        RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
+        RESTLib::initDefaultRESTGlobals();
 
-        ilRESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        ilRESTLib::initAccessHandling();
+        RESTLib::initAccessHandling();
 
-        ilRESTLib::initGlobal("ilObjDataCache", "ilObjectDataCache",
+        RESTLib::initGlobal("ilObjDataCache", "ilObjectDataCache",
             "./Services/Object/classes/class.ilObjectDataCache.php");
 
         // needed in ilObjectDefinition
         require_once "./Services/Xml/classes/class.ilSaxParser.php";
 
-        ilRESTLib::initGlobal("objDefinition", "ilObjectDefinition",
+        RESTLib::initGlobal("objDefinition", "ilObjectDefinition",
             "./Services/Object/classes/class.ilObjectDefinition.php");
         global $ilObjDataCache, $objDefinition;
 
@@ -106,13 +106,13 @@ class ilCalendarModel
      */
     function getIcalAdress($user_id)
     {
-        ilRESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        ilRESTLib::initDefaultRESTGlobals();
-        ilRESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
+        RESTLib::initDefaultRESTGlobals();
+        RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        ilRESTLib::initAccessHandling();
+        RESTLib::initAccessHandling();
 
         include_once './Services/Http/classes/class.ilHTTPS.php';
         $https = new ilHTTPS();

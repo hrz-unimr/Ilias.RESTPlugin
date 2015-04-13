@@ -50,7 +50,7 @@ $app->get('/v1/users/:user_id', 'authenticateTokenOnly', function ($user_id) use
         $env = $app->environment();
         $id = $user_id;
         if ($user_id == "mine") {
-            $id = ilRESTLib::loginToUserId($env['user']);
+            $id = RESTLib::loginToUserId($env['user']);
         }
         $result = array();
         // $result['usr_id'] = $user_id;
@@ -72,11 +72,11 @@ $app->get('/v1/users/:user_id', 'authenticateTokenOnly', function ($user_id) use
 // consumes the schema that is produced by Administration -> Users -> Export
 /* mutual exclusive with function below...
 $app->post('/v1/users', 'authenticateILIASAdminRole', function() use ($app) {
-    $request = new ilRESTRequest($app);
+    $request = new RESTRequest($app);
     $importData = $request->getRaw();
     $model = new ilUsersModel();
     
-    $resp = new ilRESTResponse($app);
+    $resp = new RESTResponse($app);
     $import_result = $model->bulkImport($importData, $resp);
     echo($resp->toJSON());
 });

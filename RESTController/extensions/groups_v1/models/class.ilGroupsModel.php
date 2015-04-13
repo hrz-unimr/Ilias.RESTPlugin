@@ -20,13 +20,13 @@ class ilGroupsModel
      */
     public function getGroupsOfUser($usr_id)
     {
-        ilRESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        ilRESTLib::initDefaultRESTGlobals();
-        ilRESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
+        RESTLib::initDefaultRESTGlobals();
+        RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId($usr_id);
         $ilUser->read();
-        ilRESTLib::initAccessHandling();
+        RESTLib::initAccessHandling();
        // $list = ilUtil::getDataDir();
         $list = ilUtil::_getObjectsByOperations("grp","visible,read",$usr_id); // returns ref_ids
         return $list;
@@ -42,10 +42,10 @@ class ilGroupsModel
     public function getGroupInfo($crs_ref_id)
     {
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        ilRESTLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
-        ilRESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
-        ilRESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
-        ilRESTLib::initGlobal("ilObjDataCache", "ilObjectDataCache",
+        RESTLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
+        RESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
+        RESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
+        RESTLib::initGlobal("ilObjDataCache", "ilObjectDataCache",
             "./Services/Object/classes/class.ilObjectDataCache.php");
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilObjDataCache;
         define("DEBUG", FALSE);
@@ -71,9 +71,9 @@ class ilGroupsModel
     {
 
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        ilRESTLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
-        ilRESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
-        ilRESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
+        RESTLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
+        RESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
+        RESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
         define("DEBUG", FALSE);
 
@@ -83,7 +83,7 @@ class ilGroupsModel
             require_once "./Services/Language/classes/class.ilLanguage.php";
             $lng = new ilLanguage($lang);
             $lng->loadLanguageModule("init");
-            ilRESTLib::initGlobal('lng', $lng);
+            RESTLib::initGlobal('lng', $lng);
         }
 
         $crs_items = array();

@@ -1,16 +1,24 @@
 <?php
 /**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+ 
+ 
+/**
  * This class eases the formatting of output and also ensures a standardized output schema of the API.
  * 2014 HRZ - Uni-Marburg
  */
-class ilRESTResponse {
+class RESTResponse {
     public $_data = array();
     public $_msg = "";
     public $_code = "200";
     public $_format = "json";
     private $app;
 
-    public function ilRESTResponse($app) {
+    public function RESTResponse($app) {
         $this->app = $app;
         $this->setHttpStatus(200);
     }
