@@ -1,8 +1,8 @@
 <?php
-require_once "./Services/Database/classes/class.ilAuthContainerMDB2.php";
-/*require_once "./Services/Database/classes/class.ilAuthContainerMDB2.php";
-require_once "./Modules/File/classes/class.ilObjFile.php";
-require_once "./Services/User/classes/class.ilObjUser.php";
+require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
+/*require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
+require_once("./Modules/File/classes/class.ilObjFile.php");
+require_once("./Services/User/classes/class.ilObjUser.php");
 */
 class ExperimentalModel
 {
@@ -47,7 +47,7 @@ class ExperimentalModel
      */
     public static function buildHTTPPath()
     {
-        include_once './Services/Http/classes/class.ilHTTPS.php';
+        include_once('./Services/Http/classes/class.ilHTTPS.php');
         $https = new ilHTTPS();
 
         if($https->isDetected())

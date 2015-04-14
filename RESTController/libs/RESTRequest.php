@@ -9,10 +9,10 @@
 
 class RESTRequest {
 
-    private $app;
-    private $content_type;
+    protected $app;
+    protected $content_type;
     public $json_arr;
-    private $json_decoded;
+    protected $json_decoded;
 
     public function RESTRequest($app) {
         $this->app = $app;
@@ -45,7 +45,7 @@ class RESTRequest {
      * Try to json decode the request body, only once.
      * @return associative array if successful
      */
-    private function decodeJson() {
+    protected function decodeJson() {
 //        if ($this->content_type == 'application/json' and !$this->json_decoded) {
         if ( !$this->json_decoded ) { // try to decode regardless of content type
             $this->json_arr = json_decode($this->slimReq->getBody(), true);

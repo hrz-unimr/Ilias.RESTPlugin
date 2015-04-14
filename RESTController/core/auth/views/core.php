@@ -24,7 +24,7 @@
 
 <body>
     <?php
-    require $tpl_file;
+    include($tpl_file);
     ?>
     
     <script src="<?php echo $tpl_path; ?>/libs/js/jquery.js"></script>

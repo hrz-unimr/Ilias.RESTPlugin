@@ -1,6 +1,6 @@
 <?php
-require_once "./Services/User/classes/class.ilObjUser.php";
-require_once "./Services/AccessControl/classes/class.ilRbacReview.php";
+require_once("./Services/User/classes/class.ilObjUser.php");
+require_once("./Services/AccessControl/classes/class.ilRbacReview.php");
 
 class UsersModel
 {
@@ -151,8 +151,8 @@ class UsersModel
     public function bulkImport($xmlData, &$resp)
     {
 
-        require_once "./Services/User/classes/class.ilUserImportParser.php";
-        require_once "./Services/Authentication/classes/class.ilAuthUtils.php";
+        require_once("./Services/User/classes/class.ilUserImportParser.php");
+        require_once("./Services/Authentication/classes/class.ilAuthUtils.php");
 
         // TODO: do it here or in route?
         $app = new \Slim\Slim();

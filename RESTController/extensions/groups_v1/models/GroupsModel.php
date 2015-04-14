@@ -1,12 +1,12 @@
 <?php
-require_once "./Services/Utilities/classes/class.ilUtil.php";
-require_once "./Modules/Course/classes/class.ilObjCourse.php";
-require_once './Services/Object/classes/class.ilObjectFactory.php';
-require_once './Services/Object/classes/class.ilObjectActivation.php';
+require_once("./Services/Utilities/classes/class.ilUtil.php");
+require_once("./Modules/Course/classes/class.ilObjCourse.php");
+require_once('./Services/Object/classes/class.ilObjectFactory.php');
+require_once('./Services/Object/classes/class.ilObjectActivation.php');
 require_once("./Modules/LearningModule/classes/class.ilObjLearningModule.php");
 require_once("./Modules/LearningModule/classes/class.ilLMPageObject.php");
-require_once "./Services/Database/classes/class.ilDB.php";
-require_once "./Services/Database/classes/class.ilAuthContainerMDB2.php";
+require_once("./Services/Database/classes/class.ilDB.php");
+require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
 
 
 class GroupsModel
@@ -80,7 +80,7 @@ class GroupsModel
         if(!$lng)
         {
             $lang = "en";
-            require_once "./Services/Language/classes/class.ilLanguage.php";
+            require_once("./Services/Language/classes/class.ilLanguage.php");
             $lng = new ilLanguage($lang);
             $lng->loadLanguageModule("init");
             RESTLib::initGlobal('lng', $lng);
@@ -125,7 +125,7 @@ class GroupsModel
     {
         if($a_source_file)
         {
-            include_once $a_source_file;
+            include_once($a_source_file);
             $GLOBALS[$a_name] = new $a_class;
         }
         else

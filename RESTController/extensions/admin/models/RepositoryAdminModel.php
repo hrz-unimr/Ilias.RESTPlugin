@@ -210,7 +210,7 @@ class RepositoryAdminModel
     }
 
 
-    private function getRepositoryReadEventsHelperRec($ref_id, $parent_ref_id, $a_types, $ct_level, $max_level, $k)
+    protected function getRepositoryReadEventsHelperRec($ref_id, $parent_ref_id, $a_types, $ct_level, $max_level, $k)
     {
         // echo "Running getRekNode (".$ref_id.",".$parent_ref_id.") \n";
         // Step: get node data

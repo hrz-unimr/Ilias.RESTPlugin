@@ -18,11 +18,11 @@ if (isset($_GET['client_id'])) {
 }
 
 // Tell ILIAS which context to load
-include_once './Services/Context/classes/class.ilContext.php';
+include_once('./Services/Context/classes/class.ilContext.php');
 ilContext::init(ilContext::CONTEXT_UNITTEST);
 
 // Initialize ILIAS
-include_once './Services/Init/classes/class.ilInitialisation.php';
+include_once('./Services/Init/classes/class.ilInitialisation.php');
 $ilInit = new ilInitialisation();
 $GLOBALS['ilInit'] = $ilInit;
 $ilInit->initILIAS();

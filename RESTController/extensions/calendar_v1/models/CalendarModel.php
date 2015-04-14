@@ -1,7 +1,7 @@
 <?php
-require_once "./Services/Database/classes/class.ilAuthContainerMDB2.php";
-require_once "./Modules/File/classes/class.ilObjFile.php";
-require_once "./Services/User/classes/class.ilObjUser.php";
+require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
+require_once("./Modules/File/classes/class.ilObjFile.php");
+require_once("./Services/User/classes/class.ilObjUser.php");
 
 class CalendarModel
 {
@@ -25,7 +25,7 @@ class CalendarModel
             "./Services/Object/classes/class.ilObjectDataCache.php");
 
         // needed in ilObjectDefinition
-        require_once "./Services/Xml/classes/class.ilSaxParser.php";
+        require_once("./Services/Xml/classes/class.ilSaxParser.php");
 
         RESTLib::initGlobal("objDefinition", "ilObjectDefinition",
             "./Services/Object/classes/class.ilObjectDefinition.php");
@@ -43,7 +43,7 @@ class CalendarModel
         //var_dump($cats);
 
 
-        include_once './Services/Calendar/classes/class.ilCalendarUserSettings.php';
+        include_once('./Services/Calendar/classes/class.ilCalendarUserSettings.php');
         if(ilCalendarUserSettings::_getInstance()->getCalendarSelectionType() == ilCalendarUserSettings::CAL_SELECTION_MEMBERSHIP)
         {
             $cats->initialize(ilCalendarCategories::MODE_PERSONAL_DESKTOP_MEMBERSHIP);
@@ -114,7 +114,7 @@ class CalendarModel
         $ilUser->read();
         RESTLib::initAccessHandling();
 
-        include_once './Services/Http/classes/class.ilHTTPS.php';
+        include_once('./Services/Http/classes/class.ilHTTPS.php');
         $https = new ilHTTPS();
         if($https->isDetected())
         {
@@ -127,7 +127,7 @@ class CalendarModel
         $host = $_SERVER['HTTP_HOST'];
 
 
-        include_once './Services/Calendar/classes/class.ilCalendarAuthenticationToken.php';
+        include_once('./Services/Calendar/classes/class.ilCalendarAuthenticationToken.php');
         //mode : ilCalendarCategories::MODE_PERSONAL_DESKTOP_MEMBERSHIP;
         $selection = ilCalendarAuthenticationToken::SELECTION_PD;
         $calendar = 0;

@@ -1,8 +1,8 @@
 <?php
-require_once "./Services/Database/classes/class.ilAuthContainerMDB2.php";
-/*require_once "./Services/Database/classes/class.ilAuthContainerMDB2.php";
-require_once "./Modules/File/classes/class.ilObjFile.php";
-require_once "./Services/User/classes/class.ilObjUser.php";
+require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
+/*require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
+require_once("./Modules/File/classes/class.ilObjFile.php");
+require_once("./Services/User/classes/class.ilObjUser.php");
 */
 class DescribrModel
 {
@@ -99,7 +99,7 @@ class DescribrModel
      * @param $rid
      * @return mixed
      */
-    private function get_next_parent($rid)
+    protected function get_next_parent($rid)
     {
         global $ilDB;
         $query="SELECT parent FROM tree WHERE child=".$rid;

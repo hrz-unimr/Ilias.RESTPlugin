@@ -7,7 +7,7 @@
  */
  
  
-require_once "./Services/User/classes/class.ilObjUser.php";
+require_once("./Services/User/classes/class.ilObjUser.php");
 
 /**
  * This file is part of the RESTPlugin library layer.
@@ -16,7 +16,7 @@ require_once "./Services/User/classes/class.ilObjUser.php";
  */
 
 class RESTSoapAdapter {
-    //static private $instance = null;
+    //static protected $instance = null;
     public $SID = "";
 
     /**
@@ -29,7 +29,7 @@ class RESTSoapAdapter {
         RESTLib::initSettings();
 
         define ("IL_SOAPMODE", IL_SOAPMODE_INTERNAL);
-        include_once "Services/Context/classes/class.ilContext.php";
+        include_once("Services/Context/classes/class.ilContext.php");
         ilContext::init(ilContext::CONTEXT_SOAP);
 
         $query = "SELECT `setting_name`, `setting_value` FROM `ui_uihk_rest_config` WHERE `setting_name` IN ('rest_system_user', 'rest_user_pass')";
@@ -51,8 +51,8 @@ class RESTSoapAdapter {
         }
 
         // Get username and password
-        require_once "./Services/Calendar/classes/class.ilDatePresentation.php";
-        require_once "./Services/User/classes/class.ilObjUser.php";
+        require_once("./Services/Calendar/classes/class.ilDatePresentation.php");
+        require_once("./Services/User/classes/class.ilObjUser.php");
         $user_id = ilObjUser::getUserIdByLogin($username);
 
         if ($user_id == 0)
@@ -72,11 +72,11 @@ class RESTSoapAdapter {
                 "./Services/Component/classes/class.ilPluginAdmin.php");
         }
         // add code 2
-        include_once "Services/Authentication/classes/class.ilSession.php";
-        include_once "Services/Authentication/classes/class.ilSessionControl.php";
+        include_once("Services/Authentication/classes/class.ilSession.php");
+        include_once("Services/Authentication/classes/class.ilSessionControl.php");
 
-        require_once "Auth/Auth.php";
-        require_once "./Services/AuthShibboleth/classes/class.ilShibboleth.php";
+        require_once("Auth/Auth.php");
+        require_once("./Services/AuthShibboleth/classes/class.ilShibboleth.php");
         include_once("./Services/Authentication/classes/class.ilAuthUtils.php");
         ilAuthUtils::_initAuth();
         global $ilAuth;

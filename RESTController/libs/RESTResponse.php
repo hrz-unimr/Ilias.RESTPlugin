@@ -16,7 +16,7 @@ class RESTResponse {
     public $_msg = "";
     public $_code = "200";
     public $_format = "json";
-    private $app;
+    protected $app;
 
     public function RESTResponse($app) {
         $this->app = $app;

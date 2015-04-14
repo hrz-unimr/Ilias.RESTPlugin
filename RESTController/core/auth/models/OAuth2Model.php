@@ -460,7 +460,7 @@ class OAuth2Model {
      * Returns the refresh token for an existing refresh token entry.
      * Decreases num_refresh_left field and updates the issuing time stamp.
      */
-    private function _issueExistingRefreshToken($user_id, $api_key) {
+    protected function _issueExistingRefreshToken($user_id, $api_key) {
         global $ilDB;
         
         $query = "
@@ -490,7 +490,7 @@ class OAuth2Model {
      *  - Overwrites field num_refresh_left
      *  - Overwrites last_refresh_timestamp
      */
-    private function _resetRefreshTokenEntry($user_id, $api_key, $newRefreshToken) {
+    protected function _resetRefreshTokenEntry($user_id, $api_key, $newRefreshToken) {
         global $ilDB;
         
         $query = "
@@ -547,7 +547,7 @@ class OAuth2Model {
      * @param $api_key
      * @return array
      */
-    private function _checkRefreshTokenEntry($user_id, $api_key) {
+    protected function _checkRefreshTokenEntry($user_id, $api_key) {
         global $ilDB;
 
         $query = "
@@ -574,7 +574,7 @@ class OAuth2Model {
      * @param $refresh_token
      * @return mixed the insertion id
      */
-    private function _createNewRefreshTokenEntry($user_id, $api_key, $refresh_token) {
+    protected function _createNewRefreshTokenEntry($user_id, $api_key, $refresh_token) {
         global $ilDB;
         
         $sql = "SELECT id FROM ui_uihk_rest_keys WHERE api_key = '".$api_key."'";
@@ -604,7 +604,7 @@ class OAuth2Model {
      * @param $api_key
      * @return mixed
      */
-    private function _deleteRefreshTokenEntry($user_id, $api_key) {
+    protected function _deleteRefreshTokenEntry($user_id, $api_key) {
         global $ilDB;
         
         $query = "

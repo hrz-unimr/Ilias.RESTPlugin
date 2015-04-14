@@ -8,7 +8,7 @@
  
  
 // Include SLIM-Framework
-require 'Slim/Slim.php';
+require_once('Slim/Slim.php');
 
 
 // Create bew slim instance (uses autoloader to load other includes)
@@ -76,17 +76,13 @@ $app->log->debug("REST call from ".$_SERVER['REMOTE_ADDR']." at ".date("d/m/Y,H:
 
 
 // Load core models & routes
-foreach (glob(realpath(__DIR__)."/core/*/models/*.php") as $filename) {
-    include_once $filename;
-}
-foreach (glob(realpath(__DIR__)."/core/*/routes/*.php") as $filename) {
-    include_once $filename;
-}
+foreach (glob(realpath(__DIR__)."/core/*/models/*.php") as $filename) 
+    include_once($filename);
+foreach (glob(realpath(__DIR__)."/core/*/routes/*.php") as $filename) 
+    include_once($filename);
 
 // Load extension models & routes
-foreach (glob(realpath(__DIR__)."/extensions/*/models/*.php") as $filename) {
-    include_once $filename;
-}
-foreach (glob(realpath(__DIR__)."/extensions/*/routes/*.php") as $filename) {
-    include_once $filename;
-}
+foreach (glob(realpath(__DIR__)."/extensions/*/models/*.php") as $filename) 
+    include_once($filename);
+foreach (glob(realpath(__DIR__)."/extensions/*/routes/*.php") as $filename) 
+    include_once($filename);

@@ -1,5 +1,5 @@
 <?php
-require_once "./Services/Database/classes/class.ilAuthContainerMDB2.php";
+require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
 class ClientsModel
 {
     /**
@@ -11,7 +11,7 @@ class ClientsModel
      *
      *  @return NULL
      */
-    private function addPermissions($id, $perm_json) {
+    protected function addPermissions($id, $perm_json) {
         global $ilDB;
          
         /* 
@@ -290,7 +290,7 @@ class ClientsModel
      * @param $grant_type
      * @return bool
      */
-    private function is_oauth2_grant_type_enabled($api_key, $grant_type) {
+    protected function is_oauth2_grant_type_enabled($api_key, $grant_type) {
         global $ilDB;
         $query = "SELECT " . $grant_type . " FROM ui_uihk_rest_keys WHERE api_key=".$ilDB->quote($api_key, "text");
         $set = $ilDB->query($query);

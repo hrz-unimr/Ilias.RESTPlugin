@@ -6,7 +6,7 @@
 class Oauth2Response {
     public $_response = array();
     public $_format = "json";
-    private $app;
+    protected $app;
 
     public function Oauth2Response($app) {
         $this->app = $app;

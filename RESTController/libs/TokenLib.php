@@ -16,9 +16,9 @@
  */
 class TokenLib {
     // Variables fetched from database containing (fixed) salt and time-to-life
-    private static $tokenSalt = null;
-    private static $tokenTTL = null;
-    private static $refreshTTL = 60*60*24*365*10; // 10 years
+    protected static $tokenSalt = null;
+    protected static $tokenTTL = null;
+    protected static $refreshTTL = 60*60*24*365*10; // 10 years
     
     
     /**
@@ -26,7 +26,7 @@ class TokenLib {
      * its required, but doing only one query should be better overall.
      * Sets $tokenSalt and $tokenTTL.
      */
-    private static function loadSettings() {
+    protected static function loadSettings() {
         global $ilDB;
         
         // Fetch key, value pairs from database
@@ -51,7 +51,7 @@ class TokenLib {
      * 
      * @return (string) UUID used as salt-value
      */
-    private static function getSalt() {
+    protected static function getSalt() {
         // Load salt
         if (!self::$tokenSalt) 
             self::loadSettings();
@@ -69,7 +69,7 @@ class TokenLib {
      *
      * @return (number) time-to-life, in minutes
      */
-    private static function getTTL() {
+    protected static function getTTL() {
         // Load ttl
         if (!self::$tokenTTL) 
             self::loadSettings();
@@ -230,7 +230,7 @@ class TokenLib {
      * @param $token - Token that should be hashed
      * @return string - Calcuated hash
      */
-    private static function hash($token) {
+    protected static function hash($token) {
         $str = $token['user'] . '/' . $token['api_key'] . '/' . $token['type'] . '/' . $token['misc'] . '/' .$token['ttl'] . '/'.$token['s'];
         return hash('sha256', self::getSalt() . $str);
     }

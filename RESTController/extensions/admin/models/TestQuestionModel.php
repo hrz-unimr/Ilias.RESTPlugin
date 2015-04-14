@@ -1,5 +1,5 @@
 <?php
-require_once "./Modules/TestQuestionPool/classes/class.assSingleChoice.php";
+require_once("./Modules/TestQuestionPool/classes/class.assSingleChoice.php");
 
 class TestQuestionModel
 {

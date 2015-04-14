@@ -1,19 +1,19 @@
 <?php
-require_once "./Services/Utilities/classes/class.ilUtil.php";
-require_once "./Modules/Course/classes/class.ilObjCourse.php";
-require_once './Services/Object/classes/class.ilObjectFactory.php';
-require_once './Services/Object/classes/class.ilObjectActivation.php';
+require_once("./Services/Utilities/classes/class.ilUtil.php");
+require_once("./Modules/Course/classes/class.ilObjCourse.php");
+require_once('./Services/Object/classes/class.ilObjectFactory.php');
+require_once('./Services/Object/classes/class.ilObjectActivation.php');
 require_once("./Modules/LearningModule/classes/class.ilObjLearningModule.php");
 require_once("./Modules/LearningModule/classes/class.ilLMPageObject.php");
-require_once "./Services/Database/classes/class.ilDB.php";
-require_once "./Services/Database/classes/class.ilAuthContainerMDB2.php";
-//require_once "./Modules/Course/classes/class.ilCourseConstants.php";
+require_once("./Services/Database/classes/class.ilDB.php");
+require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
+//require_once("./Modules/Course/classes/class.ilCourseConstants.php");
 
 class CoursesRegistrationModel
 {
-    private $waiting_list;
-    private $participants;
-    private $container;
+    protected $waiting_list;
+    protected $participants;
+    protected $container;
 
     /**
      * Subscribes a user to a course.
@@ -81,7 +81,7 @@ class CoursesRegistrationModel
     /**
      * see original methods at class.ilCourseRegistrationGUI.php
      */
-    private function checkSubscribeConditions()
+    protected function checkSubscribeConditions()
     {
         global $ilUser;
         if($this->waiting_list->isOnList($ilUser->getId())) {
@@ -96,7 +96,7 @@ class CoursesRegistrationModel
      *
      * @access protected
      */
-    private function initParticipants()
+    protected function initParticipants()
     {
         include_once('./Modules/Course/classes/class.ilCourseParticipants.php');
         $this->participants = ilCourseParticipants::_getInstanceByObjId($this->container->getId());//$this->obj_id);
@@ -107,9 +107,9 @@ class CoursesRegistrationModel
      * @see ilRegistrationGUI::initWaitingList()
      * @access protected
      */
-    private function initWaitingList()
+    protected function initWaitingList()
     {
-        include_once './Modules/Course/classes/class.ilCourseWaitingList.php';
+        include_once('./Modules/Course/classes/class.ilCourseWaitingList.php');
         $this->waiting_list = new ilCourseWaitingList($this->container->getId()); //$this->obj_id);
     }
 
@@ -120,7 +120,7 @@ class CoursesRegistrationModel
      * @param
      * @return
      */
-    private function add()
+    protected function add()
     {
         global $ilUser,$tree, $ilCtrl;
 
@@ -180,7 +180,7 @@ class CoursesRegistrationModel
                 $this->participants->sendNotification($this->participants->NOTIFY_ADMINS,$ilUser->getId());
                 $this->participants->sendNotification($this->participants->NOTIFY_REGISTERED,$ilUser->getId());
 
-                include_once './Modules/Forum/classes/class.ilForumNotification.php';
+                include_once('./Modules/Forum/classes/class.ilForumNotification.php');
                 ilForumNotification::checkForumsExistsInsert($this->container->getRefId(), $ilUser->getId());
 
                 if($this->container->getType() == "crs")
@@ -201,7 +201,7 @@ class CoursesRegistrationModel
      * @access private
      * @param bool
      */
-    private function setAccepted($a_status)
+    protected function setAccepted($a_status)
     {
         global $ilUser;
 
@@ -224,7 +224,7 @@ class CoursesRegistrationModel
     /**
      * see original class.ilObjCourseGUI.php > leaveObject
      */
-    private function checkUnsubscribeConditions()
+    protected function checkUnsubscribeConditions()
     {
         global $ilUser;
         //$this->checkPermission('leave');
@@ -235,7 +235,7 @@ class CoursesRegistrationModel
         return true;
     }
 
-    private function performUnsubscribeObject()
+    protected function performUnsubscribeObject()
     {
         global $ilUser, $ilCtrl;
         // CHECK ACCESS

@@ -1,7 +1,7 @@
 <?php
-require_once "./Services/Database/classes/class.ilAuthContainerMDB2.php";
-require_once "./Modules/File/classes/class.ilObjFile.php";
-require_once "./Services/User/classes/class.ilObjUser.php";
+require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
+require_once("./Modules/File/classes/class.ilObjFile.php");
+require_once("./Services/User/classes/class.ilObjUser.php");
 
 class FileModel
 {
@@ -119,7 +119,7 @@ class FileModel
             $zip_file = $filename;
             $adopt_structure = $keep_structure;
 
-            include_once ("Services/Utilities/classes/class.ilFileUtils.php");
+            include_once("Services/Utilities/classes/class.ilFileUtils.php");
 
             // Create unzip-directory
             $newDir = ilUtil::ilTempnam();
@@ -199,7 +199,7 @@ class FileModel
             }
             else
             {
-                include_once "./Modules/File/classes/class.ilObjFileAccess.php";
+                include_once("./Modules/File/classes/class.ilObjFileAccess.php");
                 // BEGIN WebDAV: Ensure that object title ends with the filename extension
                 $fileExtension = ilObjFileAccess::_getFileExtension($filename);
                 $titleExtension = ilObjFileAccess::_getFileExtension($title);
@@ -269,7 +269,7 @@ class FileModel
         // END ChangeEvent: Record save object.
 
         // rbac log
-        include_once "Services/AccessControl/classes/class.ilRbacLog.php";
+        include_once("Services/AccessControl/classes/class.ilRbacLog.php");
         $rbac_log_roles = $rbacreview->getParentRoleIds($ref_id, false);
         $rbac_log = ilRbacLog::gatherFaPa($ref_id, array_keys($rbac_log_roles), true);
         ilRbacLog::add(ilRbacLog::CREATE_OBJECT, $ref_id, $rbac_log);
