@@ -13,8 +13,7 @@ class CalendarModel
     function getCalUpcomingEvents($user_id)
     {
         RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        RESTLib::initDefaultRESTGlobals();
-
+        
         RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId($user_id);
@@ -107,7 +106,6 @@ class CalendarModel
     function getIcalAdress($user_id)
     {
         RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        RESTLib::initDefaultRESTGlobals();
         RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId($user_id);

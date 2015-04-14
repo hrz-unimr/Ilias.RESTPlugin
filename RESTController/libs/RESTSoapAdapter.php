@@ -24,7 +24,6 @@ class RESTSoapAdapter {
      */
     public function loginSOAP()
     {
-        RESTLib::initDefaultRESTGlobals();
         RESTLib::initAccessHandling();
         RESTLib::initSettings();
 
@@ -35,7 +34,6 @@ class RESTSoapAdapter {
         $query = "SELECT `setting_name`, `setting_value` FROM `ui_uihk_rest_config` WHERE `setting_name` IN ('rest_system_user', 'rest_user_pass')";
         $set = $ilDB->query($query);
         while ($row = $ilDB->fetchAssoc($set)) {
-            // Make rest plugin settings globally available
             switch ($row['setting_name']) {
                 case "rest_soap_user":
                     $username = $row['setting_value'];
@@ -56,9 +54,7 @@ class RESTSoapAdapter {
         $user_id = ilObjUser::getUserIdByLogin($username);
 
         if ($user_id == 0)
-        {
             return false;
-        }
         $ilUser = new ilObjUser($user_id);
         RESTLib::initGlobal("ilUser", $ilUser);
 
@@ -67,23 +63,19 @@ class RESTSoapAdapter {
 
         // add code 1
         if (!is_object($GLOBALS["ilPluginAdmin"]))
-        {
-            RESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin",
-                "./Services/Component/classes/class.ilPluginAdmin.php");
-        }
+            RESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin", "./Services/Component/classes/class.ilPluginAdmin.php");
+        
         // add code 2
+        require_once("Auth/Auth.php");
         include_once("Services/Authentication/classes/class.ilSession.php");
         include_once("Services/Authentication/classes/class.ilSessionControl.php");
-
-        require_once("Auth/Auth.php");
         require_once("./Services/AuthShibboleth/classes/class.ilShibboleth.php");
         include_once("./Services/Authentication/classes/class.ilAuthUtils.php");
+        
         ilAuthUtils::_initAuth();
+        
         global $ilAuth;
-
         $ilAuth->start();
-        //$checked_in = $ilAuth->getAuth();
-
 
         require_once("./Services/Init/classes/class.ilIniFile.php");
         $ilIliasIniFile = new ilIniFile("./ilias.ini.php");
@@ -98,7 +90,6 @@ class RESTSoapAdapter {
     {
         include_once('webservice/soap/include/inc.soap_functions.php');
         $result = call_user_func_array('ilSoapFunctions::'.$str_function, $a_parameters);
-        //var_dump($result);
         return $result;
     }
 

@@ -33,7 +33,6 @@ $app->group('/dev', function () use ($app) {
 
         $refresh_token = $request->getParam("refresh_token");
 
-        RESTLib::initDefaultRESTGlobals();
         RESTLib::initAccessHandling();
 
         global $ilLog;
@@ -65,7 +64,6 @@ $app->group('/dev', function () use ($app) {
 
         global $ilLog;
         $ilLog->write('Requesting new refresh token for user '.$uid);
-        //RESTLib::initDefaultRESTGlobals();
         //RESTLib::initAccessHandling();
 
         // Create new refresh token

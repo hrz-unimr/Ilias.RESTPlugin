@@ -31,7 +31,6 @@ $app->group('/admin', function () use ($app) {
             $t_start = microtime();
             $result = array();
             $result['msg'] = 'Overview Workspaces';
-            RESTLib::initDefaultRESTGlobals();
             RESTLib::initAccessHandling();
             $wa_model = new WorkspaceAdminModel();
 
@@ -59,7 +58,6 @@ $app->group('/admin', function () use ($app) {
             $result = array();
             $result['msg'] = 'Workspaces of user.';
 
-            RESTLib::initDefaultRESTGlobals();
             RESTLib::initAccessHandling();
             $wa_model = new WorkspaceAdminModel();
             $ws_array = $wa_model->getUserWorkspaceItems($user_id);

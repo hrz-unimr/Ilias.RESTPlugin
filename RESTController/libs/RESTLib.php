@@ -24,26 +24,6 @@ class ilInitialisation_Public extends ilInitialisation {
     public static function initSettings_Public() {
         return self::initSettings();
     }
-    
-    public static function buildHTTPPath_Public() {
-        return self::buildHTTPPath();
-    }
-    
-    public static function initClientIniFile_Public() {
-        return self::initClientIniFile();
-    }
-    
-    public static function initCore_Public() {
-        return self::initCore();
-    }
-    
-    public static function initClient_Public() {
-        return self::initClient();
-    }
-    
-    public static function initLanguage_Public() {
-        return self::initLanguage();
-    }
 }
 
 
@@ -77,31 +57,6 @@ class RESTLib {
      */
     public static function initSettings() {
         return ilInitialisation_Public::initSettings_Public();
-    }
-
-    
-    /**
-     * Builds http path
-     * This function is needed to accomplish authentication.
-     */
-    public static function buildHTTPPath() {
-        return ilInitialisation_Public::buildHTTPPath_Public();
-    }
-    
-
-    /**
-     *  Sets up some frequently needed global variables.
-     * Take from class.ilInitialisation.php->initClientIniFile()
-     */
-    static public function initDefaultRESTGlobals() {
-        ilInitialisation_Public::initClientIniFile_Public();
-        require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
-        require_once("./Modules/File/classes/class.ilObjFile.php");
-        ilInitialisation_Public::initLanguage_Public();
-        ilInitialisation_Public::initClient_Public();
-        ilInitialisation_Public::initCore_Public();
-
-        global $lng, $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilAppEventHandler, $ilObjDataCache, $ilUser;
     }
 
     

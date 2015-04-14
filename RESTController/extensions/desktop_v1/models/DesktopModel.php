@@ -13,8 +13,7 @@ class DesktopModel
     function getPersonalDesktopItems($user_id)
     {
         RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        RESTLib::initDefaultRESTGlobals();
-
+        
         RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId($user_id);
@@ -35,8 +34,7 @@ class DesktopModel
     function removeItemFromDesktopWithType($user_id, $ref_id, $item_type)
     {
         RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        RESTLib::initDefaultRESTGlobals();
-
+        
         RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         global $ilDB;
@@ -58,8 +56,7 @@ class DesktopModel
     function addItemToDesktopWithType($user_id, $ref_id, $item_type)
     {
         RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        RESTLib::initDefaultRESTGlobals();
-
+        
         RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId($user_id);
@@ -73,8 +70,7 @@ class DesktopModel
     function isDesktopItem($user_id, $ref_id)
     {
         RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        RESTLib::initDefaultRESTGlobals();
-
+        
         RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         if ($ilUser->getId()!=$user_id) {

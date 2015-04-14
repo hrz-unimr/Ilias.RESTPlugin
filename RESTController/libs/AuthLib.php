@@ -48,7 +48,6 @@ class AuthLib {
      * @return bool - True if authentication was successfull, false otherwise
      */
     static public function authenticateViaIlias($username, $password) {
-        RESTLib::initDefaultRESTGlobals();
         RESTLib::initAccessHandling();
         RESTLib::initSettings();
 

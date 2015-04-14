@@ -50,7 +50,6 @@ $app->group('/m', function () use ($app) {
         $user_id = 6;//225;//6;//361; // testuser
         //$user = RESTLib::userIdtoLogin($user_id);
 
-        RESTLib::initDefaultRESTGlobals();
         RESTLib::initAccessHandling();
 
         $userModel = new UsersModel();

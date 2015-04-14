@@ -56,7 +56,6 @@ $app->group('/v1', function () use ($app) {
         $user_id = $authorizedUserId;
 
         RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        RESTLib::initDefaultRESTGlobals();
         RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global $ilUser;
         $ilUser->setId($user_id);

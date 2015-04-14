@@ -58,7 +58,6 @@ $app->group('/admin', function () use ($app) {
                     $response->setMessage('User not found.');
                     throw new Exception('User does not exist');
                 } else {
-                    RESTLib::initDefaultRESTGlobals();
                     $usr_model = new UsersModel();
                     $usr_basic_info =  $usr_model->getBasicUserData($id);
                     if (empty($usr_basic_info) == true) {

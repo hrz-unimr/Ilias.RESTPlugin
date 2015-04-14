@@ -9,8 +9,7 @@ class FileModel
     function getFileObjForUser($file_obj_id, $user_id)
     {
         RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        RESTLib::initDefaultRESTGlobals();
-
+        
         RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global    $ilUser;
         $ilUser->setId($user_id);
@@ -49,7 +48,6 @@ class FileModel
     function getFileObj($obj_id)
     {
         //RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        //RESTLib::initDefaultRESTGlobals();
         //global $ilDB;
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
         RESTLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");

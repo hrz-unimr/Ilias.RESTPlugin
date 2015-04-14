@@ -24,8 +24,7 @@ class CoursesRegistrationModel
     public function joinCourse($user_id, $ref_id)
     {
 
-        RESTLib::initDefaultRESTGlobals();
-
+        
         $this->user_id = $user_id;
         $this->ref_id = $ref_id;
         $this->obj_id = RESTLib::refid_to_objid($ref_id);
@@ -59,9 +58,7 @@ class CoursesRegistrationModel
      */
     public function leaveCourse($user_id, $ref_id)
     {
-        RESTLib::initDefaultRESTGlobals();
         $this->container = ilObjectFactory::getInstanceByRefId($ref_id, false);
-
         RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
         global $ilUser;
         $ilUser->setId($user_id);
