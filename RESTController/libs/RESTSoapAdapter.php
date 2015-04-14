@@ -25,7 +25,6 @@ class RESTSoapAdapter {
     public function loginSOAP()
     {
         RESTLib::initAccessHandling();
-        RESTLib::initSettings();
 
         define ("IL_SOAPMODE", IL_SOAPMODE_INTERNAL);
         include_once("Services/Context/classes/class.ilContext.php");
@@ -56,14 +55,10 @@ class RESTSoapAdapter {
         if ($user_id == 0)
             return false;
         $ilUser = new ilObjUser($user_id);
-        RESTLib::initGlobal("ilUser", $ilUser);
+        RESTLib::loadIlUser();
 
         $_POST['username'] = $username;
         $_POST['password'] = $password;
-
-        // add code 1
-        if (!is_object($GLOBALS["ilPluginAdmin"]))
-            RESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin", "./Services/Component/classes/class.ilPluginAdmin.php");
         
         // add code 2
         require_once("Auth/Auth.php");

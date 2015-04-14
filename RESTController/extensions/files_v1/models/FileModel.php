@@ -8,17 +8,14 @@ class FileModel
 
     function getFileObjForUser($file_obj_id, $user_id)
     {
-        RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
         
-        RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        RESTLib::loadIlUser();
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
         RESTLib::initAccessHandling();
 
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        RESTLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
-        RESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
         RESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
         global $ilAccess;
@@ -38,7 +35,6 @@ class FileModel
             return array();
         }
 
-        define("DEBUG", FALSE);
         $fileObj=  ilObjectFactory::getInstanceByObjId($file_obj_id);
 
         return $fileObj;
@@ -47,14 +43,10 @@ class FileModel
 
     function getFileObj($obj_id)
     {
-        //RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        //global $ilDB;
+        //        //global $ilDB;
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        RESTLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
-        RESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
         RESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
-        define("DEBUG", FALSE);
         $fileObj=  ilObjectFactory::getInstanceByObjId($obj_id);
 
         return $fileObj;
@@ -73,23 +65,17 @@ class FileModel
      */
     function handleFileUpload($file_upload, $ref_id, $owner_id = 13)
     {
-
-        define("DEBUG", FALSE);
         define("IL_VIRUS_SCANNER", "None");
         // The following constants are normally set by class.ilInitialisation.php->initClientInitFile()
         define ("MAXLENGTH_OBJ_TITLE",125);
         define ("MAXLENGTH_OBJ_DESC",123);
 
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        RESTLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
-        RESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
         RESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
         RESTLib::initGlobal("ilAppEventHandler", "ilAppEventHandler","./Services/EventHandling/classes/class.ilAppEventHandler.php");
         RESTLib::initGlobal("ilObjDataCache", "ilObjectDataCache","./Services/Object/classes/class.ilObjectDataCache.php");
-        RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        RESTLib::loadIlUser();
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilAppEventHandler, $ilObjDataCache, $ilUser;
-
-
 
         // file upload params
         $filename = $file_upload["name"];

@@ -33,7 +33,7 @@ class AuthLib {
 
         $ilUser = new ilObjUser($userId);
         $ilias->account =& $ilUser;
-        RESTLib::initGlobal("ilUser", $ilUser);
+        RESTLib::loadIlUser();
         
         return true;
     }
@@ -49,13 +49,9 @@ class AuthLib {
      */
     static public function authenticateViaIlias($username, $password) {
         RESTLib::initAccessHandling();
-        RESTLib::initSettings();
 
         $_POST['username'] = $username;
         $_POST['password'] = $password;
-
-        if (!is_object($GLOBALS["ilPluginAdmin"]))
-            RESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin", "./Services/Component/classes/class.ilPluginAdmin.php");
         
         require_once("Auth/Auth.php");
         require_once("Services/Authentication/classes/class.ilSession.php");

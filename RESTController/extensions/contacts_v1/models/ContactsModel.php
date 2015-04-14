@@ -13,8 +13,7 @@ class ContactsModel
      */
     function getMyContacts($user_id)
     {
-        RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        RESTLib::loadIlUser();
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();

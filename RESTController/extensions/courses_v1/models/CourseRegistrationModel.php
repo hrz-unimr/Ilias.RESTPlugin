@@ -30,7 +30,7 @@ class CoursesRegistrationModel
         $this->obj_id = RESTLib::refid_to_objid($ref_id);
         $this->container = ilObjectFactory::getInstanceByRefId($this->ref_id, false);
 
-        RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        RESTLib::loadIlUser();
         global $ilUser;
         $ilUser->setId($user_id);
         try {
@@ -59,7 +59,7 @@ class CoursesRegistrationModel
     public function leaveCourse($user_id, $ref_id)
     {
         $this->container = ilObjectFactory::getInstanceByRefId($ref_id, false);
-        RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        RESTLib::loadIlUser();
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();

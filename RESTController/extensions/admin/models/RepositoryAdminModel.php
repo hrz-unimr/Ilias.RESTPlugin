@@ -4,7 +4,6 @@ class RepositoryAdminModel
 {
     public function getChildrenOfRoot()
     {
-        RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
         
         $tree = new ilTree(ROOT_FOLDER_ID);
         $childs = $tree->getChilds(ROOT_FOLDER_ID);
@@ -13,7 +12,6 @@ class RepositoryAdminModel
 
     public function getChildren($ref_id)
     {
-        RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
         
         $tree = new ilTree(ROOT_FOLDER_ID);
         $childs = $tree->getChilds($ref_id);
@@ -258,8 +256,7 @@ class RepositoryAdminModel
      */
     public function createNewCategoryAsUser($parent_ref_id, $title, $desc)
     {
-        RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        RESTLib::loadIlUser();
         
         global    $ilUser;
         $ilUser->setId(6);

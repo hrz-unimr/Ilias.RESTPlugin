@@ -12,31 +12,12 @@ require_once("./Services/User/classes/class.ilObjUser.php");
 require_once("./Services/AccessControl/classes/class.ilRbacReview.php");
 
 
-class ilInitialisation_Public extends ilInitialisation {
-    public static function initGlobal_Public($a_name, $a_class, $a_source_file = null) {
-        return self::initGlobal($a_name, $a_class, $a_source_file);
-    }
-    
-    public static function initAccessHandling_Public() {
-        return self::initAccessHandling();
-    }
-    
-    public static function initSettings_Public() {
-        return self::initSettings();
-    }
-}
-
-
 /*
  *
  */
 class RESTLib {
     /**
-     * Initialize global instance
-     *
-     * @param string $a_name
-     * @param string $a_class
-     * @param string $a_source_file
+     * @see ilInitialisation::initGlobal($a_name, $a_class, $a_source_file)
      */
     public static function initGlobal($a_name, $a_class, $a_source_file = null) {
         return ilInitialisation_Public::initGlobal_Public($a_name, $a_class, $a_source_file);
@@ -44,19 +25,18 @@ class RESTLib {
 
     
     /**
-     * $ilAccess and $rbac... initialisation
+     * @see ilInitialisation::initAccessHandling()
      */
     public static function initAccessHandling() {
         return ilInitialisation_Public::initAccessHandling_Public();
     }
-
+    
     
     /**
-     * Init Settings
-     * This function is needed to accomplish authentication.
+     * Shortcut for loading ilObjUser via initGlobal
      */
-    public static function initSettings() {
-        return ilInitialisation_Public::initSettings_Public();
+    public static function loadIlUser() {
+        self::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
     }
 
     
@@ -201,10 +181,12 @@ class RESTLib {
     public static function getLatestReadEventTimestamp($obj_id) {
         global $ilDB;
 
-        $query = sprintf(' SELECT last_access FROM read_event '.
-            'WHERE obj_id = %s '.
-            'ORDER BY last_access DESC LIMIT 1',
-            $ilDB->quote($obj_id,'integer'));
+        $query = sprintf("
+            SELECT last_access FROM read_event 
+            WHERE obj_id = %s 
+            ORDER BY last_access DESC LIMIT 1
+            ", $ilDB->quote($obj_id,'integer')
+        );
         $res = $ilDB->query($query);
         $row = $ilDB->fetchAssoc($res);
 
@@ -222,10 +204,12 @@ class RESTLib {
     public static function getTopKReadEventTimestamp($obj_id, $k) {
         global $ilDB;
 
-        $query = sprintf(' SELECT last_access FROM read_event '.
-            'WHERE obj_id = %s '.
-            'ORDER BY last_access DESC LIMIT %s',
-            $ilDB->quote($obj_id,'integer'),$k);
+        $query = sprintf("
+            SELECT last_access FROM read_event 
+            WHERE obj_id = %s 
+            ORDER BY last_access DESC LIMIT %s
+            ", $ilDB->quote($obj_id,'integer'), $k
+        );
         $res = $ilDB->query($query);
         $list = array();
         $cnt = 0;
@@ -236,5 +220,26 @@ class RESTLib {
         }
 
         return $list;
+    }
+}
+
+
+/*
+ *
+ */
+class ilInitialisation_Public extends ilInitialisation {
+    /**
+     * @see ilInitialisation::initGlobal($a_name, $a_class, $a_source_file)
+     */
+    public static function initGlobal_Public($a_name, $a_class, $a_source_file = null) {
+        return self::initGlobal($a_name, $a_class, $a_source_file);
+    }
+    
+    
+    /**
+     * @see ilInitialisation::initAccessHandling()
+     */
+    public static function initAccessHandling_Public() {
+        return self::initAccessHandling();
     }
 }

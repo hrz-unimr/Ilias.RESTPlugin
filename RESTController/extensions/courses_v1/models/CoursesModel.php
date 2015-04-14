@@ -20,8 +20,7 @@ class CoursesModel
      */
     public function getCoursesOfUser($usr_id)
     {
-        RESTLib::initSettings(); // (SYSTEM_ROLE_ID in initSettings needed if user = root)
-        RESTLib::initGlobal("ilUser", "ilObjUser", "./Services/User/classes/class.ilObjUser.php");
+        RESTLib::loadIlUser();
         global    $ilUser;
         $ilUser->setId($usr_id);
         $ilUser->read();
@@ -53,13 +52,10 @@ class CoursesModel
     public function getCourseInfo($crs_ref_id)
     {
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        RESTLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
-        RESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
         RESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
         RESTLib::initGlobal("ilObjDataCache", "ilObjectDataCache",
             "./Services/Object/classes/class.ilObjectDataCache.php");
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilObjDataCache;
-        define("DEBUG", FALSE);
 
         $crs_info = array();
         $crs_info['ref_id'] = $crs_ref_id;
@@ -86,21 +82,8 @@ class CoursesModel
     {
 
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        RESTLib::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
-        RESTLib::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
         RESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
-        define("DEBUG", FALSE);
-
-        if(!$lng)
-        {
-            $lang = "en";
-            require_once("./Services/Language/classes/class.ilLanguage.php");
-            $lng = new ilLanguage($lang);
-            $lng->loadLanguageModule("init");
-            RESTLib::initGlobal('lng', $lng);
-        }
-
 
         $crs_items = array();
 
