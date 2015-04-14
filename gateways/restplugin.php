@@ -57,12 +57,17 @@ ob_end_clean();
 if ($ilPluginAdmin->isActive(IL_COMP_SERVICE, "UIComponent", "uihk", "REST")) {
     // Fetch plugin object
     $ilRESTPlugin = $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, "UIComponent", "uihk", "REST");
+    $appDirectory = $ilRESTPlugin->getDirectory() . "/RESTController/";
     
-    // Include RESTController (containing REST-Logic)
-    require_once($ilRESTPlugin->getDirectory() . '/RESTController/app.php');
+    // Include the RESTController application
+    require_once($appDirectory . '/app.php');
     
-    // Run RESTController app
-    $app->run();
+    // Register the RESTController Class-AutoLoader 
+    \RESTController\RESTController::registerAutoloader();
+    
+    // Instantate and run the RESTController application
+    $restController = new \RESTController\RESTController($appDirectory);
+    $restController->run();
 } else {
     // Display an appropriate error-message
     header('HTTP/1.0 404 Disabled');

@@ -5,9 +5,12 @@
  * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
+//namespace RESTController\libs;
  
- 
+
+// !!! 
 require_once("./Services/User/classes/class.ilObjUser.php");
+
 
 /**
  * This file is part of the RESTPlugin library layer.

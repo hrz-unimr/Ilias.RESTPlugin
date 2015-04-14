@@ -52,9 +52,7 @@ $app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ /
     }
     $app->log->debug("Update Data ".print_r($aUpdateData,true));
 
-
-    $ilREST = new RESTLib();
-    if (!$ilREST->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
+    if (!RESTLib::isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
         $result['status'] = 'failed';
         $result['msg'] = "Access denied. Administrator permissions required.";
         $result['authuser'] = $authorizedUser;
@@ -94,8 +92,7 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
 
         error_log("(Slim) Creating client...");
 
-        $ilREST = new RESTLib();
-        if (!$ilREST->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
+        if (!RESTLib::isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
             $result['status'] = 'failed';
             $result['msg'] = "Access denied. Administrator permissions required.";
             $result['authuser'] = $authorizedUser;
@@ -247,9 +244,7 @@ $app->delete('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app)
     $authorizedUser = $env['user'];
 
     $result = array();
-
-    $ilREST = new RESTLib();
-    if (!$ilREST->isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
+    if (!RESTLib::isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
 
         $result['status'] = 'failed';
         $result['msg'] = "Access denied. Administrator permissions required.";
@@ -277,6 +272,12 @@ $app->get('/routes', function () use ($app) {
     $env = $app->environment();
     $result = array();
     $routes = $app->router()->getRoutes();
+    
+    
+    // !!! DEBUG !!!
+    \RESTController\libs\RESTLib::isAdminByUsername("root");
+    // !!! DEBUG !!!
+    
 
     foreach($routes as $route) {
         $multiVerbs = $route->getHttpMethods();
