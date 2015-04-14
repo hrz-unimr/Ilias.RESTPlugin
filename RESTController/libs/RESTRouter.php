@@ -7,6 +7,9 @@
  */
  
  
+// Requires ../Slim/Router.php
+ 
+ 
 /**
  * Extends the Slim-Framework Router with a method to iterate over
  * all routes even if they don't have a name.

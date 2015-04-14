@@ -6,10 +6,45 @@
  * 2014-2015
  */
  
-
-
+ 
+require_once("./Services/Init/classes/class.ilInitialisation.php");
 require_once("./Services/User/classes/class.ilObjUser.php");
 require_once("./Services/AccessControl/classes/class.ilRbacReview.php");
+
+
+class ilInitialisation_Public extends ilInitialisation {
+    public static function initGlobal_Public($a_name, $a_class, $a_source_file = null) {
+        return self::initGlobal($a_name, $a_class, $a_source_file);
+    }
+    
+    public static function initAccessHandling_Public() {
+        return self::initAccessHandling();
+    }
+    
+    public static function initSettings_Public() {
+        return self::initSettings();
+    }
+    
+    public static function buildHTTPPath_Public() {
+        return self::buildHTTPPath();
+    }
+    
+    public static function initClientIniFile_Public() {
+        return self::initClientIniFile();
+    }
+    
+    public static function initCore_Public() {
+        return self::initCore();
+    }
+    
+    public static function initClient_Public() {
+        return self::initClient();
+    }
+    
+    public static function initLanguage_Public() {
+        return self::initLanguage();
+    }
+}
 
 
 /*
@@ -19,21 +54,38 @@ class RESTLib {
     /**
      * Initialize global instance
      *
-     * Note: Taken from Servcies/Init/classes/class.ilInitialization.php
-     *
      * @param string $a_name
      * @param string $a_class
      * @param string $a_source_file
      */
-    static public function initGlobal($a_name, $a_class, $a_source_file = null) {
-        if($a_source_file) {
-            include_once($a_source_file);
-            $GLOBALS[$a_name] = new $a_class;
-        }
-        else
-        {
-            $GLOBALS[$a_name] = $a_class;
-        }
+    public static function initGlobal($a_name, $a_class, $a_source_file = null) {
+        return ilInitialisation_Public::initGlobal_Public($a_name, $a_class, $a_source_file);
+    }
+
+    
+    /**
+     * $ilAccess and $rbac... initialisation
+     */
+    public static function initAccessHandling() {
+        return ilInitialisation_Public::initAccessHandling_Public();
+    }
+
+    
+    /**
+     * Init Settings
+     * This function is needed to accomplish authentication.
+     */
+    public static function initSettings() {
+        return ilInitialisation_Public::initSettings_Public();
+    }
+
+    
+    /**
+     * Builds http path
+     * This function is needed to accomplish authentication.
+     */
+    public static function buildHTTPPath() {
+        return ilInitialisation_Public::buildHTTPPath_Public();
     }
     
 
@@ -42,135 +94,14 @@ class RESTLib {
      * Take from class.ilInitialisation.php->initClientIniFile()
      */
     static public function initDefaultRESTGlobals() {
-        define("DEBUG", FALSE);
-        define("IL_VIRUS_SCANNER", "None");
-        // The following constants are normally set by class.ilInitialisation.php->initClientIniFile()
-        define ("MAXLENGTH_OBJ_TITLE",125);
-        define ("MAXLENGTH_OBJ_DESC",123);
-
+        ilInitialisation_Public::initClientIniFile_Public();
         require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
         require_once("./Modules/File/classes/class.ilObjFile.php");
-        require_once("./Services/Xml/classes/class.ilSaxParser.php");
+        ilInitialisation_Public::initLanguage_Public();
+        ilInitialisation_Public::initClient_Public();
+        ilInitialisation_Public::initCore_Public();
 
-        $lang = "en";
-        require_once("./Services/Language/classes/class.ilLanguage.php");
-        $lng = new ilLanguage($lang);
-        $lng->loadLanguageModule("init");
-        self::initGlobal('lng', $lng);
-
-        self::initGlobal("ilias", "ILIAS", "./Services/Init/classes/class.ilias.php");
-        self::initGlobal("ilPluginAdmin", "ilPluginAdmin","./Services/Component/classes/class.ilPluginAdmin.php");
-        self::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
-        self::initGlobal("ilAppEventHandler", "ilAppEventHandler","./Services/EventHandling/classes/class.ilAppEventHandler.php");
-        self::initGlobal("ilObjDataCache", "ilObjectDataCache","./Services/Object/classes/class.ilObjectDataCache.php");
-        
         global $lng, $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilAppEventHandler, $ilObjDataCache, $ilUser;
-    }
-
-    
-    /**
-     * Taken from class.ilInitialization.php. Since the function is protected there we
-     * needed to replicated here.
-     * $ilAccess and $rbac... initialisation
-     */
-    public static function initAccessHandling() {
-        self::initGlobal("rbacreview", "ilRbacReview", "./Services/AccessControl/classes/class.ilRbacReview.php");
-
-        require_once("./Services/AccessControl/classes/class.ilRbacSystem.php");
-        $rbacsystem = ilRbacSystem::getInstance();
-        self::initGlobal("rbacsystem", $rbacsystem);
-
-        self::initGlobal("rbacadmin", "ilRbacAdmin", "./Services/AccessControl/classes/class.ilRbacAdmin.php");
-
-        self::initGlobal("ilAccess", "ilAccessHandler", "./Services/AccessControl/classes/class.ilAccessHandler.php");
-
-        require_once("./Services/AccessControl/classes/class.ilConditionHandler.php");
-    }
-
-    
-    /**
-     * Init Settings
-     * Note: Taken from Servcies/Init/classes/class.ilInitialization.php
-     *
-     * This function is needed to accomplish authentication.
-     *
-     */
-    public static function initSettings() {
-        global $ilSetting;
-
-        self::initGlobal("ilSetting", "ilSetting", "Services/Administration/classes/class.ilSetting.php");
-
-        // check correct setup
-        if (!$ilSetting->get("setup_ok"))
-            self::abortAndDie("Setup is not completed. Please run setup routine again.");
-
-        // set anonymous user & role id and system role id
-        define ("ANONYMOUS_USER_ID", $ilSetting->get("anonymous_user_id"));
-        define ("ANONYMOUS_ROLE_ID", $ilSetting->get("anonymous_role_id"));
-        define ("SYSTEM_USER_ID", $ilSetting->get("system_user_id"));
-        define ("SYSTEM_ROLE_ID", $ilSetting->get("system_role_id"));
-        define ("USER_FOLDER_ID", 7);
-
-        // recovery folder
-        define ("RECOVERY_FOLDER_ID", $ilSetting->get("recovery_folder_id"));
-
-        // installation id
-        define ("IL_INST_ID", $ilSetting->get("inst_id",0));
-
-        // define default suffix replacements
-        define ("SUFFIX_REPL_DEFAULT", "php,php3,php4,inc,lang,phtml,htaccess");
-        define ("SUFFIX_REPL_ADDITIONAL", $ilSetting->get("suffix_repl_additional"));
-
-        self::buildHTTPPath();
-    }
-
-    
-    /**
-     * builds http path
-     *
-     * Note: Taken from Servcies/Init/classes/class.ilInitialization.php
-     *
-     * This function is needed to accomplish authentication.
-     *
-     */
-    public static function buildHTTPPath() {
-        include_once('./Services/Http/classes/class.ilHTTPS.php');
-        $https = new ilHTTPS();
-
-        if($https->isDetected()) 
-            $protocol = 'https://';
-        else
-            $protocol = 'http://';
-        $host = $_SERVER['HTTP_HOST'];
-        $rq_uri = $_SERVER['REQUEST_URI'];
-
-        // security fix: this failed, if the URI contained "?" and following "/"
-        // -> we remove everything after "?"
-        if (is_int($pos = strpos($rq_uri, "?")))
-            $rq_uri = substr($rq_uri, 0, $pos);
-
-        if(!defined('ILIAS_MODULE')) {
-            $path = pathinfo($rq_uri);
-            if(!$path['extension'])
-                $uri = $rq_uri;
-            else
-                $uri = dirname($rq_uri);
-        }
-        else {
-            // if in module remove module name from HTTP_PATH
-            $path = dirname($rq_uri);
-
-            // dirname cuts the last directory from a directory path e.g content/classes return content
-
-            $module = ilUtil::removeTrailingPathSeparators(ILIAS_MODULE);
-
-            $dirs = explode('/',$module);
-            $uri = $path;
-            foreach($dirs as $dir)
-                $uri = dirname($uri);
-        }
-
-        return define('ILIAS_HTTP_PATH',ilUtil::removeTrailingPathSeparators($protocol.$host.$uri));
     }
 
     

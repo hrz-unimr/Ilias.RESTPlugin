@@ -9,6 +9,7 @@
  
 // Include SLIM-Framework
 require_once('Slim/Slim.php');
+// Requires <$ilPluginAdmin>
 
 
 // Create bew slim instance (uses autoloader to load other includes)
