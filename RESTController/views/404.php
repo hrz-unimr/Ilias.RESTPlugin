@@ -7,5 +7,5 @@
  */
 ?>
 {
-    "msg": "This route does not exist."
+    "msg": "There is no route matching this URI!"
 }

@@ -10,5 +10,5 @@
 // Todo: Give feedback on error
 ?>
 {
-    "msg": "An error occured while invoking this route."
+    "msg": "An (uncatched) error occured while invoking this route."
 }

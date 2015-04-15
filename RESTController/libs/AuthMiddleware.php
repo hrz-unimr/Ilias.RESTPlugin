@@ -20,18 +20,11 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
  * Middleware Authentification Functions
  *  This middleware can be included in a route signature as follows:
  *  $app->get('/users', function () use ($app) { ... })
- *  $app->get('/users', authenticate, function () use ($app) { ... })
- *  $app->get('/users', authenticateTokenOnly, function () use ($app) { ... })
- *  $app->get('/users', authenticateILIASAdminRole, function () use ($app) { ... })
+ *  $app->get('/users', \RESTController\libs\AuthMiddleware::authenticate, function () use ($app) { ... })
+ *  $app->get('/users', \RESTController\libs\AuthMiddleware::authenticateTokenOnly, function () use ($app) { ... })
+ *  $app->get('/users', \RESTController\libs\AuthMiddleware::authenticateILIASAdminRole, function () use ($app) { ... })
  */
  class AuthMiddleware {
-    /* 
-     * ---------------------------------------------------------------------------
-     * Start of Middleware Authentification Functions (public members)
-     * --------------------------------------------------------------------------- 
-     */
-     
-     
     /**
      * This authorization middleware requires a valid  access-token (bearer) 
      * or a valid SSQ certificate. Furthermore the permission for the client 
@@ -82,7 +75,7 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
 
     /**
      * This authorization middleware checks if the access token (bearer) is valid and
-     * the associated user has administration privileges.
+     * the associated user has administration privileges (via ILIAS roles).
      */
     public static function authenticateILIASAdminRole() {
         // Authentication by token
@@ -96,14 +89,7 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
         if (!RESTLib::isAdminByUsername($env['user'])) 
             $app->halt(401, "Admin permissions required.");
     }
-
-
-    /* 
-     * ---------------------------------------------------------------------------
-     * End of Middleware Authentification Functions (public members)
-     * --------------------------------------------------------------------------- 
-     */
-     
+    
      
     /**
      * Utility Function: 
@@ -179,7 +165,7 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
     /**
      * Utility Function: 
      *  Checks the permission for the current client to 
-     *  access a route under a requested action.
+     *  access a route with a certain action.
      *
      * @param \Slim\Route $route
      */
