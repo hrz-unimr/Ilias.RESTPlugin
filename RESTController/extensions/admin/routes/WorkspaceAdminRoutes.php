@@ -18,10 +18,8 @@ use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
  */
 
 $app->group('/admin', function () use ($app) {
-
     $app->get('/workspaces', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function () use ($app) {
         try {
-
             if (count($app->request->post()) == 0 && count($app->request->get()) == 0) {
                 $req_data = json_decode($app->request()->getBody(),true); // json
             } else {
@@ -37,9 +35,6 @@ $app->group('/admin', function () use ($app) {
             if (!isset($offset)) {
                 $offset = 0;
             }
-
-            //echo $limit." ".$offset;
-
 
             $t_start = microtime();
             $result = array();
@@ -58,7 +53,7 @@ $app->group('/admin', function () use ($app) {
             $app->response()->header('Content-Type', 'application/json');
             echo json_encode($result);
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $app->response()->status(400);
             $app->response()->header('X-Status-Reason', $e->getMessage());
         }
@@ -81,7 +76,7 @@ $app->group('/admin', function () use ($app) {
             $app->response()->header('Content-Type', 'application/json');
             echo json_encode($result);
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $app->response()->status(400);
             $app->response()->header('X-Status-Reason', $e->getMessage());
         }

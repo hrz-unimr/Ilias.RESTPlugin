@@ -11,6 +11,8 @@ namespace RESTController\extensions\users_v1;
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
+use \ilObjUser, \ilObjectFactory;
+
 
 require_once("./Services/User/classes/class.ilObjUser.php");
 require_once("./Services/AccessControl/classes/class.ilRbacReview.php");

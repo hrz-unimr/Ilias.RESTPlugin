@@ -11,12 +11,12 @@ namespace RESTController\extensions\experimental;
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
+use \ilHTTPS, \ilUtil;
+
 
 require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
-/*require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
-require_once("./Modules/File/classes/class.ilObjFile.php");
-require_once("./Services/User/classes/class.ilObjUser.php");
-*/
+
+
 class ExperimentalModel
 {
     public static function initSettings()
@@ -28,9 +28,7 @@ class ExperimentalModel
 
         // check correct setup
         if (!$ilSetting->get("setup_ok"))
-        {
             self::abortAndDie("Setup is not completed. Please run setup routine again.");
-        }
 
         // set anonymous user & role id and system role id
         define ("ANONYMOUS_USER_ID", $ilSetting->get("anonymous_user_id"));
@@ -49,10 +47,7 @@ class ExperimentalModel
         define ("SUFFIX_REPL_DEFAULT", "php,php3,php4,inc,lang,phtml,htaccess");
         define ("SUFFIX_REPL_ADDITIONAL", $ilSetting->get("suffix_repl_additional"));
 
-       // if(ilContext::usesHTTP())
-       // {
-            self::buildHTTPPath();
-       // }
+        self::buildHTTPPath();
     }
 
     /**
@@ -76,7 +71,7 @@ class ExperimentalModel
         $rq_uri = $_SERVER['REQUEST_URI'];
 
         // security fix: this failed, if the URI contained "?" and following "/"
-        // -> we remove everything after "?"
+        // ->we remove everything after "?"
         if (is_int($pos = strpos($rq_uri, "?")))
         {
             $rq_uri = substr($rq_uri, 0, $pos);

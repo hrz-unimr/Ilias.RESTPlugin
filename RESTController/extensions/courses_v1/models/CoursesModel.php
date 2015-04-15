@@ -10,6 +10,9 @@ namespace RESTController\extensions\courses_1;
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+use \RESTController\libs\RESTSoapAdapter;
+
+use \ilObjCourse, \ilObjectFactory, \ilObjectActivation, \ilRESTUtils, ilLMPageObject;
 
 
 require_once("./Services/Utilities/classes/class.ilUtil.php");

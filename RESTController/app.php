@@ -139,8 +139,10 @@ class RESTController extends \Slim\Slim {
         });
 
         // Set default error-handler and 404 result
-        $this->error(function (\Exception $e) {
-            $this->render('views/error.php');
+        $this->error(function (\Exception $error) {
+            $this->render('views/error.php', array(
+                'error' => $error
+            ));
         });
         $this->notFound(function () {
             $this->render('views/404.php');

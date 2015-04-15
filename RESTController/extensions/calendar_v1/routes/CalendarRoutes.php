@@ -31,7 +31,7 @@ $app->group('/v1', function () use ($app) {
                 $data = $model->getCalUpcomingEvents($id);
                 $response->setMessage("Upcoming events for user " . $id . ".");
                 $response->addData('items', $data);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $response->setRESTCode("-15");
                 $response->setMessage('Error: Could not retrieve any events for user '.$id.".");
             }
@@ -55,7 +55,7 @@ $app->group('/v1', function () use ($app) {
                 $data = $model->getIcalAdress($id);
                 $response->setMessage("ICAL (ics) address for user " . $id . ".");
                 $response->addData('icalurl', $data);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $response->setRESTCode("-15");
                 $response->setMessage('Error: Could not retrieve ICAL url for user '.$id.".");
             }

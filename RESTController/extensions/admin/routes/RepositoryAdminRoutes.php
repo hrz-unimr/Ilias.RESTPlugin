@@ -29,15 +29,15 @@ $app->group('/admin', function () use ($app) {
         $maxAge = 24; // 24 month
         try {
             $maxDepth = $request->getParam("depth");
-        } catch(Exception $e){
+        } catch(\Exception $e){
         }
         try {
             $maxAge = $request->getParam("age");
-        } catch(Exception $e){
+        } catch(\Exception $e){
         }
         $repModel = new RepositoryAdminModel();
       //  $data = $repModel->getSubTree($ref_id);
-        $data = $repModel-> getSubTreeWithinTimespanDepth($ref_id, $maxAge, $maxDepth);
+        $data = $repModel->getSubTreeWithinTimespanDepth($ref_id, $maxAge, $maxDepth);
 
 
         $response->setData("subtree",$data);
@@ -63,7 +63,7 @@ $app->group('/admin', function () use ($app) {
         $response = new RESTResponse($app);
         $repModel = new RepositoryAdminModel();
         //  $data = $repModel->getSubTree($ref_id);
-        $data = $repModel-> getRepositoryReadEvents($ref_id);
+        $data = $repModel->getRepositoryReadEvents($ref_id);
 
         $response->setData("subtree",$data);
         $response->setMessage('Subtree of repository item '.$ref_id.'.');

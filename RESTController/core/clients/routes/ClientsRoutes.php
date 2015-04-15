@@ -42,7 +42,7 @@ $app->get('/clients', '\RESTController\libs\AuthMiddleware::authenticateTokenOnl
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode($result);
 
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         $app->response()->status(400);
         $app->response()->header('X-Status-Reason', $e->getMessage());
     }
@@ -61,7 +61,7 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
 
     try {
         $aUpdateData = $request->getParam('data');
-    } catch(Exception $e) {
+    } catch(\Exception $e) {
         $aUpdateData = array();
     }
     $app->log->debug("Update Data ".print_r($aUpdateData,true));
@@ -117,86 +117,86 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
             try {
                 $new_api_key = $request->getParam('api_key');
                 $input_complete = true;
-            } catch(Exception $e) {
+            } catch(\Exception $e) {
                 $new_api_key = "";
                 $input_complete = false;
             }
 
             try {
                 $new_api_secret = $request->getParam('api_secret');
-            } catch(Exception $e) {
+            } catch(\Exception $e) {
                 $new_api_secret = "";
             }
 
             try {
                 $new_client_oauth2_consent_message = $request->getParam('oauth2_consent_message');
-            } catch(Exception $e) {
+            } catch(\Exception $e) {
                 $new_client_oauth2_consent_message = "";
             }
 
             try {
                 $new_client_permissions = $request->getParam('permissions');                
-            } catch(Exception $e) {
+            } catch(\Exception $e) {
                 $new_client_permissions = "";
             }
 
             try {
                 $new_client_oauth2_redirect_url = $request->getParam('oauth2_redirection_uri');
-            } catch(Exception $e) {
+            } catch(\Exception $e) {
                 $new_client_oauth2_redirect_url = "";
             }
 
             try {
                 $oauth2_gt_client_active = $request->getParam('oauth2_gt_client_active');
-            } catch(Exception $e) {
+            } catch(\Exception $e) {
                 $oauth2_gt_client_active = 0;
             }
 
             try {
                 $oauth2_gt_client_user = $request->getParam('oauth2_gt_client_user');
-            } catch(Exception $e) {
+            } catch(\Exception $e) {
                 $oauth2_gt_client_user = "";
             }
 
             try {
                 $oauth2_gt_authcode_active = $request->getParam('oauth2_gt_authcode_active');
-            } catch(Exception $e) {
+            } catch(\Exception $e) {
                 $oauth2_gt_authcode_active = 0;
             }
 
             try {
                 $oauth2_gt_implicit_active = $request->getParam('oauth2_gt_implicit_active');
-            } catch(Exception $e) {
+            } catch(\Exception $e) {
                 $oauth2_gt_implicit_active = 0;
             }
 
             try {
                 $oauth2_gt_resourceowner_active = $request->getParam('oauth2_gt_resourceowner_active');
-            } catch(Exception $e) {
+            } catch(\Exception $e) {
                 $oauth2_gt_resourceowner_active = 0;
             }
 
             try {
                 $oauth2_user_restriction_active = $request->getParam('oauth2_user_restriction_active');
-            } catch(Exception $e) {
+            } catch(\Exception $e) {
                 $oauth2_user_restriction_active = 0;
             }
 
             try {
                 $oauth2_consent_message_active = $request->getParam('oauth2_consent_message_active');
-            } catch(Exception $e) {
+            } catch(\Exception $e) {
                 $oauth2_consent_message_active = 0;
             }
 
             try {
                 $oauth2_authcode_refresh_active = $request->getParam('oauth2_authcode_refresh_active');
-            } catch(Exception $e) {
+            } catch(\Exception $e) {
                 $oauth2_authcode_refresh_active = 0;
             }
 
             try {
                 $oauth2_resource_refresh_active = $request->getParam('oauth2_resource_refresh_active');
-            } catch(Exception $e) {
+            } catch(\Exception $e) {
                 $oauth2_resource_refresh_active = 0;
             }
 
@@ -205,7 +205,7 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
 
             try {
                 $access_user_csv = $request->getParam('access_user_csv');
-            } catch(Exception $e) {
+            } catch(\Exception $e) {
                 $access_user_csv = "";
             }
 
@@ -241,7 +241,7 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
 
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode($result);
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         $app->response()->status(400);
         $app->response()->header('X-Status-Reason', $e->getMessage());
     }

@@ -8,8 +8,7 @@
 namespace RESTController\libs;
  
 
-// !!! 
-require_once("./Services/User/classes/class.ilObjUser.php");
+// Requires <ilContext>, <$ilDB>, <ilObjUser>, <ilAuthUtils>, <ilIniFile>, <$ilAuth>
 
 
 /**
@@ -17,25 +16,26 @@ require_once("./Services/User/classes/class.ilObjUser.php");
  * Its purpose is to provide utilities to enable REST models
  * to use the ILIAS SOAP webservice.
  */
-
 class RESTSoapAdapter {
     //static protected $instance = null;
     public $SID = "";
+    
 
     /**
-     * Replaces the SOAP login method. Creates a valid session, which can be used for SOAP calls.
+     * Replaces the SOAP login method. 
+     * Creates a valid session, which can be used for SOAP calls.
      */
-    public function loginSOAP()
-    {
+    public function loginSOAP() {
         RESTLib::initAccessHandling();
 
         define ("IL_SOAPMODE", IL_SOAPMODE_INTERNAL);
         include_once("Services/Context/classes/class.ilContext.php");
-        ilContext::init(ilContext::CONTEXT_SOAP);
+        \ilContext::init(ilContext::CONTEXT_SOAP);
 
+        // Load username/password from DB
         $query = "SELECT `setting_name`, `setting_value` FROM `ui_uihk_rest_config` WHERE `setting_name` IN ('rest_system_user', 'rest_user_pass')";
         $set = $ilDB->query($query);
-        while ($row = $ilDB->fetchAssoc($set)) {
+        while ($row = $ilDB->fetchAssoc($set)) 
             switch ($row['setting_name']) {
                 case "rest_soap_user":
                     $username = $row['setting_value'];
@@ -44,20 +44,19 @@ class RESTSoapAdapter {
                     $password = $row['setting_value'];
                     break;
             }
-        }
-        if (!isset($username) || !isset($password)) {
-            // TODO: Throw an error header here!
-            logoutSOAP();
-        }
+        
+        // TODO: Throw an error header here!
+        if (!isset($username) || !isset($password)) 
+            self::logoutSOAP();
 
         // Get username and password
         require_once("./Services/Calendar/classes/class.ilDatePresentation.php");
         require_once("./Services/User/classes/class.ilObjUser.php");
-        $user_id = ilObjUser::getUserIdByLogin($username);
+        $user_id = \ilObjUser::getUserIdByLogin($username);
 
         if ($user_id == 0)
             return false;
-        $ilUser = new ilObjUser($user_id);
+        $ilUser = new \ilObjUser($user_id);
         RESTLib::loadIlUser();
 
         $_POST['username'] = $username;
@@ -70,13 +69,13 @@ class RESTSoapAdapter {
         require_once("./Services/AuthShibboleth/classes/class.ilShibboleth.php");
         include_once("./Services/Authentication/classes/class.ilAuthUtils.php");
         
-        ilAuthUtils::_initAuth();
+        \ilAuthUtils::_initAuth();
         
         global $ilAuth;
         $ilAuth->start();
 
         require_once("./Services/Init/classes/class.ilIniFile.php");
-        $ilIliasIniFile = new ilIniFile("./ilias.ini.php");
+        $ilIliasIniFile = new \ilIniFile("./ilias.ini.php");
         $ilIliasIniFile->read();
         $client = $ilIliasIniFile->readVariable("clients","default");
 
@@ -84,19 +83,26 @@ class RESTSoapAdapter {
         return true;
     }
 
-    public function executeSOAPFunction($str_function, $a_parameters)
-    {
+    
+    /**
+     * Execute a SOAP command on the server
+     * a return the produced result.
+     */
+    public function executeSOAPFunction($str_function, $a_parameters) {
         include_once('webservice/soap/include/inc.soap_functions.php');
         $result = call_user_func_array('ilSoapFunctions::'.$str_function, $a_parameters);
         return $result;
     }
 
-    public function logoutSOAP()
-    {
+    
+    /**
+     * Replaces the SOAP logout method. 
+     * Destroys esisting session.
+     */
+    public function logoutSOAP() {
         global $ilAuth;
         $ilAuth->logout();
         session_destroy();
         header_remove('Set-Cookie');
     }
-
 }

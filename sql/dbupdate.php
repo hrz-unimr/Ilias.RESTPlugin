@@ -175,7 +175,7 @@
 <#5>
 <?php
     global $ilLog;
-    $ilLog->write('Plugin REST -> Include Primary REST Client');
+    $ilLog->write('Plugin REST ->Include Primary REST Client');
     
     $api_key = "apollon";
     $api_secret = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',5)),0,10);

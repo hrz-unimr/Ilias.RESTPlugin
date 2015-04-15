@@ -14,6 +14,7 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
 // Requires ../Slim/Slim.php
 // Requires AuthLib.php
 // Requires TokenLib.php
+// Requires RESTLib.php
  
  
 /* 
@@ -99,6 +100,13 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
      *   HTTP body json parameter: 'token'
      *   HTTP Authorization header: bearer <2. argument>
      *   HTTP Authorization header: <1. argument>
+     *
+     * IMPORTANT:
+     *  This methods setup the application enviroment:
+     *   (With $env = \Slim\Slim::getInstance()->environment();)
+     *   $env['user'] = user value from given token
+     *   $env['api_key'] = api-key value from given token
+     *   $env['token'] = The given token is stored here
      */
     protected static function checkToken() {
         // Fetch instance of SLIM-Framework and HTTP request
@@ -159,6 +167,7 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
             $app->halt(401, "Invalid token, missing api-key.");
 
         // Set ['token'] on environment
+        $env = $app->environment();
         $env['token'] = $token;
     }
 
@@ -166,6 +175,8 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
      * Utility Function: 
      *  Checks the permission for the current client to 
      *  access a route with a certain action.
+     *
+     * NOTE: The api_key need to be in \Slim\Slim::getInstance()->environment();
      *
      * @param \Slim\Route $route
      */

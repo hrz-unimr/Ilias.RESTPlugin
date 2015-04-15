@@ -71,7 +71,7 @@ $app->get('/v1/oauth2/auth', function () use ($app) {
                 ));
             }
         }
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         $app->response()->status(400);
         $app->response()->header('X-Status-Reason', $e->getMessage());
     }

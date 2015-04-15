@@ -36,13 +36,13 @@ $app->group('/v1', function () use ($app) {
             if (isset($meta_data)) {
                 $meta_data = true;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $meta_data = false;
         }
 
         try {
             $id_type = $request->getParam('$id_type');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $id_type = "ref_id";
         }
 

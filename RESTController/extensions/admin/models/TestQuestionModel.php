@@ -11,6 +11,8 @@ namespace RESTController\extensions\admin;
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
+use \assSingleChoice;
+
 
 require_once("./Modules/TestQuestionPool/classes/class.assSingleChoice.php");
 

@@ -26,7 +26,7 @@ $app->group('/m/v1', function () use ($app) {
 
         try {
             $query = utf8_encode($request->getParam('q'));
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $query = '';
         }
 
@@ -44,7 +44,7 @@ $app->group('/m/v1', function () use ($app) {
 
         try {
             $query = utf8_encode($request->getParam('q'));
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $query = '';
         }
 

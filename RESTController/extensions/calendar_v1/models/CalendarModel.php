@@ -11,6 +11,8 @@ namespace RESTController\extensions\calendar_v1;
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
+use \ilCalendarUserSettings, \ilCalendarSchedule, \ilCalendarRecurrences, \ilHTTPS, \ilCalendarAuthenticationToken;
+
 
 require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
 require_once("./Modules/File/classes/class.ilObjFile.php");

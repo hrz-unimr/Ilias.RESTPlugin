@@ -11,6 +11,8 @@ namespace RESTController\extensions\mobile_v1;
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
+use \ilObjUser, \ilWorkspaceTree
+
 
 require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
 require_once("./Services/User/classes/class.ilObjUser.php");

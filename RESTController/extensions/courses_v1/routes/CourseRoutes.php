@@ -11,6 +11,8 @@ namespace RESTController\extensions\courses_v1;
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
+use \RESTController\extensions\users_v1\UsersModel;
+
 
 /*
  * Prototypical implementation of some rest endpoints for development
@@ -32,7 +34,7 @@ $app->group('/v1', function () use ($app) {
             $response->addData('coursecontents', $data1);
             $response->addData('courseinfo', $data2);
             $response->setMessage("Content of course " . $ref_id . ".");
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $response->setRESTCode("-15");
             $response->setMessage('Error: Could not retrieve data for user '.$id.".");
         }
@@ -141,7 +143,7 @@ $app->group('/v1', function () use ($app) {
         try {
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->joinCourse($user_id, $crs_ref_id);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $response->setMessage("Error: Subscribing user ".$user_id." to course with ref_id = ".$crs_ref_id." failed. Exception:".$e);
             $response->setHttpStatus(400);
             $response->toJSON();
@@ -170,7 +172,7 @@ $app->group('/v1', function () use ($app) {
             $response->addData('coursecontents', $data1);
             $response->addData('courseinfo', $data2);*/
             $response->setMessage("User ".$authorizedUserId." subscribed to course with ref_id = " . $ref_id . " successfully.");
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $response->setRESTCode("-15");
             $response->setMessage("Error: Subscribing user ".$authorziedUserid." to course with ref_id = ".$ref_id." failed. Exception:".$e);
             //$response->setMessage('Error: Could not perform action for user '.$id.".".$e);
@@ -190,7 +192,7 @@ $app->group('/v1', function () use ($app) {
             $crsreg_model->leaveCourse($authorizedUserId, $ref_id);
 
             $response->setMessage("User ".$authorizedUserId." has left course with ref_id = " . $ref_id . ".");
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $response->setRESTCode("-15");
             $response->setMessage('Error: Could not perform action for user '.$authorizedUserId.".".$e);
             $response->setMessage($e);

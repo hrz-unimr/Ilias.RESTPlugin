@@ -11,6 +11,8 @@ namespace RESTController\extensions\courses_v1;
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
+use \ilObjectFactory, \ilObjectFactory, \ilCourseParticipants, \ilCourseWaitingList, \ilParticipants, \ilUtil, \ilForumNotification, \ilMemberAgreement;
+
 
 require_once("./Services/Utilities/classes/class.ilUtil.php");
 require_once("./Modules/Course/classes/class.ilObjCourse.php");
@@ -49,7 +51,7 @@ class CoursesRegistrationModel
         $ilUser->setId($user_id);
         try {
             $ilUser->read();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
         RESTLib::initAccessHandling();

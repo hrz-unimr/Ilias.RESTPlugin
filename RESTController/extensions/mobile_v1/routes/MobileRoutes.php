@@ -11,6 +11,14 @@ namespace RESTController\extensions\mobile_v1;
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
+use \RESTController\extensions\admin\DescribrModel;
+use \RESTController\extensions\users_v1\UsersModel;
+use \RESTController\extensions\courses_v1\CoursesModel;
+use \RESTController\extensions\desktop_v1\DesktopModel;
+use \RESTController\extensions\groups_v1\GroupsModel;
+use \RESTController\extensions\contacts_v1\ContactsModel;
+use \RESTController\extensions\calendar_v1\CalendarModel;
+
 
 /*
  * Prototypical implementation of some rest endpoints for development
@@ -89,7 +97,7 @@ $app->group('/m', function () use ($app) {
         $result['ritems'] = $repository_items;
 
         $desktopModel = new DesktopModel();
-        $pditems = $desktopModel -> getPersonalDesktopItems($user_id);
+        $pditems = $desktopModel->getPersonalDesktopItems($user_id);
         $pdrefids = array();
         foreach ($pditems as $pditem) {
             $pdrefids[] = $pditem['ref_id'];
@@ -105,7 +113,7 @@ $app->group('/m', function () use ($app) {
         $contactModel = new ContactsModel();
         $data = $contactModel->getMyContacts($user_id);
         $result['contacts']['my_contacts'] = $data;
-        // -> todo: CourseContacts, GroupContacts
+        // TODO: CourseContacts, GroupContacts
 
         // Calendar
         $calModel = new CalendarModel();
@@ -126,7 +134,7 @@ $app->group('/m', function () use ($app) {
 
         try {
             $query = $request->getParam('q');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $query = '';
         }
 

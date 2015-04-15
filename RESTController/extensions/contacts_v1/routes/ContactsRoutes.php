@@ -29,7 +29,7 @@ $app->group('/v1', function () use ($app) {
                 $data = $model->getMyContacts($id);
                 $response->setMessage("Contacts for user " . $id . ".");
                 $response->addData('contacts', $data);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $response->setRESTCode("-15");
                 $response->setMessage('Error: Could not retrieve data for user '.$id.".");
             }

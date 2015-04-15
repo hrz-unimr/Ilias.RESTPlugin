@@ -47,7 +47,7 @@ $app->group('/v1', function () use ($app) {
             $model = new DesktopModel();
             $model->removeItemFromDesktop($id, $ref_id);
             $response->setMessage("Item ".$ref_id." removed successfully from the users PD overview.");
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $response->setRESTCode("-13");
             $response->setMessage("Error: ".$e);
         }
@@ -65,7 +65,7 @@ $app->group('/v1', function () use ($app) {
             $model = new DesktopModel();
             $model->addItemToDesktop($id, $ref_id);
             $response->setMessage("Item ".$ref_id." added successfully to the users PD overview.");
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $response->setRESTCode("-13");
             $response->setMessage("Error: ".$e);
         }

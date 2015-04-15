@@ -58,7 +58,7 @@ class TokenLib {
             self::loadSettings();
         // Fallback solution
         if (!self::$tokenSalt) 
-            throw new Exception('TokenLib can\'t find the token-salt inside the database! Check that there is a (token_salt, <VALUE>) entry in the ui_uihk_rest_config table.');
+            throw new \Exception('TokenLib can\'t find the token-salt inside the database! Check that there is a (token_salt, <VALUE>) entry in the ui_uihk_rest_config table.');
         
         return self::$tokenSalt;
     }

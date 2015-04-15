@@ -32,7 +32,7 @@ $app->group('/admin', function () use ($app) {
 
         try {
             $id_type = $request->getParam('id_type');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $id_type = 'ref_id';
         }
 
@@ -45,7 +45,7 @@ $app->group('/admin', function () use ($app) {
             //echo "obj_id:".$obj_id;
             try {
                 if (is_numeric($obj_id) == false) {
-                    throw new Exception('Obj id does not exist');
+                    throw new \Exception('Obj id does not exist');
                 }
                 $a_descr = $model->describeIliasObject($obj_id);
                 $response->addData('object_description', $a_descr);
@@ -55,7 +55,7 @@ $app->group('/admin', function () use ($app) {
                     $id = $obj_id;
                     $id_type = "file_id";
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $response->setRESTCode('-11');
                 $response->setMessage('Error: Object not found.');
                 // Try to explain a user with id = '.$id.' instead.';
@@ -69,7 +69,7 @@ $app->group('/admin', function () use ($app) {
             try {
                 if ($username == 'User unknown') {
                     $response->setMessage('User not found.');
-                    throw new Exception('User does not exist');
+                    throw new \Exception('User does not exist');
                 } else {
                     $usr_model = new UsersModel();
                     $usr_basic_info =  $usr_model->getBasicUserData($id);
@@ -80,7 +80,7 @@ $app->group('/admin', function () use ($app) {
                         $response->addData('user', $usr_basic_info);
                     }
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $response->setRESTCode('-11');
                 $response->setMessage('Error: User not found.');
                 // Try to explain a file with id = '.$id.' instead.';
@@ -93,7 +93,7 @@ $app->group('/admin', function () use ($app) {
                 $data = $model->describeFile($id);
                 $response->addMessage('Description of file with id = '.$id.'.');
                 $response->addData('file', $data);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $response->setRESTCode('-11');
                 $response->setMessage('Error: File not found.');
             }

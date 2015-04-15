@@ -11,6 +11,8 @@ namespace RESTController\extensions\files_v1;
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
+use \ilObject, \ilObjectFactory, \ilUtil, \ilFileUtils, \ilObjFileAccess, \ilObjFile, \ilChangeEvent, \ilRbacLog;
+
 
 require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
 require_once("./Modules/File/classes/class.ilObjFile.php");
@@ -176,11 +178,11 @@ class FileModel
                     $tree,
                     $access_handler);
             }
-            catch (ilFileUtilsException $e)
+            catch (\ilFileUtilsException $e)
             {
                 $response->error = $e->getMessage();
             }
-            catch (Exception $ex)
+            catch (\Exception $ex)
             {
                 $response->error = $ex->getMessage();
             }

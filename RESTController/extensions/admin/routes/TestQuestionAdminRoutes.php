@@ -17,7 +17,6 @@ use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
  */
 
 $app->group('/admin', function () use ($app) {
-
     $app->get('/testpool', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function () use ($app) {
 
     });

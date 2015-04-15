@@ -66,7 +66,7 @@ class RESTRequest {
         if($this->json_arr != null) {
             return array_merge($this->slimReq->params(), $this->json_arr);
         } else {
-            throw new Exception("No JSON data present");
+            throw new \Exception("No JSON data present");
         }
     }
 

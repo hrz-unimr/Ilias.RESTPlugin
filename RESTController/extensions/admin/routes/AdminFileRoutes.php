@@ -11,6 +11,8 @@ namespace RESTController\extensions\admin;
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
+use \RESTController\extensions\files_v1\FileModel;
+
 
 /*
  * Prototypical implementation of some rest endpoints for development
@@ -35,7 +37,7 @@ $app->group('/admin', function () use ($app) {
             if (isset($meta_data)) {
                 $meta_data = true;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $meta_data = false;
         }
 

@@ -11,6 +11,8 @@ namespace RESTController\extensions\admin;
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
+use \ilTree, \ilObjCategory;
+
 
 class RepositoryAdminModel
 {

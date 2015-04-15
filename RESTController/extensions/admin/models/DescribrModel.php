@@ -11,12 +11,10 @@ namespace RESTController\extensions\admin;
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
+use \RESTController\extensions\files_v1\FileModel;
+
 
 require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
-/*require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
-require_once("./Modules/File/classes/class.ilObjFile.php");
-require_once("./Services/User/classes/class.ilObjUser.php");
-*/
 
 
 class DescribrModel

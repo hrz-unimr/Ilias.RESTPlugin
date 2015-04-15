@@ -8,7 +8,7 @@
 namespace RESTController\libs;
  
  
-// Thi include ILIAS init, ILIAS user, ILIAS role management code
+// Include ILIAS init, ILIAS user, ILIAS role management code
 require_once("./Services/Init/classes/class.ilInitialisation.php");
 require_once("./Services/User/classes/class.ilObjUser.php");
 require_once("./Services/AccessControl/classes/class.ilRbacReview.php");

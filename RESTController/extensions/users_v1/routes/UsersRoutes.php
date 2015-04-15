@@ -50,7 +50,7 @@ $app->get('/v1/users', '\RESTController\libs\AuthMiddleware::authenticateILIASAd
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode($result);
 
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         $app->response()->status(400);
         $app->response()->header('X-Status-Reason', $e->getMessage());
     }
@@ -73,7 +73,7 @@ $app->get('/v1/users/:user_id', '\RESTController\libs\AuthMiddleware::authentica
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode($result);
 
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         $app->response()->status(400);
         $app->response()->header('X-Status-Reason', $e->getMessage());
     }
@@ -126,7 +126,7 @@ $app->post('/v1/users', '\RESTController\libs\AuthMiddleware::authenticate', fun
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode($result);
 
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         $app->response()->status(400);
         $app->response()->header('X-Status-Reason', $e->getMessage());
     }
@@ -150,7 +150,7 @@ $app->put('/v1/users/:user_id', '\RESTController\libs\AuthMiddleware::authentica
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode($result);
 
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         $app->response()->status(400);
         $app->response()->header('X-Status-Reason', $e->getMessage());
     }
@@ -171,7 +171,7 @@ $app->delete('/v1/users/:user_id', '\RESTController\libs\AuthMiddleware::authent
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode($result);
 
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         $app->response()->status(400);
         $app->response()->header('X-Status-Reason', $e->getMessage());
     }

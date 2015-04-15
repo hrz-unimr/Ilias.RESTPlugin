@@ -11,6 +11,8 @@ namespace RESTController\extensions\objects_v1;
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
+use \ilObjectFactory, \ilObject;
+
 
 class ObjectsModel
 {
@@ -45,7 +47,7 @@ class ObjectsModel
         
         $response->setData('title', $tmp_obj->getTitle());
         $response->setData('desc', $tmp_obj->getDescription());
-           $response->setData('owner', $tmp_obj->getOwner());
+        $response->setData('owner', $tmp_obj->getOwner());
         $response->setData('createDate', $tmp_obj->getCreateDate());
         $response->setData('lastUpdate', $tmp_obj->getLastUpdateDate());
         $response->setData('importId', $tmp_obj->getImportId());
