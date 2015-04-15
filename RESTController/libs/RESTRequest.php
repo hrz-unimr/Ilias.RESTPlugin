@@ -5,7 +5,7 @@
  * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
-//namespace RESTController\libs;
+namespace RESTController\libs;
 
 
 // Requires !!!
@@ -18,7 +18,7 @@ class RESTRequest {
     public $json_arr;
     protected $json_decoded;
 
-    public function RESTRequest($app) {
+    public function __construct ($app) {
         $this->app = $app;
         $this->slimReq = $app->request();
         $this->content_type = $app->request()->headers()->get('Content-Type');
@@ -38,7 +38,7 @@ class RESTRequest {
             if ($this->json_arr != null and isset($this->json_arr[$param])) {
                     $ret = $this->json_arr[$param];
             } else {
-                throw new Exception("Parameter $param not present.");
+                throw new \Exception("Parameter $param not present.");
             }
             
         }

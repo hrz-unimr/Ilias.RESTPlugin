@@ -1,4 +1,17 @@
 <?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+namespace RESTController\extensions\courses_v1;
+
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
+use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+
+
 /*
  * Prototypical implementation of some rest endpoints for development
  * and testing.
@@ -8,7 +21,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Retrieves the content and a description of a course specified by ref_id.
      */
-    $app->get('/courses/:ref_id', 'authenticate', function ($ref_id) use ($app) {
+    $app->get('/courses/:ref_id', '\RESTController\libs\AuthMiddleware::authenticate', function ($ref_id) use ($app) {
         $response = new RESTResponse($app);
         $env = $app->environment();
         $authorizedUserId =  RESTLib::loginToUserId($env['user']);
@@ -26,7 +39,7 @@ $app->group('/v1', function () use ($app) {
         $response->toJSON();
     });
 
-    $app->post('/courses', 'authenticate', function() use ($app) {
+    $app->post('/courses', '\RESTController\libs\AuthMiddleware::authenticate', function() use ($app) {
         $env = $app->environment();
         $response = new RESTResponse($app);
         $authorizedUserId =  RESTLib::loginToUserId($env['user']);
@@ -99,7 +112,7 @@ $app->group('/v1', function () use ($app) {
      * If "mode" is "by_id", the parameter "usr_id" is used for the lookup.
      * The user is then enrolled in the course with "crs_ref_id".
      */
-    $app->post('/courses/enroll', 'authenticateILIASAdminROle', function() use ($app) {
+    $app->post('/courses/enroll', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminROle', function() use ($app) {
         $env = $app->environment();
         $response = new RESTResponse($app);
         $request = new RESTRequest($app);
@@ -143,7 +156,7 @@ $app->group('/v1', function () use ($app) {
 
     });
 
-    $app->get('/courses/join', 'authenticate', function () use ($app) {
+    $app->get('/courses/join', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
         $env = $app->environment();
         $response = new RESTResponse($app);
         $request = new RESTRequest($app);
@@ -166,7 +179,7 @@ $app->group('/v1', function () use ($app) {
         $response->toJSON();
     });
 
-    $app->get('/courses/leave', 'authenticate', function () use ($app) {
+    $app->get('/courses/leave', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
         $env = $app->environment();
         $response = new RESTResponse($app);
         $request = new RESTRequest($app);

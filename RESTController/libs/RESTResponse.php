@@ -5,7 +5,7 @@
  * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
-//namespace RESTController\libs;
+namespace RESTController\libs;
  
  
 // Requires !!!
@@ -22,7 +22,7 @@ class RESTResponse {
     public $_format = "json";
     protected $app;
 
-    public function RESTResponse($app) {
+    public function __construct($app) {
         $this->app = $app;
         $this->setHttpStatus(200);
     }

@@ -1,4 +1,17 @@
 <?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+namespace RESTController\extensions\files_v1;
+
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
+use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+
+
 /*
  * Route definitions for the ILIAS File REST API
  */
@@ -11,7 +24,7 @@ $app->group('/v1', function () use ($app) {
      * @param id_type - (optional) "ref_id" or "obj_id", if ommited the type ref_id is assumed.
      * @param id - the ref or obj_id of the file.
      */
-    $app->get('/files/:id', 'authenticate',  function ($id) use ($app) {
+    $app->get('/files/:id', '\RESTController\libs\AuthMiddleware::authenticate',  function ($id) use ($app) {
         $env = $app->environment();
         $user_id = RESTLib::loginToUserId($env['user']);
 

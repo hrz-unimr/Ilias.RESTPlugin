@@ -1,4 +1,17 @@
 <?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+namespace RESTController\extensions\calendar_v1;
+
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
+use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+
+
 /*
  * Route definitions for the REST Calendar API
  */
@@ -7,7 +20,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the calendar events of user specified by $id.
      */
-    $app->get('/cal/events/:id', 'authenticate', function ($id) use ($app) {
+    $app->get('/cal/events/:id', '\RESTController\libs\AuthMiddleware::authenticate', function ($id) use ($app) {
         $env = $app->environment();
         $response = new RESTResponse($app);
         $authorizedUserId =  RESTLib::loginToUserId($env['user']);
@@ -32,7 +45,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the ICAL Url of the desktop calendar of user specified by $id
      */
-    $app->get('/cal/icalurl/:id', 'authenticate' , function ($id) use ($app) {
+    $app->get('/cal/icalurl/:id', '\RESTController\libs\AuthMiddleware::authenticate' , function ($id) use ($app) {
         $env = $app->environment();
         $response = new RESTResponse($app);
         $authorizedUserId =  RESTLib::loginToUserId($env['user']);

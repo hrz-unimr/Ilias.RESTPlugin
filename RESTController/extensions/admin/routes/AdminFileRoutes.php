@@ -1,4 +1,17 @@
 <?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+namespace RESTController\extensions\admin;
+
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
+use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+
+
 /*
  * Prototypical implementation of some rest endpoints for development
  * and testing.
@@ -9,7 +22,7 @@ $app->group('/admin', function () use ($app) {
     /*
      * File Download
      */
-    $app->get('/files/:id', 'authenticateILIASAdminRole', function ($id) use ($app) {
+    $app->get('/files/:id', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function ($id) use ($app) {
 
         $env = $app->environment();
         //$user_id = RESTLib::loginToUserId($env['user']);
@@ -57,7 +70,7 @@ $app->group('/admin', function () use ($app) {
     /*
      * File Upload
      */
-    $app->post('/files', 'authenticateILIASAdminRole', function () use ($app) { // create
+    $app->post('/files', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function () use ($app) { // create
         $repository_ref_id = $app->request()->params("ref_id");
         $title = $app->request()->params("title");
         $description = $app->request()->params("description");

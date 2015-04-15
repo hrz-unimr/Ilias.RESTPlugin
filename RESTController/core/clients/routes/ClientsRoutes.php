@@ -1,9 +1,23 @@
 <?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+namespace RESTController\core\clients;
+
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
+use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // REST - Client / API-Key Administration
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-$app->get('/clients', 'authenticateTokenOnly',  function () use ($app) {
+
+$app->get('/clients', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly',  function () use ($app) {
     try {
         $env = $app->environment();
         $client_id = $env['client_id'];
@@ -34,7 +48,7 @@ $app->get('/clients', 'authenticateTokenOnly',  function () use ($app) {
     }
 });
 
-$app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ // update
+$app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly',  function ($id) use ($app){ // update
     $env = $app->environment();
 
     $authorizedUser = $env['user'];
@@ -83,7 +97,7 @@ $app->put('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app){ /
 
 });
 
-$app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // create
+$app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly', function () use ($app){ // create
     try {
         $env = $app->environment();
         $authorizedUser = $env['user'];
@@ -234,7 +248,7 @@ $app->post('/clients/', 'authenticateTokenOnly', function () use ($app){ // crea
 });
 
 
-$app->delete('/clients/:id', 'authenticateTokenOnly',  function ($id) use ($app) {
+$app->delete('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly',  function ($id) use ($app) {
 
     $request = $app->request();
     $env = $app->environment();
@@ -272,12 +286,6 @@ $app->get('/routes', function () use ($app) {
     $env = $app->environment();
     $result = array();
     $routes = $app->router()->getRoutes();
-    
-    
-    // !!! DEBUG !!!
-    \RESTController\libs\RESTLib::isAdminByUsername("root");
-    // !!! DEBUG !!!
-    
 
     foreach($routes as $route) {
         $multiVerbs = $route->getHttpMethods();
@@ -290,6 +298,7 @@ $app->get('/routes', function () use ($app) {
     $app->response()->header('Content-Type', 'application/json');
     echo json_encode($r);
 });
+
 
 $app->get('/rest/config', function () use ($app) {
     global $ilPluginAdmin;

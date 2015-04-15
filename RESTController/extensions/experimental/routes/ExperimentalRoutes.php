@@ -1,4 +1,17 @@
 <?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+namespace RESTController\extensions\experimental;
+
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
+use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+
+
 /*
  * Prototypical implementation of some rest endpoints for development
  * and testing.
@@ -56,7 +69,7 @@ $app->group('/dev', function () use ($app) {
      * von REFRESH tokens bleibt eine eigene route und der zugriff wird über api-key geregelt.
      * Status: DONE
      */
-    $app->get('/refresh', 'authenticate', function () use ($app) {
+    $app->get('/refresh', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
         $env = $app->environment();
         $request = new RESTRequest($app);
         $response = new RESTResponse($app);
@@ -82,7 +95,7 @@ $app->group('/dev', function () use ($app) {
     });
 
     // -------------------------------------------------------------------
-    $app->get('/hello', 'authenticateTokenOnly', function () use ($app) {
+    $app->get('/hello', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly', function () use ($app) {
 
         $app = \Slim\Slim::getInstance();
 

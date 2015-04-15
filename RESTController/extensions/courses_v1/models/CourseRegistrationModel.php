@@ -1,4 +1,17 @@
 <?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+namespace RESTController\extensions\courses_v1;
+
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
+use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+
+
 require_once("./Services/Utilities/classes/class.ilUtil.php");
 require_once("./Modules/Course/classes/class.ilObjCourse.php");
 require_once('./Services/Object/classes/class.ilObjectFactory.php');
@@ -8,6 +21,7 @@ require_once("./Modules/LearningModule/classes/class.ilLMPageObject.php");
 require_once("./Services/Database/classes/class.ilDB.php");
 require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
 //require_once("./Modules/Course/classes/class.ilCourseConstants.php");
+
 
 class CoursesRegistrationModel
 {

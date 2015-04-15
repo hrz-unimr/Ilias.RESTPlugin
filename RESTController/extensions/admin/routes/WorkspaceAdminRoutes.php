@@ -1,4 +1,17 @@
 <?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+namespace RESTController\extensions\admin;
+
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
+use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+
+
 /*
  * Prototypical implementation of some rest endpoints for development
  * and testing.
@@ -6,7 +19,7 @@
 
 $app->group('/admin', function () use ($app) {
 
-    $app->get('/workspaces', 'authenticateILIASAdminRole', function () use ($app) {
+    $app->get('/workspaces', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function () use ($app) {
         try {
 
             if (count($app->request->post()) == 0 && count($app->request->get()) == 0) {
@@ -52,7 +65,7 @@ $app->group('/admin', function () use ($app) {
     });
 
 
-    $app->get('/workspaces/:user_id', 'authenticateILIASAdminRole', function ($user_id) use ($app) {
+    $app->get('/workspaces/:user_id', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function ($user_id) use ($app) {
         try {
             $t_start = microtime();
             $result = array();

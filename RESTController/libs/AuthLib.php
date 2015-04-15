@@ -5,7 +5,7 @@
  * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
-//namespace RESTController\libs;
+namespace RESTController\libs;
 
  
 // Requires <$ilias>, <$ilPluginAdmin>, <$ilSession>, <$ilSessionControl>, <$Auth>, <$ilShibboleth>, <$ilAuthUtils>, <$ilObjUser>
@@ -28,11 +28,11 @@ class AuthLib {
         global $ilias;
         
         require_once("./Services/User/classes/class.ilObjUser.php");
-        $userId = ilObjUser::_lookupId($login);
+        $userId = \ilObjUser::_lookupId($login);
         if (!$userId) 
             return false;
 
-        $ilUser = new ilObjUser($userId);
+        $ilUser = new \ilObjUser($userId);
         $ilias->account =& $ilUser;
         RESTLib::loadIlUser();
         
@@ -60,7 +60,7 @@ class AuthLib {
         require_once("Services/AuthShibboleth/classes/class.ilShibboleth.php");
         require_once("Services/Authentication/classes/class.ilAuthUtils.php");
         
-        ilAuthUtils::_initAuth();
+        \ilAuthUtils::_initAuth();
         
         global $ilAuth;
         $ilAuth->start();

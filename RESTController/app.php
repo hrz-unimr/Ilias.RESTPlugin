@@ -17,28 +17,57 @@ require_once('Slim/Slim.php');
  */
 class RESTController extends \Slim\Slim {
     /**
-     * PSR-0 autoloader
+     *
+     */
+    protected static function loadFile($file) {
+        if (file_exists($file)) {
+            include($file);
+            return true;
+        }
+        
+        return false;
+    }
+    
+    
+    /**
+     * PSR-0 autoloader for RESTController classes
+     *
+     *  It will first look in the following directories:
+     *   "RESTController\libs\*" namespace will search in ".\libs" folder
+     *   "RESTController\core\*" namespace will search in ".\core\*\models" folder
+     *   "RESTController\extensions\*" namespace will search in ".\extensions\*\models" folder
+     *  Otherwise it will fallback to zhe Slim-Framework auto-loader,
+     *  stripping RESTController from $className.
      */
     public static function autoload($className) {
-        if (substr($className, 0, strlen(__NAMESPACE__)) === __NAMESPACE__) {            
-            $thisClass = str_replace(__NAMESPACE__.'\\', '', __CLASS__);
+        // Fetch sub namespaces
+        $subNames = explode('\\', $className);
+        
+        // Only load classes inside own namespace (RESTController)
+        if ($subNames[0] === __NAMESPACE__) {
+            // Get base include directory
             $baseDir = __DIR__;
-
             if (substr($baseDir, -strlen($thisClass)) === $thisClass) 
                 $baseDir = substr($baseDir, 0, -strlen($thisClass));
-
+            
+            // Get name of class
             $className = ltrim($className, '\\');
-            $fileName  = $baseDir;
-            $namespace = '';
-            if ($lastNsPos = strripos($className, '\\')) {
-                $namespace = substr($className, 0, $lastNsPos);
+            if ($lastNsPos = strripos($className, '\\')) 
                 $className = substr($className, $lastNsPos + 1);
-                $fileName  .= str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
-            }
-            $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
-
-            if (file_exists($fileName)) 
-                require($fileName);
+            
+            // Only look in certain folders
+            $success = false;
+            switch ($subNames[1]) {
+                case 'libs':
+                    $success = self::loadFile($baseDir . "\\" . $subNames[1] . "\\" . $className . ".php");
+                    break;
+                case 'extensions':
+                case 'core':
+                    $success = self::loadFile($baseDir . "\\" . $subNames[1] . "\\" . $subNames[2] . "\\models\\" . $className . ".php");
+                    break;
+            };
+            
+            // TODO: use parent autoloader, but with RESTController stripped
         }
         else
             parent::autoload($className);
@@ -47,6 +76,7 @@ class RESTController extends \Slim\Slim {
     
     /**
      * Register PSR-0 autoloader
+     *  Call this before doing $app = new RESTController();
      */
     public static function registerAutoloader() {
         spl_autoload_register(__NAMESPACE__ . "\\RESTController::autoload");
@@ -101,16 +131,6 @@ class RESTController extends \Slim\Slim {
         // Global information that should be available to all routes/models
         $env = $this->environment();
         $env['client_id'] = CLIENT_ID;
-
-
-        // --------------------------[!! Please do not remove !!]---------------------------
-        require_once('libs/RESTResponse.php');
-        require_once('libs/RESTRequest.php');
-        require_once('libs/RESTSoapAdapter.php');
-        require_once('libs/AuthLib.php');
-        require_once('libs/TokenLib.php');
-        require_once('libs/AuthMiddleware.php');
-        // --------------------------[!! Please do not remove !!]---------------------------
     }
     
     
@@ -129,7 +149,7 @@ class RESTController extends \Slim\Slim {
         $app = self::getInstance();
         
         // Load core models & routes
-        foreach (glob(realpath(__DIR__)."/core/*/models/*.php") as $filename) 
+       foreach (glob(realpath(__DIR__)."/core/*/models/*.php") as $filename) 
             include_once($filename);
         foreach (glob(realpath(__DIR__)."/core/*/routes/*.php") as $filename) 
             include_once($filename);

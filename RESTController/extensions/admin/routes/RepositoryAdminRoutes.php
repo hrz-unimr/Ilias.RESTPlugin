@@ -1,4 +1,17 @@
 <?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+namespace RESTController\extensions\admin;
+
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
+use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+
+
 /*
  * Admin routes for the ILIAS repository.
  */
@@ -9,7 +22,7 @@ $app->group('/admin', function () use ($app) {
      * Returns a subtree of the current repository object, where the root node's ref_id must be specified.
      * In the extreme case, the complete repository (tree) will be retrieved.
      */
-    $app->get('/repository/:ref_id', 'authenticateILIASAdminRole', function ($ref_id) use ($app) {
+    $app->get('/repository/:ref_id', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function ($ref_id) use ($app) {
         $request = new RESTRequest($app);
         $response = new RESTResponse($app);
         $maxDepth = 1000;
@@ -35,7 +48,7 @@ $app->group('/admin', function () use ($app) {
     /**
      * Get subtree of categories.
      */
-    $app->get('/repository/categories/:ref_id', 'authenticateILIASAdminRole', function ($ref_id) use ($app) {
+    $app->get('/repository/categories/:ref_id', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function ($ref_id) use ($app) {
         $response = new RESTResponse($app);
         $repModel = new RepositoryAdminModel();
         $data = $repModel->getRekNode($ref_id, 0, array('cat'), 0, 1000);
@@ -45,7 +58,7 @@ $app->group('/admin', function () use ($app) {
         $response->send();
     });
 
-    $app->get('/repository/analytics/:ref_id', 'authenticateILIASAdminRole', function ($ref_id) use ($app) {
+    $app->get('/repository/analytics/:ref_id', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function ($ref_id) use ($app) {
         $request = new RESTRequest($app);
         $response = new RESTResponse($app);
         $repModel = new RepositoryAdminModel();
@@ -60,7 +73,7 @@ $app->group('/admin', function () use ($app) {
     /**
      * Creates a new category within the repository container object specfied by ref_id
      */
-    $app->post('/categories', 'authenticateILIASAdminRole', function () use ($app) {
+    $app->post('/categories', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function () use ($app) {
         $request = new RESTRequest($app);
         $response = new RESTResponse($app);
         $repModel = new RepositoryAdminModel();

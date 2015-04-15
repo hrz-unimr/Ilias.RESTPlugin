@@ -1,16 +1,29 @@
 <?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+namespace RESTController\extensions\admin;
+
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
+use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+
+
 /*
  * Admin REST routes for TestPool and TestQuestion
  */
 
 $app->group('/admin', function () use ($app) {
 
-    $app->get('/testpool', 'authenticateILIASAdminRole', function () use ($app) {
+    $app->get('/testpool', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function () use ($app) {
 
     });
 
 
-    $app->get('/testquestion/:question_id', 'authenticateILIASAdminRole', function ($question_id) use ($app) {
+    $app->get('/testquestion/:question_id', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function ($question_id) use ($app) {
         $request = new RESTRequest($app);
         $response = new RESTResponse($app);
 

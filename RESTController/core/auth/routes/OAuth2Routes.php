@@ -1,4 +1,17 @@
 <?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+namespace RESTController\core\auth;
+
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
+use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // OAuth 2.0 Support
 // Server implementations:
@@ -6,6 +19,7 @@
 // (2) token endpoint
 // see http://tools.ietf.org/html/rfc6749
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 /*
  * Authorization Endpoint
@@ -74,20 +88,19 @@ $app->get('/v1/oauth2/auth', function () use ($app) {
  * see http://tools.ietf.org/html/rfc6749
 */
 $app->post('/v1/oauth2/token', function () use ($app) {
-
     $request = new RESTRequest($app);
     $model = new OAuth2Model();
+    
     $app->log->debug("Entering Token-Endpoint ... GC: ".$request->getParam('grant_type'));
-    if ($request->getParam('grant_type') == "password") { // = user credentials grant
+    if ($request->getParam('grant_type') == "password")
         $model->handleTokenEndpoint_userCredentials($app, $request);
-    } elseif ($request->getParam('grant_type') == "client_credentials") {
+    elseif ($request->getParam('grant_type') == "client_credentials") 
         $model->handleTokenEndpoint_clientCredentials($app, $request);
-    } elseif ($request->getParam('grant_type') == "authorization_code") {
+    elseif ($request->getParam('grant_type') == "authorization_code") 
         $model->handleTokenEndpoint_authorizationCode($app, $request);
-    } elseif ($request->getParam('grant_type') == "refresh_token") {
+    elseif ($request->getParam('grant_type') == "refresh_token") 
         $model->handleTokenEndpoint_refreshToken2Bearer($app);
-    }
-
+    
 });
 
 
@@ -97,7 +110,7 @@ $app->post('/v1/oauth2/token', function () use ($app) {
  * This endpoint allows for exchanging a bearer token with a long-lasting refresh token.
  * Note: a client needs the appropriate permission to use this endpoint.
  */
-$app->get('/v1/oauth2/refresh', 'authenticate', function () use ($app) {
+$app->get('/v1/oauth2/refresh', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
     $env = $app->environment();
     $uid = RESTLib::loginToUserId($env['user']);
     $response = new Oauth2Response($app);

@@ -1,5 +1,18 @@
 <?php
 /**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+namespace RESTController\core\auth;
+
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
+use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+
+
+/**
  * This class eases the formatting of output for the OAuth2 mechanisms.
  * 2015 HRZ - Uni-Marburg
  */
@@ -8,7 +21,7 @@ class Oauth2Response {
     public $_format = "json";
     protected $app;
 
-    public function Oauth2Response($app) {
+    public function __construct($app) {
         $this->app = $app;
         $this->setHttpStatus(200);
     }

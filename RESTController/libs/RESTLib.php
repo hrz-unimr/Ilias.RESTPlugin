@@ -6,7 +6,6 @@
  * 2014-2015
  */
 namespace RESTController\libs;
-use ilInitialisation, ilObjUser, ilRbacReview;
  
  
 // Thi include ILIAS init, ILIAS user, ILIAS role management code
@@ -66,7 +65,7 @@ class RESTLib {
      * @return mixed
      */
     public static function isAdminByUsername($user_name) {
-        $a_id = ilObjUser::searchUsers($user_name, 1, true);
+        $a_id = \ilObjUser::searchUsers($user_name, 1, true);
 
         if (count($a_id) > 0) 
             return self::isAdmin($a_id[0]);
@@ -81,7 +80,7 @@ class RESTLib {
      * @return bool
      */
     public static function isAdmin($usr_id) {
-        $rbacreview = new ilRbacReview();
+        $rbacreview = new \ilRbacReview();
         $is_admin = $rbacreview->isAssigned($usr_id, 2);
         
         return $is_admin;
@@ -275,7 +274,7 @@ class RESTLib {
  *
  * !!! PLEASE DO NOT USE THIS CLASS OUTSIDE OF RESTLIB !!!
  */
-class ilInitialisation_Public extends ilInitialisation {
+class ilInitialisation_Public extends \ilInitialisation {
     /**
      * @see ilInitialisation::initGlobal($a_name, $a_class, $a_source_file)
      */

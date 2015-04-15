@@ -1,9 +1,20 @@
 <?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+namespace RESTController\extensions\users_v1;
+
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
+use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // users
-$app->get('/v1/users', 'authenticateILIASAdminRole', function () use ($app) {
+$app->get('/v1/users', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function () use ($app) {
     try {
 
         $limit = 10;
@@ -45,7 +56,7 @@ $app->get('/v1/users', 'authenticateILIASAdminRole', function () use ($app) {
     }
 });
 
-$app->get('/v1/users/:user_id', 'authenticateTokenOnly', function ($user_id) use ($app) {
+$app->get('/v1/users/:user_id', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly', function ($user_id) use ($app) {
     try {
         $env = $app->environment();
         $id = $user_id;
@@ -71,7 +82,7 @@ $app->get('/v1/users/:user_id', 'authenticateTokenOnly', function ($user_id) use
 // bulk import via XML
 // consumes the schema that is produced by Administration -> Users -> Export
 /* mutual exclusive with function below...
-$app->post('/v1/users', 'authenticateILIASAdminRole', function() use ($app) {
+$app->post('/v1/users', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function() use ($app) {
     $request = new RESTRequest($app);
     $importData = $request->getRaw();
     $model = new UsersModel();
@@ -84,7 +95,7 @@ $app->post('/v1/users', 'authenticateILIASAdminRole', function() use ($app) {
 
 
 
-$app->post('/v1/users', 'authenticate', function () use ($app) { // create
+$app->post('/v1/users', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) { // create
     try { // root only
 
         $request = $app->request();
@@ -122,7 +133,7 @@ $app->post('/v1/users', 'authenticate', function () use ($app) { // create
 });
 
 
-$app->put('/v1/users/:user_id', 'authenticate', function ($user_id) use ($app){ // update
+$app->put('/v1/users/:user_id', '\RESTController\libs\AuthMiddleware::authenticate', function ($user_id) use ($app){ // update
     try {
 
         $usr_model = new UsersModel();
@@ -145,7 +156,7 @@ $app->put('/v1/users/:user_id', 'authenticate', function ($user_id) use ($app){ 
     }
 });
 
-$app->delete('/v1/users/:user_id', 'authenticate', function ($user_id) use ($app) {
+$app->delete('/v1/users/:user_id', '\RESTController\libs\AuthMiddleware::authenticate', function ($user_id) use ($app) {
     try {
         $result = array();
         $usr_model = new UsersModel();
