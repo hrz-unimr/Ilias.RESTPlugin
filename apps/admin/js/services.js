@@ -192,60 +192,59 @@ services.factory('restEndpoint', function($q, $http, restRoutesURL) {
         return iliasSubFolder;
     }
     
+    var dir;
     // Use POST variable to establish endpoint
     // Note: Value is taken 'as-is', no AJAJ call is done to check correctness.
-    if (postVars.restEndpoint != "") {
-        restEndpoint = postVars.restEndpoint;
-        deferred.resolve(restEndpoint);
-    }
+    if (postVars.restEndpoint != "") 
+        dir = postVars.restEndpoint;
+    
     // Tries to find endpoint by doing AJAJ calls to <ILIAS>/routes and <ILIAS>/restplugin.php
     // Whichever returns a success first will be used.
-    else {
+    else 
         // Find ILIAS main folder 
-        var dir = getInstallDir();
+        dir = getInstallDir();
         
-        // Stores wether AJAJ call was successfull (true) or not (false) [null means not done]
-        var apiPath = null;
-        var phpPath = null;
-        
-        // Initiate AJAJ call
-        var apiQuery = $http.get(dir+restRoutesURL);
-        var phpQuery = $http.get(dir+'/restplugin.php'+restRoutesURL);
-        
-        // AJAJ call succeeded, save result and forward to promise (resolve)
-        // Note: Also make sure, that promise is only resolved once.
-        apiQuery.success(function(data, status, headers, config) {
-            apiPath = true;
-            if (phpPath != true) {
-                restEndpoint = dir;
-                deferred.resolve(restEndpoint);               
-            }
-        });
-        phpQuery.success(function(data, status, headers, config) {
-            phpPath = true;
-            if (apiPath != true) {
-                restEndpoint = dir+"/restplugin.php";
-                deferred.resolve(restEndpoint);
-            }                
-        });
-        
-        // AJAJ call failed, forward to promise (reject)
-        // Note: Also make sure, that promise is only rejected once.
-        apiQuery.error(function(data, status, headers, config) {
-            apiPath = false;
-            if (phpPath == false) {
-                restEndpoint = null;
-                deferred.reject("NoEndpoint");
-            }
-        });
-        phpQuery.error(function(data, status, headers, config) {
-            phpPath = false;
-            if (apiPath == false) {
-                restEndpoint = null;
-                deferred.reject("NoEndpoint");
-            }
-        });
-    }
+    // Stores wether AJAJ call was successfull (true) or not (false) [null means not done]
+    var apiPath = null;
+    var phpPath = null;
+    
+    // Initiate AJAJ call
+    var apiQuery = $http.get(dir+restRoutesURL);
+    var phpQuery = $http.get(dir+'/restplugin.php'+restRoutesURL);
+    
+    // AJAJ call succeeded, save result and forward to promise (resolve)
+    // Note: Also make sure, that promise is only resolved once.
+    apiQuery.success(function(data, status, headers, config) {
+        apiPath = true;
+        if (phpPath != true) {
+            restEndpoint = dir;
+            deferred.resolve(restEndpoint);               
+        }
+    });
+    phpQuery.success(function(data, status, headers, config) {
+        phpPath = true;
+        if (apiPath != true) {
+            restEndpoint = dir+"/restplugin.php";
+            deferred.resolve(restEndpoint);
+        }                
+    });
+    
+    // AJAJ call failed, forward to promise (reject)
+    // Note: Also make sure, that promise is only rejected once.
+    apiQuery.error(function(data, status, headers, config) {
+        apiPath = false;
+        if (phpPath == false) {
+            restEndpoint = null;
+            deferred.reject("NoEndpoint");
+        }
+    });
+    phpQuery.error(function(data, status, headers, config) {
+        phpPath = false;
+        if (apiPath == false) {
+            restEndpoint = null;
+            deferred.reject("NoEndpoint");
+        }
+    });
 
     // Return object containing:
     return {
