@@ -105,10 +105,20 @@ class RESTController extends \Slim\Slim {
     public function __construct($appDirectory, array $userSettings = array()) {
         parent::__construct();
         
-        // Use Custom Router
+        // Global information that should be available to all routes/models
+        $env = $this->environment();
+        $env['client_id'] = CLIENT_ID;
+        $env['app_directory'] = $appDirectory;
+        
+        // Use custom Router
         $this->container->singleton('router', function ($c) {
             return new \RESTController\libs\RESTRouter();
-        });        
+        });
+
+        // Use custom Request
+        $this->container->singleton('request', function ($c) {
+            return new \RESTController\libs\RESTRequest($this);
+        });           
 
         // Enable debugging (to own file or ilias if not possible)
         $this->config('debug', false);
@@ -157,11 +167,7 @@ class RESTController extends \Slim\Slim {
      * the result is an array of HTTP status, header, and body. These three items
      * are returned to the HTTP client.
      */
-    public function run() {
-        // Global information that should be available to all routes/models
-        $env = $this->environment();
-        $env['client_id'] = CLIENT_ID;
-        
+    public function run() {        
         // Log some debug usage information
         $this->log->debug("REST call from " . $_SERVER['REMOTE_ADDR'] . " at " . date("d/m/Y,H:i:s", time()));
         
@@ -177,5 +183,33 @@ class RESTController extends \Slim\Slim {
             include_once($filename);
 
         parent::run();
+    }
+    
+    
+    /**
+     * 
+     */
+    public function sendData($data, $format = null) {
+        // 'sendData($data, $format) <Stub - Implement Me>';
+        // Handle format!
+        // 
+        echo json_encode($data); // Move to response class?
+    }
+    
+    /**
+     * 
+     */
+    // Move to response (& request -> should be based on request-header -> content-type) class?
+    public function setFormat() {
+    }
+    
+    
+    /**
+     * 
+     */
+    public function halt($httpCode, $message = null, $restCode) {
+        // 'halt($code, $message) <Stub - Implement Me>';
+        // Build a JSON with msg=$message, status=failed, code=$restCode
+        parent::halt($httpCode, $message);
     }
 }

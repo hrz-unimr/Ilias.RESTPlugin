@@ -11,7 +11,7 @@ namespace RESTController\libs;
 // Requires !!!
 
 
-class RESTRequest {
+class RESTRequest extends \Slim\Http\Request {
 
     protected $app;
     protected $content_type;
@@ -19,9 +19,11 @@ class RESTRequest {
     protected $json_decoded;
 
     public function __construct ($app) {
+        parent::__construct($app->environment());
+        
         $this->app = $app;
-        $this->slimReq = $app->request();
-        $this->content_type = $app->request()->headers()->get('Content-Type');
+        $this->slimReq = $this;
+        $this->content_type = $this->headers()->get('Content-Type');
         $this->json_arr = null;
         $this->json_decoded = false;
     }
@@ -31,18 +33,17 @@ class RESTRequest {
      * If a parameter is not found, try to json-decode the request body
      * and look for the parameter there.
      */
-    public function getParam($param) {
+    public function getParam($param, $default = null, $throw = false) {
         if( ($ret = $this->app->request()->params($param)) == null){
             $this->decodeJson();
 
-            if ($this->json_arr != null and isset($this->json_arr[$param])) {
-                    $ret = $this->json_arr[$param];
-            } else {
-                throw new \Exception("Parameter $param not present.");
-            }
+            if ($this->json_arr != null and isset($this->json_arr[$param])) 
+                return $this->json_arr[$param];
+            else if ($throw) 
+                throw RESTException::getWrongParamException("Parameter $param not present.", $param);
             
+            return $default;
         }
-        return $ret;
     }
 
     /**
