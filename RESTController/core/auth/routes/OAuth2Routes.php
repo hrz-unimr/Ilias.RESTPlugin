@@ -47,33 +47,28 @@ $app->post('/v1/oauth2/auth', function () use ($app) {
  * The flow after calling "oauth2loginform" continues with the POST version of "oauth2/auth".
  */
 $app->get('/v1/oauth2/auth', function () use ($app) {
-    try {
-        $request = $app->request();
-        $apikey = $_GET['api_key']; // Issue: Standard ILIAS Init absorbs client_id GET request field
-        $client_redirect_uri = $_GET['redirect_uri'];
-        $response_type = $_GET['response_type'];
+    $request = $app->request();
+    $apikey = $_GET['api_key']; // Issue: Standard ILIAS Init absorbs client_id GET request field
+    $client_redirect_uri = $_GET['redirect_uri'];
+    $response_type = $_GET['response_type'];
 
-        if ($response_type == "code") {
-            if ($apikey && $client_redirect_uri && $response_type){
-                OAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
-                    'api_key' => $apikey, 
-                    'redirect_uri' => $client_redirect_uri, 
-                    'response_type' => $response_type
-                ));
-            }
-
-        } else if ($response_type == "token") { // implicit grant
-            if ($apikey && $client_redirect_uri && $response_type){
-                OAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
-                    'api_key' => $apikey, 
-                    'redirect_uri' => $client_redirect_uri, 
-                    'response_type' => $response_type
-                ));
-            }
+    if ($response_type == "code") {
+        if ($apikey && $client_redirect_uri && $response_type){
+            OAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
+                'api_key' => $apikey, 
+                'redirect_uri' => $client_redirect_uri, 
+                'response_type' => $response_type
+            ));
         }
-    } catch (\Exception $e) {
-        $app->response()->status(400);
-        $app->response()->header('X-Status-Reason', $e->getMessage());
+
+    } else if ($response_type == "token") { // implicit grant
+        if ($apikey && $client_redirect_uri && $response_type){
+            OAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
+                'api_key' => $apikey, 
+                'redirect_uri' => $client_redirect_uri, 
+                'response_type' => $response_type
+            ));
+        }
     }
 });
 

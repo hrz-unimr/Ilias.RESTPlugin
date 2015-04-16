@@ -18,7 +18,6 @@ use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
  */
 
 $app->group('/admin', function () use ($app) {
-
     /**
      * this is a tool for developers / admins to get
      * fast descriptions of objects or users specified by

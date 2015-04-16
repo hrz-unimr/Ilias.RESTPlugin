@@ -111,7 +111,7 @@ class RESTController extends \Slim\Slim {
         });        
 
         // Enable debugging (to own file or ilias if not possible)
-        $this->config('debug', true);
+        $this->config('debug', false);
         $restLog = ILIAS_LOG_DIR . '/restplugin.log';
         if (!file_exists($restLog)) {
             $fh = fopen($restLog, 'w');
