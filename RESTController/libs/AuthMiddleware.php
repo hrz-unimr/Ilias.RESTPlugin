@@ -24,6 +24,10 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
  *  $app->get('/users', \RESTController\libs\AuthMiddleware::authenticate, function () use ($app) { ... })
  *  $app->get('/users', \RESTController\libs\AuthMiddleware::authenticateTokenOnly, function () use ($app) { ... })
  *  $app->get('/users', \RESTController\libs\AuthMiddleware::authenticateILIASAdminRole, function () use ($app) { ... })
+ *
+ *  Every authentification method WILL also set certain environment variables that can be usefull
+ *  while proccessing a route.
+ *  @see checkToken()
  */
  class AuthMiddleware {
     /**
@@ -176,7 +180,7 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
      *  Checks the permission for the current client to 
      *  access a route with a certain action.
      *
-     * NOTE: The api_key need to be in \Slim\Slim::getInstance()->environment();
+     * NOTE: 'api_key' needs to be in \Slim\Slim::getInstance()->environment();
      *
      * @param \Slim\Route $route
      */

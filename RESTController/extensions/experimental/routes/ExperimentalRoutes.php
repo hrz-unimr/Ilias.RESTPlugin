@@ -11,7 +11,7 @@ namespace RESTController\extensions\experimental;
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
-use \RESTController\core\clients\ClientModel
+use \RESTController\core\clients\ClientModel;
 
 
 /*

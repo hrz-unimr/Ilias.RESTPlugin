@@ -12,11 +12,14 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// REST - Client / API-Key Administration
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
+/**
+ * Route: /clients
+ * Method: GET
+ * Auth: authenticateTokenOnly
+ * Head-Parameters:
+ * Body-Parameters:
+ * Response:
+ */
 $app->get('/clients', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly',  function () use ($app) {
     try {
         $env = $app->environment();
@@ -48,6 +51,15 @@ $app->get('/clients', '\RESTController\libs\AuthMiddleware::authenticateTokenOnl
     }
 });
 
+
+/**
+ * Route: /clients
+ * Method: PUT
+ * Auth: authenticateTokenOnly
+ * Head-Parameters:
+ * Body-Parameters:
+ * Response:
+ */
 $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly',  function ($id) use ($app){ // update
     $env = $app->environment();
 
@@ -97,7 +109,16 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
 
 });
 
-$app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly', function () use ($app){ // create
+
+/**
+ * Route: /clients
+ * Method: POST
+ * Auth: authenticateTokenOnly
+ * Head-Parameters:
+ * Body-Parameters:
+ * Response:
+ */
+$app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly', function () use ($app){
     try {
         $env = $app->environment();
         $authorizedUser = $env['user'];
@@ -111,7 +132,7 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
             $result['msg'] = "Access denied. Administrator permissions required.";
             $result['authuser'] = $authorizedUser;
         } else {
-
+            $input_complete = false;
             $app->log->debug("Request data (Create Client)".print_r($request->getRaw(),true));
 
             try {
@@ -119,7 +140,6 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
                 $input_complete = true;
             } catch(\Exception $e) {
                 $new_api_key = "";
-                $input_complete = false;
             }
 
             try {
@@ -200,9 +220,6 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
                 $oauth2_resource_refresh_active = 0;
             }
 
-
-
-
             try {
                 $access_user_csv = $request->getParam('access_user_csv');
             } catch(\Exception $e) {
@@ -248,8 +265,16 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
 });
 
 
+/**
+ * Route: /clients/:id
+ *  :id
+ * Method: GET
+ * Auth: authenticateTokenOnly
+ * Head-Parameters:
+ * Body-Parameters:
+ * Response:
+ */
 $app->delete('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly',  function ($id) use ($app) {
-
     $request = $app->request();
     $env = $app->environment();
 
@@ -282,6 +307,14 @@ $app->delete('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateT
 });
 
 
+/**
+ * Route: /routes
+ * Method: GET
+ * Auth: none
+ * Head-Parameters:
+ * Body-Parameters:
+ * Response:
+ */
 $app->get('/routes', function () use ($app) {
     $env = $app->environment();
     $result = array();
@@ -291,7 +324,11 @@ $app->get('/routes', function () use ($app) {
         $multiVerbs = $route->getHttpMethods();
         $verb = $multiVerbs[0];
         $middle = $route->getMiddleware();
-        $result[] = array("pattern"=>$route->getPattern(), "verb"=>$verb, "middleware"=>(isset($middle[0]) ? $middle[0] : "none"));
+        $result[] = array(
+            "pattern" => $route->getPattern(), 
+            "verb" => $verb, 
+            "middleware" => (isset($middle[0]) ? $middle[0] : "none")
+        );
     }
     
     $r = array("routes"=>$result);
@@ -300,6 +337,14 @@ $app->get('/routes', function () use ($app) {
 });
 
 
+/**
+ * Route: /rest/config
+ * Method: GET
+ * Auth: none
+ * Head-Parameters:
+ * Body-Parameters:
+ * Response:
+ */
 $app->get('/rest/config', function () use ($app) {
     global $ilPluginAdmin;
     $ilRESTPlugin = $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, "UIComponent", "uihk", "REST");
