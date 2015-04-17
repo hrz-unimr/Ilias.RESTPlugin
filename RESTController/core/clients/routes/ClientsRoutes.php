@@ -35,15 +35,14 @@ $app->get('/clients', '\RESTController\libs\AuthMiddleware::authenticateTokenOnl
         
         // Prepare data
         $result = array();
-        $result['status'] = 'success';
         $result['clients'] = $data;
         $result['authuser'] = $user;
         
         // Send data
-        $app->sendData($result);
+        $app->success($result);
     }
     else
-        $app->halt(401, "Access denied. Administrator permissions required.");
+        $app->halt(401, "Access denied. Administrator permissions required.", RESTLib::NO_ADMIN_ID);
 });
 
 
@@ -55,51 +54,38 @@ $app->get('/clients', '\RESTController\libs\AuthMiddleware::authenticateTokenOnl
  * Body-Parameters:
  * Response:
  */
-$app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly',  function ($id) use ($app){ // update
+$app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly',  function ($id) use ($app) {
+    // Fetch authorized user
     $env = $app->environment();
     $user = $env['user'];
 
-    $request = new RESTRequest($app);
-    $app->log->debug("Update data ".print_r($request->getRaw(),true));
+    // Check if authorized user has admin role
+    if (RESTLib::isAdminByUsername($user)) {
+        // Shortcut for request object
+        $request = $app->request;
+        $app->log->debug("Update data: " . print_r($request->getRaw(), true));
 
-    try {
-        $aUpdateData = $request->getParam('data');
-    } catch(\Exception $e) {
-        $aUpdateData = array();
-    }
-    $app->log->debug("Update Data ".print_r($aUpdateData,true));
-
-    if (!RESTLib::isAdminByUsername($user)) {  // check if authorized user has admin role
-        $result['status'] = 'failed';
-        $result['msg'] = "Access denied. Administrator permissions required.";
-        $result['authuser'] = $user;
-    } else {
-        $admin_model = new ClientsModel();
-
-        $aUpdateData['permissions'] = addslashes ($aUpdateData['permissions']);
-
-        if (isset($aUpdateData["access_user_csv"])) {
-            if (is_string($aUpdateData["access_user_csv"]) && strlen($aUpdateData["access_user_csv"]) > 0) {
-                $a_user_csv = explode(',', $aUpdateData["access_user_csv"]);
-                $admin_model->fillApikeyUserMap($id, $a_user_csv);
-            }
-            else
-                $admin_model->fillApikeyUserMap($id, array());
-        }
-
-        foreach ($aUpdateData as $key => $value) {
-            if ($key != "access_user_csv") {
-                $admin_model->updateClient($id, $key, $value);
-            }
-        }
+        // Get optional inputs
+        $data = $request->getParam('data', array());
+        $data['permissions'] = addslashes($data['permissions']);
         
-        $result = array();
-        $result['status'] = 'success';
+        try {
+            // Supply data to model which processes it further
+            $admin_model = new ClientsModel();
 
+            // Update other data
+            foreach ($data as $key => $value) 
+                $admin_model->updateClient($id, $key, $value);
+            
+            // Send affirmation status
+            $result = array();
+            $app->success($result);
+        } catch(ClientsException $e) {
+            $app->halt(500, "Could not updated client.", ClientsModel::PUT_FAILED_ID);
+        }
     }
-    $app->response()->header('Content-Type', 'application/json');
-    echo json_encode($result);
-
+    else
+        $app->halt(401, "Access denied. Administrator permissions required.", RESTLib::NO_ADMIN_ID);
 });
 
 
@@ -111,7 +97,7 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
  * Body-Parameters:
  * Response:
  */
-$app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly', function () use ($app){
+$app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly', function () use ($app) {
     // Fetch authorized user
     $env = $app->environment();
     $user = $env['user'];
@@ -120,13 +106,13 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
     if (RESTLib::isAdminByUsername($user)) {
         // Shortcut for request object
         $request = $app->request(); 
-        $app->log->debug("Request data (Create Client): ".print_r($request->getRaw(), true));
+        $app->log->debug("Request data (Create Client): " . print_r($request->getRaw(), true));
 
         // Try/Catch all required inputs
         try {
             $new_api_key = $request->getParam('api_key', null, true);
         } catch(RESTException $e) {
-            $app->halt(500, "Mandatory data is missing, parameter '".$e.paramName()."' not set.");
+            $app->halt(500, "Mandatory data is missing, parameter '" . $e.paramName() . "' not set.", RESTException::MISSING_PARAM_ID);
         }
 
         // Get optional inputs
@@ -145,35 +131,38 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
         $oauth2_authcode_refresh_active = $request->getParam('oauth2_authcode_refresh_active', 0);
         $oauth2_resource_refresh_active = $request->getParam('oauth2_resource_refresh_active', 0);
 
-        // Supply data to model which processes it further
-        $admin_model = new ClientsModel();
-        $new_id = $admin_model->createClient(
-            $new_api_key,
-            $new_api_secret,
-            $new_client_oauth2_redirect_url,
-            $new_client_oauth2_consent_message,
-            $oauth2_consent_message_active,
-            $new_client_permissions,
-            $oauth2_gt_client_active,
-            $oauth2_gt_authcode_active,
-            $oauth2_gt_implicit_active,
-            $oauth2_gt_resourceowner_active,
-            $oauth2_user_restriction_active,
-            $oauth2_gt_client_user,
-            $access_user_csv,
-            $oauth2_authcode_refresh_active,
-            $oauth2_resource_refresh_active
-        );
-        $app->log->debug('Result of createClient: '.$new_id);
-        
-        // Send affirmation status
-        $result = array();
-        $result['id'] = $new_id;
-        $result['status'] = 'success';
-        $app->sendData($result);
+        try { 
+            // Supply data to model which processes it further
+            $admin_model = new ClientsModel();
+            $new_id = $admin_model->createClient(
+                $new_api_key,
+                $new_api_secret,
+                $new_client_oauth2_redirect_url,
+                $new_client_oauth2_consent_message,
+                $oauth2_consent_message_active,
+                $new_client_permissions,
+                $oauth2_gt_client_active,
+                $oauth2_gt_authcode_active,
+                $oauth2_gt_implicit_active,
+                $oauth2_gt_resourceowner_active,
+                $oauth2_user_restriction_active,
+                $oauth2_gt_client_user,
+                $access_user_csv,
+                $oauth2_authcode_refresh_active,
+                $oauth2_resource_refresh_active
+            );
+            $app->log->debug('Result of createClient: '.$new_id);
+            
+            // Send affirmation status
+            $result = array();
+            $result['id'] = $new_id;
+            $app->success($result);
+        } catch(ClientsException $e) {
+            $app->halt(500, "Could not create new client.", ClientsModel::POST_FAILED_ID);
+        }
     }
     else
-        $app->halt(401, "Access denied. Administrator permissions required.");
+        $app->halt(401, "Access denied. Administrator permissions required.", RESTLib::NO_ADMIN_ID);
 });
 
 
@@ -187,35 +176,26 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
  * Response:
  */
 $app->delete('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly',  function ($id) use ($app) {
-    $request = $app->request();
+    // Fetch authorized user
     $env = $app->environment();
-
-    $app = \Slim\Slim::getInstance();
-    $env = $app->environment();
-    $authorizedUser = $env['user'];
-
-    $result = array();
-    if (!RESTLib::isAdminByUsername($authorizedUser)) {  // check if authorized user has admin role
-
-        $result['status'] = 'failed';
-        $result['msg'] = "Access denied. Administrator permissions required.";
-        $result['authuser'] = $authorizedUser;
-
-    } else {
-        $admin_model = new ClientsModel();
-        $status = $admin_model->deleteClient($id);
-
-        if ($status >0 ) {
-            $result['msg'] = "Client with internal db ".$id." deleted.";
-        }else {
-            $result['msg'] = "Client with internal db ".$id." not deleted!";
+    $user = $env['user'];
+    
+    // Check if authorized user has admin role
+    if (RESTLib::isAdminByUsername($user)) {
+        try { 
+            // Use the model class to update databse
+            $admin_model = new ClientsModel();
+            $admin_model->deleteClient($id);
+            
+            // Send affirmation status
+            $result = array();
+            $app->success($result);
+        } catch(ClientsException $e) {
+            $app->halt(500, "Could not delete client with id: " . $e->id(), ClientsModel::DELETE_FAILED_ID);
         }
-        $result['status'] = 'success';
     }
-
-    $app->response()->header('Content-Type', 'application/json');
-    echo json_encode($result);
-
+    else
+        $app->halt(401, "Access denied. Administrator permissions required.", RESTLib::NO_ADMIN_ID);
 });
 
 
@@ -252,7 +232,7 @@ $app->get('/routes', function () use ($app) {
     $result['routes'] = $resultRoutes;
     
     // Send data
-    $app->sendData($result);
+    $app->success($result);
 });
 
 

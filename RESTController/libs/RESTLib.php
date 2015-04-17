@@ -23,6 +23,14 @@ require_once("./Services/AccessControl/classes/class.ilRbacReview.php");
  */
 class RESTLib {
     /**
+     * List of default REST error-codes
+     *  Extensions are allowed to create their own error-codes.
+     *  Using a unique string seems to be an easier solution than assigning unique numbers.
+     */
+    const NO_ADMIN_ID = "RESTController\libs\RESTLib\::NO_ADMIN_ID";
+    
+    
+    /**
      * @see ilInitialisation::initGlobal($a_name, $a_class, $a_source_file)
      */
     public static function initGlobal($a_name, $a_class, $a_source_file = null) {
@@ -95,7 +103,7 @@ class RESTLib {
     static public function refid_to_objid($ref_id) {
         global $ilDB;
         
-        $query = "SELECT obj_id FROM object_reference WHERE object_reference.ref_id=".$ref_id;
+        $query = sprintf('SELECT obj_id FROM object_reference WHERE object_reference.ref_id = %d', $ref_id);
         $res = $ilDB->query($query);
         $row = $ilDB->fetchAssoc($res);
 
@@ -113,7 +121,7 @@ class RESTLib {
     static public function objid_to_refid($obj_id) {
         global $ilDB;
         
-        $query = "SELECT ref_id FROM object_reference WHERE object_reference.obj_id=".$obj_id;
+        $query = sprintf('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', $obj_id);
         $res = $ilDB->query($query);
         $row = $ilDB->fetchAssoc($res);
         
@@ -131,7 +139,7 @@ class RESTLib {
     static public function objid_to_refids($obj_id) {
         global $ilDB;
         
-        $query = "SELECT ref_id FROM object_reference WHERE object_reference.obj_id=".$obj_id;
+        $query = sprintf('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', $obj_id);
         $set = $ilDB->query($query);
 
         $res = array();
@@ -151,7 +159,7 @@ class RESTLib {
     static public function userIdtoLogin($user_id) {
         global $ilDB;
         
-        $query = "SELECT login FROM usr_data WHERE usr_id=\"".$user_id."\"";
+        $query = sprintf('SELECT login FROM usr_data WHERE usr_id="%s"', $user_id);
         $set = $ilDB->query($query);
         $ret = $ilDB->fetchAssoc($set);
         
@@ -169,7 +177,7 @@ class RESTLib {
     static public function loginToUserId($login) {
         global $ilDB;
         
-        $query = "SELECT usr_id FROM usr_data WHERE login=\"".$login."\"";
+        $query = sprintf('SELECT usr_id FROM usr_data WHERE login="%s"', $login);
         $set = $ilDB->query($query);
         $ret = $ilDB->fetchAssoc($set);
         
@@ -189,7 +197,7 @@ class RESTLib {
         global $ilDB;
         
         $fields = implode(',', $aFields);
-        $query = "SELECT ".$fields." FROM object_data WHERE object_data.obj_id=".$obj_id;
+        $query = sprintf('SELECT %s FROM object_data WHERE object_data.obj_id = %d', $fields, $obj_id);
         $set = $ilDB->query($query);
         $row = $ilDB->fetchAssoc($set);
         
@@ -206,12 +214,7 @@ class RESTLib {
     public static function getLatestReadEventTimestamp($obj_id) {
         global $ilDB;
 
-        $query = sprintf("
-            SELECT last_access FROM read_event 
-            WHERE obj_id = %s 
-            ORDER BY last_access DESC LIMIT 1
-            ", $ilDB->quote($obj_id,'integer')
-        );
+        $query = sprintf('SELECT last_access FROM read_event WHERE obj_id = %d ORDER BY last_access DESC LIMIT 1', $obj_id);
         $res = $ilDB->query($query);
         $row = $ilDB->fetchAssoc($res);
 
@@ -235,12 +238,7 @@ class RESTLib {
     public static function getTopKReadEventTimestamp($obj_id, $k) {
         global $ilDB;
 
-        $query = sprintf("
-            SELECT last_access FROM read_event 
-            WHERE obj_id = %s 
-            ORDER BY last_access DESC LIMIT %s
-            ", $ilDB->quote($obj_id,'integer'), $k
-        );
+        $query = sprintf('SELECT last_access FROM read_event WHERE obj_id = %d ORDER BY last_access DESC LIMIT %d', $obj_id, $k);
         $res = $ilDB->query($query);
         $list = array();
         $cnt = 0;

@@ -189,25 +189,26 @@ class RESTController extends \Slim\Slim {
     /**
      * 
      */
-    public function sendData($data, $format = null) {
+    public function success($data, $format = null) {
         // 'sendData($data, $format) <Stub - Implement Me>';
         // Handle format!
-        // 
+        // $result['status'] = 'success';
         echo json_encode($data); // Move to response class?
     }
+    
     
     /**
      * 
      */
     // Move to response (& request -> should be based on request-header -> content-type) class?
-    public function setFormat() {
+    public function setFormat(format) {
     }
     
     
     /**
      * 
      */
-    public function halt($httpCode, $message = null, $restCode) {
+    public function halt($httpCode, $message = null, $restCode = "") {
         // 'halt($code, $message) <Stub - Implement Me>';
         // Build a JSON with msg=$message, status=failed, code=$restCode
         parent::halt($httpCode, $message);

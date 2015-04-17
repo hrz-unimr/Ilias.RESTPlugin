@@ -85,7 +85,7 @@ class AuthLib {
     static public function checkOAuth2ClientCredentials($api_key, $api_secret) {
         global $ilDB;
         
-        $query = "SELECT * FROM ui_uihk_rest_keys WHERE api_key=\"".$api_key."\" AND api_secret=\"".$api_secret."\"";
+        $query = sprintf('SELECT * FROM ui_uihk_rest_keys WHERE api_key = "%s" AND api_secret = "%s"', $api_key, $api_secret);
         $set = $ilDB->query($query);
         if ($ret = $ilDB->fetchAssoc($set)) 
             return true;
@@ -102,7 +102,7 @@ class AuthLib {
     static public function checkOAuth2Client($api_key) {
         global $ilDB;
         
-        $query = "SELECT * FROM ui_uihk_rest_keys WHERE api_key=\"".$api_key."\"";
+        $query = sprintf('SELECT * FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
         $set = $ilDB->query($query);
         if ($ret = $ilDB->fetchAssoc($set)) 
             return true;
@@ -122,15 +122,18 @@ class AuthLib {
         global $ilDB;
         
         $operation = strtoupper($operation);
-        $query = "
+        $query = sprintf('
             SELECT pattern, verb 
             FROM ui_uihk_rest_perm 
             JOIN ui_uihk_rest_keys 
-            ON ui_uihk_rest_keys.api_key='".$api_key."' 
+            ON ui_uihk_rest_keys.api_key = "%s" 
             AND ui_uihk_rest_keys.id = ui_uihk_rest_perm.api_id 
-            AND ui_uihk_rest_perm.pattern='".$route."'
-            AND ui_uihk_rest_perm.verb='".$operation."'
-        ";
+            AND ui_uihk_rest_perm.pattern = "%s"
+            AND ui_uihk_rest_perm.verb = "%s"', 
+            $api_key, 
+            $route, 
+            $operation
+        );
         $set = $ilDB->query($query);
         if ($ilDB->fetchAssoc($set))
             return true;
@@ -156,19 +159,26 @@ class AuthLib {
         $rtokenValid = false;
         $sessionValid = false;
         
-        $query = "
+        $query = sprintf('
             SELECT * FROM il_request_token 
-            WHERE user_id = ".$ilDB->quote($user_id, "integer")." 
-            AND token = ".$ilDB->quote($rtoken, "text")." 
-            AND session_id = ".$ilDB->quote($session_id, "text");
+            WHERE user_id = %d
+            AND token = "%s"
+            AND session_id = "%s"', 
+            $user_id,
+            $rtoken,
+            $session_id
+        );
         $set = $ilDB->query($query);
         if ($ilDB->numRows($set) > 0)
             $rtokenValid = true;
 
-        $query = "
+        $query = sprintf('
             SELECT * FROM usr_session 
-            WHERE user_id = ".$ilDB->quote($user_id, "integer")." 
-            AND session_id = ".$ilDB->quote($session_id, "text");
+            WHERE user_id = %d
+            AND session_id = "%s"',
+            $user_id, 
+            $session_id
+        );
         $set = $ilDB->query($query);
         if ($row = $ilDB->fetchAssoc($set))
             if ($row['expires'] > time()) 

@@ -591,7 +591,7 @@ class OAuth2Model {
     protected function _createNewRefreshTokenEntry($user_id, $api_key, $refresh_token) {
         global $ilDB;
         
-        $sql = "SELECT id FROM ui_uihk_rest_keys WHERE api_key = '".$api_key."'";
+        $sql = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
         $query = $ilDB->query($sql);
         if ($query != null && $row = $ilDB->fetchAssoc($query)) {
             $api_id = $row['id'];

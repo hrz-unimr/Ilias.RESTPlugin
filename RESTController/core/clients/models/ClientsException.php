@@ -5,26 +5,26 @@
  * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
-namespace RESTController\libs;
+namespace RESTController\core\clients;
 
 
 /**
  *
  */
-class RESTException extends \Exception {   
+class ClientsException extends \Exception {   
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.
      *  Using a unique string seems to be an easier solution than assigning unique numbers.
      */ 
-    const MISSING_PARAM_ID = "RESTController\libs\RESTException::MISSING_PARAM_ID";
-    
+    const _ID = "";
+
     
     /**
      *
      */
-    protected string paramName = "";
-    
+    protected int $id;
+
     
     /**
      *
@@ -37,17 +37,17 @@ class RESTException extends \Exception {
     /**
      *
      */
-    public function paramName() {
-        return $this->paramName;
+    public function id() {
+        return $this->id;
     }
     
     
     /**
      *
      */
-    static public getWrongParamException(string $message, string $param) {
-        $exception = new RESTException($message);
-        $exception.paramName = $param;
+    static public getDeleteException(string $message, int $id) {
+        $exception = new ClientsException($message);
+        $exception.id = $id;
         
         return $exception;
     }

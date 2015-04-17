@@ -31,7 +31,7 @@ class TokenLib {
         global $ilDB;
         
         // Fetch key, value pairs from database
-        $query = "SELECT setting_name, setting_value FROM ui_uihk_rest_config";
+        $query = 'SELECT setting_name, setting_value FROM ui_uihk_rest_config WHERE setting_name IN ("token_salt", "token_ttl")';
         $set = $ilDB->query($query);
         while ($set != null && $row = $ilDB->fetchAssoc($set)) {
             switch ($row['setting_name']) {

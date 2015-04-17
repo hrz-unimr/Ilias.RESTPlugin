@@ -33,7 +33,7 @@ class RESTSoapAdapter {
         \ilContext::init(ilContext::CONTEXT_SOAP);
 
         // Load username/password from DB
-        $query = "SELECT `setting_name`, `setting_value` FROM `ui_uihk_rest_config` WHERE `setting_name` IN ('rest_system_user', 'rest_user_pass')";
+        $query = 'SELECT setting_name, setting_value FROM ui_uihk_rest_config WHERE setting_name IN ("rest_system_user", "rest_user_pass")';
         $set = $ilDB->query($query);
         while ($row = $ilDB->fetchAssoc($set)) 
             switch ($row['setting_name']) {

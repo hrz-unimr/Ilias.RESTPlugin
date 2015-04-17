@@ -165,9 +165,9 @@
 <?php
     global $ilLog;
     
-    $ilDB->manipulate("ALTER TABLE `ui_uihk_rest_config` CHANGE `id` `id` INT NOT NULL AUTO_INCREMENT");
-    $ilDB->manipulate("ALTER TABLE `ui_uihk_rest_keys` CHANGE `id` `id` INT NOT NULL AUTO_INCREMENT");
-    $ilDB->manipulate("ALTER TABLE `ui_uihk_rest_keymap` CHANGE `id` `id` INT NOT NULL AUTO_INCREMENT");
+    $ilDB->manipulate('ALTER TABLE ui_uihk_rest_config CHANGE id id INT NOT NULL AUTO_INCREMENT');
+    $ilDB->manipulate('ALTER TABLE ui_uihk_rest_keys CHANGE id id INT NOT NULL AUTO_INCREMENT');
+    $ilDB->manipulate('ALTER TABLE ui_uihk_rest_keymap CHANGE id id INT NOT NULL AUTO_INCREMENT');
     
     $ilLog->write('Plugin REST -> Database updated to #4');
 ?>
@@ -289,7 +289,7 @@
     );
     $ilDB->createTable("ui_uihk_rest_oauth2", $fields, true);
     $ilDB->addPrimaryKey("ui_uihk_rest_oauth2", array("id"));
-    $ilDB->manipulate("ALTER TABLE `ui_uihk_rest_oauth2` CHANGE `id` `id` INT NOT NULL AUTO_INCREMENT");
+    $ilDB->manipulate('ALTER TABLE ui_uihk_rest_oauth2 CHANGE id id INT NOT NULL AUTO_INCREMENT');
 
     $ilLog->write('Plugin REST -> Database updated to #8');
 ?>
