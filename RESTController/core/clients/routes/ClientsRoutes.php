@@ -36,7 +36,6 @@ $app->get('/clients', '\RESTController\libs\AuthMiddleware::authenticateTokenOnl
         // Prepare data
         $result = array();
         $result['clients'] = $data;
-        $result['authuser'] = $user;
         
         // Send data
         $app->success($result);

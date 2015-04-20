@@ -118,6 +118,7 @@ class ClientsModel {
         $queryKeys = 'SELECT * FROM ui_uihk_rest_keys ORDER BY id';
         $setKeys = $ilDB->query($queryKeys);
 
+        $res = array();
         while($rowKeys = $ilDB->fetchAssoc($setKeys)) {
             $id = $rowKeys['id'];
             
