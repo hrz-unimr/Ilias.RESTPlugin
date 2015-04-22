@@ -94,39 +94,78 @@ class RESTController extends \Slim\Slim {
     public static function registerAutoloader() {
         spl_autoload_register(__NAMESPACE__ . "\\RESTController::autoload");
     }
-
+    
     
     /**
-     * Constructor
      *
-     * @param $appDirectory - Diretly in which the RESTController\app.php is contained
-     * @param $userSettings - Associative array of application settings
      */
-    public function __construct($appDirectory, array $userSettings = array()) {
-        parent::__construct();
-        
-        // Global information that should be available to all routes/models
-        $env = $this->environment();
-        $env['client_id'] = CLIENT_ID;
-        $env['app_directory'] = $appDirectory;
-        
-        // Use custom Router
-        $this->container->singleton('router', function ($c) {
-            return new \RESTController\libs\RESTRouter();
+    protected function setErrorHandler() {
+        // Handle fatal errors
+        register_shutdown_function(function () {
+            // Fetch errors
+            $err = error_get_last();
+            
+            // Display error
+            if ($err['type'] === E_ERROR) {
+                // Work-around to get better backtrace
+                $e = new \Exception;
+                
+                // Process data
+                $error = array(
+                    'message' => $err['message'],
+                    'code' => $err['type'],
+                    'file' => $err['file'],
+                    'line' => $err['line'],
+                    'trace' => $e->getTraceAsString()
+                );
+                $app = $this;
+                
+                // Show error
+                include('views/error.php');
+            }
         });
-
-        // Use custom Request
-        $this->container->singleton('request', function ($c) {
-            return new \RESTController\libs\RESTRequest($this);
-        });           
-
-        // Enable debugging (to own file or ilias if not possible)
+        
+        // Set error-handler
+        $this->error(function (\Exception $error) {
+            $this->render('views/error.php', array(
+                'error' => array(
+                    'message' => $error->getMessage(),
+                    'code' => $error->getCode(),
+                    'file' => $error->getFile(),
+                    'line' => $error->getLine(),
+                    'trace' => $error->getTraceAsString()
+                ),
+                'app' => $this
+            ));
+        });
+        
+        // Set 404 fallback
+        $this->notFound(function () {
+            $this->render('views/404.php');
+        });
+        
+        // Disable defailt error output
+        ini_set('display_errors', 'off');
+    }
+    
+    
+    /**
+     *
+     */
+    protected function setLogHandler() {
+        // Disable fancy debugging
         $this->config('debug', false);
+        
+        // Log directory
         $restLog = ILIAS_LOG_DIR . '/restplugin.log';
+        
+        // Create a new file?
         if (!file_exists($restLog)) {
             $fh = fopen($restLog, 'w');
             fclose($fh);
         }
+        
+        // Use own file or use ILIAS for logging
         if (is_writable($restLog)) {
             $logWriter = new \Slim\LogWriter(fopen(ILIAS_LOG_DIR . '/restplugin.log', 'a'));
             $this->config('log.writer', $logWriter);
@@ -136,8 +175,42 @@ class RESTController extends \Slim\Slim {
             $ilLog->write('Plugin REST -> Warning: Log file <' . $restLog . '> is not writeable!');
             $this->config('log.writer', $ilLog);
         }
+        
+        // Enable logging
         $this->log->setEnabled(true);
         $this->log->setLevel(\Slim\Log::DEBUG);
+    }
+    
+    
+    /**
+     *
+     */
+    protected function setCustomContainer() {
+        // Use custom Router
+        $this->container->singleton('router', function ($c) {
+            return new \RESTController\libs\RESTRouter();
+        });
+
+        // Use custom Request
+        $this->container->singleton('request', function ($c) {
+            return new \RESTController\libs\RESTRequest($this);
+        });
+    }
+
+    
+    /**
+     * Constructor
+     *
+     * @param $appDirectory - Diretly in which the RESTController\app.php is contained
+     * @param $userSettings - Associative array of application settings
+     */
+    public function __construct($appDirectory, array $userSettings = array()) {        
+        parent::__construct();
+        
+        // Global information that should be available to all routes/models
+        $env = $this->environment();
+        $env['client_id'] = CLIENT_ID;
+        $env['app_directory'] = $appDirectory;
 
         // Set template for current view and new views
         $this->config('templates.path', $appDirectory);
@@ -147,16 +220,15 @@ class RESTController extends \Slim\Slim {
         $this->hook('slim.after.router', function () {
             header_remove('Set-Cookie');
         });
+        
+        // Setup custom router, request- & response classes
+        $this->setCustomContainer();
+
+        // Setup logging
+        $this->setLogHandler();
 
         // Set default error-handler and 404 result
-        $this->error(function (\Exception $error) {
-            $this->render('views/error.php', array(
-                'error' => $error
-            ));
-        });
-        $this->notFound(function () {
-            $this->render('views/404.php');
-        });
+        $this->setErrorHandler();
     }
     
     
@@ -167,7 +239,7 @@ class RESTController extends \Slim\Slim {
      * the result is an array of HTTP status, header, and body. These three items
      * are returned to the HTTP client.
      */
-    public function run() {        
+    public function run() {
         // Log some debug usage information
         $this->log->debug("REST call from " . $_SERVER['REMOTE_ADDR'] . " at " . date("d/m/Y,H:i:s", time()));
         

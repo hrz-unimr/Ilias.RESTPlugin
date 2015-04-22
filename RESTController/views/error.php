@@ -7,14 +7,20 @@
  */
 
  
-echo '{
+// Generate standard message
+$errStr = '{
     "msg": "An error occured while handling this route!",
     "data": {
-        "message": ' . json_encode ($error->getMessage()) . ',
-        "code": ' . json_encode ($error->getCode()) . ',
-        "file": ' . json_encode ($error->getFile()) . ',
-        "line": ' . json_encode ($error->getLine()) . ',
-        "trace": ' . json_encode($error->getTraceAsString()) . ',
-        "full": ' . json_encode($error->__tostring()) . '
+        "message": ' . json_encode(isset($error["message"]) ? $error["message"] : "") . ',
+        "code": ' . json_encode(isset($error["code"]) ? $error["code"] : "") . ',
+        "file": ' . json_encode(isset($error["file"]) ? $error["file"] : "") . ',
+        "line": ' . json_encode(isset($error["line"]) ? $error["line"] : "") . ',
+        "trace": ' . json_encode(isset($error["trace"]) ? $error["trace"] : "") . '
     }
 }';
+
+// Log error to file
+$app->log->debug($errStr);
+
+// Display error
+echo $errStr;
