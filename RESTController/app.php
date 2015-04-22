@@ -35,6 +35,53 @@ $app->hook('slim.after.router', function () {
     header_remove('Set-Cookie');
 });
 
+// Handle fatal errors
+register_shutdown_function(function () {
+    // Fetch errors
+    $err = error_get_last();
+    
+    // Display error
+    if ($err['type'] === E_ERROR) {
+        // Work-around to get better backtrace
+        $e = new \Exception;
+        
+        // Process data
+        $error = array(
+            'message' => $err['message'],
+            'code' => $err['type'],
+            'file' => $err['file'],
+            'line' => $err['line'],
+            'trace' => $e->getTraceAsString()
+        );
+        $app = $this;
+        
+        // Show error
+        include('views/error.php');
+    }
+});
+
+// Set error-handler
+$this->error(function (\Exception $error) {
+    $this->render('views/error.php', array(
+        'error' => array(
+            'message' => $error->getMessage(),
+            'code' => $error->getCode(),
+            'file' => $error->getFile(),
+            'line' => $error->getLine(),
+            'trace' => $error->getTraceAsString()
+        ),
+        'app' => $this
+    ));
+});
+
+// Set 404 fallback
+$this->notFound(function () {
+    $this->render('views/404.php');
+});
+
+// Disable defailt error output
+ini_set('display_errors', 'off');
+
 // Global information that should be available to all routes/models
 $env = $app->environment();
 $env['client_id'] = CLIENT_ID;
