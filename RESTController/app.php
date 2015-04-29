@@ -70,19 +70,20 @@ class RESTController extends \Slim\Slim {
             $success = false;
             switch ($subNames[1]) {
                 case 'libs':
-                    $success = self::loadFile($baseDir . "\\" . $subNames[1] . "\\" . $className . ".php");
+                    $success = self::loadFile($baseDir . "/" . $subNames[1] . "/" . $className . ".php");
                     break;
                 case 'extensions':
                 case 'core':
-                    $success = self::loadFile($baseDir . "\\" . $subNames[1] . "\\" . $subNames[2] . "\\models\\" . $className . ".php");
+                    $success = self::loadFile($baseDir . "/" . $subNames[1] . "/" . $subNames[2] . "/models/" . $className . ".php");
                     break;
             };
             
             // Fallback to Slim-Frameworks outoloader, but strip base namespace (RESTController)
-            parent::autoload(substr($className, strlen(__NAMESPACE__)));
+            if (!$success)
+				parent::autoload(substr($className, strlen(__NAMESPACE__)));
         }
         // Use Slim-Frameworks autoloder otherwise
-        else
+        else 
             parent::autoload($className);
     }
     
@@ -201,7 +202,7 @@ class RESTController extends \Slim\Slim {
     /**
      * Constructor
      *
-     * @param $appDirectory - Diretly in which the RESTController\app.php is contained
+     * @param $appDirectory - Directory in which the app.php is contained
      * @param $userSettings - Associative array of application settings
      */
     public function __construct($appDirectory, array $userSettings = array()) {        

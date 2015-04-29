@@ -30,7 +30,7 @@ class OAuth2Model {
      */
     public function handleAuthorizationEndpoint_authorizationCode($app) {
         $request = $app->request();
-        $response = new Oauth2Response($app);
+        $response = new OAuth2Response($app);
         $api_key = $request->params('api_key');
         $redirect_uri = $request->params('redirect_uri');
         $username = $request->params('username');
@@ -104,7 +104,7 @@ class OAuth2Model {
      * @param $app
      */
     public function handleAuthorizationEndpoint_implicitGrant($app) {
-        $response = new Oauth2Response($app);
+        $response = new OAuth2Response($app);
         $request = $app->request();
         $api_key = $request->params('api_key');
         $redirect_uri = $request->params('redirect_uri');
@@ -226,7 +226,7 @@ class OAuth2Model {
      * @param $request
      */
     public function handleTokenEndpoint_userCredentials($app, $request) {
-        $response = new Oauth2Response($app);
+        $response = new OAuth2Response($app);
         $user = $request->getParam('username');
         $pass = $request->getParam('password');
         $api_key = $request->getParam('api_key');
@@ -282,7 +282,7 @@ class OAuth2Model {
      * @param $request
      */
     public function handleTokenEndpoint_clientCredentials($app, $request) {
-        $response = new Oauth2Response($app);
+        $response = new OAuth2Response($app);
         $api_key = $request->getParam('api_key');
         $api_secret = $request->getParam('api_secret');
 
@@ -324,7 +324,7 @@ class OAuth2Model {
      */
     public function handleTokenEndpoint_authorizationCode($app, $request) {
         $app->log->debug("Handle Token-Endpoint > AuthCode Request");
-        $response = new Oauth2Response($app);
+        $response = new OAuth2Response($app);
         $code = $request->getParam("code");
         $redirect_uri = $request->getParam("redirect_uri");
 
@@ -397,7 +397,7 @@ class OAuth2Model {
      */
     public function handleTokenEndpoint_refreshToken2Bearer($app) {
         $request = new RESTRequest($app);
-        $response = new Oauth2Response($app);
+        $response = new OAuth2Response($app);
 
         $refresh_token = $request->getParam("refresh_token");
         $bearer_token = $this->getBearerTokenForRefreshToken($refresh_token);
