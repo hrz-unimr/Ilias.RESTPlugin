@@ -61,8 +61,8 @@ register_shutdown_function(function () {
 });
 
 // Set error-handler
-$this->error(function (\Exception $error) {
-    $this->render('views/error.php', array(
+$app->error(function (\Exception $error) {
+    $app->render('views/error.php', array(
         'error' => array(
             'message' => $error->getMessage(),
             'code' => $error->getCode(),
@@ -70,13 +70,13 @@ $this->error(function (\Exception $error) {
             'line' => $error->getLine(),
             'trace' => $error->getTraceAsString()
         ),
-        'app' => $this
+        'app' => $app
     ));
 });
 
 // Set 404 fallback
-$this->notFound(function () {
-    $this->render('views/404.php');
+$app->notFound(function () {
+    $app->render('views/404.php');
 });
 
 // Disable defailt error output

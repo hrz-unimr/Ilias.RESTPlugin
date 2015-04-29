@@ -218,7 +218,7 @@ services.factory('restEndpoint', function($q, $http, restRoutesURL) {
         apiPath = true;
         if (phpPath != true) {
             restEndpoint = dir;
-            deferred.resolve(restEndpoint);               
+            deferred.resolve(restEndpoint);
         }
     });
     phpQuery.success(function(data, status, headers, config) {

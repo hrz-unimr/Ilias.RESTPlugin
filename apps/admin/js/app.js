@@ -154,19 +154,17 @@ app.config(function($provide, authenticationProvider) {
  */
 app.run(function($rootScope, $location, authentication, restEndpoint, $templateCache) {
     // Go to login page if not logged in (and we should not display the offline notification)
-    $rootScope.$on('$routeChangeStart', function(evt) {
-        if (!(authentication.isAuthenticated() || $location.url() == "/offline")) 
+    $rootScope.$on('$routeChangeStart', function(event, current, previous, rejection) {
+        if (!(authentication.isAuthenticated() || $location.url() == "/offline")) {
             $location.url("/login");
-        
-        event.preventDefault();
+        }
     });
     
     // Something went wrong (rest-interfac down, maybe?)
     $rootScope.$on('$routeChangeError', function(event, current, previous, rejection) {
-        if (rejection == "NoEndpoint")
+        if (rejection == "NoEndpoint") {
             $location.path("/offline");
-        
-        event.preventDefault();
+        }
     });
 });
 
