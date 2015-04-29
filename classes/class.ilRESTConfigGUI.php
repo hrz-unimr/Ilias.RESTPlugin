@@ -1,6 +1,15 @@
 <?php
-// Include ilPluginConfigGUI class
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+ 
+ 
+// Include core configuration UI class
 require_once("./Services/Component/classes/class.ilPluginConfigGUI.php");
+// Requires <$tpl>, <$ilUser>, <$ilCtrl>, <$ilTabs>
 
 
 /**
@@ -38,8 +47,7 @@ class ilRESTConfigGUI extends ilPluginConfigGUI {
      * Configure screen
      */
     function configure() {
-        global $tpl;
-        global $ilUser, $ilCtrl;
+        global $tpl, $ilUser, $ilCtrl;
         
         // Get base ILIAS directory for POST data
         $inst_folder = dirname($_SERVER['SCRIPT_NAME']);
@@ -48,6 +56,9 @@ class ilRESTConfigGUI extends ilPluginConfigGUI {
         
         // Get plugin o bject for translations
         $pl = $this->getPluginObject();
+        
+        // Required to be able to fetch rtoken on $ilCtrl
+        $ilCtrl->getFormAction($this);
         
         // Create HTML layout
         $configHTML  = '<h3>'.$pl->txt("welcome_config").'</h3>';

@@ -97,11 +97,6 @@ class Slim
         'slim.after.router' => array(array()),
         'slim.after' => array(array())
     );
-    
-    /**
-     * @var integer Counts the number of available routes. Is used to give default names.
-     */
-    private $routeCount = 0;
 
     /********************************************************************************
     * PSR-0 Autoloader
@@ -446,8 +441,6 @@ class Slim
         $pattern = array_shift($args);
         $callable = array_pop($args);
         $route = new \Slim\Route($pattern, $callable, $this->settings['routes.case_sensitive']);
-        $this->routeCount++;
-        $route->setName((string)$this->routeCount);
         $this->router->map($route);
         if (count($args) > 0) {
             $route->setMiddleware($args);

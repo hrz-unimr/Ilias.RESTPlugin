@@ -1,3 +1,12 @@
+<?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+?>
+ 
 <#1>
 <?php
     global $ilLog;
@@ -64,7 +73,7 @@
             'notnull' => false,
             'default' => ""
         ),
-        'oauth2_gt_client_active' => array( // grant type
+        'oauth2_gt_client_active' => array(
             'type' => 'integer',
             'length' => 1,
             'notnull' => true,
@@ -106,13 +115,13 @@
             'notnull' => true,
             'default' => 0
         ),
-        'oauth2_authcode_refresh_active' => array( // oauth2_granttype_authorization_code_refresh_active
+        'oauth2_authcode_refresh_active' => array(
             'type' => 'integer',
             'length' => 1,
             'notnull' => true,
             'default' => 1
         ),
-        'oauth2_resource_refresh_active' => array( // oauth2_granttype_resourceowner_refresh_active
+        'oauth2_resource_refresh_active' => array(
             'type' => 'integer',
             'length' => 1,
             'notnull' => true,
@@ -156,9 +165,9 @@
 <?php
     global $ilLog;
     
-    $ilDB->manipulate("ALTER TABLE `ui_uihk_rest_config` CHANGE `id` `id` INT NOT NULL AUTO_INCREMENT");
-    $ilDB->manipulate("ALTER TABLE `ui_uihk_rest_keys` CHANGE `id` `id` INT NOT NULL AUTO_INCREMENT");
-    $ilDB->manipulate("ALTER TABLE `ui_uihk_rest_keymap` CHANGE `id` `id` INT NOT NULL AUTO_INCREMENT");
+    $ilDB->manipulate('ALTER TABLE ui_uihk_rest_config CHANGE id id INT NOT NULL AUTO_INCREMENT');
+    $ilDB->manipulate('ALTER TABLE ui_uihk_rest_keys CHANGE id id INT NOT NULL AUTO_INCREMENT');
+    $ilDB->manipulate('ALTER TABLE ui_uihk_rest_keymap CHANGE id id INT NOT NULL AUTO_INCREMENT');
     
     $ilLog->write('Plugin REST -> Database updated to #4');
 ?>
@@ -166,7 +175,7 @@
 <#5>
 <?php
     global $ilLog;
-    $ilLog->write('Plugin REST -> Include Primary REST Client');
+    $ilLog->write('Plugin REST ->Include Primary REST Client');
     
     $api_key = "apollon";
     $api_secret = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',5)),0,10);
@@ -274,13 +283,13 @@
             'length' => 4,
             'notnull' => true
         ),
-        'last_refresh_timestamp' => array('type' => 'timestamp'), // -> will be datetime in mysql!
-        'init_timestamp' => array('type' => 'timestamp'),        // -> will be datetime in mysql!
+        'last_refresh_timestamp' => array('type' => 'timestamp'),
+        'init_timestamp' => array('type' => 'timestamp'),
         'num_resets' => array('type' => 'integer', 'length' => 4, 'notnull' => true)
     );
     $ilDB->createTable("ui_uihk_rest_oauth2", $fields, true);
     $ilDB->addPrimaryKey("ui_uihk_rest_oauth2", array("id"));
-    $ilDB->manipulate("ALTER TABLE `ui_uihk_rest_oauth2` CHANGE `id` `id` INT NOT NULL AUTO_INCREMENT");
+    $ilDB->manipulate('ALTER TABLE ui_uihk_rest_oauth2 CHANGE id id INT NOT NULL AUTO_INCREMENT');
 
     $ilLog->write('Plugin REST -> Database updated to #8');
 ?>

@@ -273,10 +273,6 @@ class View
         }
 
         $data = array_merge($this->data->all(), (array) $data);
-        if (isset($data['templatePathname'])) {
-            throw new \RuntimeException("View cannot render `$template` with given data because data contains illegal entry `templatePathname`");
-        }
-        
         extract($data);
         ob_start();
         require $templatePathname;

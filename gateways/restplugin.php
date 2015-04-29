@@ -1,4 +1,10 @@
-<?php /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
 
 
 // Buffers all output in order to prevent data from beeing displayed
@@ -14,7 +20,7 @@ require_once("Services/Init/classes/class.ilInitialisation.php");
 ilContext::init(ilContext::CONTEXT_REST);
 
 // The term "client_id" is used twice within this REST context:
-//  (1) ilias client_id                 [Will be ilias_client_id]
+//  (1) ilias client_id                 [Will be ilias_client_id and client_id]
 //  (2) oauth2 client_id (RFC 6749)     [Will be api_key]
 // In order to solve the conflict for the variable "client_id" some counter measures are necessary.
 // Solution: it is required to provide the variable ilias_client_id if a specific ilias client needs to be adressed.
@@ -49,12 +55,25 @@ ob_end_clean();
 
 // Run the RESTController or return error-code
 if ($ilPluginAdmin->isActive(IL_COMP_SERVICE, "UIComponent", "uihk", "REST")) {
+    // Fetch plugin object
     $ilRESTPlugin = $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, "UIComponent", "uihk", "REST");
-    require_once($ilRESTPlugin->getDirectory() . '/RESTController/app.php');
+    $appDirectory = $ilRESTPlugin->getDirectory() . "/RESTController/";
     
-    $app->run();
+    // Include the RESTController application
+    require_once($appDirectory . '/app.php');
+    
+    // Register the RESTController Class-AutoLoader 
+    \RESTController\RESTController::registerAutoloader();
+    
+    // Instantate and run the RESTController application
+    $restController = new \RESTController\RESTController($appDirectory);
+    $restController->run();
 } else {
-    header("HTTP/1.0 405 Disabled");
-    header("Warning: REST-Interface is disabled");
-    echo "REST-Interface is disabled\r\n";
+    // Display an appropriate error-message
+    header('HTTP/1.0 404 Disabled');
+    header('Warning: REST-Interface is disabled.');
+    header('Content-Type: application/json');
+    echo '{
+        "msg": "REST-Interface is disabled."
+    }';
 }

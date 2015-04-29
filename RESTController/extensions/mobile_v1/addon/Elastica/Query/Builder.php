@@ -63,9 +63,12 @@ class Builder extends AbstractQuery
     public function toArray()
     {
         try {
-            return JSON::parse($this->__toString());
+            return JSON::parse($input = $this->__toString());
         } catch (JSONParseException $e) {
-            throw new InvalidException('The query produced is invalid');
+            throw new InvalidException(sprintf(
+                'The produced query is not a valid json string : "%s"',
+                $input
+            ));
         }
     }
 
@@ -319,7 +322,7 @@ class Builder extends AbstractQuery
     public function field($name, $value)
     {
         if (is_bool($value)) {
-            $value = '"'. var_export($value, true) . '"';
+            $value = '"'.var_export($value, true).'"';
         } elseif (is_array($value)) {
             $value = '["'.implode('","', $value).'"]';
         } else {
@@ -551,7 +554,7 @@ class Builder extends AbstractQuery
     {
         $this->fieldOpen('match_all');
 
-        if ( ! $boost == null && is_numeric($boost)) {
+        if (! $boost == null && is_numeric($boost)) {
             $this->field('boost', (float) $boost);
         }
 
@@ -846,7 +849,7 @@ class Builder extends AbstractQuery
             $this->_string .= '{"'.$fieldName.'":"'.$order.'"},';
         }
 
-        $this->_string = rtrim($this->_string, ',') . '],';
+        $this->_string = rtrim($this->_string, ',').'],';
 
         return $this;
     }

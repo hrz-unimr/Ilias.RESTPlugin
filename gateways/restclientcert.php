@@ -1,4 +1,11 @@
-<?php /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+<?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+ 
 
 // Buffers all output in order to prevent data from beeing displayed
 // before any header was sent/set, since we are doing REST und not just html
@@ -11,11 +18,11 @@ if (isset($_GET['client_id'])) {
 }
 
 // Tell ILIAS which context to load
-include_once './Services/Context/classes/class.ilContext.php';
+include_once('./Services/Context/classes/class.ilContext.php');
 ilContext::init(ilContext::CONTEXT_UNITTEST);
 
 // Initialize ILIAS
-include_once './Services/Init/classes/class.ilInitialisation.php';
+include_once('./Services/Init/classes/class.ilInitialisation.php');
 $ilInit = new ilInitialisation();
 $GLOBALS['ilInit'] = $ilInit;
 $ilInit->initILIAS();

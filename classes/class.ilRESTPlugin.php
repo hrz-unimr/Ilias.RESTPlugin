@@ -1,4 +1,13 @@
 <?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+ 
+ 
+// Include core UIHook plugin slot class
 include_once("./Services/UIComponent/classes/class.ilUserInterfaceHookPlugin.php");
 
 

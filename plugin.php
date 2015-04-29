@@ -1,6 +1,14 @@
 <?php
+/**
+ * ILIAS REST Plugin for the ILIAS LMS
+ *
+ * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * 2014-2015
+ */
+ 
+ 
 $id = "rest";
-$version = "0.7.3";
+$version = "0.7.5";
 
 $ilias_min_version = "4.0.0";
 $ilias_max_version = "5.2.0";

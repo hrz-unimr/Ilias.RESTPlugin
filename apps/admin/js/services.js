@@ -197,7 +197,7 @@ services.factory('restEndpoint', function($q, $http, restRoutesURL) {
     // Note: Value is taken 'as-is', no AJAJ call is done to check correctness.
     if (postVars.restEndpoint != "") 
         dir = postVars.restEndpoint;
-    
+
     // Tries to find endpoint by doing AJAJ calls to <ILIAS>/routes and <ILIAS>/restplugin.php
     // Whichever returns a success first will be used.
     else 
