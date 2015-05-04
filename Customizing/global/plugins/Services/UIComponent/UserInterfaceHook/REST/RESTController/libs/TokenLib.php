@@ -19,7 +19,7 @@ class TokenLib {
     // Variables fetched from database containing (fixed) salt and time-to-life
     protected static $tokenSalt = null;
     protected static $tokenTTL = null;
-    protected static $refreshTTL = 60*60*24*365*10; // 10 years
+    protected static $refreshTTL = 315360000; //60*60*24*365*10 = 315360000 i.e. 10 years
     
     
     /**
