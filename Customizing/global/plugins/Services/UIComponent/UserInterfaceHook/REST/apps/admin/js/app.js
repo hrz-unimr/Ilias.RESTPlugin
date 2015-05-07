@@ -2,25 +2,25 @@
 'use strict';
 
 /*
- * Declare main AngularJS application as well as 
+ * Declare main AngularJS application as well as
  * libraries that should get injected into the app.
  */
 var app = angular.module('myApp', [
-    'ngRoute', 
-    'ngResource', 
+    'ngRoute',
+    'ngResource',
     'ngSanitize',
     'ngAnimate',
     'ng-breadcrumbs',
     'angular-loading-bar',
-    'ui.bootstrap', 
-    'ui.utils', 
+    'ui.bootstrap',
+    'ui.utils',
     'xeditable',
     'pascalprecht.translate',
     'dialogs.main',
     'myApp.translate.en-US',
     'myApp.translate.de-DE',
-    'myApp.filters', 
-    'myApp.services', 
+    'myApp.filters',
+    'myApp.services',
     'myApp.directives',
     'myApp.controllers'
 ]);
@@ -48,7 +48,7 @@ app.config(function($routeProvider) {
         label: 'LABEL_LATER', // This will be replaced later!
         controller: 'OfflineCtrl'
     });
-    
+
     // Login page
     $routeProvider.when('/login', {
         templateUrl : 'partials/login.html',
@@ -60,7 +60,7 @@ app.config(function($routeProvider) {
             }
         }
     });
-    
+
     // Client-list
     $routeProvider.when('/clientlist', {
         templateUrl : 'partials/clientlist.html',
@@ -72,7 +72,7 @@ app.config(function($routeProvider) {
             }
         }
     });
-    
+
     // Edit client
     $routeProvider.when('/clientlist/clientedit', {
         templateUrl: 'partials/clientedit.html',
@@ -84,7 +84,7 @@ app.config(function($routeProvider) {
             }
         }
     });
-    
+
     // Default URL
     $routeProvider.otherwise({
         redirectTo : '/clientlist'
@@ -101,55 +101,6 @@ app.config(function(cfpLoadingBarProvider) {
 
 
 /*
- * Add bearer-token to restClients & restClient resources
- * since we need to be authenticated to use those endpoints.
- */
-app.config(function($provide, authenticationProvider) {
-    // Wraps the given action on resource by prefixing the
-    // old action with '_' and replacing it with a modified
-    // one that has token information added.
-    var addToken = function(resource, action) {
-        // Move old action
-        resource['_' + action]  = resource[action];
-        
-        // Create new action
-        resource[action] = function(data, success, error) {
-            // Call old action with extra data
-            return resource['_' + action](
-                angular.extend(
-                    {}, 
-                    data || {}, 
-                    { token: authenticationProvider.getToken() }, 
-                    { Authorization: authenticationProvider.getToken() }
-                ),
-                success,
-                error
-            );
-        };
-
-    };
-    
-    // Wraps all actions (array) on given resource
-    var wrapActions = function(resource, actions) {
-        // Wrap all actions
-        for (var i = 0; i < actions.length; i++) 
-            addToken(resource, actions[i]);
-
-        // return modified resource
-        return resource;
-    };
-
-    // Both /clients & /client/:id require a bearer-token to work
-    $provide.decorator('restClients', function($delegate) {
-        return wrapActions($delegate, ['query', 'create']);
-    });
-    $provide.decorator('restClient', function($delegate) {
-        return wrapActions($delegate, ['show', 'update', 'delete']);
-    });
-});
-
-
-/*
  * Make sure authentification is checked on each view (route)
  */
 app.run(function($rootScope, $location, authentication, restEndpoint, $templateCache) {
@@ -159,7 +110,7 @@ app.run(function($rootScope, $location, authentication, restEndpoint, $templateC
             $location.url("/login");
         }
     });
-    
+
     // Something went wrong (rest-interfac down, maybe?)
     $rootScope.$on('$routeChangeError', function(event, current, previous, rejection) {
         if (rejection == "NoEndpoint") {

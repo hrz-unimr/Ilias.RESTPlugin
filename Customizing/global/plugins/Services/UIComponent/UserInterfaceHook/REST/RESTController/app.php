@@ -7,11 +7,11 @@
  */
 namespace RESTController;
 
-        
+
 // Include SLIM-Framework
 require_once('Slim/Slim.php');
-        
- 
+
+
 /**
  * This is the RESTController Slim-Application
  * Handles all REST related logic and uses ILIAS
@@ -25,69 +25,38 @@ require_once('Slim/Slim.php');
  */
 class RESTController extends \Slim\Slim {
     /**
-     * Loads given file and returns success status.
-     *
-     * @param $file - Path to the (class) file that should be loaded
-     * @return bool - true if file was found and loaded, false otherwise
-     */
-    protected static function loadFile($file) {
-        if (file_exists($file)) {
-            require($file);
-            return true;
-        }
-        
-        return false;
-    }
-    
-    
-    /**
      * PSR-0 autoloader for RESTController classes
-     *
-     *  It will first look in the following directories:
-     *   "RESTController\libs\*" namespace will search in ".\libs" folder
-     *   "RESTController\core\*" namespace will search in ".\core\*\models" folder
-     *   "RESTController\extensions\*" namespace will search in ".\extensions\*\models" folder
-     *  Otherwise it will fallback to the Slim-Framework auto-loader,
-     *  stripping RESTController from $className.
+     *  Automatically adds a "models" subname into the namespace of \RESTController\core und
+     *  @See \Slim\Slim::autoload(...)
      *
      * @param $className - Fully quantified classname (includes namespace) of a class that needs to be loaded
      */
     public static function autoload($className) {
         // Fetch sub namespaces
         $subNames = explode('\\', $className);
-        
+
         // Only load classes inside own namespace (RESTController)
-        if ($subNames[0] === __NAMESPACE__) {            
-            // Get base include directory
-            $baseDir = __DIR__;
-            
-            // Get name of class
-            $className = ltrim($className, '\\');
-            if ($lastNsPos = strripos($className, '\\')) 
-                $className = substr($className, $lastNsPos + 1);
-            
-            // Only look in certain folders
-            $success = false;
-            switch ($subNames[1]) {
-                case 'libs':
-                    $success = self::loadFile($baseDir . "/" . $subNames[1] . "/" . $className . ".php");
-                    break;
-                case 'extensions':
-                case 'core':
-                    $success = self::loadFile($baseDir . "/" . $subNames[1] . "/" . $subNames[2] . "/models/" . $className . ".php");
-                    break;
-            };
-            
-            // Fallback to Slim-Frameworks outoloader, but strip base namespace (RESTController)
-            if (!$success)
-				parent::autoload(substr($className, strlen(__NAMESPACE__)));
+        if ($subNames[0] === __NAMESPACE__) {
+            // (Core-) Extentions can leave-out the "models" subname in their namespace
+            if ($subNames[1] == 'extensions' || $subNames[1] == 'core') {
+                array_splice($subNames, 3, 0, array("models"));
+                array_shift($subNames);
+                parent::autoload(implode($subNames, "\\"));
+
+                // Fallback
+                if (!class_exists($className, false))
+                    parent::autoload(substr($className, strlen(__NAMESPACE__)));
+            }
+            // Everything else gets forwarded directly to Slim
+            else
+                parent::autoload(substr($className, strlen(__NAMESPACE__)));
         }
         // Use Slim-Frameworks autoloder otherwise
-        else 
+        else
             parent::autoload($className);
     }
-    
-    
+
+
     /**
      * Register PSR-0 autoloader
      *  Call this before doing $app = new RESTController();
@@ -95,8 +64,8 @@ class RESTController extends \Slim\Slim {
     public static function registerAutoloader() {
         spl_autoload_register(__NAMESPACE__ . "\\RESTController::autoload");
     }
-    
-    
+
+
     /**
      *
      */
@@ -105,12 +74,12 @@ class RESTController extends \Slim\Slim {
         register_shutdown_function(function () {
             // Fetch errors
             $err = error_get_last();
-            
+
             // Display error
             if ($err['type'] === E_ERROR) {
                 // Work-around to get better backtrace
                 $e = new \Exception;
-                
+
                 // Process data
                 $error = array(
                     'message' => $err['message'],
@@ -120,12 +89,12 @@ class RESTController extends \Slim\Slim {
                     'trace' => $e->getTraceAsString()
                 );
                 $app = $this;
-                
+
                 // Show error
                 include('views/error.php');
             }
         });
-        
+
         // Set error-handler
         $this->error(function (\Exception $error) {
             $this->render('views/error.php', array(
@@ -139,33 +108,33 @@ class RESTController extends \Slim\Slim {
                 'app' => $this
             ));
         });
-        
+
         // Set 404 fallback
         $this->notFound(function () {
             $this->render('views/404.php');
         });
-        
+
         // Disable defailt error output
         ini_set('display_errors', 'off');
     }
-    
-    
+
+
     /**
      *
      */
     protected function setLogHandler() {
         // Disable fancy debugging
         $this->config('debug', false);
-        
+
         // Log directory
         $restLog = ILIAS_LOG_DIR . '/restplugin.log';
-        
+
         // Create a new file?
         if (!file_exists($restLog)) {
             $fh = fopen($restLog, 'w');
             fclose($fh);
         }
-        
+
         // Use own file or use ILIAS for logging
         if (is_writable($restLog)) {
             $logWriter = new \Slim\LogWriter(fopen(ILIAS_LOG_DIR . '/restplugin.log', 'a'));
@@ -176,13 +145,13 @@ class RESTController extends \Slim\Slim {
             $ilLog->write('Plugin REST -> Warning: Log file <' . $restLog . '> is not writeable!');
             $this->config('log.writer', $ilLog);
         }
-        
+
         // Enable logging
         $this->log->setEnabled(true);
         $this->log->setLevel(\Slim\Log::DEBUG);
     }
-    
-    
+
+
     /**
      *
      */
@@ -198,16 +167,16 @@ class RESTController extends \Slim\Slim {
         });
     }
 
-    
+
     /**
      * Constructor
      *
      * @param $appDirectory - Directory in which the app.php is contained
      * @param $userSettings - Associative array of application settings
      */
-    public function __construct($appDirectory, array $userSettings = array()) {        
+    public function __construct($appDirectory, array $userSettings = array()) {
         parent::__construct();
-        
+
         // Global information that should be available to all routes/models
         $env = $this->environment();
         $env['client_id'] = CLIENT_ID;
@@ -221,7 +190,7 @@ class RESTController extends \Slim\Slim {
         $this->hook('slim.after.router', function () {
             header_remove('Set-Cookie');
         });
-        
+
         // Setup custom router, request- & response classes
         $this->setCustomContainer();
 
@@ -231,8 +200,8 @@ class RESTController extends \Slim\Slim {
         // Set default error-handler and 404 result
         $this->setErrorHandler();
     }
-    
-    
+
+
     /**
      * Run
      *
@@ -243,24 +212,24 @@ class RESTController extends \Slim\Slim {
     public function run() {
         // Log some debug usage information
         $this->log->debug("REST call from " . $_SERVER['REMOTE_ADDR'] . " at " . date("d/m/Y,H:i:s", time()));
-        
+
         // Make $this available in all included models/routes
         $app = self::getInstance();
-        
+
         // Load core models & routes
-        foreach (glob(realpath(__DIR__)."/core/*/routes/*.php") as $filename) 
+        foreach (glob(realpath(__DIR__)."/core/*/routes/*.php") as $filename)
             include_once($filename);
 
         // Load extension models & routes
-        foreach (glob(realpath(__DIR__)."/extensions/*/routes/*.php") as $filename) 
+        foreach (glob(realpath(__DIR__)."/extensions/*/routes/*.php") as $filename)
             include_once($filename);
 
         parent::run();
     }
-    
-    
+
+
     /**
-     * 
+     *
      */
     public function success($data, $format = null) {
         // 'sendData($data, $format) <Stub - Implement Me>';
@@ -268,21 +237,23 @@ class RESTController extends \Slim\Slim {
         // $result['status'] = 'success';
         $data['status'] = 'success';
         echo json_encode($data); // Move to response class?
+
+        $this->stop();
     }
-    
-    
+
+
     /**
-     * 
+     *
      */
     // Move to response (& request -> should be based on request-header -> content-type) class?
     public function setFormat($format) {
     }
-    
-    
+
+
     /**
-     * 
+     *
      */
-    public function halt($httpCode, $message = null, $restCode = "") {
+    public function halt($httpCode, $message = null, $restCode = "", $format = null) {
         // 'halt($code, $message) <Stub - Implement Me>';
         // Build a JSON with msg=$message, status=failed, code=$restCode
         $data = array(

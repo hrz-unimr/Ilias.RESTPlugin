@@ -20,7 +20,7 @@ class RESTRequest extends \Slim\Http\Request {
 
     public function __construct ($app) {
         parent::__construct($app->environment());
-        
+
         $this->app = $app;
         $this->slimReq = $this;
         $this->content_type = $this->headers()->get('Content-Type');
@@ -37,11 +37,11 @@ class RESTRequest extends \Slim\Http\Request {
         if( ($ret = $this->app->request()->params($param)) == null){
             $this->decodeJson();
 
-            if ($this->json_arr != null and isset($this->json_arr[$param])) 
+            if ($this->json_arr != null and isset($this->json_arr[$param]))
                 return $this->json_arr[$param];
-            else if ($throw) 
-                throw RESTException::getWrongParamException("Parameter $param not present.", $param);
-            
+            else if ($throw)
+                throw new Exceptions\MissingParameter("Parameter $param not present.", $param);
+
             return $default;
         }
     }

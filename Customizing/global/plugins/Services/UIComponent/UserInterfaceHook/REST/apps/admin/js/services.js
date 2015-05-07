@@ -25,18 +25,18 @@ services.provider('authentication', function() {
         autoLogin: (postVars.userId.length > 0 && postVars.sessionId.length > 0 && postVars.rtoken.length > 0),
         error: null,
     };
-    
+
     // Return object containing login-related functions.
     this.$get = function($location) {
         // Returned object
         var handler = {};
-        
+
         // Function that returns the bearer-token
         // of the currently logged-in user.
         handler.getToken = function() {
             return data.token;
         };
-        
+
         // Function that returns the username
         // of the currently logged-in user.
         handler.getUserName = function() {
@@ -49,7 +49,7 @@ services.provider('authentication', function() {
         handler.isAuthenticated = function() {
             return data.isAuthenticated;
         };
-        
+
         // Function that internally logs-in the user
         // given by username (mostly for display purpose)
         // and the bearer-token, which is required to talk
@@ -59,37 +59,37 @@ services.provider('authentication', function() {
             data.userName = userName;
             data.token = token;
             data.isAuthenticated = true;
-            
+
             // Reset any (login-related) error-messages
-            handler.setError();
+            handler.setError(null);
         };
-        
+
         // Function that internally logs-out the currently
         // logged-in user.
         handler.logout = function() {
             // Reset login-data
             data.userName = null;
             data.token = null;
-            
+
             // Make sure user is logged out
             data.isAuthenticated = false;
             data.autoLogin = false;
-            
+
             // Redirect to login
             $location.url("/login");
         };
-        
+
         // Function that returns to if required data
         // for an automatic login by exchanging an ILIAS
         // session against a bearer-token is available.
         handler.tryAutoLogin = function() {
             return data.autoLogin;
         };
-        
+
         // Handles all login-related error messages.
         // Used to display feedback on failure.
         handler.hasError = function() {
-            return data.error != null;
+            return data.error !== null;
         };
         handler.getError = function() {
             return data.error;
@@ -97,10 +97,10 @@ services.provider('authentication', function() {
         handler.setError = function(error) {
             data.error = error;
         };
-        
+
         return handler;
     };
-    
+
     // Make token available to provider. We need to be able to
     // query the token when derocation restClients & restClient.
     this.getToken = function() {
@@ -110,7 +110,7 @@ services.provider('authentication', function() {
 
 
 /*
- * This service internally handles all client data recieved from 
+ * This service internally handles all client data recieved from
  * and send to the REST Interface.
  * This includes adding, removing clients as well as setting the
  * current client (for editing) and providing default settings
@@ -122,10 +122,10 @@ services.factory('clientStorage', function() {
         clients: [],
         current: null
     };
-    
+
     // Object that will be returned
     var handler = {};
-    
+
     // Getter/Setter methods for the list of all clients
     handler.getClients = function() {
         return data.clients;
@@ -133,12 +133,12 @@ services.factory('clientStorage', function() {
     handler.setClients = function(clients) {
         data.clients = clients;
     };
-    
+
     // Adds a new client (internally only!) to the list of clients
     handler.addClient = function(client) {
         return data.clients.push(client);
     };
-    
+
     // getter/Setter methods for the current client (which eg.
     // might be edited in the /clientlist/clientedit route)
     handler.getCurrent = function() {
@@ -147,8 +147,8 @@ services.factory('clientStorage', function() {
     handler.setCurrent = function(client) {
         data.current = client;
     };
-    
-    // Returns some default client settings, eg. 
+
+    // Returns some default client settings, eg.
     // creating a new client.
     handler.getDefault = function() {
         return {
@@ -159,7 +159,7 @@ services.factory('clientStorage', function() {
             oauth2_gt_resourceowner_active: "1"
         };
     };
-    
+
     // Return object
     return handler;
 });
@@ -177,70 +177,70 @@ services.factory('restEndpoint', function($q, $http, restRoutesURL) {
     // Promise and endpoint variables
     var deferred = $q.defer();
     var restEndpoint = ""
-    
+
     // Tries to find ILIAS main folder by looking at window.location.pathname
     // and finding the 'Customizing' folder
     var getInstallDir = function() {
         var pathArray = window.location.pathname.split('/');
         var iliasSubFolder = '';
         for (var i = 0; i < pathArray.length; i++) {
-            if (pathArray[i] == 'Customizing') 
+            if (pathArray[i] == 'Customizing')
                 break;
-            if (pathArray[i] != '')
+            if (pathArray[i] !== '')
                 iliasSubFolder += '/'+pathArray[i];
         }
         return iliasSubFolder;
     }
-    
+
     var dir;
     // Use POST variable to establish endpoint
     // Note: Value is taken 'as-is', no AJAJ call is done to check correctness.
-    if (postVars.restEndpoint != "") 
+    if (postVars.restEndpoint !== "")
         dir = postVars.restEndpoint;
 
     // Tries to find endpoint by doing AJAJ calls to <ILIAS>/routes and <ILIAS>/restplugin.php
     // Whichever returns a success first will be used.
-    else 
-        // Find ILIAS main folder 
+    else
+        // Find ILIAS main folder
         dir = getInstallDir();
-        
+
     // Stores wether AJAJ call was successfull (true) or not (false) [null means not done]
     var apiPath = null;
     var phpPath = null;
-    
+
     // Initiate AJAJ call
     var apiQuery = $http.get(dir+restRoutesURL);
     var phpQuery = $http.get(dir+'/restplugin.php'+restRoutesURL);
-    
+
     // AJAJ call succeeded, save result and forward to promise (resolve)
     // Note: Also make sure, that promise is only resolved once.
     apiQuery.success(function(data, status, headers, config) {
         apiPath = true;
-        if (phpPath != true) {
+        if (phpPath !== true) {
             restEndpoint = dir;
             deferred.resolve(restEndpoint);
         }
     });
     phpQuery.success(function(data, status, headers, config) {
         phpPath = true;
-        if (apiPath != true) {
+        if (apiPath !== true) {
             restEndpoint = dir+"/restplugin.php";
             deferred.resolve(restEndpoint);
-        }                
+        }
     });
-    
+
     // AJAJ call failed, forward to promise (reject)
     // Note: Also make sure, that promise is only rejected once.
     apiQuery.error(function(data, status, headers, config) {
         apiPath = false;
-        if (phpPath == false) {
+        if (phpPath === false) {
             restEndpoint = null;
             deferred.reject("NoEndpoint");
         }
     });
     phpQuery.error(function(data, status, headers, config) {
         phpPath = false;
-        if (apiPath == false) {
+        if (apiPath === false) {
             restEndpoint = null;
             deferred.reject("NoEndpoint");
         }
@@ -251,13 +251,13 @@ services.factory('restEndpoint', function($q, $http, restRoutesURL) {
         // Promise that is resolved once endpoint was found
         // or rejected once no endpoint was found.
         promise: deferred.promise,
-        
+
         // Function to query found endpoint
         // Note: If promise got resolved this contains a valid endpoint!
         getEndpoint: function () {
             return restEndpoint;
         },
-        
+
         // Function that returns the ILIAS main folder
         getInstallDir: getInstallDir
     };
@@ -291,10 +291,10 @@ services.service('restAuthToken', function($resource, restTokenURL, restEndpoint
  *  Use .query({}, successFunction, failureFunction);
  *  Use .create({api_key, api_secret, oauth2_redirection_uri, oauth2_consent_message , permissions, oauth2_gt_client_active, oauth2_gt_client_user, oauth2_gt_authcode_active, oauth2_gt_implicit_active, oauth2_gt_resourceowner_active, oauth2_user_restriction_active, oauth2_consent_message_active, oauth2_authcode_refresh_active, oauth2_resource_refresh_active, access_user_csv}, successFunction, failureFunction);
  */
-services.service('restClients', function($resource, restClientsURL, restEndpoint) {    
+services.service('restClients', function($resource, restClientsURL, restEndpoint, authentication) {
     return $resource(restEndpoint.getEndpoint() + restClientsURL, {}, {
-        query: { method: 'GET', params: {}},
-        create: { method: 'POST', params: {} }
+        query: { method:  'GET',  params: {}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
+        create: { method: 'POST', params: {}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }}
     });
 });
 
@@ -305,12 +305,12 @@ services.service('restClients', function($resource, restClientsURL, restEndpoint
  *  Use .update({id, {api_key, api_secret, oauth2_redirection_uri, oauth2_consent_message , permissions, oauth2_gt_client_active, oauth2_gt_client_user, oauth2_gt_authcode_active, oauth2_gt_implicit_active, oauth2_gt_resourceowner_active, oauth2_user_restriction_active, oauth2_consent_message_active, oauth2_authcode_refresh_active, oauth2_resource_refresh_active, access_user_csv}}, successFunction, failureFunction);
  *  Use .delete({id}, successFunction, failureFunction);
  */
-services.service('restClient', function($resource, restClientURL, restEndpoint) {
+services.service('restClient', function($resource, restClientURL, restEndpoint, authentication) {
     return $resource(restEndpoint.getEndpoint() + restClientURL, {}, {
-        show: { method: 'GET' },
-        update: { method: 'PUT', params: {id: '@id'}},
+        show: {     method: 'GET',                         headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
+        update: {   method: 'PUT',    params: {id: '@id'}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
+        'delete': { method: 'DELETE', params: {id: '@id'}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
         // Note: Use array-notation to pamper the syntax-validator (delete is a keyword)
-        'delete': { method: 'DELETE', params: {id: '@id'}},
     });
 });
 
@@ -321,6 +321,6 @@ services.service('restClient', function($resource, restClientURL, restEndpoint) 
  */
 services.service('restRoutes', function($resource, restRoutesURL, restEndpoint) {
     return $resource(restEndpoint.getEndpoint() + restRoutesURL, {}, {
-        query: { method: 'GET', params: {} } 
+        query: { method: 'GET', params: {} }
     });
 });

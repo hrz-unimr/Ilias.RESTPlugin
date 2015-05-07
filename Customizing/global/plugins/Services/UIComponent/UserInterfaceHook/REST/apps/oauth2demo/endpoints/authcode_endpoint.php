@@ -3,10 +3,10 @@
     <head>
         <title>OAuth2: Authorization Code Endpoint</title>
     </head>
-    <body>    
+    <body>
 <?php
 /**
- * "My ILIAS (via OAuth2 - Authorization Code)" (start.php) will use this as 
+ * "My ILIAS (via OAuth2 - Authorization Code)" (start.php) will use this as
  * redirect after .../v1/oauth2/auth has generated a (temporary).
  * Authentification code, which can be used by the client (this file) to generate a
  * token via /v1/oauth2/token (see $postBody for POST body)
@@ -16,7 +16,7 @@
 require_once('../config.ini.php');
 
 // Exchange OAuth 2 authorization code for bearer token
-if (isset($_GET['code'])){ 
+if (isset($_GET['code'])){
     if (isset($_GET['make_curl_call'])) {
         // Protocol used for curl call
         if (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off') {
@@ -25,7 +25,7 @@ if (isset($_GET['code'])){
             $protocol = 'https://';
         }
 
-        // Redirection URL (but into body) 
+        // Redirection URL (but into body)
         $redirect_uri = $protocol . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF'];
         if ($_SERVER["SERVER_PORT"] != "80") {
             $redirect_uri = $protocol . $_SERVER['SERVER_NAME'] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER['PHP_SELF'];
@@ -39,7 +39,7 @@ if (isset($_GET['code'])){
             'api_secret' => $api_secret,
             'redirect_uri' => $redirect_uri
         );
-        
+
         // Endpoint (url) used for curl call
         $restUrl =  $subFolder. "/v1/oauth2/token";
 
@@ -51,10 +51,10 @@ if (isset($_GET['code'])){
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $curl_response = curl_exec($ch);
         curl_close($ch);
-        
+
         // Convert to array
         $decoded = json_decode($curl_response, true);
-        
+
         ?>
         <h3>OAuth2 Token via Authorization Code Workflow Retrieved!</h3>
         <pre>Bearer-Token: <?php echo (isset($decoded["access_token"])) ? $decoded["access_token"] : "[ ]"; ?></pre>
