@@ -34,7 +34,8 @@ class RESTRequest extends \Slim\Http\Request {
      * and look for the parameter there.
      */
     public function getParam($param, $default = null, $throw = false) {
-        if( ($ret = $this->app->request()->params($param)) == null){
+        $ret = $this->app->request()->params($param);
+        if($ret == null){
             $this->decodeJson();
 
             if ($this->json_arr != null and isset($this->json_arr[$param])) 
@@ -44,6 +45,8 @@ class RESTRequest extends \Slim\Http\Request {
             
             return $default;
         }
+        else
+            return $ret;
     }
 
     /**
