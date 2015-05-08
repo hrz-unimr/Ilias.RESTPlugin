@@ -27,6 +27,10 @@ class ClientsModel {
     protected function addPermissions($id, $perm_json) {
         global $ilDB;
 
+        // Remove old entries
+        $sql = sprintf('DELETE FROM ui_uihk_rest_perm WHERE api_id = %d', $id);
+        $ilDB->manipulate($sql);
+
         /*
          * *************************
          * RANT: (rot-13 for sanity)
@@ -66,7 +70,7 @@ class ClientsModel {
         $ilDB->manipulate($sql);
 
         // Add new entries
-        if (is_array($a_user_csv))
+        if (is_array($a_user_csv) && count($a_user_csv) > 0)
             foreach ($a_user_csv as $user_id) {
                 $a_columns = array(
                     "api_id" => array("integer", $api_key_id),
@@ -192,10 +196,10 @@ class ClientsModel {
         // Updated list of allowed users
         if (is_string($access_user_csv) && strlen($access_user_csv) > 0) {
             $csvArray = explode(',', $access_user_csv);
-            $this->fillApikeyUserMap($id, $csvArray);
+            $this->fillApikeyUserMap($insertId, $csvArray);
         }
         else
-            $this->fillApikeyUserMap($id);
+            $this->fillApikeyUserMap($insertId);
 
         // Return new api_id
         return $insertId;
@@ -214,11 +218,9 @@ class ClientsModel {
         global $ilDB;
 
         // Update permissions? (Separate table)
-        if (strtolower($fieldname) == "permissions") {
-            $sql = sprintf('DELETE FROM ui_uihk_rest_perm WHERE api_id = %d', $id);
-            $ilDB->manipulate($sql);
+        if (strtolower($fieldname) == "permissions")
             $this->addPermissions($id, stripslashes($newval));
-        }
+
         // Update allowed users? (Separate table)
         else if (strtolower($fieldname) == "access_user_csv") {
             // Updated list of allowed users
@@ -233,9 +235,10 @@ class ClientsModel {
         else {
             $sql = sprintf('UPDATE ui_uihk_rest_keys SET %s = "%s" WHERE id = %d', $fieldname, $newval, $id);
             $numAffRows = $ilDB->manipulate($sql);
-        }
 
-        return $numAffRows;
+            if ($numAffRows == 0)
+                throw Exceptions\SaveFailed::getPutException("No client with this api-key (api-id) found!", $id);
+        }
     }
 
 
@@ -264,8 +267,8 @@ class ClientsModel {
         $sql = sprintf('DELETE FROM ui_uihk_rest_oauth2 WHERE api_id = %d', $id);
         $ilDB->manipulate($sql);
 
-        // Return success-state
-        return $numAffRows;
+        if ($numAffRows == 0)
+            throw Exceptions\SaveFailed::getDeleteException("No client with this api-key (api-id) found!", $id);
     }
 
 

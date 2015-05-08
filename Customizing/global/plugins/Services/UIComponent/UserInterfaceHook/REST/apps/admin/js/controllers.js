@@ -316,6 +316,8 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
             // We will be reusing this code a bit below.
             var doUpdate = function () {
                 restClient.update({
+                        id: $scope.current.id
+                    }, {
                         api_key: $scope.current.api_key,
                         api_secret:$scope.current.api_secret,
                         oauth2_redirection_uri : $scope.current.oauth2_redirection_uri,

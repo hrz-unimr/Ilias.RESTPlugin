@@ -11,7 +11,8 @@ namespace RESTController\core\clients;
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
-use \RESTController\libs\Exceptions;
+use \RESTController\libs\Exceptions as LibExceptions;
+use \RESTController\core\clients\Exceptions as ClientExceptions;
 
 
 /**
@@ -69,8 +70,6 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
 
         // This fields will be updated (and nothing more!)
         $fields = array(
-            'api_key',
-            'api_secret',
             'oauth2_redirection_uri',
             'oauth2_consent_message',
             'permissions',
@@ -83,29 +82,36 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
             'oauth2_consent_message_active',
             'oauth2_authcode_refresh_active',
             'oauth2_resource_refresh_active',
-            'access_user_csv'
+            'access_user_csv',
+            'api_secret',
+            'api_key'
         );
 
         // Try to fetch each fields data and update its db-entry
+        $failed = array();
         foreach ($fields as $field) {
             try {
-                // Fetch request data
+                // Fetch request data (Throws exception to prevent updateClient call)
                 $api_key = $request->getParam($field, null, true);
 
                 // Update client
                 try {
                     $admin_model->updateClient($id, $field, $api_key);
-                } catch(Exceptions\SaveFailed $e) {
-                    $app->halt(500, sprintf("Could not (fully) update client. Failed to update Parameter: %s", $e->paramName()), ClientsModel::PUT_FAILED_ID);
+                } catch(ClientExceptions\SaveFailed $e) {
+                    $failed[] = sprintf("Could not (fully) update client. Failed to update Parameter: %s.", $e->paramName());
                 }
             }
             // Fail silently for "missing" parameters
-            catch (Exceptions\MissingParameter $e) {  }
+            catch (LibExceptions\MissingParameter $e) {  }
         }
 
-        // Send affirmation status
-        $result = array();
-        $app->success($result);
+        if (count($failed) > 0)
+            $app->halt(500, implode(' ', $failed), ClientExceptions\SaveFailed::PUT_FAILED_ID);
+        else {
+            // Send affirmation status
+            $result = array();
+            $app->success($result);
+        }
     }
     else
         $app->halt(401, "Access denied. Administrator permissions required.", RESTLib::NO_ADMIN_ID);
@@ -134,8 +140,8 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
         // Try/Catch all required inputs
         try {
             $new_api_key = $request->getParam('api_key', null, true);
-        } catch(Exceptions\MissingParameter $e) {
-            $app->halt(500, "Mandatory data is missing, parameter '" . $e.paramName() . "' not set.", Exceptions\MissingParameter::MISSING_PARAM_ID);
+        } catch(LibExceptions\MissingParameter $e) {
+            $app->halt(500, "Mandatory data is missing, parameter '" . $e.paramName() . "' not set.", LibExceptions\MissingParameter::MISSING_PARAM_ID);
         }
 
         // Get optional inputs
@@ -154,35 +160,31 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
         $oauth2_authcode_refresh_active = $request->getParam('oauth2_authcode_refresh_active', 0);
         $oauth2_resource_refresh_active = $request->getParam('oauth2_resource_refresh_active', 0);
 
-        try {
-            // Supply data to model which processes it further
-            $admin_model = new ClientsModel();
-            $new_id = $admin_model->createClient(
-                $new_api_key,
-                $new_api_secret,
-                $new_client_oauth2_redirect_url,
-                $new_client_oauth2_consent_message,
-                $oauth2_consent_message_active,
-                $new_client_permissions,
-                $oauth2_gt_client_active,
-                $oauth2_gt_authcode_active,
-                $oauth2_gt_implicit_active,
-                $oauth2_gt_resourceowner_active,
-                $oauth2_user_restriction_active,
-                $oauth2_gt_client_user,
-                $access_user_csv,
-                $oauth2_authcode_refresh_active,
-                $oauth2_resource_refresh_active
-            );
-            $app->log->debug('Result of createClient: '.$new_id);
+        // Supply data to model which processes it further
+        $admin_model = new ClientsModel();
+        $new_id = $admin_model->createClient(
+            $new_api_key,
+            $new_api_secret,
+            $new_client_oauth2_redirect_url,
+            $new_client_oauth2_consent_message,
+            $oauth2_consent_message_active,
+            $new_client_permissions,
+            $oauth2_gt_client_active,
+            $oauth2_gt_authcode_active,
+            $oauth2_gt_implicit_active,
+            $oauth2_gt_resourceowner_active,
+            $oauth2_user_restriction_active,
+            $oauth2_gt_client_user,
+            $access_user_csv,
+            $oauth2_authcode_refresh_active,
+            $oauth2_resource_refresh_active
+        );
+        $app->log->debug('Result of createClient: '.$new_id);
 
-            // Send affirmation status
-            $result = array();
-            $result['id'] = $new_id;
-            $app->success($result);
-        } catch(ClientsException $e) {
-            $app->halt(500, "Could not create new client.", ClientsModel::POST_FAILED_ID);
-        }
+        // Send affirmation status
+        $result = array();
+        $result['id'] = $new_id;
+        $app->success($result);
     }
     else
         $app->halt(401, "Access denied. Administrator permissions required.", RESTLib::NO_ADMIN_ID);
@@ -213,8 +215,8 @@ $app->delete('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateT
             // Send affirmation status
             $result = array();
             $app->success($result);
-        } catch(ClientsException $e) {
-            $app->halt(500, "Could not delete client with id: " . $e->id(), ClientsModel::DELETE_FAILED_ID);
+        } catch(ClientExceptions\SaveFailed $e) {
+            $app->halt(500, "Could not delete client with id: " . $e->id(), ClientExceptions\SaveFailed::DELETE_FAILED_ID);
         }
     }
     else

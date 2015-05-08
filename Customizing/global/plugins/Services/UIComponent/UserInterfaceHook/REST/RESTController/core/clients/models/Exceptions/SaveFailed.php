@@ -5,7 +5,7 @@
  * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
-namespace RESTController\core\clients;
+namespace RESTController\core\clients\Exceptions;
 
 
 /**
@@ -18,14 +18,14 @@ class SaveFailed extends \Exception {
      *  Using a unique string seems to be an easier solution than assigning unique numbers.
      */
     const DELETE_FAILED_ID = "RESTController\core\clients\ClientsModel::DELETE_FAILED_ID";
-    const POST_FAILED_ID = "RESTController\core\clients\ClientsModel::POST_FAILED_ID";
     const PUT_FAILED_ID = "RESTController\core\clients\ClientsModel::PUT_FAILED_ID";
 
 
     /**
-     * Stores parameter name for the problematic parameter
+     * Stores parameter name for the problematic parameter & api-id of client causing DELETE issue
      */
     protected $paramName;
+    protected $id;
 
 
     /**
@@ -44,6 +44,13 @@ class SaveFailed extends \Exception {
         return $this->paramName;
     }
 
+    /**
+     * Get api-id of client that caused the DELETE issue
+     */
+    public function id() {
+        return $this->id;
+    }
+
 
     /**
      * Creates a new PUT exception, by creating a new SaveFailed exception
@@ -52,6 +59,18 @@ class SaveFailed extends \Exception {
     public static function getPutException($message, $paramName, $code = 0, $previous = NULL) {
         $exception = new SaveFailed($message, $code, $previous);
         $exception->paramName = $paramName;
+
+        return $exception;
+    }
+
+
+    /**
+     * Creates a new DELETE exception, by creating a new SaveFailed exception
+     * and storing the api-id.
+     */
+    public static function getDeleteException($message, $id, $code = 0, $previous = NULL) {
+        $exception = new SaveFailed($message, $code, $previous);
+        $exception->id = $id;
 
         return $exception;
     }
