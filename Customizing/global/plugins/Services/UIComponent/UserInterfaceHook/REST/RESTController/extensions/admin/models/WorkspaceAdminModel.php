@@ -5,18 +5,18 @@
  * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
-namespace RESTController\extensions\mobile_v1;
+namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
-use \ilObjUser, \ilWorkspaceTree
+use \ilObjUser, \ilWorkspaceTree, \ilObjectFactory;
 
 
 require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
 require_once("./Services/User/classes/class.ilObjUser.php");
-
+require_once("./Services/Object/classes/class.ilObjectFactory.php");
 
 class WorkspaceAdminModel
 {
