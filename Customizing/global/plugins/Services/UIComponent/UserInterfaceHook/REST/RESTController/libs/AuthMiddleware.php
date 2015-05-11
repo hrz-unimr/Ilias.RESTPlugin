@@ -36,7 +36,7 @@ namespace RESTController\libs;
      */
     public static function authenticate(\Slim\Route $route) {
         // Fetch instance of SLIM-Framework and HTTP request
-        $app = \Slim\Slim::getInstance();
+        $app = \RESTController\RESTController::getInstance();
         $request = $app->request();
 
         // Authentication by client certificate
@@ -84,7 +84,7 @@ namespace RESTController\libs;
         self::checkToken();
 
         // Fetch instance of SLIM-Framework
-        $app = \Slim\Slim::getInstance();
+        $app = \RESTController\RESTController::getInstance();
         $env = $app->environment();
 
         // Check if given user has admin-role ($env['user'] is set by checkToken())
@@ -111,7 +111,7 @@ namespace RESTController\libs;
      */
     protected static function checkToken() {
         // Fetch instance of SLIM-Framework and HTTP request
-        $app = \Slim\Slim::getInstance();
+        $app = \RESTController\RESTController::getInstance();
         $request = $app->request();
 
         // Fetch token from body (as POST data)
@@ -183,7 +183,7 @@ namespace RESTController\libs;
      */
     protected static function checkRoutePermissions($route) {
         // Fetch instance of SLIM-Framework and HTTP request
-        $app = \Slim\Slim::getInstance();
+        $app = \RESTController\RESTController::getInstance();
         $env = $app->environment();
 
         // Fetch data to check route access

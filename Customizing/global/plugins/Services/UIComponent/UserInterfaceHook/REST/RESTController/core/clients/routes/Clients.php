@@ -11,26 +11,60 @@ namespace RESTController\core\clients;
 use \RESTController\libs as Lib;
 use \RESTController\libs\Exceptions as LibExceptions;
 use \RESTController\core\clients\Exceptions as ClientExceptions;
+// Requires <$app = \RESTController\RESTController::getInstance()>
 
 
 /**
  * Route: /clients
+ * Description:
+ *  Returns a list of all REST clients and their settings.
  * Method: GET
  * Auth: authenticateTokenOnly
- * Head-Parameters:
- * Body-Parameters:
+ * Parameters:
  * Response:
+ *  {
+ *    clients: [
+ *      {
+ *        api_key: "<API-Key of client>",
+ *        api_secret: "<API-Secret of client>",
+ *        client_oauth2_consent_message: "<OAuth2 Consent-Message of client>",
+ *        client_permissions: [
+ *          {
+ *            pattern: "<Route-URI>"
+ *            verb: "<GET, POST, PUT or DELETE>"
+ *          },
+ *          ...
+ *        ],
+ *        client_oauth2_redirect_url: "<OAuth2 redirect-url of client>",
+ *        oauth2_gt_client_user: "<OAuth Resource-Owner of client>",
+ *        access_user_csv: [
+ *          <ILIAS User-Id>,
+ *          ...
+ *        ], <Allowed ILIAS users for this client>
+ *        oauth2_gt_client_active: "<OAuth2 use client-credentials of client>",
+ *        oauth2_gt_authcode_active: "<OAuth2 use authentification-code of client>",
+ *        oauth2_gt_implicit_active: "<OAuth2 use implicit-grant ofclient>",
+ *        oauth2_gt_resourceowner_active: "<OAuth2 use resource-owner of client>",
+ *        oauth2_user_restriction_active: "<OAuth2 restrict to certain user of client>",
+ *        oauth2_consent_message_active: "<OAuth2 Consent-Message of client>",
+ *        oauth2_authcode_refresh_active: "<OAuth2 enable refresh-token for authentification-code of client>",
+ *        oauth2_resource_refresh_active: "<OAuth2 enable refresh-token for resource-owner of client>"
+ *      },
+ *      ...
+ *    ],
+ *    status: "<Success or Failure>"
+ *  }
  */
-$app->get('/clients', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly',  function () use ($app) {
+ $app->get('/clients', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly',  function () use ($app) {
     // Fetch authorized user
     $env = $app->environment();
     $user = $env['user'];
 
     // Check if user has admin role
-    if (Lib\RESTLib::isAdminByUsername($user)) {
+    if (RESTLib::isAdminByUsername($user)) {
         // Use the model class to fetch data
-        $admin_model = new ClientsModel();
-        $data = $admin_model->getClients();
+        $model = new Clients($app, $ilDB);
+        $data = $model->getClients();
 
         // Prepare data
         $result = array();
@@ -39,18 +73,48 @@ $app->get('/clients', '\RESTController\libs\AuthMiddleware::authenticateTokenOnl
         // Send data
         $app->success($result);
     }
-    else
-        $app->halt(401, "Access denied. Administrator permissions required.", Lib\RESTLib::NO_ADMIN_ID);
 });
 
 
 /**
- * Route: /clients
+ * Route: /clients/:id
+ *  id: <Internal id (api-id) of the client that should be updated>
+ * Description:
+ *  Updates an existing REST client with new settings.
  * Method: PUT
  * Auth: authenticateTokenOnly
- * Head-Parameters:
- * Body-Parameters:
+ * Parameters:
+ *  {
+ *    api_key: "<API-Key for new client>", <OPTIONAL>
+ *    api_secret: "<API-Secret for new client>", <OPTIONAL>
+ *    client_oauth2_consent_message: "<OAuth2 Consent-Message for new client>", <OPTIONAL>
+ *    client_permissions: [
+ *      {
+ *        pattern: "<Route-URI>"
+ *        verb: "<GET, POST, PUT or DELETE>"
+ *      },
+ *      ...
+ *    ], <OPTIONAL>
+ *    client_oauth2_redirect_url: "<OAuth2 redirect-url for new client>", <OPTIONAL>
+ *    oauth2_gt_client_user: "<OAuth Resource-Owner for new client>", <OPTIONAL>
+ *    access_user_csv: [
+ *      <ILIAS User-Id>,
+ *      ...
+ *    ], <OPTIONAL>
+ *    oauth2_gt_client_active: "<OAuth2 use client-credentials for new client>", <OPTIONAL>
+ *    oauth2_gt_authcode_active: "<OAuth2 use authentification-code for new client>", <OPTIONAL>
+ *    oauth2_gt_implicit_active: "<OAuth2 use implicit-grant for new client>", <OPTIONAL>
+ *    oauth2_gt_resourceowner_active: "<OAuth2 use resource-owner for new client>", <OPTIONAL>
+ *    oauth2_user_restriction_active: "<OAuth2 restrict to certain user for new client>", <OPTIONAL>
+ *    oauth2_consent_message_active: "<OAuth2 Consent-Message for new client>", <OPTIONAL>
+ *    oauth2_authcode_refresh_active: "<OAuth2 enable refresh-token for authentification-code for new client>", <OPTIONAL>
+ *    oauth2_resource_refresh_active: "<OAuth2 enable refresh-token for resource-owner for new client>" <OPTIONAL>
+ *  }
  * Response:
+ *  {
+ *    id: <Internal id (api-id) of new client>,
+ *    status: "<Success or Failure>"
+ *  }
  */
 $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly',  function ($id) use ($app) {
     // Fetch authorized user
@@ -61,10 +125,9 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
     if (Lib\RESTLib::isAdminByUsername($user)) {
         // Shortcut for request object
         $request = $app->request;
-        $app->log->debug("Update data: " . print_r($request->getRaw(), true));
 
         // Use model to update database
-        $admin_model = new ClientsModel();
+        $model = new Clients($app, $ilDB);
 
         // This fields will be updated (and nothing more!)
         $fields = array(
@@ -94,7 +157,7 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
 
                 // Update client
                 try {
-                    $admin_model->updateClient($id, $field, $api_key);
+                    $model->updateClient($id, $field, $api_key);
                 } catch(ClientExceptions\SaveFailed $e) {
                     $failed[] = sprintf("Could not (fully) update client. Failed to update Parameter: %s.", $e->paramName());
                 }
@@ -118,11 +181,44 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
 
 /**
  * Route: /clients
+ * Description:
+ *  Creates a new client with the parameters that are passes along.
+ *  Default values are used for missing optional parameters.
+ *  Also returns the new clients id (api-id).
  * Method: POST
  * Auth: authenticateTokenOnly
- * Head-Parameters:
- * Body-Parameters:
+ * Parameters:
+ *  {
+ *    api_key: "<API-Key for new client>",
+ *    api_secret: "<API-Secret for new client>", <OPTIONAL>
+ *    client_oauth2_consent_message: "<OAuth2 Consent-Message for new client>", <OPTIONAL>
+ *    client_permissions: [
+ *      {
+ *        pattern: "<Route-URI>"
+ *        verb: "<GET, POST, PUT or DELETE>"
+ *      },
+ *      ...
+ *    ], <OPTIONAL>
+ *    client_oauth2_redirect_url: "<OAuth2 redirect-url for new client>", <OPTIONAL>
+ *    oauth2_gt_client_user: "<OAuth Resource-Owner for new client>", <OPTIONAL>
+ *    access_user_csv: [
+ *      <ILIAS User-Id>,
+ *      ...
+ *    ], <OPTIONAL>
+ *    oauth2_gt_client_active: "<OAuth2 use client-credentials for new client>", <OPTIONAL>
+ *    oauth2_gt_authcode_active: "<OAuth2 use authentification-code for new client>", <OPTIONAL>
+ *    oauth2_gt_implicit_active: "<OAuth2 use implicit-grant for new client>", <OPTIONAL>
+ *    oauth2_gt_resourceowner_active: "<OAuth2 use resource-owner for new client>", <OPTIONAL>
+ *    oauth2_user_restriction_active: "<OAuth2 restrict to certain user for new client>", <OPTIONAL>
+ *    oauth2_consent_message_active: "<OAuth2 Consent-Message for new client>", <OPTIONAL>
+ *    oauth2_authcode_refresh_active: "<OAuth2 enable refresh-token for authentification-code for new client>", <OPTIONAL>
+ *    oauth2_resource_refresh_active: "<OAuth2 enable refresh-token for resource-owner for new client>" <OPTIONAL>
+ *  }
  * Response:
+ *  {
+ *    id: <Internal id (api-id) of new client>,
+ *    status: "<Success or Failure>"
+ *  }
  */
 $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly', function () use ($app) {
     // Fetch authorized user
@@ -133,20 +229,19 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
     if (Lib\RESTLib::isAdminByUsername($user)) {
         // Shortcut for request object
         $request = $app->request();
-        $app->log->debug("Request data (Create Client): " . print_r($request->getRaw(), true));
 
         // Try/Catch all required inputs
         try {
-            $new_api_key = $request->getParam('api_key', null, true);
+            $api_key = $request->getParam('api_key', null, true);
         } catch(LibExceptions\MissingParameter $e) {
             $app->halt(500, "Mandatory data is missing, parameter '" . $e.paramName() . "' not set.", LibExceptions\MissingParameter::MISSING_PARAM_ID);
         }
 
         // Get optional inputs
-        $new_api_secret = $request->getParam('api_secret', '');
-        $new_client_oauth2_consent_message = $request->getParam('oauth2_consent_message', '');
-        $new_client_permissions = $request->getParam('permissions', '');
-        $new_client_oauth2_redirect_url = $request->getParam('oauth2_redirection_uri', '');
+        $api_secret = $request->getParam('api_secret', '');
+        $client_oauth2_consent_message = $request->getParam('oauth2_consent_message', '');
+        $client_permissions = $request->getParam('permissions', '');
+        $client_oauth2_redirect_url = $request->getParam('oauth2_redirection_uri', '');
         $oauth2_gt_client_user = $request->getParam('oauth2_gt_client_user', '');
         $access_user_csv = $request->getParam('access_user_csv', '');
         $oauth2_gt_client_active = $request->getParam('oauth2_gt_client_active', 0);
@@ -159,14 +254,14 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
         $oauth2_resource_refresh_active = $request->getParam('oauth2_resource_refresh_active', 0);
 
         // Supply data to model which processes it further
-        $admin_model = new ClientsModel();
-        $new_id = $admin_model->createClient(
-            $new_api_key,
-            $new_api_secret,
-            $new_client_oauth2_redirect_url,
-            $new_client_oauth2_consent_message,
+        $model = new Clients($app, $ilDB);
+        $new_id = $model->createClient(
+            $api_key,
+            $api_secret,
+            $client_oauth2_redirect_url,
+            $client_oauth2_consent_message,
             $oauth2_consent_message_active,
-            $new_client_permissions,
+            $client_permissions,
             $oauth2_gt_client_active,
             $oauth2_gt_authcode_active,
             $oauth2_gt_implicit_active,
@@ -177,7 +272,6 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
             $oauth2_authcode_refresh_active,
             $oauth2_resource_refresh_active
         );
-        $app->log->debug('Result of createClient: '.$new_id);
 
         // Send affirmation status
         $result = array();
@@ -191,12 +285,16 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
 
 /**
  * Route: /clients/:id
- *  :id
- * Method: GET
+ *  :id - Internal client id (api-id) the should be removed
+ * Description:
+ *  Deletes the REST client given by :id (api-id).
+ * Method: DELETE
  * Auth: authenticateTokenOnly
- * Head-Parameters:
- * Body-Parameters:
+ * Parameters:
  * Response:
+ *  {
+ *    status: "<Success or Failure>"
+ *  }
  */
 $app->delete('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly',  function ($id) use ($app) {
     // Fetch authorized user
@@ -207,8 +305,8 @@ $app->delete('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateT
     if (Lib\RESTLib::isAdminByUsername($user)) {
         try {
             // Use the model class to update databse
-            $admin_model = new ClientsModel();
-            $admin_model->deleteClient($id);
+            $model = new Clients($app, $ilDB);
+            $model->deleteClient($id);
 
             // Send affirmation status
             $result = array();
@@ -219,64 +317,4 @@ $app->delete('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateT
     }
     else
         $app->halt(401, "Access denied. Administrator permissions required.", Lib\RESTLib::NO_ADMIN_ID);
-});
-
-
-/**
- * Route: /routes
- * Method: GET
- * Auth: none
- * Head-Parameters:
- * Body-Parameters:
- * Response:
- */
-$app->get('/routes', function () use ($app) {
-    // Fetch all available routes
-    $routes = $app->router()->getRoutes();
-
-    // Build up response data
-    $resultRoutes = array();
-    foreach($routes as $route) {
-        // Format/Get data
-        $multiVerbs = $route->getHttpMethods();
-        $verb = $multiVerbs[0];
-        $middle = $route->getMiddleware();
-
-        // Pack data
-        $resultRoutes[] = array(
-            "pattern" => $route->getPattern(),
-            "verb" => $verb,
-            "middleware" => (isset($middle[0]) ? $middle[0] : "none")
-        );
-    }
-
-    // Wrap routes into array
-    $result = array();
-    $result['routes'] = $resultRoutes;
-
-    // Send data
-    $app->success($result);
-});
-
-
-/**
- * Route: /rest/config
- * Method: GET
- * Auth: none
- * Head-Parameters:
- * Body-Parameters:
- * Response:
- */
-$app->get('/rest/config', function () use ($app) {
-    // Find plugin directory (REST)
-    $env = $app->environment();
-    $pluginDir = dirname($env['app_directory']);
-
-    // Find base directory (ILIAS)
-    $baseDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-    $baseDir = ($baseDir == '/' ? '' : $baseDir);
-
-    // Build full directory
-    $apDir = $baseDir . "/" . $pluginDir . '/apps/admin/';
-    $app->redirect($apDir);
 });

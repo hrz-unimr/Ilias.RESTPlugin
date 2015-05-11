@@ -14,7 +14,7 @@ use \RESTController\libs as Lib;
 /**
  *
  */
-class ClientsModel {
+class Clients extends Lib\RESTModel {
     /**
      * Will add all permissions given by $perm_json to the ui_uihk_rest_perm table for the api_key with $id.
      *
@@ -24,11 +24,9 @@ class ClientsModel {
      *  @return NULL
      */
     protected function addPermissions($id, $perm) {
-        global $ilDB;
-
         // Remove old entries
         $sql = sprintf('DELETE FROM ui_uihk_rest_perm WHERE api_id = %d', $id);
-        $ilDB->manipulate($sql);
+        $this->sqlDB->manipulate($sql);
 
         /*
          * *************************
@@ -48,7 +46,7 @@ class ClientsModel {
                     "pattern" => array("text", $value["pattern"]),
                     "verb" => array("text", $value["verb"])
                 );
-                $ilDB->insert("ui_uihk_rest_perm", $perm_columns);
+                $this->sqlDB->insert("ui_uihk_rest_perm", $perm_columns);
             }
     }
 
@@ -61,11 +59,9 @@ class ClientsModel {
      * @param $a_user_csv
      */
     protected function fillApikeyUserMap($api_key_id, $a_user_csv = NULL) {
-        global $ilDB;
-
         // Remove old entries
         $sql = sprintf('DELETE FROM ui_uihk_rest_keymap WHERE api_id = %d', $api_key_id);
-        $ilDB->manipulate($sql);
+        $this->sqlDB->manipulate($sql);
 
         // Add new entries
         if (is_array($a_user_csv) && count($a_user_csv) > 0)
@@ -74,7 +70,7 @@ class ClientsModel {
                     "api_id" => array("integer", $api_key_id),
                     "user_id" => array("integer", $user_id)
                 );
-                $ilDB->insert("ui_uihk_rest_keymap", $a_columns);
+                $this->sqlDB->insert("ui_uihk_rest_keymap", $a_columns);
             }
     }
 
@@ -87,13 +83,11 @@ class ClientsModel {
      * @return bool
      */
     protected function is_oauth2_grant_type_enabled($api_key, $grant_type) {
-        global $ilDB;
-
         // Check if given grant_type is enabled
         $query = sprintf('SELECT %s FROM ui_uihk_rest_keys WHERE api_key = %d', $grant_type, $api_key);
-        $set = $ilDB->query($query);
-        if ($ilDB->numRows($set) > 0) {
-            $row = $ilDB->fetchAssoc($set);
+        $set = $this->sqlDB->query($query);
+        if ($this->sqlDB->numRows($set) > 0) {
+            $row = $this->sqlDB->fetchAssoc($set);
             if ($row[$grant_type] == 1)
                 return true;
         }
@@ -107,15 +101,13 @@ class ClientsModel {
      * @return bool
      */
     public function getClients() {
-        global $ilDB;
-
         // Will store result
         $res = array();
 
         // Query all api-keys
         $queryKeys = 'SELECT * FROM ui_uihk_rest_keys ORDER BY id';
-        $setKeys = $ilDB->query($queryKeys);
-        while($rowKeys = $ilDB->fetchAssoc($setKeys)) {
+        $setKeys = $this->sqlDB->query($queryKeys);
+        while($rowKeys = $this->sqlDB->fetchAssoc($setKeys)) {
             $id = $rowKeys['id'];
 
             // Will store permission
@@ -123,8 +115,8 @@ class ClientsModel {
 
             // Query api-key permissions
             $queryPerm = sprintf('SELECT pattern, verb FROM ui_uihk_rest_perm WHERE api_id = %d', $id);
-            $setPerm = $ilDB->query($queryPerm);
-            while($rowPerm = $ilDB->fetchAssoc($setPerm))
+            $setPerm = $this->sqlDB->query($queryPerm);
+            while($rowPerm = $this->sqlDB->fetchAssoc($setPerm))
                 $perm[] = $rowPerm;
             $rowKeys['permissions'] = $perm;
 
@@ -133,8 +125,8 @@ class ClientsModel {
 
             // fetch allowd users for api-key
             $queryCSV = sprintf('SELECT user_id FROM ui_uihk_rest_keymap WHERE api_id = %d', $id);
-            $setCSV = $ilDB->query($queryCSV);
-            while($rowCSV = $ilDB->fetchAssoc($setCSV))
+            $setCSV = $this->sqlDB->query($queryCSV);
+            while($rowCSV = $this->sqlDB->fetchAssoc($setCSV))
                 $csv[] = $rowCSV['user_id'];
             $rowKeys['access_user_csv'] = $csv;
 
@@ -167,8 +159,6 @@ class ClientsModel {
         $oauth2_authcode_refresh_active,
         $oauth2_resource_refresh_active
     ) {
-        global $ilDB;
-
         // Add client with given settings
         $a_columns = array(
             "api_key" => array("text", $api_key),
@@ -185,8 +175,8 @@ class ClientsModel {
             "oauth2_authcode_refresh_active" => array("integer", $oauth2_authcode_refresh_active),
             "oauth2_resource_refresh_active" => array("integer", $oauth2_resource_refresh_active)
         );
-        $ilDB->insert("ui_uihk_rest_keys", $a_columns);
-        $insertId = $ilDB->getLastInsertId();
+        $this->sqlDB->insert("ui_uihk_rest_keys", $a_columns);
+        $insertId = $this->sqlDB->getLastInsertId();
 
         // Add permissions to separate table
         $this->addPermissions($insertId, $permissions);
@@ -213,8 +203,6 @@ class ClientsModel {
      * @return mixed
      */
     public function updateClient($id, $fieldname, $newval) {
-        global $ilDB;
-
         // Update permissions? (Separate table)
         if (strtolower($fieldname) == "permissions")
             $this->addPermissions($id, $newval);
@@ -232,7 +220,7 @@ class ClientsModel {
         // Update any other field...
         else {
             $sql = sprintf('UPDATE ui_uihk_rest_keys SET %s = "%s" WHERE id = %d', $fieldname, $newval, $id);
-            $numAffRows = $ilDB->manipulate($sql);
+            $numAffRows = $this->sqlDB->manipulate($sql);
 
             if ($numAffRows === false)
                 throw Exceptions\SaveFailed::getPutException("No client with this api-key (api-id) found!", $fieldname);
@@ -247,23 +235,21 @@ class ClientsModel {
      * @return mixed
      */
     public function deleteClient($id) {
-        global $ilDB;
-
         // Delete acutal client
         $sql = sprintf('DELETE FROM ui_uihk_rest_keys WHERE id = %d', $id);
-        $numAffRows = $ilDB->manipulate($sql);
+        $numAffRows = $this->sqlDB->manipulate($sql);
 
         // Delete all his permissions
         $sql = sprintf('DELETE FROM ui_uihk_rest_perm WHERE api_id = %d', $id);
-        $ilDB->manipulate($sql);
+        $this->sqlDB->manipulate($sql);
 
         // Delete list of allowed users
         $sql = sprintf('DELETE FROM ui_uihk_rest_keymap WHERE api_id = %d', $id);
-        $ilDB->manipulate($sql);
+        $this->sqlDB->manipulate($sql);
 
         // Delete oauth tokens
         $sql = sprintf('DELETE FROM ui_uihk_rest_oauth2 WHERE api_id = %d', $id);
-        $ilDB->manipulate($sql);
+        $this->sqlDB->manipulate($sql);
 
         if ($numAffRows === false)
             throw Exceptions\SaveFailed::getDeleteException("No client with this api-key (api-id) found!", $id);
@@ -277,12 +263,10 @@ class ClientsModel {
      * @return mixed
      */
     public function getClientCredentialsUser($api_key) {
-        global $ilDB;
-
         // Fetch client-credentials for api-key
         $query = sprintf('SELECT id, oauth2_gt_client_user FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
-        $set = $ilDB->query($query);
-        $row = $ilDB->fetchAssoc($set);
+        $set = $this->sqlDB->query($query);
+        $row = $this->sqlDB->fetchAssoc($set);
         return $row['oauth2_gt_client_user'];
     }
 
@@ -295,12 +279,10 @@ class ClientsModel {
      * @return array
      */
     public function getAllowedUsersForApiKey($api_key) {
-        global $ilDB;
-
         // Fetch api_id for api-key
         $query = sprintf('SELECT id, oauth2_user_restriction_active FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
-        $set = $ilDB->query($query);
-        $row = $ilDB->fetchAssoc($set);
+        $set = $this->sqlDB->query($query);
+        $row = $this->sqlDB->fetchAssoc($set);
         $id = $row['id'];
 
         // Check restrictions
@@ -310,8 +292,8 @@ class ClientsModel {
 
             // Fetch allowed users
             $query2 = sprintf('SELECT user_id FROM ui_uihk_rest_keymap WHERE api_id = "%s"', $id);
-            $set2 = $ilDB->query($query2);
-            while($row2 = $ilDB->fetchAssoc($set2))
+            $set2 = $this->sqlDB->query($query2);
+            while($row2 = $this->sqlDB->fetchAssoc($set2))
                 $a_user_ids[] = (int)$row2['user_id'];
 
             // Return allowed users
@@ -330,12 +312,10 @@ class ClientsModel {
      * @return bool
      */
     public function clientExists($api_key) {
-        global $ilDB;
-
         // Fetch client with given api-key (checks existance)
         $query = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
-        $set = $ilDB->query($query);
-        if ($ilDB->numRows($set) > 0)
+        $set = $this->sqlDB->query($query);
+        if ($this->sqlDB->numRows($set) > 0)
             return true;
         return false;
     }
@@ -393,13 +373,11 @@ class ClientsModel {
      * @return bool
      */
     public function is_oauth2_consent_message_enabled($api_key) {
-        global $ilDB;
-
         // Query if client with this aki-key has an oauth2 consent-message set
         $query = sprintf('SELECT oauth2_consent_message_active FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
-        $set = $ilDB->query($query);
-        if ($ilDB->numRows($set) > 0) {
-            $row = $ilDB->fetchAssoc($set);
+        $set = $this->sqlDB->query($query);
+        if ($this->sqlDB->numRows($set) > 0) {
+            $row = $this->sqlDB->fetchAssoc($set);
             if ($row['oauth2_consent_message_active'] == 1)
                 return true;
         }
@@ -414,13 +392,11 @@ class ClientsModel {
      * @return string
      */
     public function getOAuth2ConsentMessage($api_key) {
-        global $ilDB;
-
         // Fetch ouath2 consent-message for client with given api-key
         $query = sprintf('SELECT oauth2_consent_message FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
-        $set = $ilDB->query($query);
-        if ($ilDB->numRows($set) > 0) {
-            $row = $ilDB->fetchAssoc($set);
+        $set = $this->sqlDB->query($query);
+        if ($this->sqlDB->numRows($set) > 0) {
+            $row = $this->sqlDB->fetchAssoc($set);
             return $row['oauth2_consent_message'];
         }
         return "";
@@ -434,13 +410,11 @@ class ClientsModel {
      * @return bool
      */
     public function is_authcode_refreshtoken_enabled($api_key) {
-        global $ilDB;
-
         // Query if client with this aki-key has oauth2 refresh-tokens enabled (for authentification-code)
         $query = sprintf('SELECT oauth2_authcode_refresh_active FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
-        $set = $ilDB->query($query);
-        if ($ilDB->numRows($set) > 0) {
-            $row = $ilDB->fetchAssoc($set);
+        $set = $this->sqlDB->query($query);
+        if ($this->sqlDB->numRows($set) > 0) {
+            $row = $this->sqlDB->fetchAssoc($set);
             if ($row['oauth2_authcode_refresh_active'] == 1)
                 return true;
         }
@@ -455,13 +429,11 @@ class ClientsModel {
      * @return bool
      */
     public function is_resourceowner_refreshtoken_enabled($api_key) {
-        global $ilDB;
-
         // Query if client with this aki-key has oauth2 refresh-tokens enabled (for resource-owner)
         $query = sprintf('SELECT oauth2_resource_refresh_active FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
-        $set = $ilDB->query($query);
-        if ($ilDB->numRows($set) > 0) {
-            $row = $ilDB->fetchAssoc($set);
+        $set = $this->sqlDB->query($query);
+        if ($this->sqlDB->numRows($set) > 0) {
+            $row = $this->sqlDB->fetchAssoc($set);
             if ($row['oauth2_resource_refresh_active'] == 1)
                 return true;
         }

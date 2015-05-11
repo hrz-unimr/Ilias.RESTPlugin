@@ -8,37 +8,50 @@
 namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+use \RESTController\libs as Lib;
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// OAuth 2.0 Support
-// Server implementations:
-// (1) authorization endpoint
-// (2) token endpoint
-// see http://tools.ietf.org/html/rfc6749
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Group as version-1 implementation
+$app->group('/v1', function () use ($app) {
 
+// Group as oauth2 implementation
+$app->group('/oauth2', function () use ($app) {
 
-/*
- * Authorization Endpoint
- * RCF6749: "The authorization endpoint is used by the grant type:
- *  - authorization code grant and
- *  - implicit grant type flows."
+/**
+ * Route: /v1/oauth2/auth
+ * Description:
+ *  (RCF6749) Authorization Endpoint, used by the following grant-types:
+ *   - authorization code grant
+ *   - implicit grant type flows
+ *  See http://tools.ietf.org/html/rfc6749
+ * Method: POST
+ * Auth:
+ * Parameters:
+ * Response:
  */
-$app->post('/v1/oauth2/auth', function () use ($app) {
+$app->post('/auth', function () use ($app) {
     $model = new OAuth2Model();
     $request = $app->request();
     $response_type = $request->params('response_type');
 
-    if ($response_type == "code"){ // authorization grant
+    // Type: Authorization grant
+    if ($response_type == "code")
         $model->handleAuthorizationEndpoint_authorizationCode($app);
-    } elseif ($response_type == "token") { // implicit grant
+    // Type: Implicit grant
+    elseif ($response_type == "token")
         $model->handleAuthorizationEndpoint_implicitGrant($app);
-    }
 });
 
+
+/**
+ * Route:
+ * Description:
+ *
+ * Method:
+ * Auth:
+ * Parameters:
+ * Response:
+ */
 /*
  * Authorization Endpoint - GET part.
  *
@@ -46,7 +59,7 @@ $app->post('/v1/oauth2/auth', function () use ($app) {
  * s.t. clients can initiate the "authorization or implicit grant flow" with a GET request.
  * The flow after calling "oauth2loginform" continues with the POST version of "oauth2/auth".
  */
-$app->get('/v1/oauth2/auth', function () use ($app) {
+$app->get('/auth', function () use ($app) {
     $request = $app->request();
     $apikey = $_GET['api_key']; // Issue: Standard ILIAS Init absorbs client_id GET request field
     $client_redirect_uri = $_GET['redirect_uri'];
@@ -55,8 +68,8 @@ $app->get('/v1/oauth2/auth', function () use ($app) {
     if ($response_type == "code") {
         if ($apikey && $client_redirect_uri && $response_type){
             OAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
-                'api_key' => $apikey, 
-                'redirect_uri' => $client_redirect_uri, 
+                'api_key' => $apikey,
+                'redirect_uri' => $client_redirect_uri,
                 'response_type' => $response_type
             ));
         }
@@ -64,14 +77,24 @@ $app->get('/v1/oauth2/auth', function () use ($app) {
     } else if ($response_type == "token") { // implicit grant
         if ($apikey && $client_redirect_uri && $response_type){
             OAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
-                'api_key' => $apikey, 
-                'redirect_uri' => $client_redirect_uri, 
+                'api_key' => $apikey,
+                'redirect_uri' => $client_redirect_uri,
                 'response_type' => $response_type
             ));
         }
     }
 });
 
+
+/**
+ * Route:
+ * Description:
+ *
+ * Method:
+ * Auth:
+ * Parameters:
+ * Response:
+ */
 /*
  * Token Endpoint
  *
@@ -82,32 +105,41 @@ $app->get('/v1/oauth2/auth', function () use ($app) {
  *
  * see http://tools.ietf.org/html/rfc6749
 */
-$app->post('/v1/oauth2/token', function () use ($app) {
-    $request = new RESTRequest($app);
+$app->post('/token', function () use ($app) {
+    $request = new Lib\RESTRequest($app);
     $model = new OAuth2Model();
-    
+
     $app->log->debug("Entering Token-Endpoint ... GC: ".$request->getParam('grant_type'));
     if ($request->getParam('grant_type') == "password")
         $model->handleTokenEndpoint_userCredentials($app, $request);
-    elseif ($request->getParam('grant_type') == "client_credentials") 
+    elseif ($request->getParam('grant_type') == "client_credentials")
         $model->handleTokenEndpoint_clientCredentials($app, $request);
-    elseif ($request->getParam('grant_type') == "authorization_code") 
+    elseif ($request->getParam('grant_type') == "authorization_code")
         $model->handleTokenEndpoint_authorizationCode($app, $request);
-    elseif ($request->getParam('grant_type') == "refresh_token") 
+    elseif ($request->getParam('grant_type') == "refresh_token")
         $model->handleTokenEndpoint_refreshToken2Bearer($app);
-    
+
 });
 
 
+/**
+ * Route:
+ * Description:
+ *
+ * Method:
+ * Auth:
+ * Parameters:
+ * Response:
+ */
 /*
  * Refresh Endpoint
  *
  * This endpoint allows for exchanging a bearer token with a long-lasting refresh token.
  * Note: a client needs the appropriate permission to use this endpoint.
  */
-$app->get('/v1/oauth2/refresh', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
+$app->get('/refresh', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
     $env = $app->environment();
-    $uid = RESTLib::loginToUserId($env['user']);
+    $uid = Lib\RESTLib::loginToUserId($env['user']);
     $response = new Oauth2Response($app);
     global $ilLog;
     $ilLog->write('Requesting new refresh token for user '.$uid);
@@ -123,22 +155,50 @@ $app->get('/v1/oauth2/refresh', '\RESTController\libs\AuthMiddleware::authentica
     $response->send();
 });
 
+
+/**
+ * Route:
+ * Description:
+ *
+ * Method:
+ * Auth:
+ * Parameters:
+ * Response:
+ */
 /*
  * Token-info route
  *
  * Tokens obtained via the implicit code grant MUST by validated by the Javascript client
  * to prevent the "confused deputy problem".
  */
-$app->get('/v1/oauth2/tokeninfo', function () use ($app) {
+$app->get('/tokeninfo', function () use ($app) {
     $model = new OAuth2Model();
     $model->handleTokeninfoRequest($app);
 });
 
+
+// Enf-Of /oauth2-group
+});
+
+
+/**
+ * Route:
+ * Description:
+ *
+ * Method:
+ * Auth:
+ * Parameters:
+ * Response:
+ */
 /*
  * rtoken2bearer: Allows for exchanging an ilias session with a bearer token.
  * This is used for administration purposes.
  */
-$app->post('/v1/ilauth/rtoken2bearer', function () use ($app) {
+$app->post('/ilauth/rtoken2bearer', function () use ($app) {
     $model = new OAuth2Model();
     $model->handleRTokenToBearerRequest($app);
+});
+
+
+// Enf-Of /v1-group
 });

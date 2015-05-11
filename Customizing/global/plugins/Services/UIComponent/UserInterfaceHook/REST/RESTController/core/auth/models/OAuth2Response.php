@@ -10,6 +10,7 @@ namespace RESTController\core\auth;
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+// Requires <$app = \RESTController\RESTController::getInstance()>
 
 
 /**
