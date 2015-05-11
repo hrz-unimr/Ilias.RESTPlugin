@@ -42,17 +42,17 @@ class Clients extends Lib\RESTModel {
         if (is_array($perm) && count($perm) > 0)
             foreach($perm as $value) {
                 $perm_columns = array(
-                    "api_id" => array("integer", $id),
-                    "pattern" => array("text", $value["pattern"]),
-                    "verb" => array("text", $value["verb"])
+                    'api_id' => array('integer', $id),
+                    'pattern' => array('text', $value['pattern']),
+                    'verb' => array('text', $value['verb'])
                 );
-                $this->sqlDB->insert("ui_uihk_rest_perm", $perm_columns);
+                $this->sqlDB->insert('ui_uihk_rest_perm', $perm_columns);
             }
     }
 
 
     /**
-     * Given a api_key ID and an array of user id numbers, this function writes the mapping to the table "ui_uihk_rest_keymap".
+     * Given a api_key ID and an array of user id numbers, this function writes the mapping to the table 'ui_uihk_rest_keymap'.
      * Note: Old entries will be deleted.
      *
      * @param $api_key_id
@@ -67,10 +67,10 @@ class Clients extends Lib\RESTModel {
         if (is_array($a_user_csv) && count($a_user_csv) > 0)
             foreach ($a_user_csv as $user_id) {
                 $a_columns = array(
-                    "api_id" => array("integer", $api_key_id),
-                    "user_id" => array("integer", $user_id)
+                    'api_id' => array('integer', $api_key_id),
+                    'user_id' => array('integer', $user_id)
                 );
-                $this->sqlDB->insert("ui_uihk_rest_keymap", $a_columns);
+                $this->sqlDB->insert('ui_uihk_rest_keymap', $a_columns);
             }
     }
 
@@ -161,21 +161,21 @@ class Clients extends Lib\RESTModel {
     ) {
         // Add client with given settings
         $a_columns = array(
-            "api_key" => array("text", $api_key),
-            "api_secret" => array("text", $api_secret),
-            "oauth2_redirection_uri" => array("text", $oauth2_redirection_uri),
-            "oauth2_consent_message" => array("text", $oauth2_consent_message),
-            "oauth2_gt_client_active" => array("integer", $oauth2_gt_client_active),
-            "oauth2_gt_authcode_active" => array("integer", $oauth2_gt_authcode_active),
-            "oauth2_gt_implicit_active" => array("integer", $oauth2_gt_implicit_active),
-            "oauth2_gt_resourceowner_active" => array("integer", $oauth2_gt_resourceowner_active),
-            "oauth2_gt_client_user" => array("integer", $oauth2_gt_client_user),
-            "oauth2_user_restriction_active" => array("integer", $oauth2_user_restriction_active),
-            "oauth2_consent_message_active" => array("integer", $oauth2_consent_message_active),
-            "oauth2_authcode_refresh_active" => array("integer", $oauth2_authcode_refresh_active),
-            "oauth2_resource_refresh_active" => array("integer", $oauth2_resource_refresh_active)
+            'api_key' => array('text', $api_key),
+            'api_secret' => array('text', $api_secret),
+            'oauth2_redirection_uri' => array('text', $oauth2_redirection_uri),
+            'oauth2_consent_message' => array('text', $oauth2_consent_message),
+            'oauth2_gt_client_active' => array('integer', $oauth2_gt_client_active),
+            'oauth2_gt_authcode_active' => array('integer', $oauth2_gt_authcode_active),
+            'oauth2_gt_implicit_active' => array('integer', $oauth2_gt_implicit_active),
+            'oauth2_gt_resourceowner_active' => array('integer', $oauth2_gt_resourceowner_active),
+            'oauth2_gt_client_user' => array('integer', $oauth2_gt_client_user),
+            'oauth2_user_restriction_active' => array('integer', $oauth2_user_restriction_active),
+            'oauth2_consent_message_active' => array('integer', $oauth2_consent_message_active),
+            'oauth2_authcode_refresh_active' => array('integer', $oauth2_authcode_refresh_active),
+            'oauth2_resource_refresh_active' => array('integer', $oauth2_resource_refresh_active)
         );
-        $this->sqlDB->insert("ui_uihk_rest_keys", $a_columns);
+        $this->sqlDB->insert('ui_uihk_rest_keys', $a_columns);
         $insertId = $this->sqlDB->getLastInsertId();
 
         // Add permissions to separate table
@@ -204,11 +204,11 @@ class Clients extends Lib\RESTModel {
      */
     public function updateClient($id, $fieldname, $newval) {
         // Update permissions? (Separate table)
-        if (strtolower($fieldname) == "permissions")
+        if (strtolower($fieldname) == 'permissions')
             $this->addPermissions($id, $newval);
 
         // Update allowed users? (Separate table)
-        else if (strtolower($fieldname) == "access_user_csv") {
+        else if (strtolower($fieldname) == 'access_user_csv') {
             // Updated list of allowed users
             if (is_string($newval) && strlen($newval) > 0) {
                 $csvArray = explode(',', $newval);
@@ -223,7 +223,7 @@ class Clients extends Lib\RESTModel {
             $numAffRows = $this->sqlDB->manipulate($sql);
 
             if ($numAffRows === false)
-                throw Exceptions\SaveFailed::getPutException("No client with this api-key (api-id) found!", $fieldname);
+                throw Exceptions\SaveFailed::getPutException('No client with this api-key (api-id) found!', $fieldname);
         }
     }
 
@@ -252,7 +252,7 @@ class Clients extends Lib\RESTModel {
         $this->sqlDB->manipulate($sql);
 
         if ($numAffRows === false)
-            throw Exceptions\SaveFailed::getDeleteException("No client with this api-key (api-id) found!", $id);
+            throw Exceptions\SaveFailed::getDeleteException('No client with this api-key (api-id) found!', $id);
     }
 
 
@@ -328,7 +328,7 @@ class Clients extends Lib\RESTModel {
      * @return bool
      */
     public function is_oauth2_gt_resourceowner_enabled($api_key) {
-        return $this->is_oauth2_grant_type_enabled($api_key, "oauth2_gt_resourceowner_active");
+        return $this->is_oauth2_grant_type_enabled($api_key, 'oauth2_gt_resourceowner_active');
     }
 
 
@@ -339,7 +339,7 @@ class Clients extends Lib\RESTModel {
      * @return bool
      */
     public function is_oauth2_gt_implicit_enabled($api_key) {
-        return $this->is_oauth2_grant_type_enabled($api_key, "oauth2_gt_implicit_active");
+        return $this->is_oauth2_grant_type_enabled($api_key, 'oauth2_gt_implicit_active');
     }
 
 
@@ -350,7 +350,7 @@ class Clients extends Lib\RESTModel {
      * @return bool
      */
     public function is_oauth2_gt_authcode_enabled($api_key) {
-        return $this->is_oauth2_grant_type_enabled($api_key, "oauth2_gt_authcode_active");
+        return $this->is_oauth2_grant_type_enabled($api_key, 'oauth2_gt_authcode_active');
     }
 
 
@@ -361,7 +361,7 @@ class Clients extends Lib\RESTModel {
      * @return bool
      */
     public function is_oauth2_gt_clientcredentials_enabled($api_key) {
-        return $this->is_oauth2_grant_type_enabled($api_key, "oauth2_gt_client_active");
+        return $this->is_oauth2_grant_type_enabled($api_key, 'oauth2_gt_client_active');
     }
 
 

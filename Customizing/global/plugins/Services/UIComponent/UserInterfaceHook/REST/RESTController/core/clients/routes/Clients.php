@@ -73,6 +73,8 @@ use \RESTController\core\clients\Exceptions as ClientExceptions;
         // Send data
         $app->success($result);
     }
+    else
+        $app->halt(401, 'Access denied. Administrator permissions required.', Lib\RESTLib::NO_ADMIN_ID);
 });
 
 
@@ -158,8 +160,8 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
                 // Update client
                 try {
                     $model->updateClient($id, $field, $api_key);
-                } catch(ClientExceptions\SaveFailed $e) {
-                    $failed[] = sprintf("Could not (fully) update client. Failed to update Parameter: %s.", $e->paramName());
+                } catch(ClientExceptions\PutFailed $e) {
+                    $failed[] = sprintf('Could not (fully) update client. Failed to update Parameter: %s.', $e->paramName());
                 }
             }
             // Fail silently for "missing" parameters
@@ -167,7 +169,7 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
         }
 
         if (count($failed) > 0)
-            $app->halt(500, implode(' ', $failed), ClientExceptions\SaveFailed::PUT_FAILED_ID);
+            $app->halt(500, implode(' ', $failed), ClientExceptions\PutFailed::ID);
         else {
             // Send affirmation status
             $result = array();
@@ -175,7 +177,7 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
         }
     }
     else
-        $app->halt(401, "Access denied. Administrator permissions required.", Lib\RESTLib::NO_ADMIN_ID);
+        $app->halt(401, 'Access denied. Administrator permissions required.', Lib\RESTLib::NO_ADMIN_ID);
 });
 
 
@@ -234,7 +236,7 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
         try {
             $api_key = $request->getParam('api_key', null, true);
         } catch(LibExceptions\MissingParameter $e) {
-            $app->halt(500, "Mandatory data is missing, parameter '" . $e.paramName() . "' not set.", LibExceptions\MissingParameter::MISSING_PARAM_ID);
+            $app->halt(500, sprintf('Mandatory data is missing, parameter <%s> not set.', $e.paramName()), LibExceptions\MissingParameter::ID);
         }
 
         // Get optional inputs
@@ -279,7 +281,7 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
         $app->success($result);
     }
     else
-        $app->halt(401, "Access denied. Administrator permissions required.", Lib\RESTLib::NO_ADMIN_ID);
+        $app->halt(401, 'Access denied. Administrator permissions required.', Lib\RESTLib::NO_ADMIN_ID);
 });
 
 
@@ -311,10 +313,10 @@ $app->delete('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateT
             // Send affirmation status
             $result = array();
             $app->success($result);
-        } catch(ClientExceptions\SaveFailed $e) {
-            $app->halt(500, "Could not delete client with id: " . $e->id(), ClientExceptions\SaveFailed::DELETE_FAILED_ID);
+        } catch(ClientExceptions\DeleteFailed $e) {
+            $app->halt(500, sprintf('Could not delete client with id: %d', $e->id()), ClientExceptions\DeleteFailed::ID);
         }
     }
     else
-        $app->halt(401, "Access denied. Administrator permissions required.", Lib\RESTLib::NO_ADMIN_ID);
+        $app->halt(401, 'Access denied. Administrator permissions required.', Lib\RESTLib::NO_ADMIN_ID);
 });

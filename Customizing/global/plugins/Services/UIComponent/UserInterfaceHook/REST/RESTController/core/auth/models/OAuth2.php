@@ -8,10 +8,8 @@
 namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-use \RESTController\core\clients\ClientsModel;
-// Requires <$app = \RESTController\RESTController::getInstance()>
+use \RESTController\libs as Libs;
+use \RESTController\core\clients\Clients as Clients;
 
 
 /**
@@ -19,24 +17,14 @@ use \RESTController\core\clients\ClientsModel;
  * This model provides methods to accomplish the OAuth2 mechanism for ILIAS.
  * Note: In contrast to the original specification, we renamed the term OAuth2 "client_id" to "api_key".
  */
-class OAuth2Model {
-    // ----------------------------------------------------------------------------------------------
-    // Authorization endpoint routines
-
-
+class OAuth2 {
     /**
+     * Authorization endpoint routine:
      * The authorization endpoint part of the authorization credendials flow.
      * @param $app
      */
-    public function handleAuthorizationEndpoint_authorizationCode($app) {
-        $request = $app->request();
+    public function authAuthorizationCode($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token) {
         $response = new OAuth2Response($app);
-        $api_key = $request->params('api_key');
-        $redirect_uri = $request->params('redirect_uri');
-        $username = $request->params('username');
-        $password = $request->params('password');
-        $response_type = $request->params('response_type');
-        $authenticity_token = $request->params('authenticity_token');
 
         if ($redirect_uri && $api_key && is_null($authenticity_token) && is_null($username) && is_null($password)) {
             OAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
@@ -54,7 +42,7 @@ class OAuth2Model {
                     if ($clients_model->is_oauth2_gt_authcode_enabled($api_key)) {
                         if($clients_model->is_oauth2_consent_message_enabled($api_key) == true) {
                             // Standard behaviour of the "authorization code grant": having an additional page with a consent message
-                            $temp_authenticity_token = TokenLib::generateSerializedToken($username, $api_key, "", "", 10);
+                            $temp_authenticity_token = TokenLib::generateSerializedToken($username, $api_key, '', '', 10);
                             $oauth2_consent_message = $clients_model->getOAuth2ConsentMessage($api_key);
 
                             OAuth2Model::render($app, 'REST OAuth - Client autorisieren', 'oauth2grantpermissionform.php', array(
@@ -65,8 +53,8 @@ class OAuth2Model {
                                 'oauth2_consent_message' => $oauth2_consent_message
                             ));
                         } else {
-                            $authorization_code = TokenLib::generateSerializedToken($username, $api_key, "code", $redirect_uri,10);
-                            $url = $redirect_uri . "?code=".$authorization_code;
+                            $authorization_code = TokenLib::generateSerializedToken($username, $api_key, 'code', $redirect_uri,10);
+                            $url = $redirect_uri . '?code='.$authorization_code;
                             $app->redirect($url);
                         }
                     } else {
@@ -80,7 +68,7 @@ class OAuth2Model {
 
             } else {
                 OAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
-                    'error_msg' => "Username or password incorrect!",
+                    'error_msg' => 'Username or password incorrect!',
                     'api_key' => $api_key,
                     'redirect_uri' => $redirect_uri,
                     'response_type' => $response_type
@@ -91,8 +79,8 @@ class OAuth2Model {
             $user = $authenticity_token['user'];
 
             if (!TokenLib::tokenExpired($authenticity_token)) {
-                $authorization_code = TokenLib::generateSerializedToken($user, $api_key, "code", $redirect_uri,10);
-                $url = $redirect_uri . "?code=".$authorization_code;
+                $authorization_code = TokenLib::generateSerializedToken($user, $api_key, 'code', $redirect_uri,10);
+                $url = $redirect_uri . '?code='.$authorization_code;
                 $app->redirect($url);
             }
         }
@@ -100,19 +88,14 @@ class OAuth2Model {
 
 
     /**
+    * Authorization endpoint routine:
      * The authorization endpoint part of the implicit grant flow.
      * @param $app
      */
-    public function handleAuthorizationEndpoint_implicitGrant($app) {
+    public function authImplicitGrant($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token) {
         $response = new OAuth2Response($app);
-        $request = $app->request();
-        $api_key = $request->params('api_key');
-        $redirect_uri = $request->params('redirect_uri');
-        $username = $request->params('username');
-        $password = $request->params('password');
-        $response_type = $request->params('response_type');
-        $authenticity_token = $request->params('authenticity_token');
-        $clients_model = new ClientsModel();
+
+        $clients_model = new ClientsModel($app);
         if ($clients_model->clientExists($api_key)) {
             if ($clients_model->is_oauth2_gt_implicit_enabled($api_key)) {
                 if($clients_model->is_oauth2_consent_message_enabled($api_key)) {
@@ -127,16 +110,16 @@ class OAuth2Model {
                         $isAuth = AuthLib::authenticateViaIlias($username, $password);
                         $clientValid = AuthLib::checkOAuth2Client($api_key);
                         if ($isAuth == true) {
-                            $app->log->debug("Implicit Grant Flow - Auth valid");
+                            $app->log->debug('Implicit Grant Flow - Auth valid');
                         } else {
-                            $app->log->debug("Implicit Grant Flow - Auth NOT valid");
+                            $app->log->debug('Implicit Grant Flow - Auth NOT valid');
                             $response->setHttpStatus(401);
                             $response->send();
                         }
-                        $app->log->debug("Implicit Grant Flow - Client valid: ".print_r($clientValid,true));
+                        $app->log->debug('Implicit Grant Flow - Client valid: '.print_r($clientValid,true));
                         if ($isAuth == true && $clientValid != false) {
-                            $app->log->debug("Implicit Grant Flow - proceed to grant permission form" );
-                            $temp_authenticity_token = TokenLib::generateSerializedToken($username, $api_key, "", "", 10);
+                            $app->log->debug('Implicit Grant Flow - proceed to grant permission form' );
+                            $temp_authenticity_token = TokenLib::generateSerializedToken($username, $api_key, '', '', 10);
                             $oauth2_consent_message = $clients_model->getOAuth2ConsentMessage($api_key);
 
                             OAuth2Model::render($app, 'REST OAuth - Client autorisieren', 'oauth2grantpermissionform.php', array(
@@ -148,7 +131,7 @@ class OAuth2Model {
                             ));
                         } else {
                             OAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
-                                'error_msg' => "Username or password incorrect!",
+                                'error_msg' => 'Username or password incorrect!',
                                 'api_key' => $api_key,
                                 'redirect_uri' => $redirect_uri,
                                 'response_type' => $response_type
@@ -163,18 +146,18 @@ class OAuth2Model {
                             if ($clients_model->clientExists($api_key)) {
                                 if ($clients_model->is_oauth2_gt_implicit_enabled($api_key)) {
                                     $bearerToken = TokenLib::generateBearerToken($user, $api_key);
-                                    $url = $redirect_uri . "#access_token=".$bearerToken['access_token']."&token_type=bearer"."&expires_in=".$bearerToken['expires_in']."&state=xyz";
+                                    $url = $redirect_uri . '#access_token='.$bearerToken['access_token'].'&token_type=bearer'.'&expires_in='.$bearerToken['expires_in'].'&state=xyz';
                                     $app->redirect($url);
                                 }
                             }
-                            $url = $redirect_uri . "#access_token="."no_access";
+                            $url = $redirect_uri . '#access_token='.'no_access';
                             $app->redirect($url);
                         }
                     }
                 } else { // no consent message
-                    $app->log->debug("Implicit Grant Flow - Without Consent Message ");
+                    $app->log->debug('Implicit Grant Flow - Without Consent Message ');
                     if ($redirect_uri && $api_key && is_null($authenticity_token) && is_null($username) && is_null($password)) {
-                        $app->log->debug("Implicit Grant Flow - Rendering LoginForm ");
+                        $app->log->debug('Implicit Grant Flow - Rendering LoginForm ');
 
                         OAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
                             'api_key' => $api_key,
@@ -186,19 +169,19 @@ class OAuth2Model {
                         $clientValid = AuthLib::checkOAuth2Client($api_key);
 
                         if ($isAuth == true) {
-                            $app->log->debug("Implicit Grant Flow - Auth valid");
+                            $app->log->debug('Implicit Grant Flow - Auth valid');
                         } else {
-                            $app->log->debug("Implicit Grant Flow - Auth NOT valid");
+                            $app->log->debug('Implicit Grant Flow - Auth NOT valid');
                             $response->setHttpStatus(401);
                         }
-                        $app->log->debug("Implicit Grant Flow - Client valid: ".print_r($clientValid,true));
+                        $app->log->debug('Implicit Grant Flow - Client valid: '.print_r($clientValid,true));
                         if ($isAuth == true && $clientValid != false) {
                             $bearerToken = TokenLib::generateBearerToken($username, $api_key);
-                            $url = $redirect_uri . "#access_token=".$bearerToken['access_token']."&token_type=bearer"."&expires_in=".$bearerToken['expires_in']."&state=xyz";
+                            $url = $redirect_uri . '#access_token='.$bearerToken['access_token'].'&token_type=bearer'.'&expires_in='.$bearerToken['expires_in'].'&state=xyz';
                             $app->redirect($url);
                         }else {
                             OAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
-                                'error_msg' => "Username or password incorrect!",
+                                'error_msg' => 'Username or password incorrect!',
                                 'api_key' => $api_key,
                                 'redirect_uri' => $redirect_uri,
                                 'response_type' => $response_type
@@ -216,23 +199,18 @@ class OAuth2Model {
         }
 
     }
-    // ----------------------------------------------------------------------------------------------
-    // Token endpoint routines
 
 
     /**
+     * Token endpoint routine:
      * The token endpoint part of the user credentials auth flow.
      * @param $app
      * @param $request
      */
-    public function handleTokenEndpoint_userCredentials($app, $request) {
+    public function tokenUserCredentials($api_key, $user, $pass) {
         $response = new OAuth2Response($app);
-        $user = $request->getParam('username');
-        $pass = $request->getParam('password');
-        $api_key = $request->getParam('api_key');
 
         $isAuth = AuthLib::authenticateViaIlias($user, $pass);
-
         if ($isAuth == false) {
             $response->setHttpStatus(401);
             $response->setOutputFormat('plain');
@@ -249,17 +227,17 @@ class OAuth2Model {
                         $access_granted = true;
                     }
                     if ($access_granted == true) {
-                        $app->log->debug("access granted");
+                        $app->log->debug('access granted');
                         $bearer_token = TokenLib::generateBearerToken($user, $api_key);
                         $response->setHttpHeader('Cache-Control', 'no-store');
                         $response->setHttpHeader('Pragma', 'no-cache');
-                        $response->setField("access_token", $bearer_token['access_token']);
-                        $response->setField("expires_in", $bearer_token['expires_in']);
-                        $response->setField("token_type", $bearer_token['token_type']);
-                        $response->setField("scope", $bearer_token['scope']);
+                        $response->setField('access_token', $bearer_token['access_token']);
+                        $response->setField('expires_in', $bearer_token['expires_in']);
+                        $response->setField('token_type', $bearer_token['token_type']);
+                        $response->setField('scope', $bearer_token['scope']);
                         if ($clients_model->is_resourceowner_refreshtoken_enabled($api_key)) {
                             $refresh_token = $this->getRefreshToken(TokenLib::deserializeToken($bearer_token['access_token']));
-                            $response->setField("refresh_token", $refresh_token);
+                            $response->setField('refresh_token', $refresh_token);
                         }
                     } else {
                         $response->setHttpStatus(401);
@@ -277,16 +255,15 @@ class OAuth2Model {
 
 
     /**
+     * Token endpoint routine:
      * The token endpoint part of the client credentials auth flow.
      * @param $app
      * @param $request
      */
-    public function handleTokenEndpoint_clientCredentials($app, $request) {
+    public function tokenClientCredentials($api_key, $api_secret) {
         $response = new OAuth2Response($app);
-        $api_key = $request->getParam('api_key');
-        $api_secret = $request->getParam('api_secret');
 
-        $clients_model = new ClientsModel();
+        $clients_model = new ClientsModel($app);
         if ($clients_model->clientExists($api_key)) {
             if ($clients_model->is_oauth2_gt_clientcredentials_enabled($api_key)) {
                 $uid = (int)$clients_model->getClientCredentialsUser($api_key);
@@ -299,10 +276,10 @@ class OAuth2Model {
                     $bearer_token = TokenLib::generateBearerToken($user,$api_key);
                     $response->setHttpHeader('Cache-Control', 'no-store');
                     $response->setHttpHeader('Pragma', 'no-cache');
-                    $response->setField("access_token",$bearer_token['access_token']);
-                    $response->setField("expires_in",$bearer_token['expires_in']);
-                    $response->setField("token_type",$bearer_token['token_type']);
-                    $response->setField("scope",$bearer_token['scope']);
+                    $response->setField('access_token',$bearer_token['access_token']);
+                    $response->setField('expires_in',$bearer_token['expires_in']);
+                    $response->setField('token_type',$bearer_token['token_type']);
+                    $response->setField('scope',$bearer_token['scope']);
                 }
             } else {
                 $response->setHttpStatus(401);
@@ -317,30 +294,21 @@ class OAuth2Model {
 
 
     /**
+     * Token endpoint routine:
      * The token endpoint part of the authorization auth flow.
      * This method exchanges an authorization code with a bearer token.
      * @param $app
      * @param $request
      */
-    public function handleTokenEndpoint_authorizationCode($app, $request) {
-        $app->log->debug("Handle Token-Endpoint > AuthCode Request");
+    public function tokenAuthorizationCode($api_key, $api_secret, $code, $redirect_uri) {
         $response = new OAuth2Response($app);
-        $code = $request->getParam("code");
-        $redirect_uri = $request->getParam("redirect_uri");
 
-        $api_key = $_POST['api_key'];
-        $app->log->debug("Handle Token-Endpoint > api-key " . $api_key);
-        $api_secret = $request->getParam('api_secret'); // also check by other means
-
-        $app->log->debug("Handle Token-Endpoint > checkOAuth2ClientCredentials( ".$api_key.",".$api_secret.")");
         $isClientAuthorized = AuthLib::checkOAuth2ClientCredentials($api_key, $api_secret);
-
         if (!$isClientAuthorized) {
             $app->response()->status(401);
-        } else {
-            $app->log->debug("Handle Token-Endpoint > HERE ");
+        }
+        else {
             $code_token = TokenLib::deserializeToken($code);
-            $app->log->debug("Handle Token-Endpoint > code token " . print_r($code_token,true));
             if (!TokenLib::tokenExpired($code_token)){
                 $t_redirect_uri = $code_token['misc'];
                 $t_user = $code_token['user'];
@@ -359,17 +327,17 @@ class OAuth2Model {
                                 $access_granted = true;
                             }
                             if ($access_granted == true) {
-                                $app->log->debug("auth code access granted. user: ".$t_user." key: ".$api_key);
+                                $app->log->debug('auth code access granted. user: '.$t_user.' key: '.$api_key);
                                 $bearer_token = TokenLib::generateBearerToken($t_user, $api_key);
                                 $response->setHttpHeader('Cache-Control', 'no-store');
                                 $response->setHttpHeader('Pragma', 'no-cache');
-                                $response->setField("access_token", $bearer_token['access_token']);
-                                $response->setField("expires_in", $bearer_token['expires_in']);
-                                $response->setField("token_type", $bearer_token['token_type']);
-                                $response->setField("scope", $bearer_token['scope']);
+                                $response->setField('access_token', $bearer_token['access_token']);
+                                $response->setField('expires_in', $bearer_token['expires_in']);
+                                $response->setField('token_type', $bearer_token['token_type']);
+                                $response->setField('scope', $bearer_token['scope']);
                                 if ($clients_model->is_authcode_refreshtoken_enabled($api_key)) { // optional
                                     $refresh_token = $this->getRefreshToken(TokenLib::deserializeToken($bearer_token['access_token']));
-                                    $response->setField("refresh_token", $refresh_token);
+                                    $response->setField('refresh_token', $refresh_token);
                                 }
 
                             } else {
@@ -390,31 +358,23 @@ class OAuth2Model {
 
 
     /**
+     * Token endpoint routine:
      * Token-endpoint for refresh tokens.
      * Cf. RFC6749 Chapter 6.  Refreshing an Access Token
      * @param $app
      * @throws Exception
      */
-    public function handleTokenEndpoint_refreshToken2Bearer($app) {
-        $request = new RESTRequest($app);
-        $response = new OAuth2Response($app);
+    public function tokenRefresh2Bearer($refresh_token) {
+        $response = new OAuth2Response($app, $ilDB);
 
-        $refresh_token = $request->getParam("refresh_token");
         $bearer_token = $this->getBearerTokenForRefreshToken($refresh_token);
-
-        $response->setHttpHeader('Cache-Control', 'no-store');
-        $response->setHttpHeader('Pragma', 'no-cache');
-        $response->setField("access_token",$bearer_token['access_token']);
-        $response->setField("expires_in",$bearer_token['expires_in']);
-        $response->setField("token_type",$bearer_token['token_type']);
-        $response->setField("scope",$bearer_token['scope']);
-        $response->send();
     }
     // ----------------------------------------------------------------------------------------------
     // Refresh Token Support
 
 
     /**
+     * Refresh Token Endpoint routine:
      * Returns a refresh token for a valid bearer token.
      * @param $bearer_token_array
      * @return string
@@ -436,6 +396,7 @@ class OAuth2Model {
 
 
     /**
+    * Refresh Token Endpoint routine:
      * Returns a new bearer token for a valid refresh token.
      * Validation check and bookkeeping is realized via an internal refresh token table.
      * @param $refresh_token
@@ -465,39 +426,40 @@ class OAuth2Model {
                 }
             }
         } else {
-            return "Token not valid.";
+            return 'Token not valid.';
         }
     }
 
 
     /**
+     * Refresh Token Endpoint routine:
      * Returns the refresh token for an existing refresh token entry.
      * Decreases num_refresh_left field and updates the issuing time stamp.
      */
     protected function _issueExistingRefreshToken($user_id, $api_key) {
         global $ilDB;
 
-        $query = "
+        $query = '
             SELECT refresh_token, num_refresh_left
             FROM ui_uihk_rest_oauth2
             JOIN ui_uihk_rest_keys
             ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
-            AND ui_uihk_rest_oauth2.user_id=".$user_id."
-            AND ui_uihk_rest_keys.api_key='".$api_key."'
-        ";
+            AND ui_uihk_rest_oauth2.user_id='.$user_id.'
+            AND ui_uihk_rest_keys.api_key="'.$api_key.'"';
         $set = $ilDB->query($query);
         if ($set != null && $entry = $ilDB->fetchAssoc($set)) {
             $ct_num_refresh_left = $entry['num_refresh_left'];
             $refresh_token = $entry['refresh_token'];
 
-            $this->_updateRefreshTokenEntry($user_id, $api_key, "num_refresh_left", $ct_num_refresh_left-1);
-            $this->_updateRefreshTokenEntry($user_id, $api_key, "last_refresh_timestamp", date("Y-m-d H:i:s",time()));
+            $this->_updateRefreshTokenEntry($user_id, $api_key, 'num_refresh_left', $ct_num_refresh_left-1);
+            $this->_updateRefreshTokenEntry($user_id, $api_key, 'last_refresh_timestamp', date('Y-m-d H:i:s',time()));
             return $refresh_token;
         }
     }
 
 
     /**
+     * Refresh Token Endpoint routine:
      * Resets an existing refresh token entry:
      *  - Overwrites refresh token field
      *  - Increases field "num_resets"
@@ -507,33 +469,32 @@ class OAuth2Model {
     protected function _resetRefreshTokenEntry($user_id, $api_key, $newRefreshToken) {
         global $ilDB;
 
-        $query = "
+        $query = '
             SELECT num_resets
             FROM ui_uihk_rest_oauth2
             JOIN ui_uihk_rest_keys
             ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
-            AND ui_uihk_rest_oauth2.user_id=".$user_id."
-            AND ui_uihk_rest_keys.api_key='".$api_key."'
-        ";
+            AND ui_uihk_rest_oauth2.user_id='.$user_id.'
+            AND ui_uihk_rest_keys.api_key="'.$api_key.'"';
 
         $set = $ilDB->query($query);
         if ($set != null && $entry = $ilDB->fetchAssoc($set)) {
             $ct_num_resets = $entry['num_resets'];
 
-            $this->_updateRefreshTokenEntry($user_id, $api_key, "refresh_token", $newRefreshToken);
-            $this->_updateRefreshTokenEntry($user_id, $api_key, "num_resets", $ct_num_resets + 1);
-            $this->_updateRefreshTokenEntry($user_id, $api_key, "last_refresh_timestamp", date("Y-m-d H:i:s",time()));
-            $this->_updateRefreshTokenEntry($user_id, $api_key, "num_refresh_left", 10000);
+            $this->_updateRefreshTokenEntry($user_id, $api_key, 'refresh_token', $newRefreshToken);
+            $this->_updateRefreshTokenEntry($user_id, $api_key, 'num_resets', $ct_num_resets + 1);
+            $this->_updateRefreshTokenEntry($user_id, $api_key, 'last_refresh_timestamp', date('Y-m-d H:i:s',time()));
+            $this->_updateRefreshTokenEntry($user_id, $api_key, 'num_refresh_left', 10000);
         }
     }
 
     /**
+     * Refresh Token Endpoint routine:
      * Tester of _checkRefreshTokenEntry
      * @param $bearer_token_array
      * @return array
      */
-    /*public function getRefreshEntryInfo($bearer_token_array)
-    {
+    public function getRefreshEntryInfo($bearer_token_array) {
         $user_id = RESTLib::loginToUserId($bearer_token_array['user']);
         $api_key = $bearer_token_array['api_key'];
 
@@ -547,10 +508,11 @@ class OAuth2Model {
 
         }
         return array();
-    }*/
+    }
 
 
     /**
+     * Refresh Token Endpoint routine:
      * Provides information about an entry:
      * 1) Entry exists: yes or no.
      * 2) How many refreshs are left (num_refresh_left)
@@ -564,14 +526,13 @@ class OAuth2Model {
     protected function _checkRefreshTokenEntry($user_id, $api_key) {
         global $ilDB;
 
-        $query = "
+        $query = '
             SELECT *
             FROM ui_uihk_rest_oauth2
             JOIN ui_uihk_rest_keys
             ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
-            AND ui_uihk_rest_oauth2.user_id=".$user_id."
-            AND ui_uihk_rest_keys.api_key='".$api_key."'
-        ";
+            AND ui_uihk_rest_oauth2.user_id='.$user_id.'
+            AND ui_uihk_rest_keys.api_key="'.$api_key.'"';
         $set = $ilDB->query($query);
         if ($set != null && $entry = $ilDB->fetchAssoc($set))
             return $entry;
@@ -581,6 +542,7 @@ class OAuth2Model {
 
 
     /**
+     * Refresh Token Endpoint routine:
      * Creates a new Refresh-Token Entry (helper).
      *
      * @param $user_id
@@ -597,22 +559,23 @@ class OAuth2Model {
             $api_id = $row['id'];
 
             $a_columns = array(
-                "user_id" => array("text", $user_id),
-                "api_id" => array("text", $api_id),
-                "refresh_token" => array("text", $refresh_token),
-                "num_refresh_left" => array("integer", 10000),
-                "last_refresh_timestamp" => array("date", date("Y-m-d H:i:s",0)),
-                "init_timestamp" => array("date", date("Y-m-d H:i:s",time())),
-                "num_resets" => array("integer", 0)
+                'user_id' => array('text', $user_id),
+                'api_id' => array('text', $api_id),
+                'refresh_token' => array('text', $refresh_token),
+                'num_refresh_left' => array('integer', 10000),
+                'last_refresh_timestamp' => array('date', date('Y-m-d H:i:s',0)),
+                'init_timestamp' => array('date', date('Y-m-d H:i:s',time())),
+                'num_resets' => array('integer', 0)
             );
 
-            $ilDB->insert("ui_uihk_rest_oauth2", $a_columns);
+            $ilDB->insert('ui_uihk_rest_oauth2', $a_columns);
             return $ilDB->getLastInsertId();
         }
     }
 
 
     /**
+     * Refresh Token Endpoint routine:
      * Deletes a Refresh Token Entry
      * @param $user_id
      * @param $api_key
@@ -621,14 +584,13 @@ class OAuth2Model {
     protected function _deleteRefreshTokenEntry($user_id, $api_key) {
         global $ilDB;
 
-        $query = "
+        $query = '
             DELETE ui_uihk_rest_oauth2
             FROM ui_uihk_rest_oauth2
             JOIN ui_uihk_rest_keys
             ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
-            AND ui_uihk_rest_oauth2.user_id=".$user_id."
-            AND ui_uihk_rest_keys.api_key='".$api_key."'
-        ";
+            AND ui_uihk_rest_oauth2.user_id='.$user_id.'
+            AND ui_uihk_rest_keys.api_key="'.$api_key.'"';
         $numAffRows = $ilDB->manipulate($query);
 
         return $numAffRows;
@@ -636,6 +598,7 @@ class OAuth2Model {
 
 
     /**
+     * Refresh Token Endpoint routine:
      * Updates a refresh token entry (helper).
      * @param $user_id
      * @param $api_key
@@ -646,30 +609,27 @@ class OAuth2Model {
     public function _updateRefreshTokenEntry($user_id, $api_key, $fieldname, $newval) {
         global $ilDB;
 
-        $query = "
+        $query = '
             UPDATE ui_uihk_rest_oauth2
             JOIN ui_uihk_rest_keys
             ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
-            AND ui_uihk_rest_oauth2.user_id=".$user_id."
-            AND ui_uihk_rest_keys.api_key='".$api_key."'
-            SET ".$fieldname." = \"".$newval."\"
-        ";
+            AND ui_uihk_rest_oauth2.user_id='.$user_id.'
+            AND ui_uihk_rest_keys.api_key="'.$api_key.'"
+            SET '.$fieldname.' = "'.$newval.'"';
         $numAffRows = $ilDB->manipulate($query);
 
         return $numAffRows;
     }
-    // ----------------------------------------------------------------------------------------------
-    // Further OAuth2 routines
 
 
     /**
+     * Further OAuth2 routines:
      * Tokeninfo - Tokens obtained via the implicit code grant MUST by validated by the Javascript client
      * to prevent the "confused deputy problem".
      * @param $app
      */
-    public function handleTokeninfoRequest($app)
+    public function tokenInfo($request)
     {
-        $request = $app->request();
         $access_token = $request->params('access_token');
         if (!isset($access_token)) {
             $a_data = array();
@@ -680,7 +640,7 @@ class OAuth2Model {
                 $headers = apache_request_headers();
                 $authHeader = $headers['Authorization'];
                 if ($authHeader!=null) {
-                    $a_auth = explode(" ",$authHeader);
+                    $a_auth = explode(' ',$authHeader);
                     $access_token = $a_auth[1];    // Bearer Access Token
                     if ($access_token == null) {
                         $access_token = $a_auth[0]; // Another kind of Token
@@ -691,6 +651,7 @@ class OAuth2Model {
 
         $token = TokenLib::deserializeToken($access_token);
         $valid = TokenLib::tokenValid($token);
+
         $result = array();
         if ($valid) {
             $result['api_key'] = $token['api_key'];
@@ -701,27 +662,28 @@ class OAuth2Model {
 
         } else {
             $app->response()->status(400);
-            $result['error'] = "Invalid token.";
+            $result['error'] = 'Invalid token.';
         }
-        echo json_encode($result);
+
+        return $result;
     }
 
 
     /**
+     * Further OAuth2 routines:
      * Allows for exchanging an ilias session to a bearer token.
      * This is used for administration purposes.
      * @param $app
      */
-    public function handleRTokenToBearerRequest($app)
+    public function rToken2Bearer($request)
     {
 
         $result = array();
-        $user_id = "";
-        $rtoken = "";
-        $session_id = "";
-        $api_key = "";
+        $user_id = '';
+        $rtoken = '';
+        $session_id = '';
+        $api_key = '';
 
-        $request = $app->request();
         if (count($request->post()) == 0) {
             $a_data = array();
             $reqdata = $app->request()->getBody(); // json
@@ -742,8 +704,8 @@ class OAuth2Model {
 
         if ($isAuth == false) {
             //$app->response()->status(400);
-            $result['status'] = "error";
-            $result['error'] = "Invalid token.";
+            $result['status'] = 'error';
+            $result['error'] = 'Invalid token.';
             $result['user_id']=$user_id;
             $result['rtoken']=$rtoken;
             $result['session_id']=$session_id;
@@ -752,18 +714,15 @@ class OAuth2Model {
         else {
             $user = RESTLib::userIdtoLogin($user_id);
             $access_token = TokenLib::generateBearerToken($user, $api_key);
-            $result['status'] = "success";
+            $result['status'] = 'success';
             $result['user'] = $user;
             $result['token'] = $access_token;
         }
-        $app->response()->header('Content-Type', 'application/json');
-        $app->response()->header('Cache-Control', 'no-store');
-        $app->response()->header('Pragma', 'no-cache');
-        echo json_encode($result); // output-format: {"access_token":"03807cb390319329bdf6c777d4dfae9c0d3b3c35","expires_in":3600,"token_type":"bearer","scope":null}
     }
 
 
     /**
+     * Further OAuth2 routines:
      * Simplifies rendering output by allowing to reuse common code.
      * Core.php which includes many preset JavaScript and CSS libraries will always
      * be used as a base template and $file will be included into its body.
@@ -777,12 +736,12 @@ class OAuth2Model {
         global $ilPluginAdmin;
 
         // Build absolute-path (relative to document-root)
-        $sub_dir = "core/auth/views";
-        $rel_path = $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, "UIComponent", "uihk", "REST")->getDirectory();
+        $sub_dir = 'core/auth/views';
+        $rel_path = $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, 'UIComponent', 'uihk', 'REST')->getDirectory();
         $scriptName = dirname($_SERVER['SCRIPT_NAME']);
         $scriptName = str_replace('\\', '/', $scriptName);
         $scriptName = ($scriptName == '/' ? '' : $scriptName);
-        $abs_path = $scriptName."/".$rel_path."/RESTController/".$sub_dir;
+        $abs_path = $scriptName.'/'.$rel_path.'/RESTController/'.$sub_dir;
 
         // Supply data to slim application
         $app->render($sub_dir.'/core.php', array(
@@ -793,5 +752,3 @@ class OAuth2Model {
         ));
     }
 }
-
-?>

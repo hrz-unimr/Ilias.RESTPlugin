@@ -5,39 +5,38 @@
  * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
-namespace RESTController\libs\Exceptions;
+namespace RESTController\core\clients\Exceptions;
 
 
 /**
- * This class provides a REST specific exception for missing parameter.
+ *
  */
-class MissingParameter extends \Exception {
+class PutFailed extends \Exception {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.
      *  Using a unique string seems to be an easier solution than assigning unique numbers.
      */
-    const ID = 'RESTController\\libs\\Exceptions\\MissingParameter';
+    const ID = 'RESTController\\core\\clients\\Exceptions\\PutFailed';
 
 
     /**
-     * Stores parameter name for the missing parameter
+     * Stores parameter name for the problematic parameter
      */
-    protected $paramName = "";
+    protected $paramName;
 
 
     /**
      * Constructor
-     *  Set parameter name.
      */
     public function __construct ($message, $paramName, $code = 0, $previous = NULL) {
         parent::__construct ($message, $code, $previous);
-        $this->paramName = $paramName;
+        $exception->paramName = $paramName;
     }
 
 
     /**
-     * Get name of parameter that caused the missing parameter exception
+     * Get name of parameter that caused is causing problems during PUT
      */
     public function paramName() {
         return $this->paramName;

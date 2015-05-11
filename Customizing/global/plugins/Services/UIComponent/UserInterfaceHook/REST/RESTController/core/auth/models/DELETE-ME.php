@@ -19,7 +19,7 @@ use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
  */
 class Oauth2Response {
     public $_response = array();
-    public $_format = "json";
+    public $_format = 'json';
     protected $app;
 
     public function __construct($app) {
@@ -97,7 +97,7 @@ class Oauth2Response {
     public function send()
     {
         switch ($this->_format) {
-            case "json": $this->toJSON(); break;
+            case 'json': $this->toJSON(); break;
             default: $this->setHttpHeader('Content-Type', 'text/plain'); break;
         }
     }

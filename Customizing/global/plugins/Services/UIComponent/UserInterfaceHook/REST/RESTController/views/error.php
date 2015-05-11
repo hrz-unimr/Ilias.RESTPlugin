@@ -23,4 +23,5 @@ $errStr = '{
 $app->log->debug($errStr);
 
 // Display error
+header('content-type: application/json');
 echo $errStr;

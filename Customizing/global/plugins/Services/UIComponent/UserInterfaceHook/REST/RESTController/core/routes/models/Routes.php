@@ -35,9 +35,9 @@ class Routes extends Lib\RESTModel {
 
             // Pack data
             $resultRoutes[] = array(
-                "pattern" => $route->getPattern(),
-                "verb" => $verb,
-                "middleware" => (isset($middle[0]) ? $middle[0] : "none")
+                'pattern' => $route->getPattern(),
+                'verb' => $verb,
+                'middleware' => (isset($middle[0]) ? $middle[0] : "none")
             );
         }
 
@@ -58,7 +58,7 @@ class Routes extends Lib\RESTModel {
         $baseDir = ($baseDir == '/' ? '' : $baseDir);
 
         // Build full directory
-        $adminDir = $baseDir . "/" . $pluginDir . '/apps/admin/';
+        $adminDir = $baseDir . '/' . $pluginDir . '/apps/admin/';
 
         return $adminDir;
     }
