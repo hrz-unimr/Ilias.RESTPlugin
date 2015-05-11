@@ -8,9 +8,7 @@
 namespace RESTController\core\clients;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
+use \RESTController\libs as Lib;
 use \RESTController\libs\Exceptions as LibExceptions;
 use \RESTController\core\clients\Exceptions as ClientExceptions;
 
@@ -29,7 +27,7 @@ $app->get('/clients', '\RESTController\libs\AuthMiddleware::authenticateTokenOnl
     $user = $env['user'];
 
     // Check if user has admin role
-    if (RESTLib::isAdminByUsername($user)) {
+    if (Lib\RESTLib::isAdminByUsername($user)) {
         // Use the model class to fetch data
         $admin_model = new ClientsModel();
         $data = $admin_model->getClients();
@@ -42,7 +40,7 @@ $app->get('/clients', '\RESTController\libs\AuthMiddleware::authenticateTokenOnl
         $app->success($result);
     }
     else
-        $app->halt(401, "Access denied. Administrator permissions required.", RESTLib::NO_ADMIN_ID);
+        $app->halt(401, "Access denied. Administrator permissions required.", Lib\RESTLib::NO_ADMIN_ID);
 });
 
 
@@ -60,7 +58,7 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
     $user = $env['user'];
 
     // Check if authorized user has admin role
-    if (RESTLib::isAdminByUsername($user)) {
+    if (Lib\RESTLib::isAdminByUsername($user)) {
         // Shortcut for request object
         $request = $app->request;
         $app->log->debug("Update data: " . print_r($request->getRaw(), true));
@@ -114,7 +112,7 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
         }
     }
     else
-        $app->halt(401, "Access denied. Administrator permissions required.", RESTLib::NO_ADMIN_ID);
+        $app->halt(401, "Access denied. Administrator permissions required.", Lib\RESTLib::NO_ADMIN_ID);
 });
 
 
@@ -132,7 +130,7 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
     $user = $env['user'];
 
     // Check if authorized user has admin role
-    if (RESTLib::isAdminByUsername($user)) {
+    if (Lib\RESTLib::isAdminByUsername($user)) {
         // Shortcut for request object
         $request = $app->request();
         $app->log->debug("Request data (Create Client): " . print_r($request->getRaw(), true));
@@ -187,7 +185,7 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
         $app->success($result);
     }
     else
-        $app->halt(401, "Access denied. Administrator permissions required.", RESTLib::NO_ADMIN_ID);
+        $app->halt(401, "Access denied. Administrator permissions required.", Lib\RESTLib::NO_ADMIN_ID);
 });
 
 
@@ -206,7 +204,7 @@ $app->delete('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateT
     $user = $env['user'];
 
     // Check if authorized user has admin role
-    if (RESTLib::isAdminByUsername($user)) {
+    if (Lib\RESTLib::isAdminByUsername($user)) {
         try {
             // Use the model class to update databse
             $admin_model = new ClientsModel();
@@ -220,7 +218,7 @@ $app->delete('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateT
         }
     }
     else
-        $app->halt(401, "Access denied. Administrator permissions required.", RESTLib::NO_ADMIN_ID);
+        $app->halt(401, "Access denied. Administrator permissions required.", Lib\RESTLib::NO_ADMIN_ID);
 });
 
 

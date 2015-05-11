@@ -23,8 +23,9 @@ filters.filter('interpolate', function(version) {
 filters.filter('restInfo',function($sce) {
     return function(text, status, data) {
         var statusClean = status;
-        var dataClean = $sce.trustAsHtml(data.replace(/"/g, '\\&quot;').replace(/'/g, '\\&#39;'));
-                
+        var dataClean = (typeof data == "string") ? dataClean.replace(/"/g, '\\&quot;').replace(/'/g, '\\&#39;') : data;
+        dataClean = $sce.trustAsHtml(dataClean);
+
         return String(text).replace(/\%INFO\%/mg, '<span class="restInfo">(Status: <u><span href="#" tooltip-html-unsafe="'+dataClean+'" tooltip-placement="left">'+statusClean+'</span></u>)</span>');
     };
 });
@@ -38,11 +39,11 @@ filters.filter('formatListPermissions', function($sce) {
     return function(value) {
         if (typeof value != 'undefined') {
             var jsonValue = angular.fromJson(value);
-            
+
             var resultHtml = '<table>';
             for (var i = 0; i < jsonValue.length; i++) {
                 resultHtml += '<tr><td style="width: 5em">';
-                
+
                 switch (jsonValue[i].verb) {
                 case "GET":
                     resultHtml += '<span class="label label-primary">GET</span>';
@@ -57,14 +58,14 @@ filters.filter('formatListPermissions', function($sce) {
                     resultHtml += '<span class="label label-danger">DELETE</span>';
                     break;
                 }
-                
+
                 resultHtml += '</td><td><span class="label label-permission">' + jsonValue[i].pattern + '</span></td></tr>';
             }
             resultHtml += '</table>';
-            
+
             return $sce.trustAsHtml(resultHtml);
         }
-        
+
         return "";
     };
 });
@@ -72,7 +73,7 @@ filters.filter('formatEditPermission', function($sce) {
     return function(value) {
         if (typeof value != 'undefined') {
             var jsonValue = angular.fromJson(value);
-            
+
             var resultHtml;
             switch (jsonValue.verb) {
             case "GET":
@@ -89,10 +90,10 @@ filters.filter('formatEditPermission', function($sce) {
                 break;
             }
             resultHtml += '<span class="label label-permission">' + jsonValue.pattern + '</span>';
-            
+
             return $sce.trustAsHtml(resultHtml);
         }
-        
+
         return "";
     };
 });

@@ -7,17 +7,14 @@
  */
 namespace RESTController\libs;
 
-// This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
 
- 
 // Requires ../Slim/Slim.php
 // Requires AuthLib.php
 // Requires TokenLib.php
 // Requires RESTLib.php
- 
- 
-/* 
+
+
+/*
  * Middleware Authentification Functions
  *  This middleware can be included in a route signature as follows:
  *  $app->get('/users', function () use ($app) { ... })
@@ -31,8 +28,8 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
  */
  class AuthMiddleware {
     /**
-     * This authorization middleware requires a valid  access-token (bearer) 
-     * or a valid SSQ certificate. Furthermore the permission for the client 
+     * This authorization middleware requires a valid  access-token (bearer)
+     * or a valid SSQ certificate. Furthermore the permission for the client
      * to access the current route with a particular action is checked.
      *
      * @param \Slim\Route $route
@@ -41,26 +38,26 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
         // Fetch instance of SLIM-Framework and HTTP request
         $app = \Slim\Slim::getInstance();
         $request = $app->request();
-        
+
         // Authentication by client certificate
         // (see: http://cweiske.de/tagebuch/ssl-client-certificates.htm)
         $client = ($_SERVER['SSL_CLIENT_VERIFY'] && $_SERVER['SSL_CLIENT_S_DN_CN'] && $_SERVER['SSL_CLIENT_I_DN_O']) ? $_SERVER['SSL_CLIENT_S_DN_CN'] : NULL;
         $secret = NULL;
-        if ($client) { 
+        if ($client) {
             // ToDo: no secret is needed, its just the organisation name
-            $secret = $_SERVER['SSL_CLIENT_I_DN_O']; 
+            $secret = $_SERVER['SSL_CLIENT_I_DN_O'];
             $ret = AuthLib::checkOAuth2ClientCredentials($client, $secret);
-            
+
             // Stops everything and returns 401 response
-            if (!$ret) 
+            if (!$ret)
                 $app->halt(401, "Using invalid SSL-Certificate.");
-            
-            // Setup slim environment 
+
+            // Setup slim environment
             $env = $app->environment();
             $env['client_id'] = $client;
         }
         // Authentication by token
-        else 
+        else
             self::checkToken();
 
         // Check route permissions
@@ -69,7 +66,7 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
 
 
     /**
-     * This authorization middleware only checks if the access token (bearer) is valid, 
+     * This authorization middleware only checks if the access token (bearer) is valid,
      * but does not check if the user is allowed to acces this route.
      */
     public static function authenticateTokenOnly() {
@@ -85,19 +82,19 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
     public static function authenticateILIASAdminRole() {
         // Authentication by token
         self::checkToken();
-        
+
         // Fetch instance of SLIM-Framework
         $app = \Slim\Slim::getInstance();
         $env = $app->environment();
-        
+
         // Check if given user has admin-role ($env['user'] is set by checkToken())
-        if (!RESTLib::isAdminByUsername($env['user'])) 
+        if (!RESTLib::isAdminByUsername($env['user']))
             $app->halt(401, "Admin permissions required.");
     }
-    
-     
+
+
     /**
-     * Utility Function: 
+     * Utility Function:
      *  Checks the validity of a token and stops the request flow, if the token is invalid.
      *  The token is fetched from the following locations:
      *   HTTP POST parameter: 'token'
@@ -116,10 +113,10 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
         // Fetch instance of SLIM-Framework and HTTP request
         $app = \Slim\Slim::getInstance();
         $request = $app->request();
-        
+
         // Fetch token from body (as POST data)
         $token_ser = $request->params('token');
-        
+
         // Fetch token from body (as json)
         if ($token_ser == null) {
             $jsondata = $request->getBody();
@@ -131,12 +128,12 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
         if ($token_ser == null) {
             $headers = apache_request_headers();
             $authHeader = $headers['Authorization'];
-            
+
             // Found Authorization header?
             if ($authHeader != null) {
                 $a_auth = explode(" ", $authHeader);
                 $token_ser = $a_auth[1];        // Bearer Access Token
-                if ($token_ser == null) 
+                if ($token_ser == null)
                     $token_ser = $a_auth[0];    // Non bearer prefix
             }
         }
@@ -145,13 +142,13 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
         $token = TokenLib::deserializeToken($token_ser);
 
         // Check token for common problems: Non given or invalid format
-        if (!$token) 
+        if (!$token)
             $app->halt(401, "No access-token provided or using invalid format.");
-        
+
         // Check token for common problems: Invalid format
-        if (TokenLib::tokenExpired($token)) 
+        if (TokenLib::tokenExpired($token))
             $app->halt(401, "Token expired.");
-        
+
         // Check token for common problems: missing user entry (should not happen!)
         if (isset($token['user'])) {
             // Set ['user'] on environment
@@ -160,7 +157,7 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
         }
         else
             $app->halt(401, "Invalid token, missing user.");
-        
+
         // Check token for common problems: missing api-key entry (should not happen!)
         if (isset($token['api_key'])) {
             // Set ['api_key'] on environment
@@ -176,8 +173,8 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
     }
 
     /**
-     * Utility Function: 
-     *  Checks the permission for the current client to 
+     * Utility Function:
+     *  Checks the permission for the current client to
      *  access a route with a certain action.
      *
      * NOTE: 'api_key' needs to be in \Slim\Slim::getInstance()->environment();
@@ -188,15 +185,14 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
         // Fetch instance of SLIM-Framework and HTTP request
         $app = \Slim\Slim::getInstance();
         $env = $app->environment();
-        
+
         // Fetch data to check route access
         $api_key = $env['api_key'];
         $current_route = $route->getPattern();
         $current_verb = strtolower($app->request->getMethod());
 
         // Check route access rights given route, method and api-key
-        if (!AuthLib::checkOAuth2Scope($current_route, $current_verb, $api_key)) 
+        if (!AuthLib::checkOAuth2Scope($current_route, $current_verb, $api_key))
             $app->halt(401, "No permission to access route.");
     }
  }
- 

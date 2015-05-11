@@ -238,7 +238,12 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
         // Make sure no empty array is appended to
         if (!angular.isDefined($scope.current.permissions) || $scope.current.permissions == null)
             current.permissions = [];
-        $scope.current.permissions.push(permission);
+
+        // Strip auth-middleware and add permission
+        $scope.current.permissions.push({
+            pattern: permission.pattern,
+            verb: permission.verb,
+        });
     };
 
 
@@ -280,7 +285,7 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
                     api_secret:$scope.current.api_secret,
                     oauth2_redirection_uri : $scope.current.oauth2_redirection_uri,
                     oauth2_consent_message : $scope.current.oauth2_consent_message,
-                    permissions: angular.toJson($scope.current.permissions),
+                    permissions: $scope.current.permissions,
                     oauth2_gt_client_active: $scope.current.oauth2_gt_client_active,
                     oauth2_gt_client_user: $scope.current.oauth2_gt_client_user,
                     oauth2_gt_authcode_active: $scope.current.oauth2_gt_authcode_active,
@@ -300,15 +305,15 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
                     }
                     else
                         $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_UNKOWN'), response.status, response.data);
+
+                    $location.url("/clientlist");
                 },
                 // Failure
                 function (response) {
                     $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_REMOTE'), response.status, response.data);
+                    $location.url("/clientlist");
                 }
             );
-
-            // Redirect
-            $location.url("/clientlist");
         }
         // Save changes (for existing client)
         else {
@@ -322,7 +327,7 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
                         api_secret:$scope.current.api_secret,
                         oauth2_redirection_uri : $scope.current.oauth2_redirection_uri,
                         oauth2_consent_message : $scope.current.oauth2_consent_message,
-                        permissions: angular.toJson($scope.current.permissions),
+                        permissions: $scope.current.permissions,
                         oauth2_gt_client_active: $scope.current.oauth2_gt_client_active,
                         oauth2_gt_client_user: $scope.current.oauth2_gt_client_user,
                         oauth2_gt_authcode_active: $scope.current.oauth2_gt_authcode_active,
@@ -338,15 +343,14 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
                     function (response) {
                         if (response.status != "success")
                             $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_UNKOWN'), response.status, response.data);
+                        $location.url("/clientlist");
                     },
                     // Failure
                     function (response) {
                         $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_REMOTE'), response.status, response.data);
+                        $location.url("/clientlist");
                     }
                 );
-
-                // Redicrect
-                $location.url("/clientlist");
             };
 
             // Check if the Admin-Panel key was changed and show a warning in this case

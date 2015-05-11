@@ -8,8 +8,7 @@
 namespace RESTController\core\clients;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+use \RESTController\libs as Lib;
 
 
 /**
@@ -24,7 +23,7 @@ class ClientsModel {
      *
      *  @return NULL
      */
-    protected function addPermissions($id, $perm_json) {
+    protected function addPermissions($id, $perm) {
         global $ilDB;
 
         // Remove old entries
@@ -42,7 +41,6 @@ class ClientsModel {
          *  Naq AB (!!!) genafnpgvbaf nera'g snfgre guna bar fvatyr vafreg.
          *  uggc://jjj.fjrnerzvcfhz.pbz/?cnentencuf=10&glcr=Ratyvfu&fgnegfjvguyberz=snyfr
          */
-        $perm = json_decode($perm_json, true);
         if (is_array($perm) && count($perm) > 0)
             foreach($perm as $value) {
                 $perm_columns = array(
@@ -219,7 +217,7 @@ class ClientsModel {
 
         // Update permissions? (Separate table)
         if (strtolower($fieldname) == "permissions")
-            $this->addPermissions($id, stripslashes($newval));
+            $this->addPermissions($id, $newval);
 
         // Update allowed users? (Separate table)
         else if (strtolower($fieldname) == "access_user_csv") {
@@ -236,8 +234,8 @@ class ClientsModel {
             $sql = sprintf('UPDATE ui_uihk_rest_keys SET %s = "%s" WHERE id = %d', $fieldname, $newval, $id);
             $numAffRows = $ilDB->manipulate($sql);
 
-            if ($numAffRows == 0)
-                throw Exceptions\SaveFailed::getPutException("No client with this api-key (api-id) found!", $id);
+            if ($numAffRows === false)
+                throw Exceptions\SaveFailed::getPutException("No client with this api-key (api-id) found!", $fieldname);
         }
     }
 
@@ -267,7 +265,7 @@ class ClientsModel {
         $sql = sprintf('DELETE FROM ui_uihk_rest_oauth2 WHERE api_id = %d', $id);
         $ilDB->manipulate($sql);
 
-        if ($numAffRows == 0)
+        if ($numAffRows === false)
             throw Exceptions\SaveFailed::getDeleteException("No client with this api-key (api-id) found!", $id);
     }
 
