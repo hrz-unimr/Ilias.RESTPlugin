@@ -61,11 +61,11 @@ use \RESTController\core\clients\Exceptions as ClientExceptions;
     $user = $env['user'];
 
     // Check if user has admin role
-    if (!RESTLib::isAdminByUsername($user))
+    if (!Libs\RESTLib::isAdminByUsername($user))
         $app->halt(401, 'Access denied. Administrator permissions required.', Libs\RESTLib::NO_ADMIN_ID);
 
     // Use the model class to fetch data
-    $model = new Clients($app, $ilDB);
+    $model = new Clients($app, $GLOBALS['ilDB']);
     $data = $model->getClients();
 
     // Prepare data
@@ -146,7 +146,7 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
     );
 
     // Try to fetch each fields data and update its db-entry
-    $model = new Clients($app, $ilDB);
+    $model = new Clients($app, $GLOBALS['ilDB']);
     $request = $app->request;
     $failed = array();
     foreach ($fields as $field) {
@@ -233,7 +233,7 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
     try {
         $api_key = $request->getParam('api_key', null, true);
     } catch(LibExceptions\MissingParameter $e) {
-        $app->halt(422, $e->getMessage(), LibExceptions\MissingParameter::ID);
+        $app->halt(422, $e->getMessage(), $e::ID);
     }
 
     // Get optional inputs
@@ -253,7 +253,7 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
     $oauth2_resource_refresh_active = $request->getParam('oauth2_resource_refresh_active', 0);
 
     // Supply data to model which processes it further
-    $model = new Clients($app, $ilDB);
+    $model = new Clients($app, $GLOBALS['ilDB']);
     $new_id = $model->createClient(
         $api_key,
         $api_secret,
@@ -303,13 +303,13 @@ $app->delete('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateT
 
     try {
         // Use the model class to update databse
-        $model = new Clients($app, $ilDB);
+        $model = new Clients($app, $GLOBALS['ilDB']);
         $model->deleteClient($id);
 
         // Send affirmation status
         $result = array();
         $app->success($result);
     } catch(ClientExceptions\DeleteFailed $e) {
-        $app->halt(500, sprintf('Could not delete client with id: %d', $e->id()), ClientExceptions\DeleteFailed::ID);
+        $app->halt(500, sprintf('Could not delete client with id: %d', $e->id()), $e::ID);
     }
 });

@@ -41,7 +41,7 @@ if (isset($_GET['code'])){
         );
 
         // Endpoint (url) used for curl call
-        $restUrl =  $subFolder. "/v1/oauth2/token";
+        $restUrl =  $protocol . $_SERVER['SERVER_NAME'] . ":" . $_SERVER["SERVER_PORT"] . $subFolder. "/v1/oauth2/token";
 
         // Construct and execute curl (REST) POST-request
         $ch = curl_init();

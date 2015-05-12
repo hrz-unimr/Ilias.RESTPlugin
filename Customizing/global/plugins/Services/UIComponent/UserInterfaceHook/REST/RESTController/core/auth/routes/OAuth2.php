@@ -49,31 +49,33 @@ $app->group('/v1', function () use ($app) {
                 $password = $request->getParam('password');
                 $authenticity_token = $request->getParam('authenticity_token');
 
-                try {
-                    // Proccess with OAuth2-Model
-                    $model = new OAuth2($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
-                    $result = $model->auth_AllGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token);
+                // Proccess with OAuth2-Model
+                $model = new OAuth2Auth($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                $result = $model->allGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token);
 
-                    // Process results (send response)
-                    if ($result['status'] == 'showLogin')
-                        $model->render('REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', $result['data']);
-                    elseif ($result['status'] == 'showPermission')
-                        $model->render('REST OAuth - Client autorisieren', 'oauth2grantpermissionform.php', $result['data']);
-                    elseif ($result['status'] == 'redirect')
-                        $app->redirect($result['data']);
+                // Process results (send response)
+                if ($result['status'] == 'showLogin') {
+                    $render = new OAuth2Misc($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                    $render->render('REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', $result['data']);
                 }
-                catch (AuthExceptions\ResponseType $e) {
-                    $app->halt(400, $e->getMessage(), AuthExceptions\ResponseType::ID);
+                elseif ($result['status'] == 'showPermission') {
+                    $render = new OAuth2Misc($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                    $render->render('REST OAuth - Client autorisieren', 'oauth2grantpermissionform.php', $result['data']);
                 }
-                catch (AuthExceptions\LoginFailed $e) {
-                    $app->halt(401, $e->getMessage(), AuthExceptions\LoginFailed::ID);
-                }
-                catch (AuthExceptions\TokenExpired $e) {
-                    $app->halt(401, $e->getMessage(), AuthExceptions\TokenExpired::ID);
-                }
+                elseif ($result['status'] == 'redirect')
+                    $app->redirect($result['data']);
+            }
+            catch (AuthExceptions\ResponseType $e) {
+                $app->halt(400, $e->getMessage(), $e::ID);
+            }
+            catch (AuthExceptions\LoginFailed $e) {
+                $app->halt(401, $e->getMessage(), $e::ID);
+            }
+            catch (AuthExceptions\TokenExpired $e) {
+                $app->halt(401, $e->getMessage(), $e::ID);
             }
             catch (LibExceptions\MissingParameter $e) {
-                $app->halt(422, $e->getMessage(), LibExceptions\MissingParameter::ID);
+                $app->halt(422, $e->getMessage(), $e::ID);
             }
         });
 
@@ -97,17 +99,19 @@ $app->group('/v1', function () use ($app) {
                 $request = $app->request();
 
                 // Mandatory parameters
-                $api_key = $request->getParam('api_key', null, true);
+                $api_key = $request->getParam('client_id');
+                if (is_null($api_key))
+                    $api_key = $request->getParam('api_key', null, true);
                 $redirect_uri = $request->getParam('redirect_uri', null, true);
                 $response_type = $request->getParam('response_type', null, true);
 
                 // Render oauth2login.php for authorization code and implicit grant type flow
                 if ($response_type != 'code' && $response_type != 'token')
-                    $app->halt(422, 'Parameter <response_type> needs to be "code" or "token".', AuthExceptions\ResponseType::ID);
+                    throw new Exceptions\ResponseType('Parameter <response_type> need to match "code" or "token".');
 
                 // Display login form
-                $model = new OAuth2($app, $ilDB);
-                $model->render(
+                $render = new OAuth2Misc($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                $render->render(
                     'REST OAuth - Login für Tokengenerierung',
                     'oauth2loginform.php',
                     array(
@@ -117,8 +121,11 @@ $app->group('/v1', function () use ($app) {
                     )
                 );
             }
+            catch (AuthExceptions\ResponseType $e) {
+                $app->halt(400, $e->getMessage(), $e::ID);
+            }
             catch (LibExceptions\MissingParameter $e) {
-                $app->halt(422, $e->getMessage(), LibExceptions\MissingParameter::ID);
+                $app->halt(422, $e->getMessage(), $e::ID);
             }
         });
 
@@ -137,42 +144,34 @@ $app->group('/v1', function () use ($app) {
          * Response:
          */
         $app->post('/token', function () use ($app) {
-            // Get Request & OAuth-Model objects
-            $request =  $app->request();
-            $model = new OAuth2($app, $ilDB);
+            try {
+                // Get Request & OAuth-Model objects
+                $request =  $app->request();
+                $model = new OAuth2Token($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
 
-            // Resource Owner (User) grant type
-            if ($request->getParam('grant_type') == 'password') {
-                try {
+                // Resource Owner (User) grant type
+                if ($request->getParam('grant_type') == 'password') {
                     // Fetch request data
                     $api_key = $request->getParam('api_key', null, true);
                     $user = $request->getParam('username', null, true);
                     $password = $request->getParam('password', null, true);
 
                     // Invoke OAuth2-Model with data
-//                    $model->tokenUserCredentials($api_key, $user, $password);
+                    $result = $model->userCredentials($api_key, $user, $password);
+                    $app->success($result);
                 }
-                catch (LibExceptions\MissingParameter $e) {
-                    $app->halt(500, $e->getMessage(), LibExceptions\MissingParameter::ID);
-                }
-            }
-            // grant type
-            elseif ($request->getParam('grant_type') == 'client_credentials') {
-                try {
+                // grant type
+                elseif ($request->getParam('grant_type') == 'client_credentials') {
                     // Fetch request data
                     $api_key = $request->getParam('api_key', null, true);
                     $api_secret = $request->getParam('api_secret', null, true);
 
                     // Invoke OAuth2-Model with data
-//                    $model->tokenClientCredentials($api_key, $api_secret);
+                    $result = $model->clientCredentials($api_key, $api_secret);
+                    $app->success($result);
                 }
-                catch (LibExceptions\MissingParameter $e) {
-                    $app->halt(500, $e->getMessage(), LibExceptions\MissingParameter::ID);
-                }
-            }
-            // grant type
-            elseif ($request->getParam('grant_type') == 'authorization_code') {
-                try {
+                // grant type
+                elseif ($request->getParam('grant_type') == 'authorization_code') {
                     // Fetch request data (POST-Form instead of body)
                     $api_key = $_POST['api_key'];
 
@@ -182,36 +181,34 @@ $app->group('/v1', function () use ($app) {
                     $redirect_uri = $request->getParam('redirect_uri');
 
                     // Invoke OAuth2-Model with data
-//                    $model->tokenAuthorizationCode($api_key, $api_secret, $code, $redirect_uri);
+                    $result = $model->authorizationCode($api_key, $api_secret, $code, $redirect_uri);
+                    $app->success($result);
                 }
-                catch (LibExceptions\MissingParameter $e) {
-                    $app->halt(500, $e->getMessage(), LibExceptions\MissingParameter::ID);
-                }
-            }
-            // grant type
-            elseif ($request->getParam('grant_type') == 'refresh_token') {
-                try {
+                // grant type
+                elseif ($request->getParam('grant_type') == 'refresh_token') {
                     // Fetch request data
                     $refresh_token = $request->getParam('refresh_token', null, true);
 
                     // Invoke OAuth2-Model with data
-//                    $model->tokenRefresh2Bearer($refresh_token);
-
-                    $response->setHttpHeader('Cache-Control', 'no-store');
-                    $response->setHttpHeader('Pragma', 'no-cache');
-                    $response->setField('access_token',$bearer_token['access_token']);
-                    $response->setField('expires_in',$bearer_token['expires_in']);
-                    $response->setField('token_type',$bearer_token['token_type']);
-                    $response->setField('scope',$bearer_token['scope']);
-                    $response->send();
+                    $result = $model->refresh2Bearer($refresh_token);
+                    $app->success($result);
                 }
-                catch (LibExceptions\MissingParameter $e) {
-                    $app->halt(500, $e->getMessage(), LibExceptions\MissingParameter::ID);
-                }
+                // Wrong grant-type
+                else
+                    throw new Exceptions\ResponseType('Parameter <grant_type> need to match "password", "client_credentials", "authorization_code" or "refresh_token".');
             }
-            // Wrong grant-type
-            else
-                $app->halt(500, 'Parameter <grant_type> need to match "password", client_credentials, "authorization_code" or "refresh_token".', AuthExceptions\ResponseType::ID);
+            catch (AuthExceptions\ResponseType $e) {
+                $app->halt(400, $e->getMessage(), $e::ID);
+            }
+            catch (AuthExceptions\LoginFailed $e) {
+                $app->halt(401, $e->getMessage(), $e::ID);
+            }
+            catch (AuthExceptions\TokenExpired $e) {
+                $app->halt(401, $e->getMessage(), $e::ID);
+            }
+            catch (LibExceptions\MissingParameter $e) {
+                $app->halt(422, $e->getMessage(), $e::ID);
+            }
         });
 
 
@@ -231,7 +228,7 @@ $app->group('/v1', function () use ($app) {
             $bearerToken = $env['token'];
 
             // Create new refresh token
-            $model = new OAuth2($app, $ilDB);
+            $model = new OAuth2($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
 //            $refreshToken = $model->getRefreshToken($bearerToken);
 
             $response = new Oauth2Response($app, $ilDB);
@@ -254,7 +251,7 @@ $app->group('/v1', function () use ($app) {
          * Response:
          */
         $app->get('/tokeninfo', function () use ($app) {
-            $model = new OAuth2($app, $ilDB);
+            $model = new OAuth2($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
 
             $request = $app->request();
 
@@ -281,7 +278,7 @@ $app->group('/v1', function () use ($app) {
     $app->post('/ilauth/rtoken2bearer', function () use ($app) {
         $request = $app->request();
 
-        $model = new OAuth2($app, $ilDB);
+        $model = new OAuth2($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
 //        $model->rToken2Bearer($request);
 
 
