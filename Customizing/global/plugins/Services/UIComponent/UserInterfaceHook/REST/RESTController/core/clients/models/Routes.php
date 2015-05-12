@@ -5,17 +5,17 @@
  * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
-namespace RESTController\core\routes;
+namespace RESTController\core\clients;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs as Lib;
+use \RESTController\libs as Libs;
 
 
 /**
  * This model handels all data that is required
  * by the Routes-Routes.
  */
-class Routes extends Lib\RESTModel {
+class Routes extends Libs\RESTModel {
     /**
      * Given a set of slim-routes, this method
      * parses into an array together with

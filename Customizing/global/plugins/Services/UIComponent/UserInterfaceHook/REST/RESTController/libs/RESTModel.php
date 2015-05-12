@@ -30,15 +30,24 @@ class RESTModel {
      */
     protected $sqlDB;
 
+    /**
+     * Inject ilPluginAdmin. Should remove "global-like"
+     * nature of $ilPluginAdmin.
+     */
+    protected $plugin;
+
 
     /**
      * Create a new instance & inject RESTController
      */
-    public function __construct($app, $sqlDB = null) {
+    public function __construct($app, $sqlDB = null, $plugin = null) {
         // Inject RESTController
         $this->app = $app;
 
         // Inject $ilDB
         $this->sqlDB = $sqlDB;
+
+        // Inject $ilPluginAdmin
+        $this->plugin = $plugin;
     }
 }

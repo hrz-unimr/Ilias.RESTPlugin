@@ -8,7 +8,7 @@
 namespace RESTController\core\clients;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs as Lib;
+use \RESTController\libs as Libs;
 use \RESTController\libs\Exceptions as LibExceptions;
 use \RESTController\core\clients\Exceptions as ClientExceptions;
 // Requires <$app = \RESTController\RESTController::getInstance()>
@@ -74,7 +74,7 @@ use \RESTController\core\clients\Exceptions as ClientExceptions;
         $app->success($result);
     }
     else
-        $app->halt(401, 'Access denied. Administrator permissions required.', Lib\RESTLib::NO_ADMIN_ID);
+        $app->halt(401, 'Access denied. Administrator permissions required.', Libs\RESTLib::NO_ADMIN_ID);
 });
 
 
@@ -124,7 +124,7 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
     $user = $env['user'];
 
     // Check if authorized user has admin role
-    if (Lib\RESTLib::isAdminByUsername($user)) {
+    if (Libs\RESTLib::isAdminByUsername($user)) {
         // Shortcut for request object
         $request = $app->request;
 
@@ -177,7 +177,7 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
         }
     }
     else
-        $app->halt(401, 'Access denied. Administrator permissions required.', Lib\RESTLib::NO_ADMIN_ID);
+        $app->halt(401, 'Access denied. Administrator permissions required.', Libs\RESTLib::NO_ADMIN_ID);
 });
 
 
@@ -228,7 +228,7 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
     $user = $env['user'];
 
     // Check if authorized user has admin role
-    if (Lib\RESTLib::isAdminByUsername($user)) {
+    if (Libs\RESTLib::isAdminByUsername($user)) {
         // Shortcut for request object
         $request = $app->request();
 
@@ -236,7 +236,7 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
         try {
             $api_key = $request->getParam('api_key', null, true);
         } catch(LibExceptions\MissingParameter $e) {
-            $app->halt(500, sprintf('Mandatory data is missing, parameter <%s> not set.', $e.paramName()), LibExceptions\MissingParameter::ID);
+            $app->halt(500, sprintf('Mandatory data is missing, parameter <%s> not set.', $e->paramName()), LibExceptions\MissingParameter::ID);
         }
 
         // Get optional inputs
@@ -281,7 +281,7 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
         $app->success($result);
     }
     else
-        $app->halt(401, 'Access denied. Administrator permissions required.', Lib\RESTLib::NO_ADMIN_ID);
+        $app->halt(401, 'Access denied. Administrator permissions required.', Libs\RESTLib::NO_ADMIN_ID);
 });
 
 
@@ -304,7 +304,7 @@ $app->delete('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateT
     $user = $env['user'];
 
     // Check if authorized user has admin role
-    if (Lib\RESTLib::isAdminByUsername($user)) {
+    if (Libs\RESTLib::isAdminByUsername($user)) {
         try {
             // Use the model class to update databse
             $model = new Clients($app, $ilDB);
@@ -318,5 +318,5 @@ $app->delete('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateT
         }
     }
     else
-        $app->halt(401, 'Access denied. Administrator permissions required.', Lib\RESTLib::NO_ADMIN_ID);
+        $app->halt(401, 'Access denied. Administrator permissions required.', Libs\RESTLib::NO_ADMIN_ID);
 });

@@ -15,189 +15,126 @@ use \RESTController\core\clients\Clients as Clients;
 /**
  * Class OAuth2Model
  * This model provides methods to accomplish the OAuth2 mechanism for ILIAS.
- * Note: In contrast to the original specification, we renamed the term OAuth2 "client_id" to "api_key".
+ * Note: In contrast to the original specification, we renamed the term OAuth2 'client_id' to 'api_key'.
  */
-class OAuth2 {
+class OAuth2 extends Libs\RESTModel {
     /**
-     * Authorization endpoint routine:
-     * The authorization endpoint part of the authorization credendials flow.
-     * @param $app
+     *
      */
-    public function authAuthorizationCode($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token) {
-        $response = new OAuth2Response($app);
+    public function authAllGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token) {
+        // Client (api-key) is not allowed to use this grant-type or doesn't exist
+        $clients = new Clients($this->app, $this->sqlDB);
+        if (!$clients->clientExists($api_key))
+            throw new Exceptions\LoginFailed('There is no client with this api-key.');
+        if ($response_type != 'code' && $response_type != 'token')
+            throw new Exceptions\ResponseType('Parameter response_type must be "code" or "token".');
+        if ($response_type == 'code' && !$clients->is_oauth2_gt_authcode_enabled($api_key))
+            throw new Exceptions\LoginFailed('Authorization-code grant-type is disabled for this client.');
+        if ($response_type == 'token' && !$clients->is_oauth2_gt_implicit_enabled($api_key))
+            throw new Exceptions\LoginFailed('Implicit grant-type is disabled for this client.');
 
-        if ($redirect_uri && $api_key && is_null($authenticity_token) && is_null($username) && is_null($password)) {
-            OAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
-                'api_key' => $api_key,
-                'redirect_uri' => $redirect_uri,
-                'response_type' => $response_type
-            ));
-        } elseif ($username && $password) {
-            $isAuth = AuthLib::authenticateViaIlias($username, $password);
+        // Login-data (username/password) is provided, try to authenticate
+        if ($username && $password) {
+            // Try to authenticate via username/password & api-key
+            $isAuth = Libs\AuthLib::authenticateViaIlias($username, $password);
+            $clientValid = Libs\AuthLib::checkOAuth2Client($api_key);
 
-            $clientValid = AuthLib::checkOAuth2Client($api_key);
-            if ($isAuth == true && $clientValid == true){
-                $clients_model = new ClientsModel();
-                if ($clients_model->clientExists($api_key)) {
-                    if ($clients_model->is_oauth2_gt_authcode_enabled($api_key)) {
-                        if($clients_model->is_oauth2_consent_message_enabled($api_key) == true) {
-                            // Standard behaviour of the "authorization code grant": having an additional page with a consent message
-                            $temp_authenticity_token = TokenLib::generateSerializedToken($username, $api_key, '', '', 10);
-                            $oauth2_consent_message = $clients_model->getOAuth2ConsentMessage($api_key);
+            // Provided wrong API-Key?
+            if (!$clientValid)
+                return array(
+                    'status' => 'showLogin',
+                    'data' => array(
+                        'error_msg' => 'API-Key incorrect!',
+                        'api_key' => $api_key,
+                        'redirect_uri' => $redirect_uri,
+                        'response_type' => $response_type
+                    )
+                );
 
-                            OAuth2Model::render($app, 'REST OAuth - Client autorisieren', 'oauth2grantpermissionform.php', array(
-                                'api_key' => $api_key,
-                                'redirect_uri' => $redirect_uri,
-                                'response_type' => $response_type,
-                                'authenticity_token' => $temp_authenticity_token,
-                                'oauth2_consent_message' => $oauth2_consent_message
-                            ));
-                        } else {
-                            $authorization_code = TokenLib::generateSerializedToken($username, $api_key, 'code', $redirect_uri,10);
-                            $url = $redirect_uri . '?code='.$authorization_code;
-                            $app->redirect($url);
-                        }
-                    } else {
-                        $response->setHttpStatus(401);
-                        $response->send();
-                    }
-                } else {
-                    $response->setHttpStatus(401);
-                    $response->send();
+            // Provided wrong username/password
+            if (!$isAuth)
+                return array(
+                    'status' => 'showLogin',
+                    'data' => array(
+                        'error_msg' => 'Username or password incorrect!',
+                        'api_key' => $api_key,
+                        'redirect_uri' => $redirect_uri,
+                        'response_type' => $response_type
+                    )
+                );
+
+            // Need to show grant-permission site?
+            if($clients->is_oauth2_consent_message_enabled($api_key)) {
+                // Generate a temporary token that can be exchanged for bearer-token
+                $temp_authenticity_token = Libs\TokenLib::generateSerializedToken($username, $api_key, '', '', 10);
+                $oauth2_consent_message = $clients->getOAuth2ConsentMessage($api_key);
+
+                // Return data to route/other model
+                return array(
+                    'status' => 'showPermission',
+                    'data' => array(
+                        'api_key' => $api_key,
+                        'redirect_uri' => $redirect_uri,
+                        'response_type' => $response_type,
+                        'authenticity_token' => $temp_authenticity_token,
+                        'oauth2_consent_message' => $oauth2_consent_message
+                    )
+                );
+            }
+            // No need to show grant-permissions, goto redirect target
+            else {
+                // Generate a temporary token that can be exchanged for bearer-token
+                if ($response_type == 'code') {
+                    $authorization_code = Libs\TokenLib::generateSerializedToken($username, $api_key, 'code', $redirect_uri, 10);
+                    $url = $redirect_uri . '?code='.$authorization_code;
+                }
+                elseif ($response_type == 'token') {
+                    $bearerToken = Libs\TokenLib::generateBearerToken($username, $api_key);
+                    $url = $redirect_uri . '#access_token='.$bearerToken['access_token'].'&token_type=bearer'.'&expires_in='.$bearerToken['expires_in'].'&state=xyz';
                 }
 
-            } else {
-                OAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
-                    'error_msg' => 'Username or password incorrect!',
+                // Return data to route/other model
+                return array(
+                    'status' => 'redirect',
+                    'data' => $url
+                );
+            }
+        }
+        // Login-data (token) is provided, try to authenticate
+        elseif ($authenticity_token) {
+            // Check if token is still valid
+            if (!Libs\TokenLib::tokenExpired(Libs\TokenLib::deserializeToken($authenticity_token))) {
+                $tokenUser = $authenticity_token['user'];
+                // Generate a temporary token that can be exchanged for bearer-token
+                if ($response_type == 'code') {
+                    $authorization_code = Libs\TokenLib::generateSerializedToken($tokenUser, $api_key, 'code', $redirect_uri, 10);
+                    $url = $redirect_uri . '?code='.$authorization_code;
+                }
+                elseif ($response_type == 'token') {
+                    $bearerToken = Libs\TokenLib::generateBearerToken($tokenUser, $api_key);
+                    $url = $redirect_uri . '#access_token='.$bearerToken['access_token'].'&token_type=bearer'.'&expires_in='.$bearerToken['expires_in'].'&state=xyz';
+                }
+
+                // Return data to route/other model
+                return array(
+                    'status' => 'redirect',
+                    'data' => $url
+                );
+            }
+            // Provided token has expired
+            else
+                throw new Exceptions\TokenExpired('The provided token has expired.');
+        }
+        // No login-data (token or username/password) provided, render login-page
+        else
+            return array(
+                'status' => 'showLogin',
+                'data' => array(
                     'api_key' => $api_key,
                     'redirect_uri' => $redirect_uri,
                     'response_type' => $response_type
-                ));
-            }
-        } elseif ($authenticity_token && $redirect_uri) {
-            $authenticity_token = TokenLib::deserializeToken($authenticity_token);
-            $user = $authenticity_token['user'];
-
-            if (!TokenLib::tokenExpired($authenticity_token)) {
-                $authorization_code = TokenLib::generateSerializedToken($user, $api_key, 'code', $redirect_uri,10);
-                $url = $redirect_uri . '?code='.$authorization_code;
-                $app->redirect($url);
-            }
-        }
-    }
-
-
-    /**
-    * Authorization endpoint routine:
-     * The authorization endpoint part of the implicit grant flow.
-     * @param $app
-     */
-    public function authImplicitGrant($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token) {
-        $response = new OAuth2Response($app);
-
-        $clients_model = new ClientsModel($app);
-        if ($clients_model->clientExists($api_key)) {
-            if ($clients_model->is_oauth2_gt_implicit_enabled($api_key)) {
-                if($clients_model->is_oauth2_consent_message_enabled($api_key)) {
-                    // Standard behaviour of "implicit grant": having an additional page with a consent message
-                    if ($redirect_uri && $api_key && is_null($authenticity_token) && is_null($username) && is_null($password)) {
-                        OAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
-                            'api_key' => $api_key,
-                            'redirect_uri' => $redirect_uri,
-                            'response_type' => $response_type
-                        ));
-                    } elseif ($username && $password) {
-                        $isAuth = AuthLib::authenticateViaIlias($username, $password);
-                        $clientValid = AuthLib::checkOAuth2Client($api_key);
-                        if ($isAuth == true) {
-                            $app->log->debug('Implicit Grant Flow - Auth valid');
-                        } else {
-                            $app->log->debug('Implicit Grant Flow - Auth NOT valid');
-                            $response->setHttpStatus(401);
-                            $response->send();
-                        }
-                        $app->log->debug('Implicit Grant Flow - Client valid: '.print_r($clientValid,true));
-                        if ($isAuth == true && $clientValid != false) {
-                            $app->log->debug('Implicit Grant Flow - proceed to grant permission form' );
-                            $temp_authenticity_token = TokenLib::generateSerializedToken($username, $api_key, '', '', 10);
-                            $oauth2_consent_message = $clients_model->getOAuth2ConsentMessage($api_key);
-
-                            OAuth2Model::render($app, 'REST OAuth - Client autorisieren', 'oauth2grantpermissionform.php', array(
-                                'api_key' => $api_key,
-                                'redirect_uri' => $redirect_uri,
-                                'response_type' => $response_type,
-                                'authenticity_token' => $temp_authenticity_token,
-                                'oauth2_consent_message' => $oauth2_consent_message
-                            ));
-                        } else {
-                            OAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
-                                'error_msg' => 'Username or password incorrect!',
-                                'api_key' => $api_key,
-                                'redirect_uri' => $redirect_uri,
-                                'response_type' => $response_type
-                            ));
-                        }
-                    } elseif ($authenticity_token && $redirect_uri) {
-                        $authenticity_token = TokenLib::deserializeToken($authenticity_token);
-                        $user = $authenticity_token['user'];
-
-                        if (!TokenLib::tokenExpired($authenticity_token)) { // send bearer token
-                            $clients_model = new ClientsModel();
-                            if ($clients_model->clientExists($api_key)) {
-                                if ($clients_model->is_oauth2_gt_implicit_enabled($api_key)) {
-                                    $bearerToken = TokenLib::generateBearerToken($user, $api_key);
-                                    $url = $redirect_uri . '#access_token='.$bearerToken['access_token'].'&token_type=bearer'.'&expires_in='.$bearerToken['expires_in'].'&state=xyz';
-                                    $app->redirect($url);
-                                }
-                            }
-                            $url = $redirect_uri . '#access_token='.'no_access';
-                            $app->redirect($url);
-                        }
-                    }
-                } else { // no consent message
-                    $app->log->debug('Implicit Grant Flow - Without Consent Message ');
-                    if ($redirect_uri && $api_key && is_null($authenticity_token) && is_null($username) && is_null($password)) {
-                        $app->log->debug('Implicit Grant Flow - Rendering LoginForm ');
-
-                        OAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
-                            'api_key' => $api_key,
-                            'redirect_uri' => $redirect_uri,
-                            'response_type' => $response_type
-                        ));
-                    } elseif ($username && $password) {
-                        $isAuth = AuthLib::authenticateViaIlias($username, $password);
-                        $clientValid = AuthLib::checkOAuth2Client($api_key);
-
-                        if ($isAuth == true) {
-                            $app->log->debug('Implicit Grant Flow - Auth valid');
-                        } else {
-                            $app->log->debug('Implicit Grant Flow - Auth NOT valid');
-                            $response->setHttpStatus(401);
-                        }
-                        $app->log->debug('Implicit Grant Flow - Client valid: '.print_r($clientValid,true));
-                        if ($isAuth == true && $clientValid != false) {
-                            $bearerToken = TokenLib::generateBearerToken($username, $api_key);
-                            $url = $redirect_uri . '#access_token='.$bearerToken['access_token'].'&token_type=bearer'.'&expires_in='.$bearerToken['expires_in'].'&state=xyz';
-                            $app->redirect($url);
-                        }else {
-                            OAuth2Model::render($app, 'REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', array(
-                                'error_msg' => 'Username or password incorrect!',
-                                'api_key' => $api_key,
-                                'redirect_uri' => $redirect_uri,
-                                'response_type' => $response_type
-                            ));
-                        }
-                    } // username, passw
-                }
-            } else {
-                $response->setHttpStatus(401);
-                $response->send();
-            }
-        } else {
-            $response->setHttpStatus(401);
-            $response->send();
-        }
-
+                )
+            );
     }
 
 
@@ -462,7 +399,7 @@ class OAuth2 {
      * Refresh Token Endpoint routine:
      * Resets an existing refresh token entry:
      *  - Overwrites refresh token field
-     *  - Increases field "num_resets"
+     *  - Increases field 'num_resets'
      *  - Overwrites field num_refresh_left
      *  - Overwrites last_refresh_timestamp
      */
@@ -625,11 +562,10 @@ class OAuth2 {
     /**
      * Further OAuth2 routines:
      * Tokeninfo - Tokens obtained via the implicit code grant MUST by validated by the Javascript client
-     * to prevent the "confused deputy problem".
+     * to prevent the 'confused deputy problem'.
      * @param $app
      */
-    public function tokenInfo($request)
-    {
+    public function tokenInfo($request) {
         $access_token = $request->params('access_token');
         if (!isset($access_token)) {
             $a_data = array();
@@ -675,9 +611,7 @@ class OAuth2 {
      * This is used for administration purposes.
      * @param $app
      */
-    public function rToken2Bearer($request)
-    {
-
+    public function rToken2Bearer($request) {
         $result = array();
         $user_id = '';
         $rtoken = '';
@@ -722,7 +656,6 @@ class OAuth2 {
 
 
     /**
-     * Further OAuth2 routines:
      * Simplifies rendering output by allowing to reuse common code.
      * Core.php which includes many preset JavaScript and CSS libraries will always
      * be used as a base template and $file will be included into its body.
@@ -731,20 +664,17 @@ class OAuth2 {
      * @param $file - This file will be included inside <body></body> tags
      * @param $data - Optional data (may be an array) that is passed to the template
      */
-    public static function render($app, $title, $file, $data) {
-        // Needed to get relative path to document-root (where restplugin.php is)
-        global $ilPluginAdmin;
-
+    public function render($title, $file, $data) {
         // Build absolute-path (relative to document-root)
         $sub_dir = 'core/auth/views';
-        $rel_path = $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, 'UIComponent', 'uihk', 'REST')->getDirectory();
+        $rel_path = $this->plugin->getPluginObject(IL_COMP_SERVICE, 'UIComponent', 'uihk', 'REST')->getDirectory();
         $scriptName = dirname($_SERVER['SCRIPT_NAME']);
         $scriptName = str_replace('\\', '/', $scriptName);
         $scriptName = ($scriptName == '/' ? '' : $scriptName);
         $abs_path = $scriptName.'/'.$rel_path.'/RESTController/'.$sub_dir;
 
         // Supply data to slim application
-        $app->render($sub_dir.'/core.php', array(
+        $this->app->render($sub_dir.'/core.php', array(
             'tpl_path' => $abs_path,
             'tpl_title' => $title,
             'tpl_file' => $file,

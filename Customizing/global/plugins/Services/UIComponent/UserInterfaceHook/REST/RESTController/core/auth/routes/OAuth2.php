@@ -8,8 +8,9 @@
 namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs as Lib;
+use \RESTController\libs as Libs;
 use \RESTController\libs\Exceptions as LibExceptions;
+use \RESTController\core\auth\Exceptions as AuthExceptions;
 // Requires <$app = \RESTController\RESTController::getInstance()>
 
 
@@ -34,29 +35,46 @@ $app->group('/v1', function () use ($app) {
          * Response:
          */
         $app->post('/auth', function () use ($app) {
-            // Fetch request data
-            $request = $app->request();
-            $api_key = $request->getParam('api_key');
-            $username = $request->getParam('username');
-            $password = $request->getParam('password');
-            $redirect_uri = $request->getParam('redirect_uri');
-            $response_type = $request->getParam('response_type');
-            $authenticity_token = $request->getParam('authenticity_token');
+            try {
+                // Fetch request data
+                $request = $app->request();
 
-            // Get Oauth2-Model
-            $model = new OAuth2($app, $ilDB);
+                // Mandatory parameters
+                $api_key = $request->getParam('api_key', null, true);
+                $redirect_uri = $request->getParam('redirect_uri', null, true);
+                $response_type = $request->getParam('response_type', null, true);
 
-            // Type: Authorization grant
-            if ($response_type == 'code')
-//                $model->authAuthorizationCode($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token);
-                echo "<stub>";
-            // Type: Implicit grant
-            elseif ($response_type == 'token')
-//                $model->authImplicitGrant($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token);
-                echo "<stub>";
-            // Wrong grant-type
-            else
-                $app->halt(500, 'Parameter <response_type> need to match "code" or "token".', OAuth2Exceptions\ResponseType::ID);
+                // Optional parameters (will be checked by model)
+                $username = $request->getParam('username');
+                $password = $request->getParam('password');
+                $authenticity_token = $request->getParam('authenticity_token');
+
+                try {
+                    // Proccess with OAuth2-Model
+                    $model = new OAuth2($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                    $result = $model->authAllGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token);
+
+                    // Process results (send response)
+                    if ($result['status'] == 'showLogin')
+                        $model->render('REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', $result['data']);
+                    elseif ($result['status'] == 'showPermission')
+                        $model->render('REST OAuth - Client autorisieren', 'oauth2grantpermissionform.php', $result['data']);
+                    elseif ($result['status'] == 'redirect')
+                        $app->redirect($result['data']);
+                }
+                catch (AuthExceptions\ResponseType $e) {
+                    $app->halt(500, sprintf('!!!'), AuthExceptions\ResponseType::ID);
+                }
+                catch (AuthExceptions\LoginFailed $e) {
+                    $app->halt(500, sprintf('!!!'), AuthExceptions\LoginFailed::ID);
+                }
+                catch (AuthExceptions\TokenExpired $e) {
+                    $app->halt(500, sprintf('!!!'), AuthExceptions\TokenExpired::ID);
+                }
+            }
+            catch (LibExceptions\MissingParameter $e) {
+                $app->halt(500, sprintf('Mandatory data is missing, parameter <%s> not set.', $e->paramName()), LibExceptions\MissingParameter::ID);
+            }
         });
 
 
@@ -105,7 +123,7 @@ $app->group('/v1', function () use ($app) {
             }
             // Wrong grant-type
             else
-                $app->halt(500, 'Parameter <response_type> need to match "code" or "token".', OAuth2Exceptions\ResponseType::ID);
+                $app->halt(500, 'Parameter <response_type> need to match "code" or "token".', AuthExceptions\ResponseType::ID);
         });
 
 
@@ -139,7 +157,7 @@ $app->group('/v1', function () use ($app) {
 //                    $model->tokenUserCredentials($api_key, $user, $password);
                 }
                 catch (LibExceptions\MissingParameter $e) {
-                    $app->halt(500, sprintf('Mandatory data is missing, parameter <%s> not set.', $e.paramName()), LibExceptions\MissingParameter::ID);
+                    $app->halt(500, sprintf('Mandatory data is missing, parameter <%s> not set.', $e->paramName()), LibExceptions\MissingParameter::ID);
                 }
             }
             // grant type
@@ -153,7 +171,7 @@ $app->group('/v1', function () use ($app) {
 //                    $model->tokenClientCredentials($api_key, $api_secret);
                 }
                 catch (LibExceptions\MissingParameter $e) {
-                    $app->halt(500, sprintf('Mandatory data is missing, parameter <%s> not set.', $e.paramName()), LibExceptions\MissingParameter::ID);
+                    $app->halt(500, sprintf('Mandatory data is missing, parameter <%s> not set.', $e->paramName()), LibExceptions\MissingParameter::ID);
                 }
             }
             // grant type
@@ -171,7 +189,7 @@ $app->group('/v1', function () use ($app) {
 //                    $model->tokenAuthorizationCode($api_key, $api_secret, $code, $redirect_uri);
                 }
                 catch (LibExceptions\MissingParameter $e) {
-                    $app->halt(500, sprintf('Mandatory data is missing, parameter <%s> not set.', $e.paramName()), LibExceptions\MissingParameter::ID);
+                    $app->halt(500, sprintf('Mandatory data is missing, parameter <%s> not set.', $e->paramName()), LibExceptions\MissingParameter::ID);
                 }
             }
             // grant type
@@ -192,12 +210,12 @@ $app->group('/v1', function () use ($app) {
                     $response->send();
                 }
                 catch (LibExceptions\MissingParameter $e) {
-                    $app->halt(500, sprintf('Mandatory data is missing, parameter <%s> not set.', $e.paramName()), LibExceptions\MissingParameter::ID);
+                    $app->halt(500, sprintf('Mandatory data is missing, parameter <%s> not set.', $e->paramName()), LibExceptions\MissingParameter::ID);
                 }
             }
             // Wrong grant-type
             else
-                $app->halt(500, 'Parameter <grant_type> need to match "password", client_credentials, "authorization_code" or "refresh_token".', OAuth2Exceptions\ResponseType::ID);
+                $app->halt(500, 'Parameter <grant_type> need to match "password", client_credentials, "authorization_code" or "refresh_token".', AuthExceptions\ResponseType::ID);
         });
 
 

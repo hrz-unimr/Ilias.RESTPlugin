@@ -8,13 +8,13 @@
 namespace RESTController\core\clients;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs as Lib;
+use \RESTController\libs as Libs;
 
 
 /**
  *
  */
-class Clients extends Lib\RESTModel {
+class Clients extends Libs\RESTModel {
     /**
      * Will add all permissions given by $perm_json to the ui_uihk_rest_perm table for the api_key with $id.
      *

@@ -9,17 +9,17 @@ namespace RESTController\core\auth\Exceptions;
 
 
 /**
- * This exception should be thrown when
- * the client does not provide the correct response_type
- * value with his query.
+ * This exception should be thrown, when
+ * the client trys to authenticate via token
+ * but the token allready expired.
  */
-class ResponseType extends \Exception {
+class TokenExpired extends \Exception {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.
      *  Using a unique string seems to be an easier solution than assigning unique numbers.
      */
-    const ID = 'RESTController\\core\\auth\\Exceptions\\ResponseType';
+    const ID = 'RESTController\\core\\auth\\Exceptions\\TokenExpired';
 
 
     /**
