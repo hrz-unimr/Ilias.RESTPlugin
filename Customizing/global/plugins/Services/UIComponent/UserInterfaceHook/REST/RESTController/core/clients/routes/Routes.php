@@ -33,7 +33,7 @@ namespace RESTController\core\clients;
  */
 $app->get('/routes', function () use ($app) {
     // Create model and inject $app
-    $model = new Routes($app);
+    $model = new Routes();
 
     // Fetch all available routes
     $routes = $app->router()->getRoutes();
@@ -59,7 +59,7 @@ $app->get('/routes', function () use ($app) {
  */
 $app->get('/rest/config', function () use ($app) {
     // Create model and inject $app
-    $model = new Routes($app);
+    $model = new Routes();
 
     // Fetch for app_directory
     $env = $app->environment();

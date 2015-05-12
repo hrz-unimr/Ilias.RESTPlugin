@@ -40,7 +40,7 @@ class RESTModel {
     /**
      * Create a new instance & inject RESTController
      */
-    public function __construct($app, $sqlDB = null, $plugin = null) {
+    public function __construct($app = null, $sqlDB = null, $plugin = null) {
         // Inject RESTController
         $this->app = $app;
 

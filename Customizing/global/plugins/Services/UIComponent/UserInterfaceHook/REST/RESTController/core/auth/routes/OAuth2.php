@@ -52,7 +52,7 @@ $app->group('/v1', function () use ($app) {
                 try {
                     // Proccess with OAuth2-Model
                     $model = new OAuth2($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
-                    $result = $model->authAllGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token);
+                    $result = $model->auth_AllGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token);
 
                     // Process results (send response)
                     if ($result['status'] == 'showLogin')
@@ -63,17 +63,17 @@ $app->group('/v1', function () use ($app) {
                         $app->redirect($result['data']);
                 }
                 catch (AuthExceptions\ResponseType $e) {
-                    $app->halt(500, sprintf('!!!'), AuthExceptions\ResponseType::ID);
+                    $app->halt(400, $e->getMessage(), AuthExceptions\ResponseType::ID);
                 }
                 catch (AuthExceptions\LoginFailed $e) {
-                    $app->halt(500, sprintf('!!!'), AuthExceptions\LoginFailed::ID);
+                    $app->halt(401, $e->getMessage(), AuthExceptions\LoginFailed::ID);
                 }
                 catch (AuthExceptions\TokenExpired $e) {
-                    $app->halt(500, sprintf('!!!'), AuthExceptions\TokenExpired::ID);
+                    $app->halt(401, $e->getMessage(), AuthExceptions\TokenExpired::ID);
                 }
             }
             catch (LibExceptions\MissingParameter $e) {
-                $app->halt(500, sprintf('Mandatory data is missing, parameter <%s> not set.', $e->paramName()), LibExceptions\MissingParameter::ID);
+                $app->halt(422, $e->getMessage(), LibExceptions\MissingParameter::ID);
             }
         });
 
@@ -92,38 +92,34 @@ $app->group('/v1', function () use ($app) {
          * Response:
          */
         $app->get('/auth', function () use ($app) {
-            // Fetch request data (GET instead of body)
-            // Issue: Standard ILIAS Init absorbs client_id GET request field
-            $apikey = $_GET['api_key'];
-            $redirect_uri = $_GET['redirect_uri'];
-            $response_type = $_GET['response_type'];
+            try {
+                // Fetch request data
+                $request = $app->request();
 
-            // Render oauth2login.php for authorization code and implicit grant type flow
-            if ($response_type == 'code' || $response_type == 'token') {
-                if ($apikey && $redirect_uri) {
-                    // Get Oauth2-Model
-                    $model = new OAuth2($app, $ilDB);
+                // Mandatory parameters
+                $api_key = $request->getParam('api_key', null, true);
+                $redirect_uri = $request->getParam('redirect_uri', null, true);
+                $response_type = $request->getParam('response_type', null, true);
 
-                    // Render login-form
-/*
-                    $model->render(
-                        'REST OAuth - Login für Tokengenerierung',
-                        'oauth2loginform.php',
-                        array(
-                            'api_key' => $apikey,
-                            'redirect_uri' => $redirect_uri,
-                            'response_type' => $response_type
-                        )
-                    );
-*/
-                }
-                // Missing data
-                else
-                    $app->halt(500, 'Mandatory data is missing, GET-Parameters <api_key, redirect_uri> need to be set.', LibExceptions\MissingParameter::ID);
+                // Render oauth2login.php for authorization code and implicit grant type flow
+                if ($response_type != 'code' && $response_type != 'token')
+                    $app->halt(422, 'Parameter <response_type> needs to be "code" or "token".', AuthExceptions\ResponseType::ID);
+
+                // Display login form
+                $model = new OAuth2($app, $ilDB);
+                $model->render(
+                    'REST OAuth - Login für Tokengenerierung',
+                    'oauth2loginform.php',
+                    array(
+                        'api_key' => $api_key,
+                        'redirect_uri' => $redirect_uri,
+                        'response_type' => $response_type
+                    )
+                );
             }
-            // Wrong grant-type
-            else
-                $app->halt(500, 'Parameter <response_type> need to match "code" or "token".', AuthExceptions\ResponseType::ID);
+            catch (LibExceptions\MissingParameter $e) {
+                $app->halt(422, $e->getMessage(), LibExceptions\MissingParameter::ID);
+            }
         });
 
 
@@ -157,7 +153,7 @@ $app->group('/v1', function () use ($app) {
 //                    $model->tokenUserCredentials($api_key, $user, $password);
                 }
                 catch (LibExceptions\MissingParameter $e) {
-                    $app->halt(500, sprintf('Mandatory data is missing, parameter <%s> not set.', $e->paramName()), LibExceptions\MissingParameter::ID);
+                    $app->halt(500, $e->getMessage(), LibExceptions\MissingParameter::ID);
                 }
             }
             // grant type
@@ -171,7 +167,7 @@ $app->group('/v1', function () use ($app) {
 //                    $model->tokenClientCredentials($api_key, $api_secret);
                 }
                 catch (LibExceptions\MissingParameter $e) {
-                    $app->halt(500, sprintf('Mandatory data is missing, parameter <%s> not set.', $e->paramName()), LibExceptions\MissingParameter::ID);
+                    $app->halt(500, $e->getMessage(), LibExceptions\MissingParameter::ID);
                 }
             }
             // grant type
@@ -189,7 +185,7 @@ $app->group('/v1', function () use ($app) {
 //                    $model->tokenAuthorizationCode($api_key, $api_secret, $code, $redirect_uri);
                 }
                 catch (LibExceptions\MissingParameter $e) {
-                    $app->halt(500, sprintf('Mandatory data is missing, parameter <%s> not set.', $e->paramName()), LibExceptions\MissingParameter::ID);
+                    $app->halt(500, $e->getMessage(), LibExceptions\MissingParameter::ID);
                 }
             }
             // grant type
@@ -210,7 +206,7 @@ $app->group('/v1', function () use ($app) {
                     $response->send();
                 }
                 catch (LibExceptions\MissingParameter $e) {
-                    $app->halt(500, sprintf('Mandatory data is missing, parameter <%s> not set.', $e->paramName()), LibExceptions\MissingParameter::ID);
+                    $app->halt(500, $e->getMessage(), LibExceptions\MissingParameter::ID);
                 }
             }
             // Wrong grant-type

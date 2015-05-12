@@ -13,6 +13,7 @@ use \RESTController\libs as Libs;
 
 /**
  *
+ * Constructor requires $sqlDB.
  */
 class Clients extends Libs\RESTModel {
     /**
@@ -302,22 +303,6 @@ class Clients extends Libs\RESTModel {
 
         // No restriction in place
         return array(-1);
-    }
-
-
-    /**
-     * Checks if a REST client with the specified API KEY does exist or not.
-     *
-     * @param $api_key
-     * @return bool
-     */
-    public function clientExists($api_key) {
-        // Fetch client with given api-key (checks existance)
-        $query = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
-        $set = $this->sqlDB->query($query);
-        if ($this->sqlDB->numRows($set) > 0)
-            return true;
-        return false;
     }
 
 

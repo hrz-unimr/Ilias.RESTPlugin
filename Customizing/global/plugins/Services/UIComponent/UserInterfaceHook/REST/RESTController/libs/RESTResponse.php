@@ -6,11 +6,17 @@
  * 2014-2015
  */
 namespace RESTController\libs;
- 
- 
+
+
 // Requires !!!
- 
- 
+// 400 bad request (wrong syntax)
+// 422 Unprocessable Entity (correct syntax, wrong/missing data)
+// 401 not auth. (needs token)
+// 404 not found (no route, wrog URI)
+// 500 server fault (eg. sql-query failed)
+//
+
+
 /**
  * This class eases the formatting of output and also ensures a standardized output schema of the API.
  * 2014 HRZ - Uni-Marburg

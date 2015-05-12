@@ -16,18 +16,22 @@ use \RESTController\core\clients\Clients as Clients;
  * Class OAuth2Model
  * This model provides methods to accomplish the OAuth2 mechanism for ILIAS.
  * Note: In contrast to the original specification, we renamed the term OAuth2 'client_id' to 'api_key'.
+ *
+ * Constructor requires $app & $sqlDB.
  */
 class OAuth2 extends Libs\RESTModel {
     /**
      *
      */
-    public function authAllGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token) {
-        // Client (api-key) is not allowed to use this grant-type or doesn't exist
-        $clients = new Clients($this->app, $this->sqlDB);
-        if (!$clients->clientExists($api_key))
-            throw new Exceptions\LoginFailed('There is no client with this api-key.');
+    public function auth_AllGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token) {
+        // Check input
         if ($response_type != 'code' && $response_type != 'token')
             throw new Exceptions\ResponseType('Parameter response_type must be "code" or "token".');
+
+        // Client (api-key) is not allowed to use this grant-type or doesn't exist
+        $clients = new Clients(null, $this->sqlDB);
+        if (!$clients->clientExists($api_key))
+            throw new Exceptions\LoginFailed('There is no client with this api-key.');
         if ($response_type == 'code' && !$clients->is_oauth2_gt_authcode_enabled($api_key))
             throw new Exceptions\LoginFailed('Authorization-code grant-type is disabled for this client.');
         if ($response_type == 'token' && !$clients->is_oauth2_gt_implicit_enabled($api_key))
@@ -35,11 +39,8 @@ class OAuth2 extends Libs\RESTModel {
 
         // Login-data (username/password) is provided, try to authenticate
         if ($username && $password) {
-            // Try to authenticate via username/password & api-key
-            $isAuth = Libs\AuthLib::authenticateViaIlias($username, $password);
-            $clientValid = Libs\AuthLib::checkOAuth2Client($api_key);
-
             // Provided wrong API-Key?
+            $clientValid = Libs\AuthLib::checkOAuth2Client($api_key);
             if (!$clientValid)
                 return array(
                     'status' => 'showLogin',
@@ -52,6 +53,7 @@ class OAuth2 extends Libs\RESTModel {
                 );
 
             // Provided wrong username/password
+            $isAuth = Libs\AuthLib::authenticateViaIlias($username, $password);
             if (!$isAuth)
                 return array(
                     'status' => 'showLogin',
@@ -103,27 +105,26 @@ class OAuth2 extends Libs\RESTModel {
         // Login-data (token) is provided, try to authenticate
         elseif ($authenticity_token) {
             // Check if token is still valid
-            if (!Libs\TokenLib::tokenExpired(Libs\TokenLib::deserializeToken($authenticity_token))) {
-                $tokenUser = $authenticity_token['user'];
-                // Generate a temporary token that can be exchanged for bearer-token
-                if ($response_type == 'code') {
-                    $authorization_code = Libs\TokenLib::generateSerializedToken($tokenUser, $api_key, 'code', $redirect_uri, 10);
-                    $url = $redirect_uri . '?code='.$authorization_code;
-                }
-                elseif ($response_type == 'token') {
-                    $bearerToken = Libs\TokenLib::generateBearerToken($tokenUser, $api_key);
-                    $url = $redirect_uri . '#access_token='.$bearerToken['access_token'].'&token_type=bearer'.'&expires_in='.$bearerToken['expires_in'].'&state=xyz';
-                }
-
-                // Return data to route/other model
-                return array(
-                    'status' => 'redirect',
-                    'data' => $url
-                );
-            }
-            // Provided token has expired
-            else
+            $tokenArray = Libs\TokenLib::deserializeToken($authenticity_token);
+            if (Libs\TokenLib::tokenExpired($tokenArray))
                 throw new Exceptions\TokenExpired('The provided token has expired.');
+
+            // Generate a temporary token that can be exchanged for bearer-token
+            $tokenUser = $tokenArray['user'];
+            if ($response_type == 'code') {
+                $authorization_code = Libs\TokenLib::generateSerializedToken($tokenUser, $api_key, 'code', $redirect_uri, 10);
+                $url = $redirect_uri . '?code='.$authorization_code;
+            }
+            elseif ($response_type == 'token') {
+                $bearerToken = Libs\TokenLib::generateBearerToken($tokenUser, $api_key);
+                $url = $redirect_uri . '#access_token='.$bearerToken['access_token'].'&token_type=bearer'.'&expires_in='.$bearerToken['expires_in'].'&state=xyz';
+            }
+
+            // Return data to route/other model
+            return array(
+                'status' => 'redirect',
+                'data' => $url
+            );
         }
         // No login-data (token or username/password) provided, render login-page
         else
@@ -139,175 +140,126 @@ class OAuth2 extends Libs\RESTModel {
 
 
     /**
-     * Token endpoint routine:
-     * The token endpoint part of the user credentials auth flow.
-     * @param $app
-     * @param $request
+     *
      */
-    public function tokenUserCredentials($api_key, $user, $pass) {
-        $response = new OAuth2Response($app);
+    public function token_UserCredentials($api_key, $username, $password) {
+        // [All] Client (api-key) is not allowed to use this grant-type or doesn't exist
+        $clientValid = Libs\AuthLib::checkOAuth2Client($api_key);
+        if (!$clientValid)
+            throw new Exceptions\LoginFailed('There is no client with this api-key.');
 
-        $isAuth = AuthLib::authenticateViaIlias($user, $pass);
-        if ($isAuth == false) {
-            $response->setHttpStatus(401);
-            $response->setOutputFormat('plain');
-            $response->send();
-        } else {
-            $clients_model = new ClientsModel();
-            if ($clients_model->clientExists($api_key)) {
-                if ($clients_model->is_oauth2_gt_resourceowner_enabled($api_key)) {
-                    $allowed_users = $clients_model->getAllowedUsersForApiKey($api_key);
-                    $access_granted = false;
-                    $uid = (int)RESTLib::loginToUserId($user);
+        // Is this option enabled for this api-key?
+        if (!$clients->is_oauth2_gt_resourceowner_enabled($api_key))
+            throw new Exceptions\LoginFailed('User-credentials grant-type is disabled for this client.');
 
-                    if (in_array(-1, $allowed_users) || in_array($uid, $allowed_users)) {
-                        $access_granted = true;
-                    }
-                    if ($access_granted == true) {
-                        $app->log->debug('access granted');
-                        $bearer_token = TokenLib::generateBearerToken($user, $api_key);
-                        $response->setHttpHeader('Cache-Control', 'no-store');
-                        $response->setHttpHeader('Pragma', 'no-cache');
-                        $response->setField('access_token', $bearer_token['access_token']);
-                        $response->setField('expires_in', $bearer_token['expires_in']);
-                        $response->setField('token_type', $bearer_token['token_type']);
-                        $response->setField('scope', $bearer_token['scope']);
-                        if ($clients_model->is_resourceowner_refreshtoken_enabled($api_key)) {
-                            $refresh_token = $this->getRefreshToken(TokenLib::deserializeToken($bearer_token['access_token']));
-                            $response->setField('refresh_token', $refresh_token);
-                        }
-                    } else {
-                        $response->setHttpStatus(401);
-                    }
-                } else {
-                    $response->setHttpStatus(401);
-                }
-            } else {
-                $response->setHttpStatus(401);
-            }
-            $response->send();
-        }
+        // Check wether user is allowed to use this api-key
+        $allowed_users = $clients->getAllowedUsersForApiKey($api_key);
+        $iliasUserId = (int) RESTLib::loginToUserId($username);
+        if (!in_array(-1, $allowed_users) && !in_array($iliasUserId, $allowed_users))
+            throw new Exceptions\LoginFailed('Given user is not allowed to use this api-key.');
 
+        // Provided wrong username/password
+        $isAuth = Libs\AuthLib::authenticateViaIlias($username, $password);
+        if (!$isAuth)
+            throw new Exceptions\LoginFailed('.');
+
+        // [All] Generate bearer & refresh-token (if enabled)
+        $bearer_token = Libs\TokenLib::generateBearerToken($username, $api_key);
+        if ($clients->is_resourceowner_refreshtoken_enabled($api_key))
+            $refresh_token = $this->getRefreshToken(Libs\TokenLib::deserializeToken($bearer_token['access_token']));
+
+        // [All] Return generated tokens
+        return array(
+            'bearer_token' => $bearer_token,
+            'refresh_token' => $refresh_token
+        );
     }
 
 
     /**
-     * Token endpoint routine:
-     * The token endpoint part of the client credentials auth flow.
-     * @param $app
-     * @param $request
+     *
      */
-    public function tokenClientCredentials($api_key, $api_secret) {
-        $response = new OAuth2Response($app);
+    public function token_ClientCredentials($api_key, $api_secret) {
+        // [All] Client (api-key) is not allowed to use this grant-type or doesn't exist
+        $clientValid = Libs\AuthLib::checkOAuth2ClientCredentials($api_key, $api_secret);
+        if (!$clientValid)
+            throw new Exceptions\LoginFailed('There is no client with this api-key & api-secret pair.');
 
-        $clients_model = new ClientsModel($app);
-        if ($clients_model->clientExists($api_key)) {
-            if ($clients_model->is_oauth2_gt_clientcredentials_enabled($api_key)) {
-                $uid = (int)$clients_model->getClientCredentialsUser($api_key);
-                $user = RESTLib::userIdtoLogin($uid);
-                $authResult = AuthLib::checkOAuth2ClientCredentials($api_key, $api_secret);
-                if (!$authResult) {
-                    $response->setHttpStatus(401);
-                }
-                else {
-                    $bearer_token = TokenLib::generateBearerToken($user,$api_key);
-                    $response->setHttpHeader('Cache-Control', 'no-store');
-                    $response->setHttpHeader('Pragma', 'no-cache');
-                    $response->setField('access_token',$bearer_token['access_token']);
-                    $response->setField('expires_in',$bearer_token['expires_in']);
-                    $response->setField('token_type',$bearer_token['token_type']);
-                    $response->setField('scope',$bearer_token['scope']);
-                }
-            } else {
-                $response->setHttpStatus(401);
-            }
-        } else {
-            $response->setHttpStatus(401);
-        }
-        $response->send();
+        // Is this option enabled for this api-key?
+        $clients = new Clients(null, $this->sqlDB);
+        if (!$clients->is_oauth2_gt_clientcredentials_enabled($api_key))
+            throw new Exceptions\LoginFailed('Client-credentials grant-type is disabled for this client.');
 
+        // -- [no] Check wether user is allowed to use this api-key --
 
+        // Fetch username from api-key
+        $uid = $clients->getClientCredentialsUser($api_key);
+        $username = Libs\RESTLib::userIdtoLogin($uid);
+
+        // [All] Generate bearer & refresh-token (if enabled)
+        $bearer_token = Libs\TokenLib::generateBearerToken($username, $api_key);
+        // -- [no] Refresh-token --
+
+        // [All] Return generated tokens
+        return array(
+            'bearer_token' => $bearer_token,
+            // -- [no] Refresh-token --
+        );
     }
 
 
     /**
-     * Token endpoint routine:
-     * The token endpoint part of the authorization auth flow.
-     * This method exchanges an authorization code with a bearer token.
-     * @param $app
-     * @param $request
+     *
      */
-    public function tokenAuthorizationCode($api_key, $api_secret, $code, $redirect_uri) {
-        $response = new OAuth2Response($app);
+    public function token_AuthorizationCode($grant_type, $api_key, $api_secret, $token, $redirect_uri) {
+        // [All] Client (api-key) is not allowed to use this grant-type or doesn't exist
+        $clientValid = Libs\AuthLib::checkOAuth2ClientCredentials($api_key, $api_secret);
+        if (!$clientValid)
+            throw new Exceptions\LoginFailed('There is no client with this api-key & api-secret pair.');
 
-        $isClientAuthorized = AuthLib::checkOAuth2ClientCredentials($api_key, $api_secret);
-        if (!$isClientAuthorized) {
-            $app->response()->status(401);
-        }
-        else {
-            $code_token = TokenLib::deserializeToken($code);
-            if (!TokenLib::tokenExpired($code_token)){
-                $t_redirect_uri = $code_token['misc'];
-                $t_user = $code_token['user'];
-                $t_client_id = $code_token['api_key'];
+        // Is this option enabled for this api-key?
+        if (!$clients->is_oauth2_gt_authcode_enabled($api_key))
+            throw new Exceptions\LoginFailed('Authorization-code grant-type is disabled for this client.');
 
-                if ($t_redirect_uri == $redirect_uri && $t_client_id == $api_key) {
+        // Check wether user is allowed to use this api-key
+        $allowed_users = $clients->getAllowedUsersForApiKey($api_key);
+        $iliasUserId = (int) RESTLib::loginToUserId($username);
+        if (!in_array(-1, $allowed_users) && !in_array($iliasUserId, $allowed_users))
+            throw new Exceptions\LoginFailed('Given user is not allowed to use this api-key.');
 
-                    $clients_model = new ClientsModel();
-                    if ($clients_model->clientExists($t_client_id)) {
-                        if ($clients_model->is_oauth2_gt_authcode_enabled($t_client_id)) {
-                            $allowed_users = $clients_model->getAllowedUsersForApiKey($t_client_id);
-                            $access_granted = false;
-                            $uid = (int)RESTLib::loginToUserId($t_user);
+        // Check if token is still valid
+        $tokenArray = Libs\TokenLib::deserializeToken($token);
+        if (Libs\TokenLib::tokenExpired($tokenArray))
+            throw new Exceptions\TokenExpired('The provided token has expired.');
 
-                            if (in_array(-1, $allowed_users) || in_array($uid, $allowed_users)) {
-                                $access_granted = true;
-                            }
-                            if ($access_granted == true) {
-                                $app->log->debug('auth code access granted. user: '.$t_user.' key: '.$api_key);
-                                $bearer_token = TokenLib::generateBearerToken($t_user, $api_key);
-                                $response->setHttpHeader('Cache-Control', 'no-store');
-                                $response->setHttpHeader('Pragma', 'no-cache');
-                                $response->setField('access_token', $bearer_token['access_token']);
-                                $response->setField('expires_in', $bearer_token['expires_in']);
-                                $response->setField('token_type', $bearer_token['token_type']);
-                                $response->setField('scope', $bearer_token['scope']);
-                                if ($clients_model->is_authcode_refreshtoken_enabled($api_key)) { // optional
-                                    $refresh_token = $this->getRefreshToken(TokenLib::deserializeToken($bearer_token['access_token']));
-                                    $response->setField('refresh_token', $refresh_token);
-                                }
+        // Compare token content to other request data
+        $t_redirect_uri = $tokenArray['misc'];
+        $t_user = $tokenArray['user'];
+        $t_api_key = $tokenArray['api_key'];
+        if ($t_redirect_uri != $redirect_uri || $t_api_key != $api_key)
+            throw new Exceptions\LoginFailed('Token information does not match other request data.');
 
-                            } else {
-                                $response->setHttpStatus(401);
-                            }
-                        } else {
-                            $response->setHttpStatus(401);
-                        }
-                    }
+        // [All] Generate bearer & refresh-token (if enabled)
+        $bearer_token = Libs\TokenLib::generateBearerToken($username, $api_key);
+        if ($clients->is_authcode_refreshtoken_enabled($api_key))
+            $refresh_token = $this->getRefreshToken(Libs\TokenLib::deserializeToken($bearer_token['access_token']));
 
-                }
-            } else {
-                $response->setHttpStatus(401);
-            }
-        }
-        $response->send();
+        // [All] Return generated tokens
+        return array(
+            'bearer_token' => $bearer_token,
+            'refresh_token' => $refresh_token
+        );
     }
 
 
     /**
-     * Token endpoint routine:
-     * Token-endpoint for refresh tokens.
-     * Cf. RFC6749 Chapter 6.  Refreshing an Access Token
-     * @param $app
-     * @throws Exception
+     *
      */
-    public function tokenRefresh2Bearer($refresh_token) {
-        $response = new OAuth2Response($app, $ilDB);
+    public function token_Refresh2Bearer($refresh_token) {
+        var_dump(Libs\TokenLib::deserializeToken($refresh_token));
 
         $bearer_token = $this->getBearerTokenForRefreshToken($refresh_token);
     }
-    // ----------------------------------------------------------------------------------------------
-    // Refresh Token Support
 
 
     /**

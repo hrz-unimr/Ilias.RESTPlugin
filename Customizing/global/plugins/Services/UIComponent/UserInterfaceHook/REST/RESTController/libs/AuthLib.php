@@ -7,13 +7,13 @@
  */
 namespace RESTController\libs;
 
- 
+
 // Requires <$ilias>, <$ilPluginAdmin>, <$ilSession>, <$ilSessionControl>, <$Auth>, <$ilShibboleth>, <$ilAuthUtils>, <$ilObjUser>
 // Requires RESTLib.php
 
 
 /*
- * This class provides Utility functions related 
+ * This class provides Utility functions related
  * to OAuth/ILIAS user-authentication.
  */
 class AuthLib {
@@ -26,20 +26,20 @@ class AuthLib {
      */
     static public function setUserContext($login) {
         global $ilias;
-        
+
         require_once("./Services/User/classes/class.ilObjUser.php");
         $userId = \ilObjUser::_lookupId($login);
-        if (!$userId) 
+        if (!$userId)
             return false;
 
         $ilUser = new \ilObjUser($userId);
         $ilias->account =& $ilUser;
         RESTLib::loadIlUser();
-        
+
         return true;
     }
 
-    
+
     /**
      * Authentication via the ILIAS Auth mechanisms.
      * This method is used as backend for OAuth2.
@@ -53,19 +53,19 @@ class AuthLib {
 
         $_POST['username'] = $username;
         $_POST['password'] = $password;
-        
+
         require_once("Auth/Auth.php");
         require_once("Services/Authentication/classes/class.ilSession.php");
         require_once("Services/Authentication/classes/class.ilSessionControl.php");
         require_once("Services/AuthShibboleth/classes/class.ilShibboleth.php");
         require_once("Services/Authentication/classes/class.ilAuthUtils.php");
-        
+
         \ilAuthUtils::_initAuth();
-        
+
         global $ilAuth;
         $ilAuth->start();
         $checked_in = $ilAuth->getAuth();
-        
+
         $ilAuth->logout();
         session_destroy();
         header_remove('Set-Cookie');
@@ -84,15 +84,16 @@ class AuthLib {
      */
     static public function checkOAuth2ClientCredentials($api_key, $api_secret) {
         global $ilDB;
-        
-        $query = sprintf('SELECT * FROM ui_uihk_rest_keys WHERE api_key = "%s" AND api_secret = "%s"', $api_key, $api_secret);
+
+        // Fetch client with given api-key (checks existance)
+        $query = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s" AND api_secret = "%s"', $api_key, $api_secret);
         $set = $ilDB->query($query);
-        if ($ret = $ilDB->fetchAssoc($set)) 
+        if ($ilDB->numRows($set) > 0)
             return true;
         return false;
     }
 
-    
+
     /**
      * Checks if provided OAuth2 - client (aka api_key) does exist.
      *
@@ -101,15 +102,16 @@ class AuthLib {
      */
     static public function checkOAuth2Client($api_key) {
         global $ilDB;
-        
-        $query = sprintf('SELECT * FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
+
+        // Fetch client with given api-key (checks existance)
+        $query = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
         $set = $ilDB->query($query);
-        if ($ret = $ilDB->fetchAssoc($set)) 
+        if ($ilDB->numRows($set) > 0)
             return true;
         return false;
     }
 
-    
+
     /**
      * Checks if a rest client is allowed to enter a route (aka REST endpoint).
      *
@@ -120,18 +122,18 @@ class AuthLib {
      */
     static public function checkOAuth2Scope($route, $operation, $api_key) {
         global $ilDB;
-        
+
         $operation = strtoupper($operation);
         $query = sprintf('
-            SELECT pattern, verb 
-            FROM ui_uihk_rest_perm 
-            JOIN ui_uihk_rest_keys 
-            ON ui_uihk_rest_keys.api_key = "%s" 
-            AND ui_uihk_rest_keys.id = ui_uihk_rest_perm.api_id 
+            SELECT pattern, verb
+            FROM ui_uihk_rest_perm
+            JOIN ui_uihk_rest_keys
+            ON ui_uihk_rest_keys.api_key = "%s"
+            AND ui_uihk_rest_keys.id = ui_uihk_rest_perm.api_id
             AND ui_uihk_rest_perm.pattern = "%s"
-            AND ui_uihk_rest_perm.verb = "%s"', 
-            $api_key, 
-            $route, 
+            AND ui_uihk_rest_perm.verb = "%s"',
+            $api_key,
+            $route,
             $operation
         );
         $set = $ilDB->query($query);
@@ -140,7 +142,7 @@ class AuthLib {
         return false;
     }
 
-    
+
     /**
      * Checks if an ILIAS session is valid and belongs to a particular user.
      * And furthermore if rToken is valid.
@@ -158,12 +160,12 @@ class AuthLib {
 
         $rtokenValid = false;
         $sessionValid = false;
-        
+
         $query = sprintf('
-            SELECT * FROM il_request_token 
+            SELECT * FROM il_request_token
             WHERE user_id = %d
             AND token = "%s"
-            AND session_id = "%s"', 
+            AND session_id = "%s"',
             $user_id,
             $rtoken,
             $session_id
@@ -173,15 +175,15 @@ class AuthLib {
             $rtokenValid = true;
 
         $query = sprintf('
-            SELECT * FROM usr_session 
+            SELECT * FROM usr_session
             WHERE user_id = %d
             AND session_id = "%s"',
-            $user_id, 
+            $user_id,
             $session_id
         );
         $set = $ilDB->query($query);
         if ($row = $ilDB->fetchAssoc($set))
-            if ($row['expires'] > time()) 
+            if ($row['expires'] > time())
                 $sessionValid = true;
 
         return $rtokenValid && $sessionValid;

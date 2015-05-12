@@ -41,7 +41,7 @@ class RESTRequest extends \Slim\Http\Request {
             if ($this->json_arr != null and isset($this->json_arr[$param]))
                 return $this->json_arr[$param];
             else if ($throw)
-                throw new Exceptions\MissingParameter("Parameter $param not present.", $param);
+                throw new Exceptions\MissingParameter(sprintf('Mandatory data is missing, parameter %s not set.', $param), $param);
 
             return $default;
         }

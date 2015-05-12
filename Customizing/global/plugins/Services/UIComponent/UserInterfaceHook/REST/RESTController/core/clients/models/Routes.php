@@ -14,6 +14,8 @@ use \RESTController\libs as Libs;
 /**
  * This model handels all data that is required
  * by the Routes-Routes.
+ *
+ * Constructor requires nothing.
  */
 class Routes extends Libs\RESTModel {
     /**
