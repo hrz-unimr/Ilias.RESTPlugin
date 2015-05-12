@@ -78,4 +78,39 @@ $app->group('/v1/m', function () use ($app) {
     });
 
 
+    /**
+     * see GET /myfilespacecopy
+     */
+    $app->post('/myfilespacecopy','\RESTController\libs\AuthMiddleware::authenticate', function() use ($app) {
+        $t_start = microtime();
+        $env = $app->environment();
+        $user_id = RESTLib::loginToUserId($env['user']);
+        $response = new RESTResponse($app);
+        $request = new RESTRequest($app);
+
+        try {
+            $file_id = $request->getParam('file_id', null, false);
+            // if ($file_id == null) throw RESTException::getWrongParamException('Parameter is missing', 'file_id');
+            $target_ref_id = $request->getParam('target_ref_id', null, false);
+            // if ($target_ref_id == null) throw RESTException::getWrongParamException('Parameter is missing', 'target_ref_id');
+
+            RESTLib::initAccessHandling();
+            $status = $model = new \RESTController\extensions\files_v1\PersonalFileSpaceModel();
+            $responseMsg = "Success";
+            if ($status == false) {
+                $responseMsg = "Failed";
+            }
+
+            $model->clone_file_into_repository($user_id, $file_id, $target_ref_id);
+            $t_end = microtime();
+            $response->addData("execution_time", $t_end - $t_start);
+            $response->addData("Status", $responseMsg);
+            $response->setMessage('MyFilespaceCopy');
+        } catch (RESTException $e) {
+            $response->setRESTCode($e->getCode());
+        }
+        $response->send();
+    });
+
+
 });
