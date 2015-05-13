@@ -1,6 +1,3 @@
-
-
-
 <?php
 /**
  * ILIAS REST Plugin for the ILIAS LMS
@@ -21,48 +18,25 @@ use \RESTController\core\clients\Clients as Clients;
  */
 class OAuth2Misc extends Libs\RESTModel {
     /**
-     * Further OAuth2 routines:
-     * Tokeninfo - Tokens obtained via the implicit code grant MUST by validated by the Javascript client
-     * to prevent the 'confused deputy problem'.
-     * @param $app
+     *
      */
     public function tokenInfo($request) {
-        $access_token = $request->params('access_token');
-        if (!isset($access_token)) {
-            $a_data = array();
-            $jsondata = $app->request()->getBody(); // json
-            $a_data = json_decode($jsondata, true);
-            $access_token = $a_data['token'];
-            if (!isset($access_token)) {
-                $headers = apache_request_headers();
-                $authHeader = $headers['Authorization'];
-                if ($authHeader!=null) {
-                    $a_auth = explode(' ',$authHeader);
-                    $access_token = $a_auth[1];    // Bearer Access Token
-                    if ($access_token == null) {
-                        $access_token = $a_auth[0]; // Another kind of Token
-                    }
-                }
-            }
-        }
+        //
+        $token = Libs\AuthMiddleware::getToken($this->app);
+        if (!Libs\TokenLib::tokenValid($token))
+            throw new Exceptions\TokenInvalid("");
+        if (Libs\TokenLib::tokenExpired($token))
+            throw new Exceptions\TokenExpired("");
 
-        $token = Libs\TokenLib::deserializeToken($access_token);
-        $valid = Libs\TokenLib::tokenValid($token);
+        //
+        return array(
+            'api_key' => $token['api_key'],
+            'user' =>  $token['user'],
+            'type' =>  $token['type'],
+            'expires_in' => Libs\TokenLib::getRemainingTime($token),
+            'scope' =>  $token['scope']
+        );
 
-        $result = array();
-        if ($valid) {
-            $result['api_key'] = $token['api_key'];
-            // scope
-            $result['user'] =  $token['user'];
-            $result['type'] =  $token['type'];
-            $result['expires_in'] = Libs\TokenLib::getRemainingTime($token);
-
-        } else {
-            $app->response()->status(400);
-            $result['error'] = 'Invalid token.';
-        }
-
-        return $result;
     }
     /**
      * Further OAuth2 routines:
@@ -87,10 +61,10 @@ class OAuth2Misc extends Libs\RESTModel {
             $session_id = $a_data['session_id'];
             $api_key = $a_data['api_key'];
         } else {
-            $user_id = $request->params('user_id');
-            $rtoken = $request->params('rtoken');
-            $session_id = $request->params('session_id');
-            $api_key = $request->params('api_key');
+            $user_id = $request->getParam('user_id');
+            $rtoken = $request->getParam('rtoken');
+            $session_id = $request->getParam('session_id');
+            $api_key = $request->getParam('api_key');
         }
 
         $isAuth = Libs\AuthLib::authFromIlias($user_id, $rtoken, $session_id);

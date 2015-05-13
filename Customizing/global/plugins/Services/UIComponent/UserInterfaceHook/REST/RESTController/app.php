@@ -24,6 +24,15 @@ require_once('Slim/Slim.php');
  *   $app->run();
  */
 class RESTController extends \Slim\Slim {
+
+    /**
+     * List of default REST error-codes
+     *  Extensions are allowed to create their own error-codes.
+     *  Using a unique string seems to be an easier solution than assigning unique numbers.
+     */
+     const ID_NO_ROUTE = 'RESTController\RESTController::ID_NO_ROUTE';
+
+
     /**
      * PSR-0 autoloader for RESTController classes
      *  Automatically adds a "models" subname into the namespace of \RESTController\core und
@@ -97,21 +106,36 @@ class RESTController extends \Slim\Slim {
 
         // Set error-handler
         $this->error(function (\Exception $error) {
-            $this->render('views/error.php', array(
-                'error' => array(
-                    'message' => $error->getMessage(),
-                    'code' => $error->getCode(),
-                    'file' => $error->getFile(),
-                    'line' => $error->getLine(),
-                    'trace' => $error->getTraceAsString()
-                ),
-                'app' => $this
-            ));
+            // fetch error-data
+            $msg = $error->getMessage();
+            $code = $error->getCode();
+            $file = str_replace('/', '\\', $error->getFile());
+            $line = $error->getLine();
+            $trace = str_replace('/', '\\', $error->getTraceAsString());
+
+            // Generate standard message
+            $errStr = '{
+                "msg": "An error occured while handling this route!",
+                "data": {
+                    "message": ' . json_encode(isset($msg)   ?: '') . ',
+                    "code": ' .    json_encode(isset($code)  ?: '') . ',
+                    "file": ' .    json_encode(isset($file)  ?: '') . ',
+                    "line": ' .    json_encode(isset($line)  ?: '') . ',
+                    "trace": ' .   json_encode(isset($trace) ?: '') . '
+                }
+            }';
+
+            // Log error to file
+            $app->log->debug($errStr);
+
+            // Display error
+            header('content-type: application/json');
+            echo $errStr;
         });
 
         // Set 404 fallback
         $this->notFound(function () {
-            $this->render('views/404.php');
+            $this->halt(404, 'There is no route matching this URI!', ID_NO_ROUTE);
         });
 
         // Disable defailt error output
@@ -257,10 +281,15 @@ class RESTController extends \Slim\Slim {
     public function halt($httpCode, $message = null, $restCode = "", $format = null) {
         // 'halt($code, $message) <Stub - Implement Me>';
         // Build a JSON with msg=$message, status=failed, code=$restCode
-        $data = array(
-            'status' => 'failure',
-            'msg' => $message
-        );
-        parent::halt($httpCode, json_encode($data));
+        if (isset($message) && $message != '') {
+            $data = array(
+                'status' => 'failure',
+                'msg' => $message
+            );
+            $data = json_encode($data);
+            parent::halt($httpCode, $data);
+        }
+        else
+            parent::halt($httpCode, $message);
     }
 }

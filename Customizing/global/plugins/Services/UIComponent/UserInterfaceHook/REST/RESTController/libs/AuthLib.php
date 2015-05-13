@@ -27,7 +27,7 @@ class AuthLib {
     static public function setUserContext($login) {
         global $ilias;
 
-        require_once("./Services/User/classes/class.ilObjUser.php");
+        require_once('./Services/User/classes/class.ilObjUser.php');
         $userId = \ilObjUser::_lookupId($login);
         if (!$userId)
             return false;
@@ -54,11 +54,11 @@ class AuthLib {
         $_POST['username'] = $username;
         $_POST['password'] = $password;
 
-        require_once("Auth/Auth.php");
-        require_once("Services/Authentication/classes/class.ilSession.php");
-        require_once("Services/Authentication/classes/class.ilSessionControl.php");
-        require_once("Services/AuthShibboleth/classes/class.ilShibboleth.php");
-        require_once("Services/Authentication/classes/class.ilAuthUtils.php");
+        require_once('Auth/Auth.php');
+        require_once('Services/Authentication/classes/class.ilSession.php');
+        require_once('Services/Authentication/classes/class.ilSessionControl.php');
+        require_once('Services/AuthShibboleth/classes/class.ilShibboleth.php');
+        require_once('Services/Authentication/classes/class.ilAuthUtils.php');
 
         \ilAuthUtils::_initAuth();
 

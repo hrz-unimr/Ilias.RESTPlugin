@@ -23,7 +23,7 @@ class MissingParameter extends \Exception {
     /**
      * Stores parameter name for the missing parameter
      */
-    protected $paramName = "";
+    protected $paramName = '';
 
 
     /**
@@ -41,5 +41,15 @@ class MissingParameter extends \Exception {
      */
     public function paramName() {
         return $this->paramName;
+    }
+
+
+    /**
+     *
+     */
+    public function getMessage() {
+        $message = parent::getMessage();
+        $message = str_replace('%paramName%', $this->paramName, $message);
+        return $message;
     }
 }

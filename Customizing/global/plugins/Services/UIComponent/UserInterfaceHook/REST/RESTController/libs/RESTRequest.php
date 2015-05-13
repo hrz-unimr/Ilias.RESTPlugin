@@ -32,6 +32,9 @@ class RESTRequest extends \Slim\Http\Request {
      * Tight wrapper around Slim's params() method.
      * If a parameter is not found, try to json-decode the request body
      * and look for the parameter there.
+
+     * TODO Liefert Format-Einstellung-Body, RAW-Body, GET, HEAD
+     * Einzelne Methoden um immer nur Format-Einstellung-Body, RAW-Body, JSON-Body, GET oder HEAD zu holen
      */
     public function getParam($param, $default = null, $throw = false) {
         $ret = $this->app->request()->params($param);
@@ -41,7 +44,7 @@ class RESTRequest extends \Slim\Http\Request {
             if ($this->json_arr != null and isset($this->json_arr[$param]))
                 return $this->json_arr[$param];
             else if ($throw)
-                throw new Exceptions\MissingParameter(sprintf('Mandatory data is missing, parameter %s not set.', $param), $param);
+                throw new Exceptions\MissingParameter('Mandatory data is missing, parameter %paramName% not set.', $param);
 
             return $default;
         }

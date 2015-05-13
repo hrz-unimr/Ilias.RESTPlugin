@@ -62,7 +62,7 @@ use \RESTController\core\clients\Exceptions as ClientExceptions;
 
     // Check if user has admin role
     if (!Libs\RESTLib::isAdminByUsername($user))
-        $app->halt(401, 'Access denied. Administrator permissions required.', Libs\RESTLib::NO_ADMIN_ID);
+        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::NO_ADMIN_ID);
 
     // Use the model class to fetch data
     $model = new Clients($app, $GLOBALS['ilDB']);
@@ -124,7 +124,7 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
 
     // Check if authorized user has admin role
     if (!Libs\RESTLib::isAdminByUsername($user))
-        $app->halt(401, 'Access denied. Administrator permissions required.', Libs\RESTLib::NO_ADMIN_ID);
+        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::NO_ADMIN_ID);
 
     // This fields will be updated (and nothing more!)
     $fields = array(
@@ -158,7 +158,7 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
             try {
                 $model->updateClient($id, $field, $api_key);
             } catch(ClientExceptions\PutFailed $e) {
-                $failed[] = sprintf('Could not (fully) update client. Failed to update Parameter: %s.', $e->paramName());
+                $failed[] = $e->getMessage();
             }
         }
         // Fail silently for "missing" parameters
@@ -167,7 +167,7 @@ $app->put('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateToke
 
     // Return update results
     if (count($failed) > 0)
-        $app->halt(500, implode(' ', $failed), ClientExceptions\PutFailed::ID);
+        $app->halt(500, array('msg' => $failed), ClientExceptions\PutFailed::ID);
     else {
         // Send affirmation status
         $result = array();
@@ -224,7 +224,7 @@ $app->post('/clients/', '\RESTController\libs\AuthMiddleware::authenticateTokenO
 
     // Check if authorized user has admin role
     if (Libs\RESTLib::isAdminByUsername($user))
-        $app->halt(401, 'Access denied. Administrator permissions required.', Libs\RESTLib::NO_ADMIN_ID);
+        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::NO_ADMIN_ID);
 
     // Shortcut for request object
     $request = $app->request();
@@ -299,7 +299,7 @@ $app->delete('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateT
 
     // Check if authorized user has admin role
     if (Libs\RESTLib::isAdminByUsername($user))
-        $app->halt(401, 'Access denied. Administrator permissions required.', Libs\RESTLib::NO_ADMIN_ID);
+        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::NO_ADMIN_ID);
 
     try {
         // Use the model class to update databse
@@ -310,6 +310,6 @@ $app->delete('/clients/:id', '\RESTController\libs\AuthMiddleware::authenticateT
         $result = array();
         $app->success($result);
     } catch(ClientExceptions\DeleteFailed $e) {
-        $app->halt(500, sprintf('Could not delete client with id: %d', $e->id()), $e::ID);
+        $app->halt(500, $e->getMessage(), $e::ID);
     }
 });

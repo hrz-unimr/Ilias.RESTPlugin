@@ -1,6 +1,3 @@
-
-
-
 <?php
 /**
  * ILIAS REST Plugin for the ILIAS LMS

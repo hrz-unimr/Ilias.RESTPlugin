@@ -251,13 +251,18 @@ $app->group('/v1', function () use ($app) {
          * Response:
          */
         $app->get('/tokeninfo', function () use ($app) {
-            $model = new OAuth2($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
-
-            $request = $app->request();
-
-//            $result = $model->tokenInfo($request());
-
-            echo json_encode($result);
+            try {
+                $model = new OAuth2Misc($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                $request = $app->request();
+                $result = $model->tokenInfo($request);
+                $app->success($result);
+            }
+            catch (Exceptions\TokenInvalid $e) {
+                $app->halt(422, $e->getMessage(), $e::ID);
+            }
+            catch (Exceptions\TokenExpired $e) {
+                $app->halt(422, $e->getMessage(), $e::ID);
+            }
         });
 
 

@@ -224,7 +224,7 @@ class Clients extends Libs\RESTModel {
             $numAffRows = $this->sqlDB->manipulate($sql);
 
             if ($numAffRows === false)
-                throw Exceptions\SaveFailed::getPutException('No client with this api-key (api-id) found!', $fieldname);
+                throw new Exceptions\UpdateFailed('No client with this api-key (api-id = %id%, field = %fieldName%) found.', $id, $fieldname);
         }
     }
 
@@ -253,7 +253,7 @@ class Clients extends Libs\RESTModel {
         $this->sqlDB->manipulate($sql);
 
         if ($numAffRows === false)
-            throw Exceptions\SaveFailed::getDeleteException('No client with this api-key (api-id) found!', $id);
+            throw new Exceptions\DeleteFailed('No client with this api-key (api-id = %id%) found.', $id);
     }
 
 
