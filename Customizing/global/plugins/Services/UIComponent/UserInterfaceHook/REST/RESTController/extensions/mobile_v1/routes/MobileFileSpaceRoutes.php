@@ -143,16 +143,39 @@ $app->group('/v1/m', function () use ($app) {
             exit;
         }
         //error_log(1);
-
         // Try to upload
         RESTLib::initAccessHandling();
         $model = new \RESTController\extensions\files_v1\PersonalFileSpaceModel();
         $model->handleFileUploadIntoMyFileSpace($_FILES["mupload"],$user_id);
+        $t_end = microtime();
         $response->addData('farraydump',print_r($_FILES["mupload"],true));
         $response->addMessage('Done Uploading File');
+        $response->addData("execution_time", $t_end - $t_start);
         $response->send();
-
     });
 
+    $app->delete('/myfilespacedelete', '\RESTController\libs\AuthMiddleware::authenticate', function() use ($app) {
+        $app->log->debug("Myfilespace upload via GET");
+        $t_start = microtime();
+        $env = $app->environment();
+        $user_id = RESTLib::loginToUserId($env['user']);
+
+        $response = new RESTResponse($app);
+        $request = new RESTRequest($app);
+
+        try {
+            $file_id = $request->getParam('file_id', null, false);
+            RESTLib::initAccessHandling();
+            $model = new \RESTController\extensions\files_v1\PersonalFileSpaceModel();
+            $model->deleteFromMyFileSpace($file_id, $user_id);
+
+        } catch (RESTException $e) {
+            $response->setRESTCode($e->getCode());
+        }
+        $t_end = microtime();
+        $response->addData("execution_time", $t_end - $t_start);
+        $response->setMessage("Dev Delete File From MyFileSpace");
+        $response->send();
+    });
 
 });
