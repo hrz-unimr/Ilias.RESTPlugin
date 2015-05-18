@@ -142,9 +142,6 @@ class PersonalFileSpaceModel {
             $fileObj->createDirectory();
             $fileObj->raiseUploadError(false);
             $fileObj->getUploadFile($temp_name, $filename, false);
-
-            //$this->handleAutoRating($fileObj);
-
         }
 
         return $response;
@@ -163,28 +160,18 @@ class PersonalFileSpaceModel {
         RESTLib::initGlobal("rbacadmin", "ilRbacAdmin", "./Services/AccessControl/classes/class.ilRbacAdmin.php");
         //ilInitialisation::initAccessHandling();
         global $rbacreview, $ilUser, $objDefinition;
-        global $ilLog;
+        //global $ilLog;
 
-        $ilLog->write('in putObjectInMyFileSpaceTree');
-
-
-        $a_obj->createReference();
-        //$a_obj->putInTree($a_parent_node_id);
-        // TODO: put file into workspace of user specified by $user_id
-        include_once("Services/PersonalWorkspace/classes/class.ilWorkspaceTree.php");
-        $tree = new \ilWorkspaceTree($user_id);
-        $tree->readRootId();
-
-        $ilLog->write('myfilespace file ref id ='.$a_obj->getRefId());
-        $ilLog->write('myfiolespace tree: '.print_r($tree,true));
-        //$tree->insertNode($a_obj->getRefId(), $tree->getRootId());
-        $tree->insertObject($tree->getRootId(),$a_obj->getRefId());
-
-
-        //$a_obj->setPermissions($a_parent_node_id);
+        include_once "Services/PersonalWorkspace/classes/class.ilWorkspaceTree.php";
+        $tree = new\ ilWorkspaceTree($user_id);
+        if(!$tree->getRootId())
+        {
+            $tree->createTreeForUser($user_id);
+        }
 
         $obj_id = $a_obj->getId();
-        $ref_id = $a_obj->getRefId();
+        $ref_id = $tree->insertObject($tree->getRootId(),$obj_id);
+        //$a_obj->setPermissions($a_parent_node_id);
 
         // BEGIN ChangeEvent: Record save object.
         require_once('Services/Tracking/classes/class.ilChangeEvent.php');

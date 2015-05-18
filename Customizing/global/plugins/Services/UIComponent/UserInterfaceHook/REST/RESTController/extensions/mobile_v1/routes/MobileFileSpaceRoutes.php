@@ -110,28 +110,28 @@ $app->group('/v1/m', function () use ($app) {
         $response->send();
     });
 
-
+    /**
+     * see POST /myfilespaceupload
+     */
     $app->get('/myfilespaceupload', function() use ($app) {
-        $app->log->debug("Hello from myfilespace upload");
+        $app->log->debug("Myfilespace upload via GET");
         $response = new RESTResponse($app);
-        $response->setMessage("Ok");
+        $response->setMessage("Pls use the POST method");
         $response->send();
     });
 
     /**
      * Uploads a single file via POST into the user's "myfilespace".
      */
-   // $app->post('/myfilespaceupload','\RESTController\libs\AuthMiddleware::authenticate', function() use ($app) {
-    $app->post('/myfilespaceupload', function() use ($app) {
-
+    $app->post('/myfilespaceupload','\RESTController\libs\AuthMiddleware::authenticate', function() use ($app) {
+        $app->log->debug("Myfilespace upload via POST");
         $t_start = microtime();
         $env = $app->environment();
-        //$user_id = RESTLib::loginToUserId($env['user']);
-        $user_id = 6; // TODO: remove this
+        $user_id = RESTLib::loginToUserId($env['user']);
+
         $response = new RESTResponse($app);
         $request = new RESTRequest($app);
-        //$app->log->debug("Hello from myfilespace upload");
-        $app->log->debug("Entering myfilespace upload with ".print_r($_FILES["mupload"],true));
+
         $errorCode = $_FILES["mupload"]["error"];
         if ($errorCode > UPLOAD_ERR_OK) {
             $response->setMessage("Error during file upload");
@@ -148,32 +148,10 @@ $app->group('/v1/m', function () use ($app) {
         RESTLib::initAccessHandling();
         $model = new \RESTController\extensions\files_v1\PersonalFileSpaceModel();
         $model->handleFileUploadIntoMyFileSpace($_FILES["mupload"],$user_id);
-
         $response->addData('farraydump',print_r($_FILES["mupload"],true));
+        $response->addMessage('Done Uploading File');
         $response->send();
-        /*try {
-            $file_id = $request->getParam('file_id', null, false);
-            // if ($file_id == null) throw RESTException::getWrongParamException('Parameter is missing', 'file_id');
-            $target_ref_id = $request->getParam('target_ref_id', null, false);
-            // if ($target_ref_id == null) throw RESTException::getWrongParamException('Parameter is missing', 'target_ref_id');
 
-            RESTLib::initAccessHandling();
-            $status = $model = new \RESTController\extensions\files_v1\PersonalFileSpaceModel();
-            $responseMsg = "Success";
-            if ($status == false) {
-                $responseMsg = "Failed";
-            }
-
-            $model->clone_file_into_repository($user_id, $file_id, $target_ref_id);
-            $t_end = microtime();
-            $response->addData("execution_time", $t_end - $t_start);
-            $response->addData("Status", $responseMsg);
-            $response->setMessage('MyFilespaceCopy');
-        } catch (RESTException $e) {
-            $response->setRESTCode($e->getCode());
-        }
-        $response->send();
-        */
     });
 
 
