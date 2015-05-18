@@ -154,12 +154,12 @@ $app->group('/v1/m', function () use ($app) {
         $response->send();
     });
 
-    $app->get('/myfilespacedelete', function() use ($app) {
+    $app->delete('/myfilespacedelete', '\RESTController\libs\AuthMiddleware::authenticate', function() use ($app) {
         $app->log->debug("Myfilespace upload via GET");
         $t_start = microtime();
         $env = $app->environment();
-        //$user_id = RESTLib::loginToUserId($env['user']);
-        $user_id = 6; // TODO: delete this!
+        $user_id = RESTLib::loginToUserId($env['user']);
+
         $response = new RESTResponse($app);
         $request = new RESTRequest($app);
 
