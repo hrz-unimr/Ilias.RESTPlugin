@@ -71,7 +71,7 @@ $app->group('/v1', function () use ($app) {
             catch (AuthExceptions\LoginFailed $e) {
                 $app->halt(401, $e->getMessage(), $e::ID);
             }
-            catch (AuthExceptions\TokenExpired $e) {
+            catch (AuthExceptions\TokenInvalid $e) {
                 $app->halt(401, $e->getMessage(), $e::ID);
             }
             catch (LibExceptions\MissingParameter $e) {
@@ -203,7 +203,7 @@ $app->group('/v1', function () use ($app) {
             catch (AuthExceptions\LoginFailed $e) {
                 $app->halt(401, $e->getMessage(), $e::ID);
             }
-            catch (AuthExceptions\TokenExpired $e) {
+            catch (AuthExceptions\TokenInvalid $e) {
                 $app->halt(401, $e->getMessage(), $e::ID);
             }
             catch (LibExceptions\MissingParameter $e) {
@@ -224,18 +224,14 @@ $app->group('/v1', function () use ($app) {
          * Response:
          */
         $app->get('/refresh', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
-            $env = $app->environment();
-            $bearerToken = $env['token'];
+            // Fetch token
+            $bearerToken = Libs\AuthMiddleware::getToken($app);
 
             // Create new refresh token
             $model = new OAuth2($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
-//            $refreshToken = $model->getRefreshToken($bearerToken);
+            $result = $model->getRefreshToken($bearerToken);
 
-            $response = new Oauth2Response($app, $ilDB);
-            $response->setHttpHeader('Cache-Control', 'no-store');
-            $response->setHttpHeader('Pragma', 'no-cache');
-            $response->setField('refresh_token',$refreshToken);
-            $response->send();
+            // !!! Try-Catch & success
         });
 
 
@@ -252,16 +248,19 @@ $app->group('/v1', function () use ($app) {
          */
         $app->get('/tokeninfo', function () use ($app) {
             try {
-                $model = new OAuth2Misc($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                // Fetch request object
+                // NOTE: Token is also fetched from header as well as body!
                 $request = $app->request();
+
+                // Generate token-information
+                $model = new OAuth2Misc($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
                 $result = $model->tokenInfo($request);
+
+                // Return status-data
                 $app->success($result);
             }
             catch (Exceptions\TokenInvalid $e) {
-                $app->halt(422, $e->getMessage(), $e::ID);
-            }
-            catch (Exceptions\TokenExpired $e) {
-                $app->halt(422, $e->getMessage(), $e::ID);
+                $app->halt(401, $e->getMessage(), $e::ID);
             }
         });
 
@@ -281,16 +280,27 @@ $app->group('/v1', function () use ($app) {
      * Response:
      */
     $app->post('/ilauth/rtoken2bearer', function () use ($app) {
-        $request = $app->request();
+        try {
+            // Fetch parameters
+            $request = $app->request();
+            $api_key = $request->getParam('api_key', null, true);
+            $user_id = $request->getParam('user_id', null, true);
+            $rtoken = $request->getParam('rtoken', null, true);
+            $session_id = $request->getParam('session_id', null, true);
 
-        $model = new OAuth2($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
-//        $model->rToken2Bearer($request);
+            // Convert userId, rToken and sessionId to bearer-token (using api-key)
+            $model = new OAuth2($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+            $result = $model->rToken2Bearer($api_key, $user_id, $rtoken, $session_id);
 
-
-        $app->response()->header('Content-Type', 'application/json');
-        $app->response()->header('Cache-Control', 'no-store');
-        $app->response()->header('Pragma', 'no-cache');
-        echo json_encode($result); // output-format: {"access_token":"03807cb390319329bdf6c777d4dfae9c0d3b3c35","expires_in":3600,"token_type":"bearer","scope":null}
+            // Return status-data
+            $app->success($result);
+        }
+        catch (LibExceptions\TokenInvalid $e) {
+            $app->halt(401, $e->getMessage(), $e::ID);
+        }
+        catch (LibExceptions\MissingParameter $e) {
+            $app->halt(422, $e->getMessage(), $e::ID);
+        }
     });
 
 

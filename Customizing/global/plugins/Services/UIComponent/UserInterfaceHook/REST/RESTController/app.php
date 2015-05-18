@@ -259,8 +259,9 @@ class RESTController extends \Slim\Slim {
         // 'sendData($data, $format) <Stub - Implement Me>';
         // Handle format!
         // $result['status'] = 'success';
-        header('content-type: application/json');
         $data['status'] = 'success';
+        $this->response->headers->remove('Content-Type');
+        header('Content-Type: application/json');
         echo json_encode($data); // Move to response class?
 
         $this->stop();

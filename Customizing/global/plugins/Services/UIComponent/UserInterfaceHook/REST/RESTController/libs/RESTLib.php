@@ -29,7 +29,6 @@ class RESTLib {
      */
     const ID_NO_ADMIN = 'RESTController\libs\RESTLib::ID_NO_ADMIN';
 
-
     // Allow to re-use status-strings
     const MSG_NO_ADMIN = 'Access denied. Administrator permissions required.';
 

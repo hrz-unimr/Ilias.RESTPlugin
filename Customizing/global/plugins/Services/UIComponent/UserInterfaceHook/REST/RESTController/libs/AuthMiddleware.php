@@ -39,13 +39,11 @@ class AuthMiddleware {
 
 
     // Allow to re-use status-strings
-    const MSG_TOKEN_EXPIRED = 'Token has expired.';
-    const MSG_ADMIN_REQUIRED = 'Route requires ILIAS Admin-Role permissions.';
-    const MSG_NO_PERMISSION = 'No permission to access this route.';
+    const MSG_INVALID_SSL = 'SSL-Certificate is invalid.';
     const MSG_NO_TOKEN = 'No access-token provided or using invalid format.';
     const MSG_NO_USER = 'Token is invalid, missing user.';
     const MSG_NO_KEY = 'Token is invalid, missing api-key.';
-    const MSG_INVALID_SSL = 'SSL-Certificate is invalid.';
+    const MSG_NO_PERMISSION = 'No permission to access this route.';
 
 
     /* ### Auth-Middleware - Start ### */
@@ -128,6 +126,11 @@ class AuthMiddleware {
      *
      */
     public static function getToken($app) {
+        // Fetch stored token
+        $env = $app->environment();
+        if ($env['token'])
+            return $env['token'];
+
         // Fetch token from body GET/POST (json or plain)
         $request = $app->request();
         $token_ser = $request->getParam('token');
@@ -158,6 +161,24 @@ class AuthMiddleware {
 
 
     /**
+     *
+     */
+    public static function getTokenApiKey($app) {
+        $env = $app->environment();
+        return $env['api_key'];
+    }
+
+
+    /**
+     *
+     */
+    public static function getTokenUser($app) {
+        $env = $app->environment();
+        return $env['user'];
+    }
+
+
+    /**
      * Utility Function:
      *  Checks the validity of a token and stops the request flow, if the token is invalid.
      *  The token is fetched from the following locations:
@@ -180,7 +201,7 @@ class AuthMiddleware {
 
         // Check token for common problems: Invalid format
         if (TokenLib::tokenExpired($token))
-            $app->halt(401, MSG_EXPIRED, ID_EXPIRED);
+            $app->halt(401, TokenLib::MSG_EXPIRED, TokenLib::ID_EXPIRED);
 
         // Check token for common problems: missing user entry (should not happen!)
         if (isset($token['user'])) {

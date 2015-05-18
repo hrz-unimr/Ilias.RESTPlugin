@@ -14,21 +14,25 @@ use \RESTController\core\clients\Clients as Clients;
 
 /**
  *
- * Constructor requires $app & $sqlDB.
+ * Constructor requires $app.
  */
 class OAuth2Misc extends Libs\RESTModel {
+    // Allow to re-use status-strings
+    const MSG_RTOKEN_AUTH_FAILED = 'Failed to authenticate.';
+
+
     /**
      *
      */
     public function tokenInfo($request) {
-        //
+        // Check token
         $token = Libs\AuthMiddleware::getToken($this->app);
         if (!Libs\TokenLib::tokenValid($token))
-            throw new Exceptions\TokenInvalid("");
+            throw new Exceptions\TokenInvalid(Libs\TokenLib::MSG_INVALID);
         if (Libs\TokenLib::tokenExpired($token))
-            throw new Exceptions\TokenExpired("");
+            throw new Exceptions\TokenInvalid(Libs\TokenLib::MSG_EXPIRED);
 
-        //
+        // Generate info for (valid) token
         return array(
             'api_key' => $token['api_key'],
             'user' =>  $token['user'],
@@ -38,53 +42,26 @@ class OAuth2Misc extends Libs\RESTModel {
         );
 
     }
+
+    
     /**
      * Further OAuth2 routines:
      * Allows for exchanging an ilias session to a bearer token.
      * This is used for administration purposes.
      * @param $app
      */
-    public function rToken2Bearer($request) {
-        $result = array();
-        $user_id = '';
-        $rtoken = '';
-        $session_id = '';
-        $api_key = '';
+    public function rToken2Bearer($api_key, $user_id, $rtoken, $session_id) {
+        // Check login-data
+        if (!Libs\AuthLib::authFromIlias($user_id, $rtoken, $session_id))
+            throw new Exceptions\TokenInvalid(MSG_RTOKEN_AUTH_FAILED);
 
-        if (count($request->post()) == 0) {
-            $a_data = array();
-            $reqdata = $app->request()->getBody(); // json
-            $a_data = json_decode($reqdata, true);
-            //var_dump($a_data);
-            $user_id = $a_data['user_id'];
-            $rtoken = $a_data['rtoken'];
-            $session_id = $a_data['session_id'];
-            $api_key = $a_data['api_key'];
-        } else {
-            $user_id = $request->getParam('user_id');
-            $rtoken = $request->getParam('rtoken');
-            $session_id = $request->getParam('session_id');
-            $api_key = $request->getParam('api_key');
-        }
-
-        $isAuth = Libs\AuthLib::authFromIlias($user_id, $rtoken, $session_id);
-
-        if ($isAuth == false) {
-            //$app->response()->status(400);
-            $result['status'] = 'error';
-            $result['error'] = 'Invalid token.';
-            $result['user_id']=$user_id;
-            $result['rtoken']=$rtoken;
-            $result['session_id']=$session_id;
-
-        }
-        else {
-            $user = Libs\RESTLib::userIdtoLogin($user_id);
-            $access_token = Libs\TokenLib::generateBearerToken($user, $api_key);
-            $result['status'] = 'success';
-            $result['user'] = $user;
-            $result['token'] = $access_token;
-        }
+        // Generate token for user (via given api-key)
+        $user = Libs\RESTLib::userIdtoLogin($user_id);
+        $access_token = Libs\TokenLib::generateBearerToken($user, $api_key);
+        return array(
+            'user' => $user,
+            'token' => $access_token
+        );
     }
 
 

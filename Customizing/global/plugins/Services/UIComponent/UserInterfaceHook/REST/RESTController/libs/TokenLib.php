@@ -6,8 +6,8 @@
  * 2014-2015
  */
 namespace RESTController\libs;
- 
- 
+
+
 // Requires <$ilDB>
 
 
@@ -16,12 +16,25 @@ namespace RESTController\libs;
  * such as generating, deconstructing and validating.
  */
 class TokenLib {
+    /**
+     * List of default REST error-codes
+     *  Extensions are allowed to create their own error-codes.
+     *  Using a unique string seems to be an easier solution than assigning unique numbers.
+     */
+    const ID_EXPIRED = 'RESTController\libs\TokenLib::ID_EXPIRED';
+    const ID_INVALID = 'RESTController\libs\TokenLib::ID_INVALID';
+
+    // Allow to re-use status-strings
+    const MSG_EXPIRED = 'Token has expired.';
+    const MSG_INVALID = 'Token is invalid.';
+    
+
     // Variables fetched from database containing (fixed) salt and time-to-life
     protected static $tokenSalt = null;
     protected static $tokenTTL = null;
     protected static $refreshTTL = 315360000; //60*60*24*365*10 = 315360000 i.e. 10 years
-    
-    
+
+
     /**
      * Load all settings from database, could also load each value when
      * its required, but doing only one query should be better overall.
@@ -29,7 +42,7 @@ class TokenLib {
      */
     protected static function loadSettings() {
         global $ilDB;
-        
+
         // Fetch key, value pairs from database
         $query = 'SELECT setting_name, setting_value FROM ui_uihk_rest_config WHERE setting_name IN ("token_salt", "token_ttl")';
         $set = $ilDB->query($query);
@@ -44,26 +57,26 @@ class TokenLib {
             }
         }
     }
-    
-    
+
+
     /**
      * Returns (fixed) token salt, that is used for generating "random-string" inside the token
      * Will load value from database IFF it isn't allready available.
-     * 
+     *
      * @return (string) UUID used as salt-value
      */
     protected static function getSalt() {
         // Load salt
-        if (!self::$tokenSalt) 
+        if (!self::$tokenSalt)
             self::loadSettings();
         // Fallback solution
-        if (!self::$tokenSalt) 
+        if (!self::$tokenSalt)
             throw new \Exception('TokenLib can\'t find the token-salt inside the database! Check that there is a (token_salt, <VALUE>) entry in the ui_uihk_rest_config table.');
-        
+
         return self::$tokenSalt;
     }
-    
-    
+
+
     /**
      * Returns time-to-life value for token.
      * Will load value from database IFF it isn't allready available.
@@ -72,16 +85,16 @@ class TokenLib {
      */
     protected static function getTTL() {
         // Load ttl
-        if (!self::$tokenTTL) 
+        if (!self::$tokenTTL)
             self::loadSettings();
         // Fallback solution
-        if (!self::$tokenTTL) 
+        if (!self::$tokenTTL)
             self::$tokenTTL = 30;
-        
+
         return self::$tokenTTL;
     }
 
-    
+
     /**
      * Generates an OAuth2 Access Token (aka bearer token). It comprises
      * a generic token and additional fields, such as token type and scope.
@@ -96,19 +109,19 @@ class TokenLib {
         $token = self::generateToken($user, $api_key, "bearer", "", self::getTTL());
         $ttl = self::getRemainingTime($token);
         $serializedToken = self::serializeToken($token);
-        
+
         // Generate bearer-token containing the generic token and additional information
         $result = array();
         $result['access_token'] = $serializedToken;
         $result['expires_in'] = $ttl;
         $result['token_type'] = 'bearer';
         $result['scope'] = $scope;
-        
+
         // Return bearer-token
         return $result;
     }
 
-    
+
     /**
      * Generates an OAuth2 Refresh Token
      *
@@ -119,13 +132,13 @@ class TokenLib {
     public static function generateOAuth2RefreshToken($user, $api_key) {
         // Generate random string to make re-hashing token "difficult"
         $randomStr = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 5)), 0, 5);
-        
+
         // Generate token and return it
-        $refresh_token_array = self::generateToken($user, $api_key, "refresh", $randomStr, self::$refreshTTL); 
+        $refresh_token_array = self::generateToken($user, $api_key, "refresh", $randomStr, self::$refreshTTL);
         return $refresh_token_array;
     }
 
-    
+
     /**
      * Creates a generic token. The resulting token incorporates several fields, s.t.
      * it is not necessary to validate this kind of token without use of a database.
@@ -140,7 +153,7 @@ class TokenLib {
     public static function generateToken($user, $api_key, $type, $misc, $lifetime) {
         // Generate random string to make re-hashing token "difficult"
         $randomStr = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 5)), 0, 25);
-        
+
         // Generate token (Examples: bearer, generic, refresh)
         $token = array();
         $token['user'] = $user;
@@ -152,7 +165,7 @@ class TokenLib {
         $token['h'] = self::hash($token);
         return $token;
     }
-    
+
 
     /**
      * Checks if the generic token is valid by comparing its hash with its stored hash.
@@ -163,14 +176,14 @@ class TokenLib {
     public static function tokenValid($token) {
         // Rehash token and compare to stored (in ['h']) value
         $rehash = self::hash($token);
-        if($rehash != $token["h"]) 
+        if($rehash != $token["h"])
             return false;
         return true;
     }
 
-    
+
     /**
-     * Checks if the provided generic token is expired. 
+     * Checks if the provided generic token is expired.
      * Implicitly this method also checks if the token is valid.
      *
      * @param $token - Token to check
@@ -184,7 +197,7 @@ class TokenLib {
         return true;
     }
 
-    
+
     /**
      * This method delivers the residual life time of a (generic) token.
      * Implicitly this method also checks if the token is valid.
@@ -195,14 +208,14 @@ class TokenLib {
     public static function getRemainingTime($token) {
         if (self::tokenValid($token)) {
             $current = time();
-            
+
             if (intval($token['ttl']) > $current)
                 return intval($token['ttl']) - $current;
         }
         return 0;
     }
 
-    
+
     /**
      * This methods refreshes a generic token.
      * Implicitly this method also checks if the token is valid.
@@ -211,19 +224,19 @@ class TokenLib {
      * @return array - Generated refreshed token
      */
     public static function tokenRefresh($token) {
-        if (self::tokenValid($token)) {            
+        if (self::tokenValid($token)) {
             $user = $token['user'];
             $api_key = $token['api_key'];
             $type = $token['type'];
             $misc = $token['misc'];
-            
+
             return self::generateToken($user, $api_key, $type, $misc, self::getTTL());
         }
-        
+
         return $token;
     }
 
-    
+
     /**
      * Generates a hash of the given token using SHA256 and prepending a
      * variable (but fixed!) salt to the token-string.
@@ -236,10 +249,10 @@ class TokenLib {
         return hash('sha256', self::getSalt() . $str);
     }
 
-    
+
     /**
      * This method serializes or packs a generic token for transport over the web.
-     * 
+     *
      * @param $token
      * @return string
      */
@@ -248,7 +261,7 @@ class TokenLib {
         $tokenStr = $token['user'].",".$token['api_key'].",".$token['type'].",".$token['misc'].",".$token['ttl'].",".$token['s'].",".$token['h'];
         return urlencode(base64_encode($tokenStr));
     }
-    
+
 
     /**
      * This methods unpacks a received generic token.
@@ -259,7 +272,7 @@ class TokenLib {
     public static function deserializeToken($serializedToken) {
         $tokenStr = base64_decode(urldecode($serializedToken));
         $a_token_parts = explode(",", $tokenStr);
-        
+
         // Note: Potential attacker could have slipped a "," into any $token value, thus making this vunerable without at least a simple check! ...
         if (count($a_token_parts) == 7) {
             $token = array();
@@ -274,11 +287,11 @@ class TokenLib {
         }
         // ... Returning a null-token should make any code trying to use this token error-out.
     }
-    
-    
+
+
     /**
      * Generates a token and serializes it.
-     * 
+     *
      * @see generateToken($user, $api_key, $type, $misc, $lifetime)
      */
     public static function generateSerializedToken($user, $api_key, $type, $misc, $lifetime) {

@@ -20,7 +20,7 @@ class OAuth2Auth extends Libs\RESTModel {
     /**
      *
      */
-    public function auth_AllGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token) {
+    public function allGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token) {
         // Client-Model required
         $clients = new Clients(null, $this->sqlDB);
 

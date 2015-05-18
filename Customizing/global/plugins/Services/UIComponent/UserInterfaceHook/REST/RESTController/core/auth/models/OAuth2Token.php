@@ -116,7 +116,7 @@ class OAuth2Token extends Libs\RESTModel {
         // Check if token is still valid
         $tokenArray = Libs\TokenLib::deserializeToken($token);
         if (Libs\TokenLib::tokenExpired($tokenArray))
-            throw new Exceptions\TokenExpired('The provided token has expired.');
+            throw new Exceptions\TokenInvalid('The provided token has expired.');
 
         // Compare token content to other request data
         $t_redirect_uri = $tokenArray['misc'];

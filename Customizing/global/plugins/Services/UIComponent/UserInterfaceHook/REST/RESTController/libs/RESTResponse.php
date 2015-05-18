@@ -157,4 +157,7 @@ class RESTResponse {
             default: $this->toJSON();
         }
     }
+
+    // Methode: enable/disableCookie()
+    // Methode: enable/disableCache()
 }
