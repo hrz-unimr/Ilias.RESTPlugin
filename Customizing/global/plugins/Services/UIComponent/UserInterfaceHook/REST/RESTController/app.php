@@ -193,6 +193,36 @@ class RESTController extends \Slim\Slim {
 
 
     /**
+     * Load all settings from database, could also load each value when
+     * its required, but doing only one query should be better overall.
+     * Sets $tokenSalt and $tokenTTL.
+     */
+    protected function loadDBSettings() {
+        $env = $this->environment();
+
+        // Fetch key, value pairs from database
+        $query = 'SELECT setting_name, setting_value FROM ui_uihk_rest_config WHERE setting_name IN ("token_salt", "token_ttl")';
+        $set = $this->sqlDB->query($query);
+        while ($set != null && $row = $this->sqlDB->fetchAssoc($set)) {
+            switch ($row['setting_name']) {
+                case "token_salt" :
+                    $env['tokenSalt'] = $row['setting_value'];
+                    break;
+                case "token_ttl" :
+                    $env['tokenTTL'] = $row['setting_value'];
+                    break;
+            }
+        }
+
+        // Setd default values
+        if (!$env['tokenSalt'])
+            throw new \Exception('TokenLib can\'t find the token-salt inside the database! Check that there is a (token_salt, <VALUE>) entry in the ui_uihk_rest_config table.');
+        if (!$env['tokenTTL'])
+            $env['tokenTTL'] = 30;
+    }
+
+
+    /**
      * Constructor
      *
      * @param $appDirectory - Directory in which the app.php is contained
@@ -223,6 +253,9 @@ class RESTController extends \Slim\Slim {
 
         // Set default error-handler and 404 result
         $this->setErrorHandler();
+
+        // Load settings from DB
+        $this->loadDBSettings();
     }
 
 

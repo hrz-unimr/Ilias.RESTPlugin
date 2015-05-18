@@ -5,9 +5,10 @@
  * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
-namespace RESTController\libs;
+namespace RESTController\core\auth;
 
-
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs as Libs;
 // Requires <$ilias>, <$ilPluginAdmin>, <$ilSession>, <$ilSessionControl>, <$Auth>, <$ilShibboleth>, <$ilAuthUtils>, <$ilObjUser>
 // Requires RESTLib.php
 
@@ -17,6 +18,12 @@ namespace RESTController\libs;
  * to OAuth/ILIAS user-authentication.
  */
 class AuthLib {
+    // Allow to re-use status-strings
+    const MSG_UC_DISABLED = 'User-credentials grant-type is disabled for this client.';
+    const MSG_CC_DISABLED = 'Client-credentials grant-type is disabled for this client.';
+    const MSG_AC_DISABLED = 'Authorization-code grant-type is disabled for this client.';
+    const MSG_I_DISABLED = 'Implicit grant-type is disabled for this client.';
+
     /**
      * Initializes ILIAS user application class
      * with given ILIAS user-id.

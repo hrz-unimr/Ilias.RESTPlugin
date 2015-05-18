@@ -5,14 +5,11 @@
  * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
-namespace RESTController\libs;
-
-
-// Requires <$ilDB>
+namespace RESTController\core\auth;
 
 
 /*
- * This (fully static) class handles all Token (Bearer & Refresh) related tasks,
+ * This class handles all Token (Bearer & Refresh) related tasks,
  * such as generating, deconstructing and validating.
  */
 class TokenLib {
@@ -22,77 +19,67 @@ class TokenLib {
      *  Using a unique string seems to be an easier solution than assigning unique numbers.
      */
     const ID_EXPIRED = 'RESTController\libs\TokenLib::ID_EXPIRED';
-    const ID_INVALID = 'RESTController\libs\TokenLib::ID_INVALID';
 
     // Allow to re-use status-strings
     const MSG_EXPIRED = 'Token has expired.';
-    const MSG_INVALID = 'Token is invalid.';
-    
 
-    // Variables fetched from database containing (fixed) salt and time-to-life
-    protected static $tokenSalt = null;
-    protected static $tokenTTL = null;
-    protected static $refreshTTL = 315360000; //60*60*24*365*10 = 315360000 i.e. 10 years
+
+    //
+    protected $salt = null;
+    protected $tokenTTL = null;
+    protected $refreshTTL = 315360000; //60*60*24*365*10 = 315360000 i.e. 10 years
+
+    //
+    protected $tokenArray = null;
+    protected $tokenString = null;
+    protected $type = null;
 
 
     /**
-     * Load all settings from database, could also load each value when
-     * its required, but doing only one query should be better overall.
-     * Sets $tokenSalt and $tokenTTL.
+     *
      */
-    protected static function loadSettings() {
-        global $ilDB;
+    public function __construct($token, $salt, $ttl = 30) {
+        if (!isset($salt) || !is_string($salt) && !is_numeric($salt))
+            throw new Exception('!!!');
 
-        // Fetch key, value pairs from database
-        $query = 'SELECT setting_name, setting_value FROM ui_uihk_rest_config WHERE setting_name IN ("token_salt", "token_ttl")';
-        $set = $ilDB->query($query);
-        while ($set != null && $row = $ilDB->fetchAssoc($set)) {
-            switch ($row['setting_name']) {
-                case "token_salt" :
-                    self::$tokenSalt = $row['setting_value'];
-                    break;
-                case "token_ttl" :
-                    self::$tokenTTL = $row['setting_value'];
-                    break;
-            }
+        $this->salt = $salt;
+        $this->tokenTTL = $ttl;
+        $this->setToken($token);
+    }
+
+
+    /**
+     *
+     */
+    public function setToken($token) {
+        if (is_array($token) && count($token) == 7) {
+            $this->tokenArray = $token;
+            $this->tokenString = $this->serializeToken();
         }
+        elseif (is_string($token)) {
+            $this->tokenString = $token;
+            $this->tokenArray = $this->deserializeToken();
+        }
+        else
+            throw new \Exception('!!!');
     }
 
 
     /**
-     * Returns (fixed) token salt, that is used for generating "random-string" inside the token
-     * Will load value from database IFF it isn't allready available.
      *
-     * @return (string) UUID used as salt-value
      */
-    protected static function getSalt() {
-        // Load salt
-        if (!self::$tokenSalt)
-            self::loadSettings();
-        // Fallback solution
-        if (!self::$tokenSalt)
-            throw new \Exception('TokenLib can\'t find the token-salt inside the database! Check that there is a (token_salt, <VALUE>) entry in the ui_uihk_rest_config table.');
-
-        return self::$tokenSalt;
+    public function getTokenArray() {
+        return $this->tokenArray;
     }
 
 
     /**
-     * Returns time-to-life value for token.
-     * Will load value from database IFF it isn't allready available.
      *
-     * @return (number) time-to-life, in minutes
      */
-    protected static function getTTL() {
-        // Load ttl
-        if (!self::$tokenTTL)
-            self::loadSettings();
-        // Fallback solution
-        if (!self::$tokenTTL)
-            self::$tokenTTL = 30;
-
-        return self::$tokenTTL;
+    public function getTokenString() {
+        return $this->tokenString;
     }
+
 
 
     /**
@@ -104,11 +91,11 @@ class TokenLib {
      * @param $scope - [Optional] Allowed scope
      * @return array - Bearer token
      */
-    public static function generateBearerToken($user, $api_key, $scope=null) {
+    public static function generateBearerToken($salt, $ttl, $user, $api_key, $scope = null) {
         // Generate generic token containing user and api-key
-        $token = self::generateToken($user, $api_key, "bearer", "", self::getTTL());
-        $ttl = self::getRemainingTime($token);
-        $serializedToken = self::serializeToken($token);
+        $token = $this->generateToken($user, $api_key, "bearer", "", $this->tokenTTL);
+        $ttl = $this->getRemainingTime($token);
+        $serializedToken = $this->serializeToken($token);
 
         // Generate bearer-token containing the generic token and additional information
         $result = array();
@@ -118,7 +105,7 @@ class TokenLib {
         $result['scope'] = $scope;
 
         // Return bearer-token
-        return $result;
+        return new self($result, $salt, $ttl);
     }
 
 
@@ -134,7 +121,7 @@ class TokenLib {
         $randomStr = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 5)), 0, 5);
 
         // Generate token and return it
-        $refresh_token_array = self::generateToken($user, $api_key, "refresh", $randomStr, self::$refreshTTL);
+        $refresh_token_array = $this->generateToken($user, $api_key, "refresh", $randomStr, $this->refreshTTL);
         return $refresh_token_array;
     }
 
@@ -162,7 +149,7 @@ class TokenLib {
         $token['misc'] = $misc;
         $token['ttl'] =  strval(time() + ($lifetime * 60));
         $token['s'] = $randomStr;
-        $token['h'] = self::hash($token);
+        $token['h'] = $this->hash($token);
         return $token;
     }
 
@@ -173,9 +160,9 @@ class TokenLib {
      * @param $token - Token to check
      * @return bool - True if  provided token is valid, false else
      */
-    public static function tokenValid($token) {
+    public function isValid() {
         // Rehash token and compare to stored (in ['h']) value
-        $rehash = self::hash($token);
+        $rehash = $this->hash($token);
         if($rehash != $token["h"])
             return false;
         return true;
@@ -189,8 +176,8 @@ class TokenLib {
      * @param $token - Token to check
      * @return bool - True if  provided token has expired, false else
      */
-    public static function tokenExpired($token) {
-        if (!self::tokenValid($token))
+    public function isExpired() {
+        if (!$this->isValid($token))
             return true;
         if (intval($token['ttl']) > time())
             return false;
@@ -205,8 +192,8 @@ class TokenLib {
      * @param $token - Token to check
      * @return number - Remaining time in seconds [0, ...]
      */
-    public static function getRemainingTime($token) {
-        if (self::tokenValid($token)) {
+    public function getRemainingTime() {
+        if ($this->isValid($token)) {
             $current = time();
 
             if (intval($token['ttl']) > $current)
@@ -223,14 +210,14 @@ class TokenLib {
      * @param $token - Token that should be refreshed
      * @return array - Generated refreshed token
      */
-    public static function tokenRefresh($token) {
-        if (self::tokenValid($token)) {
+    public function refresh() {
+        if ($this->isValid($token)) {
             $user = $token['user'];
             $api_key = $token['api_key'];
             $type = $token['type'];
             $misc = $token['misc'];
 
-            return self::generateToken($user, $api_key, $type, $misc, self::getTTL());
+            return $this->generateToken($user, $api_key, $type, $misc, $this->tokenTTL);
         }
 
         return $token;
@@ -244,9 +231,9 @@ class TokenLib {
      * @param $token - Token that should be hashed
      * @return string - Calcuated hash
      */
-    protected static function hash($token) {
+    protected function hash() {
         $str = $token['user'] . '/' . $token['api_key'] . '/' . $token['type'] . '/' . $token['misc'] . '/' .$token['ttl'] . '/'.$token['s'];
-        return hash('sha256', self::getSalt() . $str);
+        return hash('sha256', $this->salt . $str);
     }
 
 
@@ -256,7 +243,7 @@ class TokenLib {
      * @param $token
      * @return string
      */
-    public static function serializeToken($token) {
+    public function serializeToken() {
         // Note: Potential attacker could try to slip a "," into any $token value (best candidate seems to be 'api_key'), thus making deserializeToken vunerable!
         $tokenStr = $token['user'].",".$token['api_key'].",".$token['type'].",".$token['misc'].",".$token['ttl'].",".$token['s'].",".$token['h'];
         return urlencode(base64_encode($tokenStr));
@@ -269,7 +256,7 @@ class TokenLib {
      * @param $serializedToken
      * @return array
      */
-    public static function deserializeToken($serializedToken) {
+    public function deserializeToken() {
         $tokenStr = base64_decode(urldecode($serializedToken));
         $a_token_parts = explode(",", $tokenStr);
 
@@ -286,15 +273,5 @@ class TokenLib {
             return $token;
         }
         // ... Returning a null-token should make any code trying to use this token error-out.
-    }
-
-
-    /**
-     * Generates a token and serializes it.
-     *
-     * @see generateToken($user, $api_key, $type, $misc, $lifetime)
-     */
-    public static function generateSerializedToken($user, $api_key, $type, $misc, $lifetime) {
-        return self::serializeToken(self::generateToken($user, $api_key, $type, $misc, $lifetime));
     }
 }

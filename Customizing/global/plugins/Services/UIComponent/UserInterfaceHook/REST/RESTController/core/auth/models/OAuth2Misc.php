@@ -9,7 +9,6 @@ namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
-use \RESTController\core\clients\Clients as Clients;
 
 
 /**
@@ -27,8 +26,6 @@ class OAuth2Misc extends Libs\RESTModel {
     public function tokenInfo($request) {
         // Check token
         $token = Libs\AuthMiddleware::getToken($this->app);
-        if (!Libs\TokenLib::tokenValid($token))
-            throw new Exceptions\TokenInvalid(Libs\TokenLib::MSG_INVALID);
         if (Libs\TokenLib::tokenExpired($token))
             throw new Exceptions\TokenInvalid(Libs\TokenLib::MSG_EXPIRED);
 
@@ -43,7 +40,7 @@ class OAuth2Misc extends Libs\RESTModel {
 
     }
 
-    
+
     /**
      * Further OAuth2 routines:
      * Allows for exchanging an ilias session to a bearer token.

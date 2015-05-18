@@ -17,6 +17,10 @@ use \RESTController\core\clients\Clients as Clients;
  * Constructor requires $app & $sqlDB.
  */
 class OAuth2Auth extends Libs\RESTModel {
+    // Allow to re-use status-strings
+    const MSG_RESPONSE_TYPE = 'Parameter response_type must be "code" or "token".';
+
+
     /**
      *
      */
@@ -26,13 +30,13 @@ class OAuth2Auth extends Libs\RESTModel {
 
         // Check input
         if ($response_type != 'code' && $response_type != 'token')
-            throw new Exceptions\ResponseType('Parameter response_type must be "code" or "token".');
+            throw new Exceptions\ResponseType(MSG_RESPONSE_TYPE);
 
         // Client (api-key) is not allowed to use this grant-type or doesn't exist
         if ($response_type == 'code' && !$clients->is_oauth2_gt_authcode_enabled($api_key))
-            throw new Exceptions\LoginFailed('Authorization-code grant-type is disabled for this client.');
+            throw new Exceptions\LoginFailed(Libs\AuthLib::MSG_AC_DISABLED);
         if ($response_type == 'token' && !$clients->is_oauth2_gt_implicit_enabled($api_key))
-            throw new Exceptions\LoginFailed('Implicit grant-type is disabled for this client.');
+            throw new Exceptions\LoginFailed(Libs\AuthLib::MSG_I_DISABLED);
 
         // Login-data (username/password) is provided, try to authenticate
         if ($username && $password) {
@@ -104,7 +108,7 @@ class OAuth2Auth extends Libs\RESTModel {
             // Check if token is still valid
             $tokenArray = Libs\TokenLib::deserializeToken($authenticity_token);
             if (Libs\TokenLib::tokenExpired($tokenArray))
-                throw new Exceptions\TokenExpired('The provided token has expired.');
+                throw new Exceptions\TokenExpired(Libs\TokenLib::MSG_EXPIRED);
 
             // Generate a temporary token that can be exchanged for bearer-token
             $tokenUser = $tokenArray['user'];
