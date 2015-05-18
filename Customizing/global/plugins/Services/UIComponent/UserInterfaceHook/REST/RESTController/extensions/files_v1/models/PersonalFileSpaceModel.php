@@ -185,4 +185,18 @@ class PersonalFileSpaceModel {
         ilRbacLog::add(ilRbacLog::CREATE_OBJECT, $ref_id, $rbac_log);
     }
 
+
+    public function deleteFromMyFileSpace($obj_id, $user_id)
+    {
+        include_once "Services/PersonalWorkspace/classes/class.ilWorkspaceTree.php";
+        $tree = new\ ilWorkspaceTree($user_id);
+        $source_node_id = $tree->lookupNodeId($obj_id);
+        //$parent_id = $this->tree->getParentId($source_node_id);
+        $tree->deleteReference($source_node_id);
+        $source_node = $tree->getNodeData($source_node_id);
+        $tree->deleteTree($source_node);
+        RESTLib::initAccessHandling();
+        $source_object = ilObjectFactory::getInstanceByObjId($obj_id);
+        $source_object->delete();
+    }
 }
