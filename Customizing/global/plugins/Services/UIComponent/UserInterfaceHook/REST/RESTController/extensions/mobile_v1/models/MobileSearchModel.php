@@ -18,7 +18,7 @@ class MobileSearchModel
      * This method triggers an "elastic search" on basis of repository titles by using the php client
      * elastica installed under "addon".
      * @param $query - a string
-     * @returns $searchResults - an associative reaults of hits
+     * @return array $searchResults - an associative reaults of hits
      */
     public function performSearch($query) {
 
