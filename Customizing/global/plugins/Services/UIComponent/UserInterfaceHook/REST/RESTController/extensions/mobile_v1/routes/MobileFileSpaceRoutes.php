@@ -143,7 +143,7 @@ $app->group('/v1/m', function () use ($app) {
             exit;
         }
         //error_log(1);
-        // Try to upload
+        // Try to upload file
         RESTLib::initAccessHandling();
         $model = new \RESTController\extensions\files_v1\PersonalFileSpaceModel();
         $model->handleFileUploadIntoMyFileSpace($_FILES["mupload"],$user_id);
@@ -154,8 +154,11 @@ $app->group('/v1/m', function () use ($app) {
         $response->send();
     });
 
+    /**
+     * Deletes a file from a user's filespace.
+     */
     $app->delete('/myfilespacedelete', '\RESTController\libs\AuthMiddleware::authenticate', function() use ($app) {
-        $app->log->debug("Myfilespace upload via GET");
+        $app->log->debug("Myfilespace delete");
         $t_start = microtime();
         $env = $app->environment();
         $user_id = RESTLib::loginToUserId($env['user']);

@@ -17,7 +17,7 @@ use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
  */
  
 
-$app->group('/m/v1', function () use ($app) {
+$app->group('v1/m', function () use ($app) {
 
 
     $app->get('/search/',  function () use ($app) {
