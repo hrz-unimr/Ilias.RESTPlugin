@@ -12,65 +12,65 @@ namespace RESTController\core\auth;
  * This class handles all Token (Bearer & Refresh) related tasks,
  * such as generating, deconstructing and validating.
  */
-class Token {
+class GenericToken extends TokenBase {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.
      *  Using a unique string seems to be an easier solution than assigning unique numbers.
      */
-    const ID_EXPIRED = 'RESTController\libs\TokenLib::ID_EXPIRED';
+    const ID_EXPIRED = 'RESTController\core\auth\GenericToken::ID_EXPIRED';
+    const ID_INVALID = 'RESTController\core\auth\GenericToken::ID_INVALID';
 
     // Allow to re-use status-strings
     const MSG_EXPIRED = 'Token has expired.';
+    const MSG_INVALID = 'Token is invalid.';
 
 
     //
-    protected $salt = null;
-    protected $tokenTTL = null;
-    protected $refreshTTL = 315360000; //60*60*24*365*10 = 315360000 i.e. 10 years
-
-    //
-    protected $tokenArray = null;
-    protected $tokenString = null;
-    protected $type = null;
+    protected static $fields = array(
+        'user',
+        'api_key',
+        'type',
+        'misc',
+        'ttl',
+        's',
+        'h'
+    );
 
 
     /**
      *
      */
-    public function __construct($token, $salt, $ttl = 30) {
-        if (!isset($salt) || !is_string($salt) && !is_numeric($salt))
-            throw new Exception('!!!');
+    public static function fromMixed($tokenSettings, $tokenMixed) {
+        $token = new self($tokenSettings);
+        $token->setToken($tokenMixed);
 
-        $this->salt = $salt;
-        $this->tokenTTL = $ttl;
-        $this->setToken($token);
+        if ($token->getTokenArray())
+            return $token;
+    }
+    public static function fromFields($tokenSettings, $user, $api_key, $type, $misc = null, $lifetime = null) {
+        $token = new self($tokenSettings);
+        $tokenArray = $token->generateTokenArray($user, $api_key, $type, $misc, $lifetime);
+        $token->setToken($tokenArray);
+
+        if ($token->getTokenArray())
+            return $token;
     }
 
 
     /**
      *
      */
-    public function setToken($token) {
-        if (is_string($token))
-            $tokenArray = self::deserialize($token);
+    public function setToken($tokenMixed) {
+        if (is_string($tokenMixed))
+            $tokenArray = self::deserializeToken($tokenMixed);
         else
-            $tokenArray = $token;
+            $tokenArray = $tokenMixed;
 
-        if (is_array($tokenArray) && count($tokenArray) == 7) {
-            $this->tokenArray = $tokenArray;
-            $this->tokenString = self::serialize($tokenArray);
-        }
-        else
-            throw new \Exception('!!!');
-    }
-
-
-    /**
-     *
-     */
-    public function getTokenArray() {
-        return $this->tokenArray;
+        if (!$this->isValidTokenArray($tokenArray))
+            throw new Exceptions\TokenInvalid(self::MSG_INVALID);
+            
+        parent::setToken($tokenArray);
     }
 
 
@@ -78,7 +78,18 @@ class Token {
      *
      */
     public function getTokenString() {
-        return $this->tokenString;
+        return self::serializeToken($this->tokenArray);
+    }
+
+
+    /**
+     *
+     */
+    public function setEntry($field, $value) {
+        if (strtolower($field) != 'h') {
+            parent::setEntry($field, $value);
+            $this->tokenArray['h'] = $this->getHash($this->tokenArray);
+        }
     }
 
 
@@ -89,11 +100,7 @@ class Token {
      * @return bool - True if  provided token is valid, false else
      */
     public function isValid() {
-        // Rehash token and compare to stored (in ['h']) value
-        $rehash = $this->getHash($this->tokenArray);
-        if($rehash != $this->tokenArray["h"])
-            return false;
-        return true;
+        return $this->isValidTokenArray($this->tokenArray);
     }
 
 
@@ -119,11 +126,8 @@ class Token {
      * @return number - Remaining time in seconds [0, ...]
      */
     public function getRemainingTime() {
-        if (!$this->isValid())
-            return 0;
-
         $current = time();
-        if (intval($this->tokenArray['ttl']) > $current)
+        if ($this->isValid() && intval($this->tokenArray['ttl']) > $current)
             return intval($this->tokenArray['ttl']) - $current;
         else
             return 0;
@@ -149,44 +153,31 @@ class Token {
         $misc = $this->tokenArray['misc'];
 
         //
-        $token = $this->generateTokenArray($user, $api_key, $type, $misc, $this->tokenTTL);
+        $token = $this->generateTokenArray($user, $api_key, $type, $misc);
         $this->setToken($token);
     }
 
 
     /**
-     * Creates a generic token. The resulting token incorporates several fields, s.t.
-     * it is not necessary to validate this kind of token without use of a database.
-     *
-     * @param $user - ILIAS user
-     * @param $api_key - OAuth2 client (not ILIAS ilias-client)
-     * @param $type - [Optional] Type of token (bearer, generic, refresh)
-     * @param $misc - [Optional] Additional text
-     * @param $lifetime - Lifetime of token
-     * @return array - A generic token (see $type for its type)
-     */
-    public static function newToken($salt, $ttl, $user, $api_key, $type, $misc, $lifetime) {
-        // Create a new token
-        $tokenArray = $this->generateTokenArray($user, $api_key, $type, $misc, $lifetime);
-        return new self($tokenArray, $salt, $ttl);
-    }
-
-
-    /**
      *
      */
-    protected function generateTokenArray($user, $api_key, $type, $misc, $lifetime) {
+    protected function generateTokenArray($user, $api_key, $type, $misc = null, $lifetime = null) {
+        if (!$lifetime)
+            $lifetime = $this->tokenSettings->getTTL();
+        if (!$misc)
+            $misc = '';
+
         // Generate random string to make re-hashing token "difficult"
         $randomStr = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 5)), 0, 25);
 
         // Generate token (Examples: bearer, generic, refresh)
         $tokenArray = array(
-            'user'      => $user;
-            'api_key'   => $api_key;
-            'type'      => $type;
-            'misc'      => $misc;
-            'ttl'       => strval(time() + ($lifetime * 60));
-            's'         => $randomStr;
+            'user'      => $user,
+            'api_key'   => $api_key,
+            'type'      => $type,
+            'misc'      => $misc,
+            'ttl'       => strval(time() + ($lifetime * 60)),
+            's'         => $randomStr
         );
 
         // Generate hash for token
@@ -204,14 +195,26 @@ class Token {
      * @param $token - Token that should be hashed
      * @return string - Calcuated hash
      */
-    protected function getHash($tokenArray) {
+     protected function getHash($tokenArray) {
         $tokenHashStr = $tokenArray['user'] . '/' .
                         $tokenArray['api_key'] . '/' .
                         $tokenArray['type'] . '/' .
                         $tokenArray['misc'] . '/' .
                         $tokenArray['ttl'] . '/'.
                         $tokenArray['s'];
-        return hash('sha256', $this->salt . $tokenHashStr);
+        return hash('sha256', $this->tokenSettings->getSalt() . $tokenHashStr);
+    }
+
+
+    /**
+     *
+     */
+    protected function isValidTokenArray($tokenArray) {
+        // Rehash token and compare to stored (in ['h']) value
+        $rehash = $this->getHash($tokenArray);
+        if($rehash != $tokenArray["h"])
+            return false;
+        return true;
     }
 
 
@@ -221,7 +224,7 @@ class Token {
      * @param $token
      * @return string
      */
-    protected static function serializeToken($tokenArray) {
+     public static function serializeToken($tokenArray) {
         // Note: Potential attacker could try to slip a "," into any $token value (best candidate seems to be 'api_key'), thus making deserializeToken vunerable!
         $tokenStr = $tokenArray['user'].",".
                     $tokenArray['api_key'].",".
@@ -241,20 +244,20 @@ class Token {
      * @param $serializedToken
      * @return array
      */
-    protected static function deserializeToken($tokenString) {
+    public static function deserializeToken($tokenString) {
         // Deserialize token-string
         $tokenPartArray = explode(",", base64_decode(urldecode($tokenString)));
 
         // Note: Potential attacker could have slipped a "," into any $token value, thus making this vunerable without at least a simple check! ...
-        if (count($tokenPartArray) == 7) {
+        if (count($tokenPartArray) == count(self::$fields)) {
             return array(
-                'user'      =>  $tokenPartArray[0];
-                'api_key'   =>  $tokenPartArray[1];
-                'type'      =>  $tokenPartArray[2];
-                'misc'      =>  $tokenPartArray[3];
-                'ttl'       =>  $tokenPartArray[4];
-                's'         =>  $tokenPartArray[5];
-                'h'         =>  $tokenPartArray[6];
+                'user'      =>  $tokenPartArray[0],
+                'api_key'   =>  $tokenPartArray[1],
+                'type'      =>  $tokenPartArray[2],
+                'misc'      =>  $tokenPartArray[3],
+                'ttl'       =>  $tokenPartArray[4],
+                's'         =>  $tokenPartArray[5],
+                'h'         =>  $tokenPartArray[6]
             );
         }
 
