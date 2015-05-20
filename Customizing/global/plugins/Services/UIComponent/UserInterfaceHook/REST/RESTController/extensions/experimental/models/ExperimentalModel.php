@@ -8,13 +8,10 @@
 namespace RESTController\extensions\experimental;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \ilHTTPS, \ilUtil;
+use \RESTController\libs as Libs;
 
 
-require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
+require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
 
 
 class ExperimentalModel
@@ -23,29 +20,29 @@ class ExperimentalModel
     {
         global $ilSetting;
 
-        RESTLib::initGlobal("ilSetting", "ilSetting",
-            "Services/Administration/classes/class.ilSetting.php");
+        Libs\RESTLib::initGlobal('ilSetting', 'ilSetting',
+            'Services/Administration/classes/class.ilSetting.php');
 
         // check correct setup
-        if (!$ilSetting->get("setup_ok"))
-            self::abortAndDie("Setup is not completed. Please run setup routine again.");
+        if (!$ilSetting->get('setup_ok'))
+            self::abortAndDie('Setup is not completed. Please run setup routine again.');
 
         // set anonymous user & role id and system role id
-        define ("ANONYMOUS_USER_ID", $ilSetting->get("anonymous_user_id"));
-        define ("ANONYMOUS_ROLE_ID", $ilSetting->get("anonymous_role_id"));
-        define ("SYSTEM_USER_ID", $ilSetting->get("system_user_id"));
-        define ("SYSTEM_ROLE_ID", $ilSetting->get("system_role_id"));
-        define ("USER_FOLDER_ID", 7);
+        define ('ANONYMOUS_USER_ID', $ilSetting->get('anonymous_user_id'));
+        define ('ANONYMOUS_ROLE_ID', $ilSetting->get('anonymous_role_id'));
+        define ('SYSTEM_USER_ID', $ilSetting->get('system_user_id'));
+        define ('SYSTEM_ROLE_ID', $ilSetting->get('system_role_id'));
+        define ('USER_FOLDER_ID', 7);
 
         // recovery folder
-        define ("RECOVERY_FOLDER_ID", $ilSetting->get("recovery_folder_id"));
+        define ('RECOVERY_FOLDER_ID', $ilSetting->get('recovery_folder_id'));
 
         // installation id
-        define ("IL_INST_ID", $ilSetting->get("inst_id",0));
+        define ('IL_INST_ID', $ilSetting->get('inst_id',0));
 
         // define default suffix replacements
-        define ("SUFFIX_REPL_DEFAULT", "php,php3,php4,inc,lang,phtml,htaccess");
-        define ("SUFFIX_REPL_ADDITIONAL", $ilSetting->get("suffix_repl_additional"));
+        define ('SUFFIX_REPL_DEFAULT', 'php,php3,php4,inc,lang,phtml,htaccess');
+        define ('SUFFIX_REPL_ADDITIONAL', $ilSetting->get('suffix_repl_additional'));
 
         self::buildHTTPPath();
     }
@@ -56,7 +53,7 @@ class ExperimentalModel
     public static function buildHTTPPath()
     {
         include_once('./Services/Http/classes/class.ilHTTPS.php');
-        $https = new ilHTTPS();
+        $https = new \ilHTTPS();
 
         if($https->isDetected())
         {
@@ -70,9 +67,9 @@ class ExperimentalModel
 
         $rq_uri = $_SERVER['REQUEST_URI'];
 
-        // security fix: this failed, if the URI contained "?" and following "/"
-        // ->we remove everything after "?"
-        if (is_int($pos = strpos($rq_uri, "?")))
+        // security fix: this failed, if the URI contained '?' and following '/'
+        // ->we remove everything after '?'
+        if (is_int($pos = strpos($rq_uri, '?')))
         {
             $rq_uri = substr($rq_uri, 0, $pos);
         }
@@ -96,7 +93,7 @@ class ExperimentalModel
 
             // dirname cuts the last directory from a directory path e.g content/classes return content
 
-            $module = ilUtil::removeTrailingPathSeparators(ILIAS_MODULE);
+            $module = \ilUtil::removeTrailingPathSeparators(ILIAS_MODULE);
 
             $dirs = explode('/',$module);
             $uri = $path;
@@ -106,7 +103,7 @@ class ExperimentalModel
             }
         }
 
-        return define('ILIAS_HTTP_PATH',ilUtil::removeTrailingPathSeparators($protocol.$host.$uri));
+        return define('ILIAS_HTTP_PATH',\ilUtil::removeTrailingPathSeparators($protocol.$host.$uri));
     }
 
 

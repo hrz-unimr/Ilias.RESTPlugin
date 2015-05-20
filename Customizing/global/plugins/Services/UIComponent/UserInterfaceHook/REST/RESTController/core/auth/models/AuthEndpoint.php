@@ -30,18 +30,18 @@ class AuthEndpoint extends Libs\RESTModel {
 
         // Check input
         if ($response_type != 'code' && $response_type != 'bearerToken')
-            throw new Exceptions\ResponseType(MSG_RESPONSE_TYPE);
+            throw new Exceptions\ResponseType(self::MSG_RESPONSE_TYPE);
 
         // Client (api-key) is not allowed to use this grant-type or doesn't exist
         if ($response_type == 'code' && !$clients->is_oauth2_gt_authcode_enabled($api_key))
-            throw new Exceptions\LoginFailed(Libs\AuthLib::MSG_AC_DISABLED);
+            throw new Exceptions\LoginFailed(Util::MSG_AC_DISABLED);
         if ($response_type == 'bearerToken' && !$clients->is_oauth2_gt_implicit_enabled($api_key))
-            throw new Exceptions\LoginFailed(Libs\AuthLib::MSG_I_DISABLED);
+            throw new Exceptions\LoginFailed(Util::MSG_I_DISABLED);
 
         // Login-data (username/password) is provided, try to authenticate
         if ($username && $password) {
             // Provided wrong API-Key?
-            $clientValid = Libs\AuthLib::checkOAuth2Client($api_key);
+            $clientValid = Util::checkClient($api_key);
             if (!$clientValid)
                 return array(
                     'status' => 'showLogin',

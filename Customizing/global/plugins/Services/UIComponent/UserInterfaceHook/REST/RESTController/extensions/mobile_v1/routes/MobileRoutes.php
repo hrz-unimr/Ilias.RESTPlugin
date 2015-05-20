@@ -8,16 +8,14 @@
 namespace RESTController\extensions\mobile_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \RESTController\extensions\admin\DescribrModel;
-use \RESTController\extensions\users_v1\UsersModel;
-use \RESTController\extensions\courses_v1\CoursesModel;
-use \RESTController\extensions\desktop_v1\DesktopModel;
-use \RESTController\extensions\groups_v1\GroupsModel;
-use \RESTController\extensions\contacts_v1\ContactsModel;
-use \RESTController\extensions\calendar_v1\CalendarModel;
+use \RESTController\libs as Libs;
+use \RESTController\extensions\admin as Admin;
+use \RESTController\extensions\users_v1 as users;
+use \RESTController\extensions\courses_v1 as Courses;
+use \RESTController\extensions\desktop_v1 as Desktop;
+use \RESTController\extensions\groups_v1 as Groups;
+use \RESTController\extensions\contacts_v1 as Contacts;
+use \RESTController\extensions\calendar_v1 as Calendar;
 
 
 /*
@@ -30,7 +28,7 @@ $app->group('/m', function () use ($app) {
     $app->get('/courses/:id', function ($id) use ($app) {
 
 
-        $id_type = $app->request()->params("id_type");
+        $id_type = $app->request()->params('id_type');
         $id_type = $id_type = null ? 'ref_id' : $id_type;
         $obj_id = -1;
         if ($id_type == 'obj_id')
@@ -38,11 +36,11 @@ $app->group('/m', function () use ($app) {
             $obj_id = $id;
         } else
         {
-            $obj_id = RESTLib::refid_to_objid($id);
+            $obj_id = Libs\RESTLib::refid_to_objid($id);
         }
 
         $result = array();
-        $model = new DescribrModel();
+        $model = new Admin\DescribrModel();
         $a_descr = $model->describeIliasObject($obj_id);
         $result['object_description'] = $a_descr;
 
@@ -54,7 +52,7 @@ $app->group('/m', function () use ($app) {
     /**
      *  Loads the following data:
      * - User / system information
-     * - Personal courses, which are flagged "online"
+     * - Personal courses, which are flagged 'online'
      * - Meta-information about the courses
      * - Lists of contents of the personal courses // see of contacts > my courses, my groups
      * - People participating the courses
@@ -71,13 +69,13 @@ $app->group('/m', function () use ($app) {
         $user_id = 6;//225;//6;//361; // testuser
         //$user = RESTLib::userIdtoLogin($user_id);
 
-        RESTLib::initAccessHandling();
+        Libs\RESTLib::initAccessHandling();
 
-        $userModel = new UsersModel();
+        $userModel = new Users\UsersModel();
         $userData = $userModel->getBasicUserData($user_id);
         $result['user'] = $userData;
 
-        $courseModel = new CoursesModel();
+        $courseModel = new Courses\CoursesModel();
         $my_courses = $courseModel->getCoursesOfUser($user_id);
 
         $repository_items = array();
@@ -96,7 +94,7 @@ $app->group('/m', function () use ($app) {
         }
         $result['ritems'] = $repository_items;
 
-        $desktopModel = new DesktopModel();
+        $desktopModel = new Desktop\DesktopModel();
         $pditems = $desktopModel->getPersonalDesktopItems($user_id);
         $pdrefids = array();
         foreach ($pditems as $pditem) {
@@ -105,18 +103,18 @@ $app->group('/m', function () use ($app) {
         $result['mypersonaldesktop'] = $pdrefids;
         $result['mycourses'] = $my_courses;
 
-        $grpModel = new GroupsModel();
+        $grpModel = new Groups\GroupsModel();
         $my_groups = $grpModel->getGroupsOfUser($user_id);
         $result['mygroups'] = $my_groups;
 
         // Contacts
-        $contactModel = new ContactsModel();
+        $contactModel = new Contacts\ContactsModel();
         $data = $contactModel->getMyContacts($user_id);
         $result['contacts']['my_contacts'] = $data;
         // TODO: CourseContacts, GroupContacts
 
         // Calendar
-        $calModel = new CalendarModel();
+        $calModel = new Calendar\CalendarModel();
         $data = $calModel->getIcalAdress($user_id);
         $result['calendar']['ical_url'] = $data;
         $data = $calModel->getCalUpcomingEvents($user_id);
@@ -170,7 +168,7 @@ $app->group('/m', function () use ($app) {
         }
 
         $response->addData('search_results', $searchResults);
-        $response->setMessage('You have been searching for: "'.$query.'"');
+        $response->setMessage('You have been searching for: ''.$query.''');
         $response->send();
     });*/
 

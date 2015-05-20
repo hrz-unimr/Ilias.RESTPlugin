@@ -7,12 +7,6 @@
  */
 namespace RESTController\extensions\admin;
 
-// This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \assSingleChoice;
-
 
 require_once("./Modules/TestQuestionPool/classes/class.assSingleChoice.php");
 
@@ -27,7 +21,7 @@ class TestQuestionModel
      */
     public function getQuestion($question_id)
     {
-        $qst = new assSingleChoice();
+        $qst = new \assSingleChoice();
         $question = $qst::_instanciateQuestion($question_id);
         return json_decode($question->toJSON());
     }

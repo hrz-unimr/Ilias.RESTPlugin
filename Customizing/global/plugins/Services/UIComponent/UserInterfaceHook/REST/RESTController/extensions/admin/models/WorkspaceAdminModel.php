@@ -7,12 +7,6 @@
  */
 namespace RESTController\extensions\admin;
 
-// This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \ilObjUser, \ilWorkspaceTree, \ilObjectFactory;
-
 
 require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
 require_once("./Services/User/classes/class.ilObjUser.php");
@@ -37,12 +31,12 @@ class WorkspaceAdminModel
         $usersWithWorkspace = 0;
         $selFields = $this->fields_of_interest;
         $r['fields'] = $selFields;
-        $list = ilObjUser::_getAllUserData(array("login"),1); // note: the field usr_id is always included.
+        $list = \ilObjUser::_getAllUserData(array("login"),1); // note: the field usr_id is always included.
         $r['numAllUsers'] = count($list);
         $a_ws = array();
         foreach($list as $user) {
             $user_id =  $user['usr_id'];
-            $this->tree = new ilWorkspaceTree($user_id);
+            $this->tree = new \ilWorkspaceTree($user_id);
             if ($this->tree->readRootId()) {
                 $cntItems = count($this->tree->getSubTree(
                     $this->tree->getNodeData($this->tree->getRootId()),
@@ -86,7 +80,7 @@ class WorkspaceAdminModel
         $r = array();
         $selFields = $this->fields_of_interest;
         include_once("Services/PersonalWorkspace/classes/class.ilWorkspaceTree.php");
-        $this->tree = new ilWorkspaceTree($user_id);
+        $this->tree = new \ilWorkspaceTree($user_id);
         if ($this->tree->readRootId()) {
             $nodes = $this->tree->getSubTree(
                 $this->tree->getNodeData($this->tree->getRootId()),
@@ -103,7 +97,7 @@ class WorkspaceAdminModel
                 $itemContent['create_date'] = $item['create_date'];
                 $itemContent['last_update'] = $item['last_update'];
                 if ($item['type'] == "file") {
-                    $fileObj=ilObjectFactory::getInstanceByObjId($item['obj_id']);
+                    $fileObj=\ilObjectFactory::getInstanceByObjId($item['obj_id']);
                     $itemContent['file_name'] = $fileObj->getFileName();
                     $itemContent['file_size']= $fileObj->getFileSize();
                 }

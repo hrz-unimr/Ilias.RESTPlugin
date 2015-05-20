@@ -8,10 +8,8 @@
 namespace RESTController\extensions\experimental;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \RESTController\core\clients\ClientModel;
+use \RESTController\libs as Libs;
+use \RESTController\core\clients as Clients;
 
 
 /*
@@ -24,16 +22,16 @@ $app->group('/dev', function () use ($app) {
 
     $app->get('/clientcheck', function () use ($app) {
         $env = $app->environment();
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
 
-        $model = new ClientsModel();
-        $data1 = $model->getAllowedUsersForApiKey("9065710a-16b9-4b4c-9230-f76dc72d2a2d");
-        $data2 = $model->getClientCredentialsUser("9065710a-16b9-4b4c-9230-f76dc72d2a2d");
+        $model = new Clients\Clients(null, $this->sqlDB);
+        $data1 = $model->getAllowedUsersForApiKey('9065710a-16b9-4b4c-9230-f76dc72d2a2d');
+        $data2 = $model->getClientCredentialsUser('9065710a-16b9-4b4c-9230-f76dc72d2a2d');
 
-        $response->setMessage("Client Check");
-        $response->addData("allowed_users", $data1);
-        $response->addData("cc_user",$data2);
+        $response->setMessage('Client Check');
+        $response->addData('allowed_users', $data1);
+        $response->addData('cc_user',$data2);
         $response->send();
     });
 
@@ -43,12 +41,12 @@ $app->group('/dev', function () use ($app) {
     */
     $app->get('/reftoken', function () use ($app) {
         $env = $app->environment();
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
 
-        $refresh_token = $request->getParam("refresh_token");
+        $refresh_token = $request->getParam('refresh_token');
 
-        RESTLib::initAccessHandling();
+        Libs\RESTLib::initAccessHandling();
 
         global $ilLog;
         $ilLog->write('Hello from REST Plugin - Experimental');
@@ -58,9 +56,9 @@ $app->group('/dev', function () use ($app) {
         $bearer_token = $model->fetchBearerTokenForRefreshToken($refresh_token);
 
 
-        $response->setMessage("Refresh 2 Bearer.");
-       // $response->addData("refresh_token",$refresh_token);
-        $response->addData("bearerToken",$bearer_token['access_token']);
+        $response->setMessage('Refresh 2 Bearer.');
+       // $response->addData('refresh_token',$refresh_token);
+        $response->addData('bearerToken',$bearer_token['access_token']);
         $response->send();
 
     });
@@ -73,9 +71,9 @@ $app->group('/dev', function () use ($app) {
      */
     $app->get('/refresh', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $env = $app->environment();
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
-        $uid = RESTLib::loginToUserId($env['user']);
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
+        $uid = Libs\RESTLib::loginToUserId($env['user']);
 
         global $ilLog;
         $ilLog->write('Requesting new refresh token for user '.$uid);
@@ -83,16 +81,16 @@ $app->group('/dev', function () use ($app) {
 
         // Create new refresh token
         $accessToken = $env['accessToken'];
-        $model = new OAuth2Model();
+        $model = new Libs\OAuth2Model();
         $refreshToken = $model->getRefreshToken($accessToken);
 
 
-        $response->setMessage("Requesting new refresh token for user ".$uid.".");
-        $response->setData("refresh-token", $refreshToken);
-        $response->addData("maxint", PHP_INT_MAX);
-        $response->addData("beareruser", $accessToken['user']);
-        $response->addData("api-key", $accessToken['api_key']);
-        $response->addData("ilias client: ", $env['client_id']);
+        $response->setMessage('Requesting new refresh token for user '.$uid.'.');
+        $response->setData('refresh-token', $refreshToken);
+        $response->addData('maxint', PHP_INT_MAX);
+        $response->addData('beareruser', $accessToken['user']);
+        $response->addData('api-key', $accessToken['api_key']);
+        $response->addData('ilias client: ', $env['client_id']);
         $response->send();
     });
 
@@ -124,8 +122,8 @@ $app->group('/dev', function () use ($app) {
 
         $curl = curl_init($destiny_url);
         /*$curl_post_data = array(
-            "user_id" => 42,
-            "emailaddress" => 'lorna@example.com',
+            'user_id' => 42,
+            'emailaddress' => 'lorna@example.com',
         );*/
 
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -164,9 +162,9 @@ $app->group('/dev', function () use ($app) {
 
         $destination_service_url = 'http://localhost/restplugin.php/v1/files';
         $curl_post_data = array(
-            "ref_id" => 99,
-            "title" => 'Sent by ilias rest',
-            "uploadfile" => '@'.$file_metadata['file']['realpath'].';filename='.$file_metadata['file']['name'].';type='.$file_metadata['file']['type']
+            'ref_id' => 99,
+            'title' => 'Sent by ilias rest',
+            'uploadfile' => '@'.$file_metadata['file']['realpath'].';filename='.$file_metadata['file']['name'].';type='.$file_metadata['file']['type']
         );
 
 
@@ -194,17 +192,17 @@ $app->group('/dev', function () use ($app) {
 
     $app->get('/responsetest', function () use ($app) {
 
-        $response = new RESTResponse($app);
+        $response = new Libs\RESTResponse($app);
         $env = $app->environment();
 
-        $response->addData('status',"success");
+        $response->addData('status','success');
         $response->addData('time',time());
         $response->addData('host',$_SERVER['HTTP_HOST']);
         $response->addData('referrer', $_SERVER['HTTP_REFERER']);
         $somenumbers = array(0.5, 0.3, 0.2, 0.3, 0.5);
         $response->addData('mynumbers', $somenumbers);
         $response->setData('time',0);
-        $response->addData('status',"full");
+        $response->addData('status','full');
 
         $response->toJSON();
     });

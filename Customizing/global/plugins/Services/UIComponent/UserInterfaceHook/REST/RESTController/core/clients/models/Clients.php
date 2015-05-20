@@ -16,6 +16,9 @@ use \RESTController\libs as Libs;
  * Constructor requires $sqlDB.
  */
 class Clients extends Libs\RESTModel {
+    const MSG_NO_CLIENT_OR_FIELD = 'No client with this api-key (api-id = %id%, field = %fieldName%) found.';
+    const MSG_NO_CLIENT = 'No client with this api-key (api-id = %id%) found.';
+
     /**
      * Will add all permissions given by $perm_json to the ui_uihk_rest_perm table for the api_key with $id.
      *
@@ -224,7 +227,7 @@ class Clients extends Libs\RESTModel {
             $numAffRows = $this->sqlDB->manipulate($sql);
 
             if ($numAffRows === false)
-                throw new Exceptions\UpdateFailed('No client with this api-key (api-id = %id%, field = %fieldName%) found.', $id, $fieldname);
+                throw new Exceptions\UpdateFailed(self::MSG_NO_CLIENT_OR_FIELD, $id, $fieldname);
         }
     }
 
@@ -253,7 +256,7 @@ class Clients extends Libs\RESTModel {
         $this->sqlDB->manipulate($sql);
 
         if ($numAffRows === false)
-            throw new Exceptions\DeleteFailed('No client with this api-key (api-id = %id%) found.', $id);
+            throw new Exceptions\DeleteFailed(self::MSG_NO_CLIENT, $id);
     }
 
 

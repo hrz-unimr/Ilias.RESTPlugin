@@ -97,7 +97,7 @@ class Util extends Libs\RESTModel {
      * @param $session_id
      * @return bool
      */
-    static public function checkSessionData($user_id, $rtoken, $session_id) {
+    static public function checkSession($user_id, $rtoken, $session_id) {
         $rtokenValid = false;
         $sessionValid = false;
 

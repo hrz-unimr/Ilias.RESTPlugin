@@ -8,14 +8,13 @@
 namespace RESTController\extensions\mobile_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+use \RESTController\libs as Libs;
 
 
 /*
  * Mobile Search Routes
  */
- 
+
 
 $app->group('v1/m', function () use ($app) {
 

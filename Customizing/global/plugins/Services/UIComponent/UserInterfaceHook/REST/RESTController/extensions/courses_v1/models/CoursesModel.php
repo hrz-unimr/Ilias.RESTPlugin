@@ -8,21 +8,17 @@
 namespace RESTController\extensions\courses_1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-use \RESTController\libs\RESTSoapAdapter;
-
-use \ilObjCourse, \ilObjectFactory, \ilObjectActivation, \ilRESTUtils, ilLMPageObject;
+use \RESTController\libs as Libs;
 
 
-require_once("./Services/Utilities/classes/class.ilUtil.php");
-require_once("./Modules/Course/classes/class.ilObjCourse.php");
-require_once("./Services/Object/classes/class.ilObjectFactory.php");
-require_once("./Services/Object/classes/class.ilObjectActivation.php");
-require_once("./Modules/LearningModule/classes/class.ilObjLearningModule.php");
-require_once("./Modules/LearningModule/classes/class.ilLMPageObject.php");
-require_once("./Services/Database/classes/class.ilDB.php");
-require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
+require_once('./Services/Utilities/classes/class.ilUtil.php');
+require_once('./Modules/Course/classes/class.ilObjCourse.php');
+require_once('./Services/Object/classes/class.ilObjectFactory.php');
+require_once('./Services/Object/classes/class.ilObjectActivation.php');
+require_once('./Modules/LearningModule/classes/class.ilObjLearningModule.php');
+require_once('./Modules/LearningModule/classes/class.ilLMPageObject.php');
+require_once('./Services/Database/classes/class.ilDB.php');
+require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
 
 
 class CoursesModel
@@ -36,13 +32,13 @@ class CoursesModel
      */
     public function getCoursesOfUser($usr_id)
     {
-        RESTLib::loadIlUser();
+        Libs\RESTLib::loadIlUser();
         global    $ilUser;
         $ilUser->setId($usr_id);
         $ilUser->read();
-        RESTLib::initAccessHandling();
+        Libs\RESTLib::initAccessHandling();
        // $list = ilUtil::getDataDir();
-        $list = ilUtil::_getObjectsByOperations("crs","visible,read",$usr_id); // returns ref_ids
+        $list = \ilUtil::_getObjectsByOperations('crs','visible,read',$usr_id); // returns ref_ids
         return $list;
     }
 
@@ -54,7 +50,7 @@ class CoursesModel
      */
     public function getOnlineStatus($crs_ref_id)
     {
-        $crs = new ilObjCourse($crs_ref_id, true);
+        $crs = new \ilObjCourse($crs_ref_id, true);
         $status = $crs->getOfflineStatus();
         return $status;
     }
@@ -67,17 +63,17 @@ class CoursesModel
      */
     public function getCourseInfo($crs_ref_id)
     {
-        require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        RESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
-        RESTLib::initGlobal("ilObjDataCache", "ilObjectDataCache",
-            "./Services/Object/classes/class.ilObjectDataCache.php");
+        require_once('./Services/Xml/classes/class.ilSaxParser.php');
+        Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
+        Libs\RESTLib::initGlobal('ilObjDataCache', 'ilObjectDataCache',
+            './Services/Object/classes/class.ilObjectDataCache.php');
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilObjDataCache;
 
         $crs_info = array();
         $crs_info['ref_id'] = $crs_ref_id;
-        $obj = ilObjectFactory::getInstanceByRefId($crs_ref_id,false);
+        $obj = \ilObjectFactory::getInstanceByRefId($crs_ref_id,false);
         if(is_null($obj)) {
-            $crs_info['title'] = "notFound";
+            $crs_info['title'] = 'notFound';
         } else {
             $crs_info['title'] = $obj->getTitle();
             $crs_info['description'] = $obj->getDescription();
@@ -97,13 +93,13 @@ class CoursesModel
     public function getCourseContent($crs_ref_id)
     {
 
-        require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        RESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
+        require_once('./Services/Xml/classes/class.ilSaxParser.php');
+        Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
 
         $crs_items = array();
 
-        $sorted_items = ilObjectActivation::getTimingsItems($crs_ref_id);
+        $sorted_items = \ilObjectActivation::getTimingsItems($crs_ref_id);
 
         foreach($sorted_items as $item)
         {
@@ -127,7 +123,7 @@ class CoursesModel
      */
     public function getDevILIASLMContent($lm_ref_id)
     {
-        $lm_obj_id = ilRESTUtils::refid_to_objid($lm_ref_id);
+        $lm_obj_id = \ilRESTUtils::refid_to_objid($lm_ref_id);
         $lm_data = array();
         $lm_data['lm_obj'] = $lm_obj_id;
 
@@ -155,9 +151,9 @@ class CoursesModel
     public function getIliasLearnModule($lm_ref_id)
      {
          $lm_data = array();
-         $lm = ilObjectFactory::getInstanceByRefId($lm_ref_id,false);//new ilObjLearningModule($lm_ref_id, false);
+         $lm = \ilObjectFactory::getInstanceByRefId($lm_ref_id,false);//new ilObjLearningModule($lm_ref_id, false);
          $lm_data['title'] = $lm->getTitle();
-         $pages = ilLMPageObject::getPageList($lm->getId());
+         $pages = \ilLMPageObject::getPageList($lm->getId());
          var_dump($pages[0]);
          $page = $pages[0];
          return $lm_data;
@@ -177,9 +173,9 @@ class CoursesModel
     public function createNewCourse($parent_ref_id, $title, $desc)
     {
 
-        include_once("Modules/Course/classes/class.ilObjCourse.php");
+        include_once('Modules/Course/classes/class.ilObjCourse.php');
 
-        $newObj = new ilObjCourse();
+        $newObj = new \ilObjCourse();
         $newObj->setType('crs');
         $newObj->setTitle($title);
         $newObj->setDescription($desc);
@@ -194,28 +190,28 @@ class CoursesModel
 
     public function deleteCourse($ref_id)
     {
-        $adapter = new RESTSoapAdapter();
+        $adapter = new Libs\RESTSoapAdapter();
         $success = $adapter->loginSOAP();
         if ($success == true) {
-            $result = $adapter->executeSOAPFunction("deleteCourse", array($adapter->SID, $ref_id));
+            $result = $adapter->executeSOAPFunction('deleteCourse', array($adapter->SID, $ref_id));
             $adapter->logoutSOAP();
             return $result;
         } else
         {
-            return array("REST-Error" => "Could not establish SOAP via REST connection: User unknown.");
+            return array('REST-Error' => 'Could not establish SOAP via REST connection: User unknown.');
         }
     }
 
 
     /*public function soapTest()
     {
-        $adapter = new RESTSoapAdapter();
+        $adapter = new Libs\RESTSoapAdapter();
         $adapter->loginSOAP();
         //echo $adapter->SID;
-       // $result = $adapter->executeSOAPFunction("",array());
-       // $result = $adapter->executeSOAPFunction("lookupUser",array($adapter->SID, "root"));
-       // $result = $adapter->executeSOAPFunction("getUser",array($adapter->SID, "6"));
-        $result = $adapter->executeSOAPFunction("getCourseXML",array($adapter->SID, 60));
+       // $result = $adapter->executeSOAPFunction('',array());
+       // $result = $adapter->executeSOAPFunction('lookupUser',array($adapter->SID, 'root'));
+       // $result = $adapter->executeSOAPFunction('getUser',array($adapter->SID, '6'));
+        $result = $adapter->executeSOAPFunction('getCourseXML',array($adapter->SID, 60));
         $adapter->logoutSOAP();
         return $result;
     }*/

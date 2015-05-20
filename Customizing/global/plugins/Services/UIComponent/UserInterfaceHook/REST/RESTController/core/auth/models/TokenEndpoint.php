@@ -32,23 +32,23 @@ class TokenEndpoint extends Libs\RESTModel {
         $clients = new Clients(null, $this->sqlDB);
 
         // [All] Client (api-key) is not allowed to use this grant-type or doesn't exist
-        if (!Libs\AuthLib::checkOAuth2Client($api_key))
-            throw new Exceptions\LoginFailed(MSG_NO_CLIENT_KEY);
+        if (!Util::checkClient($api_key))
+            throw new Exceptions\LoginFailed(self::MSG_NO_CLIENT_KEY);
 
         // Is this option enabled for this api-key?
         if (!$clients->is_oauth2_gt_resourceowner_enabled($api_key))
-            throw new Exceptions\LoginFailed(Libs\AuthLib::MSG_UC_DISABLED);
+            throw new Exceptions\LoginFailed(Util::MSG_UC_DISABLED);
 
         // Check wether user is allowed to use this api-key
         $allowed_users = $clients->getAllowedUsersForApiKey($api_key);
         $iliasUserId = (int) Libs\RESTLib::loginToUserId($username);
         if (!in_array(-1, $allowed_users) && !in_array($iliasUserId, $allowed_users))
-            throw new Exceptions\LoginFailed(MSG_RESTRICTED_USERS);
+            throw new Exceptions\LoginFailed(self::MSG_RESTRICTED_USERS);
 
         // Provided wrong username/password
         $isAuth = Libs\RESTLib::authenticateViaIlias($username, $password);
         if (!$isAuth)
-            throw new Exceptions\LoginFailed(MSG_AUTH_FAILED);
+            throw new Exceptions\LoginFailed(self::MSG_AUTH_FAILED);
 
         // [All] Generate bearer & refresh-token (if enabled)
         $bearer_token = Libs\TokenLib::generateBearerToken($username, $api_key);
@@ -74,12 +74,12 @@ class TokenEndpoint extends Libs\RESTModel {
         $clients = new Clients(null, $this->sqlDB);
 
         // [All] Client (api-key) is not allowed to use this grant-type or doesn't exist
-        if (!Libs\AuthLib::checkOAuth2ClientCredentials($api_key, $api_secret))
-            throw new Exceptions\LoginFailed(MSG_NO_CLIENT_SECRET);
+        if (!Util::checkClientCredentials($api_key, $api_secret))
+            throw new Exceptions\LoginFailed(self::MSG_NO_CLIENT_SECRET);
 
         // Is this option enabled for this api-key?
         if (!$clients->is_oauth2_gt_clientcredentials_enabled($api_key))
-            throw new Exceptions\LoginFailed(Libs\AuthLib::MSG_CC_DISABLED);
+            throw new Exceptions\LoginFailed(Util::MSG_CC_DISABLED);
 
         // -- [no] Check wether user is allowed to use this api-key --
 
@@ -110,12 +110,12 @@ class TokenEndpoint extends Libs\RESTModel {
         $clients = new Clients(null, $this->sqlDB);
 
         // [All] Client (api-key) is not allowed to use this grant-type or doesn't exist
-        if (!Libs\AuthLib::checkOAuth2ClientCredentials($api_key, $api_secret))
-            throw new Exceptions\LoginFailed(MSG_NO_CLIENT_SECRET);
+        if (!Util::checkClientCredentials($api_key, $api_secret))
+            throw new Exceptions\LoginFailed(self::MSG_NO_CLIENT_SECRET);
 
         // Is this option enabled for this api-key?
         if (!$clients->is_oauth2_gt_authcode_enabled($api_key))
-            throw new Exceptions\LoginFailed(Libs\AuthLib::MSG_AC_DISABLED);
+            throw new Exceptions\LoginFailed(Util::MSG_AC_DISABLED);
 
         // Check if token is still valid
         $tokenArray = Libs\TokenLib::deserializeToken($token);
@@ -127,13 +127,13 @@ class TokenEndpoint extends Libs\RESTModel {
         $t_user = $tokenArray['user'];
         $t_api_key = $tokenArray['api_key'];
         if ($t_redirect_uri != $redirect_uri || $t_api_key != $api_key)
-            throw new Exceptions\LoginFailed(MSG_TOKEN_MISMATCH);
+            throw new Exceptions\LoginFailed(self::MSG_TOKEN_MISMATCH);
 
         // Check wether user is allowed to use this api-key
         $allowed_users = $clients->getAllowedUsersForApiKey($api_key);
         $iliasUserId = (int) Libs\RESTLib::loginToUserId($t_user);
         if (!in_array(-1, $allowed_users) && !in_array($iliasUserId, $allowed_users))
-            throw new Exceptions\LoginFailed(MSG_RESTRICTED_USERS);
+            throw new Exceptions\LoginFailed(self::MSG_RESTRICTED_USERS);
 
         // [All] Generate bearer & refresh-token (if enabled)
         $bearer_token = Libs\TokenLib::generateBearerToken($t_user, $api_key);

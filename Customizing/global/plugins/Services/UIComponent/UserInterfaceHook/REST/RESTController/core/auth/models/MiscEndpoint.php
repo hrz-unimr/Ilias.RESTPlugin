@@ -17,7 +17,7 @@ use \RESTController\libs as Libs;
  */
 class MiscEndpoint extends Libs\RESTModel {
     // Allow to re-use status-strings
-    const MSG_RTOKEN_AUTH_FAILED = 'Failed to authenticate.';
+    const MSG_RTOKEN_AUTH_FAILED = 'Failed to authenticate via ILIAS session.';
 
 
     /**
@@ -50,8 +50,8 @@ class MiscEndpoint extends Libs\RESTModel {
      */
     public function rToken2Bearer($api_key, $user_id, $rtoken, $session_id) {
         // Check login-data
-        if (!$this->checkSessionData($user_id, $rtoken, $session_id))
-            throw new Exceptions\TokenInvalid(MSG_RTOKEN_AUTH_FAILED);
+        if (!$this->checkSession($user_id, $rtoken, $session_id))
+            throw new Exceptions\TokenInvalid(self::MSG_RTOKEN_AUTH_FAILED);
 
         // Generate token for user (via given api-key)
         $user = Libs\RESTLib::userIdtoLogin($user_id);

@@ -8,20 +8,17 @@
 namespace RESTController\extensions\groups_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \ilUtil, \ilObjectFactory, \ilObjectActivation;
+use \RESTController\libs as Libs;
 
 
-require_once("./Services/Utilities/classes/class.ilUtil.php");
-require_once("./Modules/Course/classes/class.ilObjCourse.php");
+require_once('./Services/Utilities/classes/class.ilUtil.php');
+require_once('./Modules/Course/classes/class.ilObjCourse.php');
 require_once('./Services/Object/classes/class.ilObjectFactory.php');
 require_once('./Services/Object/classes/class.ilObjectActivation.php');
-require_once("./Modules/LearningModule/classes/class.ilObjLearningModule.php");
-require_once("./Modules/LearningModule/classes/class.ilLMPageObject.php");
-require_once("./Services/Database/classes/class.ilDB.php");
-require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
+require_once('./Modules/LearningModule/classes/class.ilObjLearningModule.php');
+require_once('./Modules/LearningModule/classes/class.ilLMPageObject.php');
+require_once('./Services/Database/classes/class.ilDB.php');
+require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
 
 
 class GroupsModel
@@ -35,13 +32,13 @@ class GroupsModel
      */
     public function getGroupsOfUser($usr_id)
     {
-        RESTLib::loadIlUser();
+        Libs\RESTLib::loadIlUser();
         global    $ilUser;
         $ilUser->setId($usr_id);
         $ilUser->read();
-        RESTLib::initAccessHandling();
-       // $list = ilUtil::getDataDir();
-        $list = ilUtil::_getObjectsByOperations("grp","visible,read",$usr_id); // returns ref_ids
+        Libs\RESTLib::initAccessHandling();
+       // $list = \ilUtil::getDataDir();
+        $list = \ilUtil::_getObjectsByOperations('grp','visible,read',$usr_id); // returns ref_ids
         return $list;
     }
 
@@ -54,14 +51,14 @@ class GroupsModel
      */
     public function getGroupInfo($crs_ref_id)
     {
-        require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        RESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
-        RESTLib::initGlobal("ilObjDataCache", "ilObjectDataCache","./Services/Object/classes/class.ilObjectDataCache.php");
+        require_once('./Services/Xml/classes/class.ilSaxParser.php');
+        Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
+        Libs\RESTLib::initGlobal('ilObjDataCache', 'ilObjectDataCache','./Services/Object/classes/class.ilObjectDataCache.php');
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilObjDataCache;
 
         $grp_info = array();
         $grp_info['ref_id'] = $crs_ref_id;
-        $obj = ilObjectFactory::getInstanceByRefId($crs_ref_id,false);
+        $obj = \ilObjectFactory::getInstanceByRefId($crs_ref_id,false);
         $grp_info['title'] = $obj->getTitle();
         $grp_info['description'] = $obj->getDescription();
         $grp_info['create_date'] = $obj->create_date;
@@ -79,13 +76,13 @@ class GroupsModel
     public function getGroupContent($crs_ref_id)
     {
 
-        require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        RESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
+        require_once('./Services/Xml/classes/class.ilSaxParser.php');
+        Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
 
         $crs_items = array();
 
-        $sorted_items = ilObjectActivation::getTimingsItems($crs_ref_id);
+        $sorted_items = \ilObjectActivation::getTimingsItems($crs_ref_id);
 
         foreach($sorted_items as $item)
         {

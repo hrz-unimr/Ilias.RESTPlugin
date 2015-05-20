@@ -8,8 +8,8 @@
 namespace RESTController\extensions\contacts_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+use \RESTController\libs as Libs;
+
 
 /**
  * Contacts API

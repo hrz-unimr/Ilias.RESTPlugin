@@ -94,11 +94,11 @@ class RESTRequest extends \Slim\Http\Request {
         if ($client) {
             // ToDo: no secret is needed, its just the organisation name
             $secret = $_SERVER['SSL_CLIENT_I_DN_O'];
-            $ret = AuthLib::checkOAuth2ClientCredentials($client, $secret);
+            $ret = Auth\Util::checkClientCredentials($client, $secret);
 
             // Stops everything and returns 401 response
             if (!$ret)
-                $app->halt(401, MSG_INVALID_SSL, ID_INVALID_SSL);
+                $app->halt(401, self::MSG_INVALID_SSL, self::ID_INVALID_SSL);
 
             // Setup slim environment
             $env = $app->environment();

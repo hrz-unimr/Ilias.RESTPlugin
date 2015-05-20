@@ -8,13 +8,11 @@
 namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \RESTController\extensions\files_v1\FileModel;
+use \RESTController\libs as Libs;
+use \RESTController\extensions\files_v1 as Files;
 
 
-require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
+require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
 
 
 class DescribrModel
@@ -40,7 +38,7 @@ class DescribrModel
             $a_objdata['ext_owner'][$key] = $value;
         }
 
-        $a_refids = RESTLib::objid_to_refids($obj_id);
+        $a_refids = Libs\RESTLib::objid_to_refids($obj_id);
         foreach ($a_refids as $ref_id)
         {
             $a_objdata['ext_refids'][] = $ref_id;
@@ -61,7 +59,7 @@ class DescribrModel
 
     public function describeFile($id)
     {
-        $model = new FileModel();
+        $model = new Files\FileModel();
 
         $fileObj = $model->getFileObj($id);
         $result = array();
@@ -154,7 +152,7 @@ class DescribrModel
             }
         }
         // Ref_id nach Obj_Id Konversion und Title - Ermittlung
-        $hierarch_str="";
+        $hierarch_str='';
         $levels=count($a_ref_ids);
         for ($i=0;$i<$levels;$i++){
             $r_id=$a_ref_ids[$i];
@@ -163,9 +161,9 @@ class DescribrModel
             $row = $ilDB->fetchAssoc($set);
             $title=$row['title'];
             $type=$row['type'];
-            $hierarch_str.="[\"".$title."\" (".$type.")]";
+            $hierarch_str.='["'.$title.'" ('.$type.')]';
             if ($i<$levels-1){
-                $hierarch_str.="<";
+                $hierarch_str.='<';
             }
         }
         return $hierarch_str;

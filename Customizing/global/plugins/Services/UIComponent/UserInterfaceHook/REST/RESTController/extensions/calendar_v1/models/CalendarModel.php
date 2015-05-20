@@ -8,10 +8,7 @@
 namespace RESTController\extensions\calendar_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \ilCalendarUserSettings, \ilCalendarSchedule, \ilCalendarRecurrences, \ilHTTPS, \ilCalendarAuthenticationToken;
+use \RESTController\libs as Libs;
 
 
 require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
@@ -27,20 +24,20 @@ class CalendarModel
      */
     function getCalUpcomingEvents($user_id)
     {
-        
-        RESTLib::loadIlUser();
+
+        Libs\RESTLib::loadIlUser();
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        RESTLib::initAccessHandling();
+        Libs\RESTLib::initAccessHandling();
 
-        RESTLib::initGlobal("ilObjDataCache", "ilObjectDataCache",
+        Libs\RESTLib::initGlobal("ilObjDataCache", "ilObjectDataCache",
             "./Services/Object/classes/class.ilObjectDataCache.php");
 
         // needed in ilObjectDefinition
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
 
-        RESTLib::initGlobal("objDefinition", "ilObjectDefinition",
+        Libs\RESTLib::initGlobal("objDefinition", "ilObjectDefinition",
             "./Services/Object/classes/class.ilObjectDefinition.php");
         global $ilObjDataCache, $objDefinition;
 
@@ -52,21 +49,21 @@ class CalendarModel
 
         // from class.ilCalendarPresentationGUI.php
         include_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
-        $cats = ilCalendarCategories::_getInstance($ilUser->getId());
+        $cats = \ilCalendarCategories::_getInstance($ilUser->getId());
         //var_dump($cats);
 
 
         include_once('./Services/Calendar/classes/class.ilCalendarUserSettings.php');
-        if(ilCalendarUserSettings::_getInstance()->getCalendarSelectionType() == ilCalendarUserSettings::CAL_SELECTION_MEMBERSHIP)
+        if(\ilCalendarUserSettings::_getInstance()->getCalendarSelectionType() == \ilCalendarUserSettings::CAL_SELECTION_MEMBERSHIP)
         {
-            $cats->initialize(ilCalendarCategories::MODE_PERSONAL_DESKTOP_MEMBERSHIP);
+            $cats->initialize(\ilCalendarCategories::MODE_PERSONAL_DESKTOP_MEMBERSHIP);
         }
         else
         {
-            $cats->initialize(ilCalendarCategories::MODE_PERSONAL_DESKTOP_ITEMS);
+            $cats->initialize(\ilCalendarCategories::MODE_PERSONAL_DESKTOP_ITEMS);
         }
 
-        $schedule = new ilCalendarSchedule(new ilDate(time(),IL_CAL_UNIX),ilCalendarSchedule::TYPE_INBOX);
+        $schedule = new \ilCalendarSchedule(new \ilDate(time(),IL_CAL_UNIX), \ilCalendarSchedule::TYPE_INBOX);
         $schedule->setEventsLimit(100);
         $schedule->addSubitemCalendars(true);
         $schedule->calculate();
@@ -80,7 +77,7 @@ class CalendarModel
         {
             $entry = $event['event'];
 
-            $rec = ilCalendarRecurrences::_getFirstRecurrence($entry->getEntryId());
+            $rec = \ilCalendarRecurrences::_getFirstRecurrence($entry->getEntryId());
 
             $tmp_arr['id'] = $entry->getEntryId();
             $tmp_arr['milestone'] = $entry->isMilestone();
@@ -119,14 +116,14 @@ class CalendarModel
      */
     function getIcalAdress($user_id)
     {
-        RESTLib::loadIlUser();
+        Libs\RESTLib::loadIlUser();
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        RESTLib::initAccessHandling();
+        Libs\RESTLib::initAccessHandling();
 
         include_once('./Services/Http/classes/class.ilHTTPS.php');
-        $https = new ilHTTPS();
+        $https = new \ilHTTPS();
         if($https->isDetected())
         {
             $protocol = 'https://';
@@ -140,15 +137,15 @@ class CalendarModel
 
         include_once('./Services/Calendar/classes/class.ilCalendarAuthenticationToken.php');
         //mode : ilCalendarCategories::MODE_PERSONAL_DESKTOP_MEMBERSHIP;
-        $selection = ilCalendarAuthenticationToken::SELECTION_PD;
+        $selection = \ilCalendarAuthenticationToken::SELECTION_PD;
         $calendar = 0;
 
-        if($hash = ilCalendarAuthenticationToken::lookupAuthToken($ilUser->getId(), $selection, $calendar))
+        if($hash = \ilCalendarAuthenticationToken::lookupAuthToken($ilUser->getId(), $selection, $calendar))
         {
         }
         else
         {
-            $token = new ilCalendarAuthenticationToken($ilUser->getId());
+            $token = new \ilCalendarAuthenticationToken($ilUser->getId());
             $token->setSelectionType($selection);
             $token->setCalendar($calendar);
             $hash = $token->add();

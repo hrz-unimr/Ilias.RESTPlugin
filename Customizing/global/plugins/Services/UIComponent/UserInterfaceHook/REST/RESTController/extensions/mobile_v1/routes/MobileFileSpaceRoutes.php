@@ -8,11 +8,9 @@
 namespace RESTController\extensions\mobile_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use RESTController\libs\RESTException;
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \RESTController\extensions\admin\WorkspaceAdminModel;
+use \RESTController\libs as Libs;
+use \RESTController\extensions\admin as Admin;
+use \RESTController\extensions\files_v1 as Files;
 
 /*
  * Prototypical implementation of some rest endpoints for development
@@ -22,21 +20,21 @@ use \RESTController\extensions\admin\WorkspaceAdminModel;
 $app->group('/v1/m', function () use ($app) {
 
     /**
-     * This route retrieves a listing of files that are contained in the user's "personal workspace".
-     * In this version, the user file space is indeed the "workspace". In a future version it could be imagined, that
-     * a special area within the global repository is used which is protected by role permissions. Therefore we use the placeholder "myfilespace".
+     * This route retrieves a listing of files that are contained in the user's 'personal workspace'.
+     * In this version, the user file space is indeed the 'workspace'. In a future version it could be imagined, that
+     * a special area within the global repository is used which is protected by role permissions. Therefore we use the placeholder 'myfilespace'.
      */
     $app->get('/myfilespace', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $t_start = microtime();
         $env = $app->environment();
-        $user_id = RESTLib::loginToUserId($env['user']);
-        $response = new RESTResponse($app);
-        RESTLib::initAccessHandling();
-        $wa_model = new WorkspaceAdminModel();
+        $user_id = Libs\RESTLib::loginToUserId($env['user']);
+        $response = new Libs\RESTResponse($app);
+        Libs\RESTLib::initAccessHandling();
+        $wa_model = new Admin\WorkspaceAdminModel();
         $ws_array = $wa_model->getUserWorkspaceItems($user_id);
-        $response->addData("myfilespace", $ws_array);
+        $response->addData('myfilespace', $ws_array);
         $t_end = microtime();
-        $response->addData("execution_time", $t_end - $t_start);
+        $response->addData('execution_time', $t_end - $t_start);
         $response->setMessage('MyFilespace listing');
         $response->send();
     });
@@ -49,9 +47,9 @@ $app->group('/v1/m', function () use ($app) {
     $app->get('/myfilespacecopy','\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $t_start = microtime();
         $env = $app->environment();
-        $user_id = RESTLib::loginToUserId($env['user']);
-        $response = new RESTResponse($app);
-        $request = new RESTRequest($app);
+        $user_id = Libs\RESTLib::loginToUserId($env['user']);
+        $response = new Libs\RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
 
         try {
             $file_id = $request->getParam('file_id', null, false);
@@ -59,18 +57,18 @@ $app->group('/v1/m', function () use ($app) {
             $target_ref_id = $request->getParam('target_ref_id', null, false);
            // if ($target_ref_id == null) throw RESTException::getWrongParamException('Parameter is missing', 'target_ref_id');
 
-            RESTLib::initAccessHandling();
-            $model = new \RESTController\extensions\files_v1\PersonalFileSpaceModel();
+           Libs\RESTLib::initAccessHandling();
+            $model = new Files\PersonalFileSpaceModel();
             $status = $model->clone_file_into_repository($user_id, $file_id, $target_ref_id);
             $t_end = microtime();
-            $responseMsg = "Success";
+            $responseMsg = 'Success';
             if ($status == false) {
-                $responseMsg = "Failed";
+                $responseMsg = 'Failed';
             }
-            $response->addData("execution_time", $t_end - $t_start);
-            $response->addData("Status", $responseMsg);
+            $response->addData('execution_time', $t_end - $t_start);
+            $response->addData('Status', $responseMsg);
             $response->setMessage('MyFilespaceCopy');
-        } catch (RESTException $e) {
+        } catch (Libs\RESTException $e) {
             $response->setRESTCode($e->getCode());
         }
         $response->send();
@@ -83,9 +81,9 @@ $app->group('/v1/m', function () use ($app) {
     $app->post('/myfilespacecopy','\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $t_start = microtime();
         $env = $app->environment();
-        $user_id = RESTLib::loginToUserId($env['user']);
-        $response = new RESTResponse($app);
-        $request = new RESTRequest($app);
+        $user_id = Libs\RESTLib::loginToUserId($env['user']);
+        $response = new Libs\RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
 
         try {
             $file_id = $request->getParam('file_id', null, false);
@@ -93,18 +91,18 @@ $app->group('/v1/m', function () use ($app) {
             $target_ref_id = $request->getParam('target_ref_id', null, false);
             // if ($target_ref_id == null) throw RESTException::getWrongParamException('Parameter is missing', 'target_ref_id');
 
-            RESTLib::initAccessHandling();
-            $model = new \RESTController\extensions\files_v1\PersonalFileSpaceModel();
+            Libs\RESTLib::initAccessHandling();
+            $model = new Files\PersonalFileSpaceModel();
             $status = $model->clone_file_into_repository($user_id, $file_id, $target_ref_id);
             $t_end = microtime();
-            $responseMsg = "Success";
+            $responseMsg = 'Success';
             if ($status == false) {
-                $responseMsg = "Failed";
+                $responseMsg = 'Failed';
             }
-            $response->addData("execution_time", $t_end - $t_start);
-            $response->addData("Status", $responseMsg);
+            $response->addData('execution_time', $t_end - $t_start);
+            $response->addData('Status', $responseMsg);
             $response->setMessage('MyFilespaceCopy');
-        } catch (RESTException $e) {
+        } catch (Libs\RESTException $e) {
             $response->setRESTCode($e->getCode());
         }
         $response->send();
@@ -114,43 +112,43 @@ $app->group('/v1/m', function () use ($app) {
      * see POST /myfilespaceupload
      */
     $app->get('/myfilespaceupload', function() use ($app) {
-        $app->log->debug("Myfilespace upload via GET");
-        $response = new RESTResponse($app);
-        $response->setMessage("Pls use the POST method");
+        $app->log->debug('Myfilespace upload via GET');
+        $response = new Libs\RESTResponse($app);
+        $response->setMessage('Pls use the POST method');
         $response->send();
     });
 
     /**
-     * Uploads a single file via POST into the user's "myfilespace".
+     * Uploads a single file via POST into the user's 'myfilespace'.
      */
     $app->post('/myfilespaceupload','\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
-        $app->log->debug("Myfilespace upload via POST");
+        $app->log->debug('Myfilespace upload via POST');
         $t_start = microtime();
         $env = $app->environment();
-        $user_id = RESTLib::loginToUserId($env['user']);
+        $user_id = Libs\RESTLib::loginToUserId($env['user']);
 
-        $response = new RESTResponse($app);
-        $request = new RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
 
-        $errorCode = $_FILES["mupload"]["error"];
+        $errorCode = $_FILES['mupload']['error'];
         if ($errorCode > UPLOAD_ERR_OK) {
-            $response->setMessage("Error during file upload");
-            $response->setData("Code", $errorCode);
-            $response->setData("Explanation", "http://php.net/manual/en/features.file-upload.errors.php");
-            $response->setHttpStatus("400");
-            $response->setRestCode("400");
+            $response->setMessage('Error during file upload');
+            $response->setData('Code', $errorCode);
+            $response->setData('Explanation', 'http://php.net/manual/en/features.file-upload.errors.php');
+            $response->setHttpStatus('400');
+            $response->setRestCode('400');
             $response->send();
             exit;
         }
         //error_log(1);
         // Try to upload file
-        RESTLib::initAccessHandling();
-        $model = new \RESTController\extensions\files_v1\PersonalFileSpaceModel();
-        $model->handleFileUploadIntoMyFileSpace($_FILES["mupload"],$user_id);
+        Libs\RESTLib::initAccessHandling();
+        $model = new Files\PersonalFileSpaceModel();
+        $model->handleFileUploadIntoMyFileSpace($_FILES['mupload'],$user_id);
         $t_end = microtime();
-        $response->addData('farraydump',print_r($_FILES["mupload"],true));
+        $response->addData('farraydump',print_r($_FILES['mupload'],true));
         $response->addMessage('Done Uploading File');
-        $response->addData("execution_time", $t_end - $t_start);
+        $response->addData('execution_time', $t_end - $t_start);
         $response->send();
     });
 
@@ -158,26 +156,26 @@ $app->group('/v1/m', function () use ($app) {
      * Deletes a file from a user's filespace.
      */
     $app->delete('/myfilespacedelete', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
-        $app->log->debug("Myfilespace delete");
+        $app->log->debug('Myfilespace delete');
         $t_start = microtime();
         $env = $app->environment();
-        $user_id = RESTLib::loginToUserId($env['user']);
+        $user_id = Libs\RESTLib::loginToUserId($env['user']);
 
-        $response = new RESTResponse($app);
-        $request = new RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
 
         try {
             $file_id = $request->getParam('file_id', null, false);
-            RESTLib::initAccessHandling();
-            $model = new \RESTController\extensions\files_v1\PersonalFileSpaceModel();
+            Libs\RESTLib::initAccessHandling();
+            $model = new Files\PersonalFileSpaceModel();
             $model->deleteFromMyFileSpace($file_id, $user_id);
 
-        } catch (RESTException $e) {
+        } catch (Libs\RESTException $e) {
             $response->setRESTCode($e->getCode());
         }
         $t_end = microtime();
-        $response->addData("execution_time", $t_end - $t_start);
-        $response->setMessage("Dev Delete File From MyFileSpace");
+        $response->addData('execution_time', $t_end - $t_start);
+        $response->setMessage('Dev Delete File From MyFileSpace');
         $response->send();
     });
 

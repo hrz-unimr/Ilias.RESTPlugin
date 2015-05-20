@@ -8,9 +8,7 @@
 namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-use \RESTController\extensions\admin\models;
+use \RESTController\libs as Libs;
 
 /*
  * Prototypical implementation of some rest endpoints for development

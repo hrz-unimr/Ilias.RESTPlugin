@@ -8,8 +8,7 @@
 namespace RESTController\extensions\users_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+use \RESTController\libs as Libs;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -86,7 +85,7 @@ $app->post('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthIL
     $request = new RESTRequest($app);
     $importData = $request->getRaw();
     $model = new UsersModel();
-    
+
     $resp = new RESTResponse($app);
     $import_result = $model->bulkImport($importData, $resp);
     echo($resp->toJSON());

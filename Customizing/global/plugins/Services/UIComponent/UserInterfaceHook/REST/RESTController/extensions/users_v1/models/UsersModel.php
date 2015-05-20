@@ -8,14 +8,11 @@
 namespace RESTController\extensions\users_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \ilObjUser, \ilObjectFactory;
+use \RESTController\libs as Libs;
 
 
-require_once("./Services/User/classes/class.ilObjUser.php");
-require_once("./Services/AccessControl/classes/class.ilRbacReview.php");
+require_once('./Services/User/classes/class.ilObjUser.php');
+require_once('./Services/AccessControl/classes/class.ilRbacReview.php');
 
 
 class UsersModel
@@ -28,7 +25,7 @@ class UsersModel
      */
     public function getAllUsers($fields)
     {
-        $list = ilObjUser::_getAllUserData($fields,1); // note: the field usr_id is always included.
+        $list = \ilObjUser::_getAllUserData($fields,1); // note: the field usr_id is always included.
         return $list;
     }
 
@@ -41,7 +38,7 @@ class UsersModel
     public function getBasicUserData($id)
     {
         include_once('./Services/Calendar/classes/class.ilDate.php');
-        $usrObj = ilObjectFactory::getInstanceByObjId($id);
+        $usrObj = \ilObjectFactory::getInstanceByObjId($id);
         $usr_data = array();
         if (is_null($usrObj) == false) {
             $usr_data['firstname'] = $usrObj->firstname;
@@ -60,7 +57,7 @@ class UsersModel
      */
     public function deleteUser($id)
     {
-        $usrObj = ilObjectFactory::getInstanceByObjId($id);
+        $usrObj = \ilObjectFactory::getInstanceByObjId($id);
         $success = $usrObj->delete();
         return $success;
     }
@@ -73,7 +70,7 @@ class UsersModel
      */
     function addUser($user_data)
     {
-        $new_user =& new ilObjUser();
+        $new_user =& new \ilObjUser();
 
         if(strlen($user_data['passwd']) != 32)
         {
@@ -90,9 +87,9 @@ class UsersModel
         $new_user->setTitle($new_user->getFullname());
         $new_user->setDescription($new_user->getEmail());
         // optional: import_id
-        /*if ($user_data["import_id"] != "")
+        /*if ($user_data['import_id'] != '')
         {
-            $new_user->setImportId($user_data["import_id"]);
+            $new_user->setImportId($user_data['import_id']);
         }
         */
 
@@ -117,14 +114,14 @@ class UsersModel
         $new_user->setActive(true);
         $new_user->saveAsNew();
 
-        // Assign "User" role per default
-        RESTLib::initAccessHandling();
+        // Assign 'User' role per default
+        Libs\RESTLib::initAccessHandling();
         global $rbacadmin, $rbacreview;
         $user_role_array = $rbacreview->getRolesByFilter($rbacreview::FILTER_ALL, 0, 'User');
         $user_role_id = $user_role_array[0]['obj_id'];
         // Alternatives:
-        // SELECT obj_id FROM object_data JOIN rbac_fa ON obj_id = rol_id WHERE title = "User" AND assign = "y"
-        // Or just use "4"
+        // SELECT obj_id FROM object_data JOIN rbac_fa ON obj_id = rol_id WHERE title = 'User' AND assign = 'y'
+        // Or just use '4'
         $rbacadmin->assignUser(4,$new_user->getId());
         return $new_user->getId();
     }
@@ -137,7 +134,7 @@ class UsersModel
      */
     public function updateUser($usr_id, $fieldname, $newval)
     {
-        $usrObj = ilObjectFactory::getInstanceByObjId($usr_id);
+        $usrObj = \ilObjectFactory::getInstanceByObjId($usr_id);
         switch ($fieldname) {
             case 'firstname':
             case 'lastname':
@@ -145,7 +142,7 @@ class UsersModel
                 $usrObj->$fieldname = $newval;
                 break;
             case 'active':
-                if ($newval == "1"){
+                if ($newval == '1'){
                     $usrObj->setActive(true);
                 }else{
                     $usrObj->setActive(false);
@@ -167,32 +164,32 @@ class UsersModel
     public function bulkImport($xmlData, &$resp)
     {
 
-        require_once("./Services/User/classes/class.ilUserImportParser.php");
-        require_once("./Services/Authentication/classes/class.ilAuthUtils.php");
+        require_once('./Services/User/classes/class.ilUserImportParser.php');
+        require_once('./Services/Authentication/classes/class.ilAuthUtils.php');
 
         // TODO: do it here or in route?
         $app = new \Slim\Slim();
-        AuthLib::setUserContext($app->environment['user']);  // filled by auth middleware
-        RESTLib::initAccessHandling();
+        Libs\RESTLib::setUserContext($app->environment['user']);  // filled by auth middleware
+        Libs\RESTLib::initAccessHandling();
 
 
-        $parser = new ilUserImportParser();
+        $parser = new \ilUserImportParser();
         // TODO/Problem: can't pass mode in constructor if no file is given
         $parser->mode = IL_VERIFY;
         $parser->setXMLContent($xmlData);
         $parser->startParsing();
 
         if ($parser->isSuccess()) {
-            $parser = new ilUserImportParser();
+            $parser = new \ilUserImportParser();
             $parser->setXMLContent($xmlData);
             $parser->startParsing();
 
-            $resp->setData("num_users", $parser->getUserCount());
-            $resp->setMessage("Import successful");
+            $resp->setData('num_users', $parser->getUserCount());
+            $resp->setMessage('Import successful');
             $resp->setRESTCode(200);
         } else {
-            $resp->setData("ILIAS_log", $parser->getProtocol());
-            $resp->setMessage("Import failed, nothing done").
+            $resp->setData('ILIAS_log', $parser->getProtocol());
+            $resp->setMessage('Import failed, nothing done').
             $resp->setRESTCode(400);
             $resp->setHttpStatus(400);
         }
@@ -208,7 +205,7 @@ class UsersModel
      */
     public function isAdminByUsername($login)
     {
-        $a_id = ilObjUser::searchUsers($login, 1, true);
+        $a_id = \ilObjUser::searchUsers($login, 1, true);
 
         if (count($a_id) > 0) {
             return $this->isAdmin($a_id[0]);
@@ -225,7 +222,7 @@ class UsersModel
      */
     public function isAdmin($usr_id)
     {
-        $rbacreview = new ilRbacReview();
+        $rbacreview = new \ilRbacReview();
         $is_admin = $rbacreview->isAssigned($usr_id,2);
         return $is_admin;
     }
