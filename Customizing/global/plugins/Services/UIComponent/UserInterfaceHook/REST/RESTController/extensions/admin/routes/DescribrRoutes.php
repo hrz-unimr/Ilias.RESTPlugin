@@ -25,7 +25,7 @@ $app->group('/admin', function () use ($app) {
      *
      * Supported types: obj_id, ref_id, usr_id and file_id
      */
-    $app->get('/describe/:id', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function ($id) use ($app) {
+    $app->get('/describe/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminRole', function ($id) use ($app) {
         $request = new RESTRequest($app);
         $response = new RESTResponse($app);
 

@@ -24,7 +24,7 @@ $app->group('/v1', function () use ($app) {
      * @param id_type - (optional) "ref_id" or "obj_id", if ommited the type ref_id is assumed.
      * @param id - the ref or obj_id of the file.
      */
-    $app->get('/files/:id', '\RESTController\libs\AuthMiddleware::authenticate',  function ($id) use ($app) {
+    $app->get('/files/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($id) use ($app) {
         $env = $app->environment();
         $user_id = RESTLib::loginToUserId($env['user']);
 

@@ -19,7 +19,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the personal ILIAS contacts for a user specified by id.
      */
-    $app->get('/contacts/:id', '\RESTController\libs\AuthMiddleware::authenticate', function ($id) use ($app) {
+    $app->get('/contacts/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($id) use ($app) {
         $env = $app->environment();
         $response = new RESTResponse($app);
         $authorizedUserId =  RESTLib::loginToUserId($env['user']);

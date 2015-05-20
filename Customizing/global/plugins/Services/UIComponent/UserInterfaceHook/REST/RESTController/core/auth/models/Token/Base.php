@@ -5,24 +5,26 @@
  * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
-namespace RESTController\core\auth;
+namespace RESTController\core\auth\Token;
 
 
 /*
  *
  */
-class TokenBase {
+class Base {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.
      *  Using a unique string seems to be an easier solution than assigning unique numbers.
      */
-    const ID_INVALID_FIELDS = 'RESTController\core\auth\TokenBase::ID_INVALID_FIELDS';
-    const ID_INVALID_SIZE = 'RESTController\core\auth\TokenBase::ID_INVALID_SIZE';
+    const ID_INVALID_FIELDS = 'RESTController\core\auth\Base::ID_INVALID_FIELDS';
+    const ID_INVALID_SIZE = 'RESTController\core\auth\Base::ID_INVALID_SIZE';
+    const ID_NO_TOKEN = 'RESTController\libs\OAuth2Middleware::ID_NO_TOKEN';
 
     // Allow to re-use status-strings
     const MSG_INVALID_FIELDS = 'Token contains invalid fields: %s';
     const MSG_INVALID_SIZE = 'Token needs to be an array of size %d.';
+    const MSG_NO_TOKEN = 'No access-token provided or using invalid format.';
 
     //
     protected $tokenSettings;

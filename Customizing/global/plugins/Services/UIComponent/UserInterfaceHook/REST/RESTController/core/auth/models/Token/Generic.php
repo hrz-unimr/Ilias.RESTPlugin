@@ -5,21 +5,21 @@
  * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
-namespace RESTController\core\auth;
+namespace RESTController\core\auth\Token;
 
 
 /*
  * This class handles all Token (Bearer & Refresh) related tasks,
  * such as generating, deconstructing and validating.
  */
-class GenericToken extends TokenBase {
+class Generic extends Base {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.
      *  Using a unique string seems to be an easier solution than assigning unique numbers.
      */
-    const ID_EXPIRED = 'RESTController\core\auth\GenericToken::ID_EXPIRED';
-    const ID_INVALID = 'RESTController\core\auth\GenericToken::ID_INVALID';
+    const ID_EXPIRED = 'RESTController\core\auth\Generic::ID_EXPIRED';
+    const ID_INVALID = 'RESTController\core\auth\Generic::ID_INVALID';
 
     // Allow to re-use status-strings
     const MSG_EXPIRED = 'Token has expired.';
@@ -69,7 +69,7 @@ class GenericToken extends TokenBase {
 
         if (!$this->isValidTokenArray($tokenArray))
             throw new Exceptions\TokenInvalid(self::MSG_INVALID);
-            
+
         parent::setToken($tokenArray);
     }
 

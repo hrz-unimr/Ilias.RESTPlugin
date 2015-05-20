@@ -18,7 +18,7 @@ use \RESTController\extensions\admin\models;
  */
 
 $app->group('/admin', function () use ($app) {
-    $app->get('/workspaces', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function () use ($app) {
+    $app->get('/workspaces', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminRole', function () use ($app) {
         try {
             if (count($app->request->post()) == 0 && count($app->request->get()) == 0) {
                 $req_data = json_decode($app->request()->getBody(),true); // json
@@ -60,7 +60,7 @@ $app->group('/admin', function () use ($app) {
     });
 
 
-    $app->get('/workspaces/:user_id', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function ($user_id) use ($app) {
+    $app->get('/workspaces/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminRole', function ($user_id) use ($app) {
         try {
             $t_start = microtime();
             $result = array();

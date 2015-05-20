@@ -55,7 +55,7 @@ $app->group('/dev', function () use ($app) {
         $app->response()->header('Content-Type', 'application/json');
 
         $model = new OAuth2Model();
-        $bearer_token = $model->getBearerTokenForRefreshToken($refresh_token);
+        $bearer_token = $model->fetchBearerTokenForRefreshToken($refresh_token);
 
 
         $response->setMessage("Refresh 2 Bearer.");
@@ -71,7 +71,7 @@ $app->group('/dev', function () use ($app) {
      * von REFRESH tokens bleibt eine eigene route und der zugriff wird über api-key geregelt.
      * Status: DONE
      */
-    $app->get('/refresh', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
+    $app->get('/refresh', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $env = $app->environment();
         $request = new RESTRequest($app);
         $response = new RESTResponse($app);
@@ -82,22 +82,22 @@ $app->group('/dev', function () use ($app) {
         //RESTLib::initAccessHandling();
 
         // Create new refresh token
-        $bearerToken = $env['token'];
+        $accessToken = $env['accessToken'];
         $model = new OAuth2Model();
-        $refreshToken = $model->getRefreshToken($bearerToken);
+        $refreshToken = $model->getRefreshToken($accessToken);
 
 
         $response->setMessage("Requesting new refresh token for user ".$uid.".");
         $response->setData("refresh-token", $refreshToken);
         $response->addData("maxint", PHP_INT_MAX);
-        $response->addData("beareruser", $bearerToken['user']);
-        $response->addData("api-key", $bearerToken['api_key']);
+        $response->addData("beareruser", $accessToken['user']);
+        $response->addData("api-key", $accessToken['api_key']);
         $response->addData("ilias client: ", $env['client_id']);
         $response->send();
     });
 
     // -------------------------------------------------------------------
-    $app->get('/hello', '\RESTController\libs\AuthMiddleware::authenticateTokenOnly', function () use ($app) {
+    $app->get('/hello', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthTokenOnly', function () use ($app) {
 
         $app = \Slim\Slim::getInstance();
 

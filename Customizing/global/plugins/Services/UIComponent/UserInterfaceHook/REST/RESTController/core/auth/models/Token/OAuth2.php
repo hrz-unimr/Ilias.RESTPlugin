@@ -5,13 +5,13 @@
  * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
-namespace RESTController\core\auth;
+namespace RESTController\core\auth\Token;
 
 
 /*
  *
  */
-class BearerToken extends TokenBase {
+class OAuth2 extends Base {
     //
     protected static $fields = array(
         'access_token',
@@ -47,7 +47,7 @@ class BearerToken extends TokenBase {
     protected function generateTokenArray($user, $api_key, $scope = null) {
         // Generate generic token containing user and api-key
         $token_type = 'bearer';
-        $token = GenericToken::fromFields($this->tokenSettings, $user, $api_key, $token_type, '', $this->tokenSettings->getTTL());
+        $token = Generic::fromFields($this->tokenSettings, $user, $api_key, $token_type, '', $this->tokenSettings->getTTL());
         $expires_in = $token->getRemainingTime();
         $access_token = $token->getTokenString();
 

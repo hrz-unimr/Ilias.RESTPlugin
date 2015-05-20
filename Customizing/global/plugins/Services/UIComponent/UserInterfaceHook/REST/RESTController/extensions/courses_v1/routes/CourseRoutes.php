@@ -23,7 +23,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Retrieves the content and a description of a course specified by ref_id.
      */
-    $app->get('/courses/:ref_id', '\RESTController\libs\AuthMiddleware::authenticate', function ($ref_id) use ($app) {
+    $app->get('/courses/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
         $response = new RESTResponse($app);
         $env = $app->environment();
         $authorizedUserId =  RESTLib::loginToUserId($env['user']);
@@ -41,7 +41,7 @@ $app->group('/v1', function () use ($app) {
         $response->toJSON();
     });
 
-    $app->post('/courses', '\RESTController\libs\AuthMiddleware::authenticate', function() use ($app) {
+    $app->post('/courses', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $env = $app->environment();
         $response = new RESTResponse($app);
         $authorizedUserId =  RESTLib::loginToUserId($env['user']);
@@ -114,7 +114,7 @@ $app->group('/v1', function () use ($app) {
      * If "mode" is "by_id", the parameter "usr_id" is used for the lookup.
      * The user is then enrolled in the course with "crs_ref_id".
      */
-    $app->post('/courses/enroll', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminROle', function() use ($app) {
+    $app->post('/courses/enroll', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminROle', function() use ($app) {
         $env = $app->environment();
         $response = new RESTResponse($app);
         $request = new RESTRequest($app);
@@ -158,7 +158,7 @@ $app->group('/v1', function () use ($app) {
 
     });
 
-    $app->get('/courses/join', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
+    $app->get('/courses/join', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $env = $app->environment();
         $response = new RESTResponse($app);
         $request = new RESTRequest($app);
@@ -181,7 +181,7 @@ $app->group('/v1', function () use ($app) {
         $response->toJSON();
     });
 
-    $app->get('/courses/leave', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
+    $app->get('/courses/leave', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $env = $app->environment();
         $response = new RESTResponse($app);
         $request = new RESTRequest($app);

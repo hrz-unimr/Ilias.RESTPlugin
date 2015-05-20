@@ -17,12 +17,12 @@ use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
  */
 
 $app->group('/admin', function () use ($app) {
-    $app->get('/testpool', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function () use ($app) {
+    $app->get('/testpool', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminRole', function () use ($app) {
 
     });
 
 
-    $app->get('/testquestion/:question_id', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function ($question_id) use ($app) {
+    $app->get('/testquestion/:question_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminRole', function ($question_id) use ($app) {
         $request = new RESTRequest($app);
         $response = new RESTResponse($app);
 

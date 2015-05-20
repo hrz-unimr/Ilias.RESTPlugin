@@ -26,7 +26,7 @@ $app->group('/v1/m', function () use ($app) {
      * In this version, the user file space is indeed the "workspace". In a future version it could be imagined, that
      * a special area within the global repository is used which is protected by role permissions. Therefore we use the placeholder "myfilespace".
      */
-    $app->get('/myfilespace', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
+    $app->get('/myfilespace', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $t_start = microtime();
         $env = $app->environment();
         $user_id = RESTLib::loginToUserId($env['user']);
@@ -46,7 +46,7 @@ $app->group('/v1/m', function () use ($app) {
      * The user needs write permission to copy the specified file to a chosen destination. The following parameters are required:
      * file_id (as obtainable by the /myfilespace endpoint) and a ref_id of the target container.
      */
-    $app->get('/myfilespacecopy','\RESTController\libs\AuthMiddleware::authenticate', function() use ($app) {
+    $app->get('/myfilespacecopy','\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $t_start = microtime();
         $env = $app->environment();
         $user_id = RESTLib::loginToUserId($env['user']);
@@ -80,7 +80,7 @@ $app->group('/v1/m', function () use ($app) {
     /**
      * see GET /myfilespacecopy
      */
-    $app->post('/myfilespacecopy','\RESTController\libs\AuthMiddleware::authenticate', function() use ($app) {
+    $app->post('/myfilespacecopy','\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $t_start = microtime();
         $env = $app->environment();
         $user_id = RESTLib::loginToUserId($env['user']);
@@ -123,7 +123,7 @@ $app->group('/v1/m', function () use ($app) {
     /**
      * Uploads a single file via POST into the user's "myfilespace".
      */
-    $app->post('/myfilespaceupload','\RESTController\libs\AuthMiddleware::authenticate', function() use ($app) {
+    $app->post('/myfilespaceupload','\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $app->log->debug("Myfilespace upload via POST");
         $t_start = microtime();
         $env = $app->environment();
@@ -157,7 +157,7 @@ $app->group('/v1/m', function () use ($app) {
     /**
      * Deletes a file from a user's filespace.
      */
-    $app->delete('/myfilespacedelete', '\RESTController\libs\AuthMiddleware::authenticate', function() use ($app) {
+    $app->delete('/myfilespacedelete', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $app->log->debug("Myfilespace delete");
         $t_start = microtime();
         $env = $app->environment();

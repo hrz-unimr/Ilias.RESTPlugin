@@ -16,7 +16,7 @@ use \RESTController\core\clients\Clients as Clients;
  *
  * Constructor requires $app & $sqlDB.
  */
-class OAuth2Token extends Libs\RESTModel {
+class TokenEndpoint extends Libs\RESTModel {
     // Allow to re-use status-strings
     const MSG_NO_CLIENT_KEY = 'There is no client with this api-key.';
     const MSG_NO_CLIENT_SECRET = 'There is no client with this api-key & api-secret pair.';
@@ -46,7 +46,7 @@ class OAuth2Token extends Libs\RESTModel {
             throw new Exceptions\LoginFailed(MSG_RESTRICTED_USERS);
 
         // Provided wrong username/password
-        $isAuth = Libs\AuthLib::authenticateViaIlias($username, $password);
+        $isAuth = Libs\RESTLib::authenticateViaIlias($username, $password);
         if (!$isAuth)
             throw new Exceptions\LoginFailed(MSG_AUTH_FAILED);
 
@@ -154,30 +154,30 @@ class OAuth2Token extends Libs\RESTModel {
     /**
      *
      */
-    public function refresh2Bearer($refresh) {
-        $modelRefresh = new OAuth2Refresh($this->app, $this->sqlDB, $this->plugin);
+    public function refresh2Bearer($refreshToken) {
+        $modelRefresh = new RefreshEndpoint($this->app, $this->sqlDB, $this->plugin);
 
-        $tokenArray = Libs\TokenLib::deserializeToken($refresh);
+        $tokenArray = Libs\TokenLib::deserializeToken($refreshToken);
         if (!Libs\TokenLib::tokenValid($tokenArray))
             throw new !!!;
 
         $user = $tokenArray['user'];
         $user_id = Libs\RESTLib::loginToUserId($user);
         $api_key = $tokenArray['api_key'];
-        $entry = $this->checkRefreshTokenEntry($user_id, $api_key);
+        $entry = $this->checkRefreshTokenEntry($user_id, $api_key); // !!! TokenLib
         if ($entry == null) {
             return false;
         } else {
             if ($entry['num_refresh_left'] > 0 ) {
                 if ($entry['refresh_token'] == $tokenArray) {
-                    $this->issueExistingRefreshToken($user_id, $api_key);
+                    $this->issueExistingRefreshToken($user_id, $api_key); // !!! TokenLib
                     $bearer_token = Libs\TokenLib::generateBearerToken($user, $api_key);
                     return $bearer_token;
                 } else {
                     return false;
                 }
             } else {
-                $this->deleteRefreshTokenEntry($user_id, $api_key);
+                $this->deleteRefreshTokenEntry($user_id, $api_key);// !!! TokenLib
                 return false;
             }
         }

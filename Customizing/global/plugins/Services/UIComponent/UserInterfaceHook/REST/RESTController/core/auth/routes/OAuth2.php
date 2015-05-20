@@ -50,17 +50,17 @@ $app->group('/v1', function () use ($app) {
                 $authenticity_token = $request->getParam('authenticity_token');
 
                 // Proccess with OAuth2-Model
-                $model = new OAuth2Auth($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                $model = new AuthEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
                 $result = $model->allGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token);
 
                 // Process results (send response)
                 if ($result['status'] == 'showLogin') {
-                    $render = new OAuth2Misc($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
-                    $render->render('REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', $result['data']);
+                    $render = new Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                    $render->renderWebsite('REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', $result['data']);
                 }
                 elseif ($result['status'] == 'showPermission') {
-                    $render = new OAuth2Misc($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
-                    $render->render('REST OAuth - Client autorisieren', 'oauth2grantpermissionform.php', $result['data']);
+                    $render = new Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                    $render->renderWebsite('REST OAuth - Client autorisieren', 'oauth2grantpermissionform.php', $result['data']);
                 }
                 elseif ($result['status'] == 'redirect')
                     $app->redirect($result['data']);
@@ -106,12 +106,12 @@ $app->group('/v1', function () use ($app) {
                 $response_type = $request->getParam('response_type', null, true);
 
                 // Render oauth2login.php for authorization code and implicit grant type flow
-                if ($response_type != 'code' && $response_type != 'token')
+                if ($response_type != 'code' && $response_type != 'bearerToken')
                     throw new Exceptions\ResponseType('Parameter <response_type> need to match "code" or "token".');
 
                 // Display login form
-                $render = new OAuth2Misc($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
-                $render->render(
+                $render = new Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                $render->renderWebsite(
                     'REST OAuth - Login für Tokengenerierung',
                     'oauth2loginform.php',
                     array(
@@ -147,7 +147,7 @@ $app->group('/v1', function () use ($app) {
             try {
                 // Get Request & OAuth-Model objects
                 $request =  $app->request();
-                $model = new OAuth2Token($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                $model = new TokenEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
 
                 // Resource Owner (User) grant type
                 if ($request->getParam('grant_type') == 'password') {
@@ -223,12 +223,13 @@ $app->group('/v1', function () use ($app) {
          * Parameters:
          * Response:
          */
-        $app->get('/refresh', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
+        $app->get('/refresh', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
             // Fetch token
-            $bearerToken = Libs\AuthMiddleware::getToken($app);
+            $request = $app->request();
+            $bearerToken = $request->fetchAccessToken();
 
             // Create new refresh token
-            $model = new OAuth2($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+            $model = new RefreshEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
             $result = $model->getRefreshToken($bearerToken);
 
             // !!! Try-Catch & success
@@ -251,10 +252,11 @@ $app->group('/v1', function () use ($app) {
                 // Fetch request object
                 // NOTE: Token is also fetched from header as well as body!
                 $request = $app->request();
+                $accessToken = $request->fetchAccesToken();
 
                 // Generate token-information
-                $model = new OAuth2Misc($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
-                $result = $model->tokenInfo($request);
+                $model = new MiscEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                $result = $model->tokenInfo($accessToken);
 
                 // Return status-data
                 $app->success($result);
@@ -289,7 +291,7 @@ $app->group('/v1', function () use ($app) {
             $session_id = $request->getParam('session_id', null, true);
 
             // Convert userId, rToken and sessionId to bearer-token (using api-key)
-            $model = new OAuth2($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+            $model = new MiscEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
             $result = $model->rToken2Bearer($api_key, $user_id, $rtoken, $session_id);
 
             // Return status-data

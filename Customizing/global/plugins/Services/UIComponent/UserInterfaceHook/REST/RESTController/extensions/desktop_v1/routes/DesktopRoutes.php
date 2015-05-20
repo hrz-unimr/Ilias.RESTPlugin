@@ -19,7 +19,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Retrieves all items from the personal desktop of a user specified by its id.
      */
-    $app->get('/desktop/overview/:id', '\RESTController\libs\AuthMiddleware::authenticate' , function ($id) use ($app) {
+    $app->get('/desktop/overview/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth' , function ($id) use ($app) {
         $env = $app->environment();
         $authorizedUserId =  RESTLib::loginToUserId($env['user']);
 
@@ -39,7 +39,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Deletes an item specified by ref_id from the personal desktop of the user specified by $id.
      */
-    $app->delete('/desktop/overview/:id', '\RESTController\libs\AuthMiddleware::authenticate',  function ($id) use ($app) {
+    $app->delete('/desktop/overview/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($id) use ($app) {
         $request = new RESTRequest($app);
         $response = new RESTResponse($app);
         try {
@@ -57,7 +57,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Adds an item specified by ref_id to the users's desktop. The user must be the owner or at least has read access of the item.
      */
-    $app->post('/desktop/overview/:id', '\RESTController\libs\AuthMiddleware::authenticate',  function ($id) use ($app) {
+    $app->post('/desktop/overview/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($id) use ($app) {
         $request = new RESTRequest($app);
         $response = new RESTResponse($app);
         try {

@@ -96,6 +96,64 @@ class RESTLib {
 
         return $is_admin;
     }
+    
+
+    /**
+     * Initializes ILIAS user application class
+     * with given ILIAS user-id.
+     *
+     * @param $login - ILIAS user id to use as context
+     * @return bool - True if context-creation was (probably) successfull, false otherwise
+     */
+    static public function setUserContext($login) {
+        global $ilias;
+
+        require_once('./Services/User/classes/class.ilObjUser.php');
+        $userId = \ilObjUser::_lookupId($login);
+        if (!$userId)
+            return false;
+
+        $ilUser = new \ilObjUser($userId);
+        $ilias->account =& $ilUser;
+        RESTLib::loadIlUser();
+
+        return true;
+    }
+
+
+    /**
+     * Authentication via the ILIAS Auth mechanisms.
+     * This method is used as backend for OAuth2.
+     *
+     * @param $username - ILIAS user-id
+     * @param $password - ILIS user-password
+     * @return bool - True if authentication was successfull, false otherwise
+     */
+    static public function authenticateViaIlias($username, $password) {
+        RESTLib::initAccessHandling();
+
+        $_POST['username'] = $username;
+        $_POST['password'] = $password;
+
+        require_once('Auth/Auth.php');
+        require_once('Services/Authentication/classes/class.ilSession.php');
+        require_once('Services/Authentication/classes/class.ilSessionControl.php');
+        require_once('Services/AuthShibboleth/classes/class.ilShibboleth.php');
+        require_once('Services/Authentication/classes/class.ilAuthUtils.php');
+
+        \ilAuthUtils::_initAuth();
+
+        global $ilAuth;
+        $ilAuth->start();
+        $checked_in = $ilAuth->getAuth();
+
+        $ilAuth->logout();
+        session_destroy();
+        header_remove('Set-Cookie');
+
+        return $checked_in;
+    }
+
 
     /**
      * Determines the ILIAS object id (obj_id) given a ref_id

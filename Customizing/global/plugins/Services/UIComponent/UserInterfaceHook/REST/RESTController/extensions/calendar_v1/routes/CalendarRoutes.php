@@ -20,7 +20,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the calendar events of user specified by $id.
      */
-    $app->get('/cal/events/:id', '\RESTController\libs\AuthMiddleware::authenticate', function ($id) use ($app) {
+    $app->get('/cal/events/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($id) use ($app) {
         $env = $app->environment();
         $response = new RESTResponse($app);
         $authorizedUserId =  RESTLib::loginToUserId($env['user']);
@@ -45,7 +45,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the ICAL Url of the desktop calendar of user specified by $id
      */
-    $app->get('/cal/icalurl/:id', '\RESTController\libs\AuthMiddleware::authenticate' , function ($id) use ($app) {
+    $app->get('/cal/icalurl/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth' , function ($id) use ($app) {
         $env = $app->environment();
         $response = new RESTResponse($app);
         $authorizedUserId =  RESTLib::loginToUserId($env['user']);

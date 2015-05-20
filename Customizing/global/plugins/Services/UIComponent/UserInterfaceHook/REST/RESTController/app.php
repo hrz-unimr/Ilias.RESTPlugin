@@ -216,7 +216,7 @@ class RESTController extends \Slim\Slim {
 
         // Setd default values
         if (!$env['tokenSalt'])
-            throw new \Exception('TokenLib can\'t find the token-salt inside the database! Check that there is a (token_salt, <VALUE>) entry in the ui_uihk_rest_config table.');
+            throw new \Exception('Can\'t load token-salt from database! Check that there is a (token_salt, <VALUE>) entry in the ui_uihk_rest_config table.');
         if (!$env['tokenTTL'])
             $env['tokenTTL'] = 30;
     }

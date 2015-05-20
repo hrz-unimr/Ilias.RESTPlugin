@@ -15,7 +15,7 @@ use \RESTController\libs as Libs;
  *
  * Constructor requires $app & $sqlDB.
  */
-class OAuth2Refresh extends Libs\RESTModel {
+class RefreshEndpoint extends Libs\RESTModel {
     /**
      * Refresh Token Endpoint routine:
      * Returns a refresh token for a valid bearer token.
@@ -67,8 +67,6 @@ class OAuth2Refresh extends Libs\RESTModel {
      * Decreases num_refresh_left field and updates the issuing time stamp.
      */
     protected function issueExisting($user_id, $api_key) {
-        global $ilDB;
-
         $query = '
             SELECT refresh_token, num_refresh_left
             FROM ui_uihk_rest_oauth2
@@ -76,8 +74,8 @@ class OAuth2Refresh extends Libs\RESTModel {
             ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
             AND ui_uihk_rest_oauth2.user_id='.$user_id.'
             AND ui_uihk_rest_keys.api_key="'.$api_key.'"';
-        $set = $ilDB->query($query);
-        if ($set != null && $entry = $ilDB->fetchAssoc($set)) {
+        $set = $this->sqlDB->query($query);
+        if ($set != null && $entry = $this->sqlDB->fetchAssoc($set)) {
             $ct_num_refresh_left = $entry['num_refresh_left'];
             $refresh_token = $entry['refresh_token'];
 
@@ -97,8 +95,6 @@ class OAuth2Refresh extends Libs\RESTModel {
      *  - Overwrites last_refresh_timestamp
      */
     protected function reset($user_id, $api_key, $newRefreshToken) {
-        global $ilDB;
-
         $query = '
             SELECT num_resets
             FROM ui_uihk_rest_oauth2
@@ -107,8 +103,8 @@ class OAuth2Refresh extends Libs\RESTModel {
             AND ui_uihk_rest_oauth2.user_id='.$user_id.'
             AND ui_uihk_rest_keys.api_key="'.$api_key.'"';
 
-        $set = $ilDB->query($query);
-        if ($set != null && $entry = $ilDB->fetchAssoc($set)) {
+        $set = $this->sqlDB->query($query);
+        if ($set != null && $entry = $this->sqlDB->fetchAssoc($set)) {
             $ct_num_resets = $entry['num_resets'];
 
             $this->updateRefreshTokenEntry($user_id, $api_key, 'refresh_token', $newRefreshToken);
@@ -132,8 +128,6 @@ class OAuth2Refresh extends Libs\RESTModel {
      * @return array
      */
     protected function check($user_id, $api_key) {
-        global $ilDB;
-
         $query = '
             SELECT *
             FROM ui_uihk_rest_oauth2
@@ -141,8 +135,8 @@ class OAuth2Refresh extends Libs\RESTModel {
             ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
             AND ui_uihk_rest_oauth2.user_id='.$user_id.'
             AND ui_uihk_rest_keys.api_key="'.$api_key.'"';
-        $set = $ilDB->query($query);
-        if ($set != null && $entry = $ilDB->fetchAssoc($set))
+        $set = $this->sqlDB->query($query);
+        if ($set != null && $entry = $this->sqlDB->fetchAssoc($set))
             return $entry;
         else
             return null;
@@ -159,11 +153,9 @@ class OAuth2Refresh extends Libs\RESTModel {
      * @return mixed the insertion id
      */
     protected function create($user_id, $api_key, $refresh_token) {
-        global $ilDB;
-
         $sql = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
-        $query = $ilDB->query($sql);
-        if ($query != null && $row = $ilDB->fetchAssoc($query)) {
+        $query = $this->sqlDB->query($sql);
+        if ($query != null && $row = $this->sqlDB->fetchAssoc($query)) {
             $api_id = $row['id'];
 
             $a_columns = array(
@@ -176,8 +168,8 @@ class OAuth2Refresh extends Libs\RESTModel {
                 'num_resets' => array('integer', 0)
             );
 
-            $ilDB->insert('ui_uihk_rest_oauth2', $a_columns);
-            return $ilDB->getLastInsertId();
+            $this->sqlDB->insert('ui_uihk_rest_oauth2', $a_columns);
+            return $this->sqlDB->getLastInsertId();
         }
     }
 
@@ -190,8 +182,6 @@ class OAuth2Refresh extends Libs\RESTModel {
      * @return mixed
      */
     protected function delete($user_id, $api_key) {
-        global $ilDB;
-
         $query = '
             DELETE ui_uihk_rest_oauth2
             FROM ui_uihk_rest_oauth2
@@ -199,7 +189,7 @@ class OAuth2Refresh extends Libs\RESTModel {
             ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
             AND ui_uihk_rest_oauth2.user_id='.$user_id.'
             AND ui_uihk_rest_keys.api_key="'.$api_key.'"';
-        $numAffRows = $ilDB->manipulate($query);
+        $numAffRows = $this->sqlDB->manipulate($query);
 
         return $numAffRows;
     }
@@ -215,8 +205,6 @@ class OAuth2Refresh extends Libs\RESTModel {
      * @return mixed
      */
      protected function update($user_id, $api_key, $fieldname, $newval) {
-        global $ilDB;
-
         $query = '
             UPDATE ui_uihk_rest_oauth2
             JOIN ui_uihk_rest_keys
@@ -224,7 +212,7 @@ class OAuth2Refresh extends Libs\RESTModel {
             AND ui_uihk_rest_oauth2.user_id='.$user_id.'
             AND ui_uihk_rest_keys.api_key="'.$api_key.'"
             SET '.$fieldname.' = "'.$newval.'"';
-        $numAffRows = $ilDB->manipulate($query);
+        $numAffRows = $this->sqlDB->manipulate($query);
 
         return $numAffRows;
     }

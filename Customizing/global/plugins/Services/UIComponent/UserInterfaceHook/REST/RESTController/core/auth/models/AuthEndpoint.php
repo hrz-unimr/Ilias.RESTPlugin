@@ -16,7 +16,7 @@ use \RESTController\core\clients\Clients as Clients;
  *
  * Constructor requires $app & $sqlDB.
  */
-class OAuth2Auth extends Libs\RESTModel {
+class AuthEndpoint extends Libs\RESTModel {
     // Allow to re-use status-strings
     const MSG_RESPONSE_TYPE = 'Parameter response_type must be "code" or "token".';
 
@@ -29,13 +29,13 @@ class OAuth2Auth extends Libs\RESTModel {
         $clients = new Clients(null, $this->sqlDB);
 
         // Check input
-        if ($response_type != 'code' && $response_type != 'token')
+        if ($response_type != 'code' && $response_type != 'bearerToken')
             throw new Exceptions\ResponseType(MSG_RESPONSE_TYPE);
 
         // Client (api-key) is not allowed to use this grant-type or doesn't exist
         if ($response_type == 'code' && !$clients->is_oauth2_gt_authcode_enabled($api_key))
             throw new Exceptions\LoginFailed(Libs\AuthLib::MSG_AC_DISABLED);
-        if ($response_type == 'token' && !$clients->is_oauth2_gt_implicit_enabled($api_key))
+        if ($response_type == 'bearerToken' && !$clients->is_oauth2_gt_implicit_enabled($api_key))
             throw new Exceptions\LoginFailed(Libs\AuthLib::MSG_I_DISABLED);
 
         // Login-data (username/password) is provided, try to authenticate
@@ -54,7 +54,7 @@ class OAuth2Auth extends Libs\RESTModel {
                 );
 
             // Provided wrong username/password
-            $isAuth = Libs\AuthLib::authenticateViaIlias($username, $password);
+            $isAuth = Libs\RESTLib::authenticateViaIlias($username, $password);
             if (!$isAuth)
                 return array(
                     'status' => 'showLogin',
@@ -91,7 +91,7 @@ class OAuth2Auth extends Libs\RESTModel {
                     $authorization_code = Libs\TokenLib::generateSerializedToken($username, $api_key, 'code', $redirect_uri, 10);
                     $url = $redirect_uri . '?code='.$authorization_code;
                 }
-                elseif ($response_type == 'token') {
+                elseif ($response_type == 'bearerToken') {
                     $bearerToken = Libs\TokenLib::generateBearerToken($username, $api_key);
                     $url = $redirect_uri . '#access_token='.$bearerToken['access_token'].'&token_type=bearer'.'&expires_in='.$bearerToken['expires_in'].'&state=xyz';
                 }
@@ -116,7 +116,7 @@ class OAuth2Auth extends Libs\RESTModel {
                 $authorization_code = Libs\TokenLib::generateSerializedToken($tokenUser, $api_key, 'code', $redirect_uri, 10);
                 $url = $redirect_uri . '?code='.$authorization_code;
             }
-            elseif ($response_type == 'token') {
+            elseif ($response_type == 'bearerToken') {
                 $bearerToken = Libs\TokenLib::generateBearerToken($tokenUser, $api_key);
                 $url = $redirect_uri . '#access_token='.$bearerToken['access_token'].'&token_type=bearer'.'&expires_in='.$bearerToken['expires_in'].'&state=xyz';
             }

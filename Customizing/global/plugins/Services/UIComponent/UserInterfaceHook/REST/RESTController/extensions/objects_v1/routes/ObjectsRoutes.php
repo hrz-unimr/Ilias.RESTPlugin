@@ -12,7 +12,7 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
 
-$app->get('/v1/object/:ref', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function ($ref) use ($app) {
+$app->get('/v1/object/:ref', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminRole', function ($ref) use ($app) {
 
     $request = new RESTRequest($app);
     $response = new RESTResponse($app);
