@@ -24,7 +24,7 @@ class AuthEndpoint extends EndpointBase {
     /**
      *
      */
-    public function allGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token) {
+    public function allGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticityToken) {
         // Client-Model required
         $clients = new Clients(null, $this->sqlDB);
 
@@ -92,8 +92,9 @@ class AuthEndpoint extends EndpointBase {
                     $url = $redirect_uri . '?code='.$authorizationToken->getTokenString();
                 }
                 elseif ($response_type == 'bearerToken') {
-                    $oauth2Token = Token\OAuth2::fromFields($this->tokenSettings(), $username, $api_key)
-                    $url = $redirect_uri . '#access_token='.$oauth2Token->getEntry('access_token').'&token_type=bearer'.'&expires_in='.$oauth2Token->getEntry('expires_in').'&state=xyz';
+                    $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $username, $api_key);
+                    $accessToken = $bearerToken->getEntry('access_token');
+                    $url = $redirect_uri . '?access_token='.$accessToken->getTokenString().'&token_type=bearer'.'&expires_in='.$oauth2Token->getEntry('expires_in').'&state=xyz';
                 }
 
                 // Return data to route/other model
@@ -104,13 +105,10 @@ class AuthEndpoint extends EndpointBase {
             }
         }
         // Login-data (token) is provided, try to authenticate
-        elseif ($authenticity_token) {
-            // Create object from string
-            $authenticityToken = Token\Generic::fromMixed($this->tokenSettings(), $authenticity_token);
-
+        elseif ($authenticityToken) {
             // Check if token is still valid
             if ($authenticityToken->isExpired())
-                throw new Exceptions\TokenExpired(Libs\TokenLib::MSG_EXPIRED);
+                throw new Exceptions\TokenInvalid(Token\Generic::MSG_EXPIRED);
 
             // Generate a temporary token that can be exchanged for bearer-token
             $tokenUser = $authenticityToken->getEntry('user');
@@ -119,8 +117,9 @@ class AuthEndpoint extends EndpointBase {
                 $url = $redirect_uri . '?code='.$authorizationToken->getTokenString();
             }
             elseif ($response_type == 'bearerToken') {
-                $oauth2Token = Token\OAuth2::fromFields($this->tokenSettings(), $tokenUser, $api_key)
-                $url = $redirect_uri . '#access_token='.$oauth2Token->getEntry('access_token').'&token_type=bearer'.'&expires_in='.$oauth2Token->getEntry('expires_in').'&state=xyz';
+                $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $tokenUser, $api_key);
+                $accessToken = $bearerToken->getEntry('access_token');
+                $url = $redirect_uri . '?access_token='.$accessToken->getTokenString().'&token_type=bearer'.'&expires_in='.$oauth2Token->getEntry('expires_in').'&state=xyz';
             }
 
             // Return data to route/other model

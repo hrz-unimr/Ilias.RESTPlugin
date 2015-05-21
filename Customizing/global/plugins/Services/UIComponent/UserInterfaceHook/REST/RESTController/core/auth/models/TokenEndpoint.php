@@ -51,17 +51,18 @@ class TokenEndpoint extends EndpointBase {
             throw new Exceptions\LoginFailed(self::MSG_AUTH_FAILED);
 
         // [All] Generate bearer & refresh-token (if enabled)
-        $bearer_token = Libs\TokenLib::generateBearerToken($username, $api_key);
+        $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $username, $api_key);
+        $accessToken = $bearerToken->getEntry('access_token');
         if ($clients->is_resourceowner_refreshtoken_enabled($api_key))
-            $refresh_token = $this->getRefreshToken(Libs\TokenLib::deserializeToken($bearer_token['access_token']));
+            $refreshToken = Token\Refresh::fromAccessToken($accessToken);
 
         // [All] Return generated tokens
         return array(
-            'access_token' => $bearer_token['access_token'],
-            'expires_in' => $bearer_token['expires_in'],
-            'token_type' => $bearer_token['token_type'],
-            'scope' => $bearer_token['scope'],
-            'refresh_token' => $refresh_token
+            'access_token' => $accessToken->getTokenString(),
+            'expires_in' => $bearerToken->getEntry('expires_in'),
+            'token_type' => $bearerToken->getEntry('token_type'),
+            'scope' => $bearerToken->getEntry('scope'),
+            'refresh_token' => ($refreshToken) ? $refreshToken->getTokenString() : null
         );
     }
 
@@ -88,15 +89,16 @@ class TokenEndpoint extends EndpointBase {
         $username = Libs\RESTLib::userIdtoLogin($uid);
 
         // [All] Generate bearer & refresh-token (if enabled)
-        $bearer_token = Libs\TokenLib::generateBearerToken($username, $api_key);
+        $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $username, $api_key);
+        $accessToken = $bearerToken->getEntry('access_token');
         // -- [no] Refresh-token --
 
         // [All] Return generated tokens
         return array(
-            'access_token' => $bearer_token['access_token'],
-            'expires_in' => $bearer_token['expires_in'],
-            'token_type' => $bearer_token['token_type'],
-            'scope' => $bearer_token['scope'],
+            'access_token' => $accessToken->getTokenString(),
+            'expires_in' => $bearerToken->getEntry('expires_in'),
+            'token_type' => $bearerToken->getEntry('token_type'),
+            'scope' => $bearerToken->getEntry('scope'),
             // -- [no] Refresh-token --
         );
     }
@@ -105,7 +107,7 @@ class TokenEndpoint extends EndpointBase {
     /**
      *
      */
-    public function authorizationCode($api_key, $api_secret, $token, $redirect_uri) {
+    public function authorizationCode($api_key, $api_secret, $authCodeToken, $redirect_uri) {
         // Client-Model required
         $clients = new Clients(null, $this->sqlDB);
 
@@ -117,16 +119,16 @@ class TokenEndpoint extends EndpointBase {
         if (!$clients->is_oauth2_gt_authcode_enabled($api_key))
             throw new Exceptions\LoginFailed(Util::MSG_AC_DISABLED);
 
-        // Check if token is still valid
-        $tokenArray = Libs\TokenLib::deserializeToken($token);
-        if (Libs\TokenLib::tokenExpired($tokenArray))
-            throw new Exceptions\TokenInvalid(Libs\TokenLib::MSG_EXPIRED);
+        // Check token
+        if (!$authCodeToken)
+            throw new Exceptions\TokenInvalid(Token\Base::MSG_NO_TOKEN);
+        if (!$authCodeToken->isValid())
+            throw new Exceptions\TokenInvalid(Libs\Generic::MSG_INVALID);
+        if ($authCodeToken->isExpired())
+            throw new Exceptions\TokenInvalid(Libs\Generic::MSG_EXPIRED);
 
         // Compare token content to other request data
-        $t_redirect_uri = $tokenArray['misc'];
-        $t_user = $tokenArray['user'];
-        $t_api_key = $tokenArray['api_key'];
-        if ($t_redirect_uri != $redirect_uri || $t_api_key != $api_key)
+        if ($authCodeToken->getEntry('redirect_uri') != $redirect_uri || $authCodeToken->getEntry('api_key') != $api_key)
             throw new Exceptions\LoginFailed(self::MSG_TOKEN_MISMATCH);
 
         // Check wether user is allowed to use this api-key
@@ -136,17 +138,18 @@ class TokenEndpoint extends EndpointBase {
             throw new Exceptions\LoginFailed(self::MSG_RESTRICTED_USERS);
 
         // [All] Generate bearer & refresh-token (if enabled)
-        $bearer_token = Libs\TokenLib::generateBearerToken($t_user, $api_key);
+        $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $t_user, $api_key);
+        $accessToken = $bearerToken->getEntry('access_token');
         if ($clients->is_authcode_refreshtoken_enabled($api_key))
-            $refresh_token = $this->getRefreshToken(Libs\TokenLib::deserializeToken($bearer_token['access_token']));
+            $refreshToken = Token\Refresh::fromAccessToken($accessToken);
 
         // [All] Return generated tokens
         return array(
-            'access_token' => $bearer_token['access_token'],
-            'expires_in' => $bearer_token['expires_in'],
-            'token_type' => $bearer_token['token_type'],
-            'scope' => $bearer_token['scope'],
-            'refresh_token' => $refresh_token
+            'access_token' => $accessToken->getTokenString(),
+            'expires_in' => $bearerToken->getEntry('expires_in'),
+            'token_type' => $bearerToken->getEntry('token_type'),
+            'scope' => $bearerToken->getEntry('scope'),
+            'refresh_token' => ($refreshToken) ? $refreshToken->getTokenString() : null
         );
     }
 
@@ -155,29 +158,33 @@ class TokenEndpoint extends EndpointBase {
      *
      */
     public function refresh2Bearer($refreshToken) {
-        $modelRefresh = new RefreshEndpoint($this->app, $this->sqlDB, $this->plugin);
-
-        $tokenArray = Libs\TokenLib::deserializeToken($refreshToken);
-        if (!Libs\TokenLib::tokenValid($tokenArray))
-            throw new !!!;
+        // Check token
+        if (!$refreshToken)
+            throw new Exceptions\TokenInvalid(Token\Base::MSG_NO_TOKEN);
+        if (!$refreshToken->isValid())
+            throw new Exceptions\TokenInvalid(Libs\Generic::MSG_INVALID);
+        if ($refreshToken->isExpired())
+            throw new Exceptions\TokenInvalid(Libs\Generic::MSG_EXPIRED);
 
         $user = $tokenArray['user'];
         $user_id = Libs\RESTLib::loginToUserId($user);
         $api_key = $tokenArray['api_key'];
-        $entry = $this->checkRefreshTokenEntry($user_id, $api_key); // !!! TokenLib
+
+        $modelRefresh = new RefreshEndpoint($this->app, $this->sqlDB, $this->plugin);
+        $entry = $this->checkRefreshTokenEntry($user_id, $api_key); // !!!
         if ($entry == null) {
             return false;
         } else {
             if ($entry['num_refresh_left'] > 0 ) {
                 if ($entry['refresh_token'] == $tokenArray) {
-                    $this->issueExistingRefreshToken($user_id, $api_key); // !!! TokenLib
-                    $bearer_token = Libs\TokenLib::generateBearerToken($user, $api_key);
+                    $this->issueExistingRefreshToken($user_id, $api_key); // !!!
+                    $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $t_user, $api_key);
                     return $bearer_token;
                 } else {
                     return false;
                 }
             } else {
-                $this->deleteRefreshTokenEntry($user_id, $api_key);// !!! TokenLib
+                $this->deleteRefreshTokenEntry($user_id, $api_key);// !!!
                 return false;
             }
         }

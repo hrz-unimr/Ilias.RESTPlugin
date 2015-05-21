@@ -26,17 +26,19 @@ class MiscEndpoint extends EndpointBase {
     public function tokenInfo($accessToken) {
         // Check token
         if (!$accessToken)
-            throw new Exceptions\TokenInvalid(Libs\TokenLib::MSG_NO_TOKEN);
+            throw new Exceptions\TokenInvalid(Token\Base::MSG_NO_TOKEN);
+        if (!$accessToken->isValid())
+            throw new Exceptions\TokenInvalid(Libs\Generic::MSG_INVALID);
         if ($accessToken->isExpired())
-            throw new Exceptions\TokenInvalid(Libs\TokenLib::MSG_EXPIRED);
+            throw new Exceptions\TokenInvalid(Libs\Generic::MSG_EXPIRED);
 
         // Generate info for (valid) token
         return array(
-            'api_key' => $token['api_key'],
-            'user' =>  $token['user'],
-            'type' =>  $token['type'],
-            'expires_in' => Libs\TokenLib::getRemainingTime($token),
-            'scope' =>  $token['scope']
+            'api_key' => $accessToken->getEntry('api_key'),
+            'user' =>  $accessToken->getEntry('user'),
+            'type' =>  $accessToken->getEntry('type'),
+            'expires_in' => $accessToken->getRemainingTime(),
+            'scope' =>  $accessToken->getEntry('scope')
         );
 
     }
@@ -55,10 +57,7 @@ class MiscEndpoint extends EndpointBase {
 
         // Generate token for user (via given api-key)
         $user = Libs\RESTLib::userIdtoLogin($user_id);
-        $access_token = Libs\TokenLib::generateBearerToken($user, $api_key);
-        return array(
-            'user' => $user,
-            'bearerToken' => $access_token
-        );
+        $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $user, $api_key);
+        return $bearerToken->getTokenArray();
     }
 }

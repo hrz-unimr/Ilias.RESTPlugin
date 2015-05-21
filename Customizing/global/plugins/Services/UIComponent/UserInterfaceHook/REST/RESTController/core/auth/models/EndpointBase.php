@@ -20,7 +20,14 @@ class EndpointBase extends EndpointBase {
     protected $tokenSettings;
 
 
-    protected function tokenSettings() {
+    public static fromBase($baseObject) {
+        $obj = new self($baseObject->app, $baseObject->sqlDB, $baseObject->plugin);
+        $obj->tokenSeetings = $baseObject->tokenSettings;
+        return $obj;
+    }
+
+
+    public function tokenSettings() {
         if (!$this->tokenSettings)
             $this->tokenSettings = loadTokenSettings();
 

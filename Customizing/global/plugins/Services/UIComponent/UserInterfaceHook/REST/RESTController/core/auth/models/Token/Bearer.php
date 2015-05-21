@@ -11,7 +11,7 @@ namespace RESTController\core\auth\Token;
 /*
  *
  */
-class OAuth2 extends Base {
+class Bearer extends Base {
     //
     protected static $fields = array(
         'access_token',
@@ -47,14 +47,12 @@ class OAuth2 extends Base {
     protected function generateTokenArray($user, $api_key, $scope = null) {
         // Generate generic token containing user and api-key
         $token_type = 'bearer';
-        $token = Generic::fromFields($this->tokenSettings, $user, $api_key, $token_type, '', $this->tokenSettings->getTTL());
-        $expires_in = $token->getRemainingTime();
-        $access_token = $token->getTokenString();
+        $accessToken = Generic::fromFields($this->tokenSettings, $user, $api_key, $token_type, '', $this->tokenSettings->getTTL());
 
         // Generate bearer-token containing the generic token and additional information
         return array(
-            'access_token'  => $access_token,
-            'expires_in'    => $expires_in,
+            'access_token'  => $accessToken,
+            'expires_in'    => $accessToken->getRemainingTime(),
             'token_type'    => $token_type,
             'scope'         => $scope
         );

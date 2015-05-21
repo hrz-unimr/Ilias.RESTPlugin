@@ -51,15 +51,17 @@ $app->group('/v1', function () use ($app) {
 
                 // Proccess with OAuth2-Model
                 $model = new AuthEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
-                $result = $model->allGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticity_token);
+                if ($authenticity_token)
+                    $authenticityToken = Token\Generic::fromMixed($model->tokenSettings(), $authenticity_token);
+                $result = $model->allGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticityToken);
 
                 // Process results (send response)
                 if ($result['status'] == 'showLogin') {
-                    $render = new Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                    $render = Util::fromBase($model);
                     $render->renderWebsite('REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', $result['data']);
                 }
                 elseif ($result['status'] == 'showPermission') {
-                    $render = new Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                    $render = Util::fromBase($model);
                     $render->renderWebsite('REST OAuth - Client autorisieren', 'oauth2grantpermissionform.php', $result['data']);
                 }
                 elseif ($result['status'] == 'redirect')
@@ -190,7 +192,8 @@ $app->group('/v1', function () use ($app) {
                     $refresh_token = $request->getParam('refresh_token', null, true);
 
                     // Invoke OAuth2-Model with data
-                    $result = $model->refresh2Bearer($refresh_token);
+                    $refreshToken = Token\Refresh::fromMixed($model->tokenSettings(), $refresh_token);
+                    $result = $model->refresh2Bearer($refreshToken);
                     $app->success($result);
                 }
                 // Wrong grant-type
@@ -230,7 +233,7 @@ $app->group('/v1', function () use ($app) {
                 $accessToken = $util->getAccessToken();
 
                 // Create new refresh token
-                $model = new RefreshEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                $model = new RefreshEndpoint::fromBase($util);
                 $result = $model->getRefreshToken($accessToken);
 
 
@@ -261,7 +264,7 @@ $app->group('/v1', function () use ($app) {
                 $accessToken = $util->getAccessToken();
 
                 // Generate token-information
-                $model = new MiscEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                $model = new MiscEndpoint::fromBase($util);
                 $result = $model->tokenInfo($accessToken);
 
                 // Return status-data
