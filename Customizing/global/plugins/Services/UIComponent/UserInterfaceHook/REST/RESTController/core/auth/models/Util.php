@@ -16,7 +16,7 @@ use \RESTController\core\auth\Token as Token;
  *
  * Constructor requires $app.
  */
-class Util extends Libs\RESTModel {
+class Util extends EndpointBase {
     // Allow to re-use status-strings
     const MSG_UC_DISABLED = 'User-credentials grant-type is disabled for this client.';
     const MSG_CC_DISABLED = 'Client-credentials grant-type is disabled for this client.';

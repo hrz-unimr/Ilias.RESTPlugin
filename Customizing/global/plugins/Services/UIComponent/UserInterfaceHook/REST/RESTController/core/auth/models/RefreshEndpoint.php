@@ -15,7 +15,7 @@ use \RESTController\libs as Libs;
  *
  * Constructor requires $app & $sqlDB.
  */
-class RefreshEndpoint extends Libs\RESTModel {
+class RefreshEndpoint extends EndpointBase {
     /**
      * Refresh Token Endpoint routine:
      * Returns a refresh token for a valid bearer token.

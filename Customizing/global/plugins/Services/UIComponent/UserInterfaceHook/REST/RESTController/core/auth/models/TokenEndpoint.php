@@ -16,7 +16,7 @@ use \RESTController\core\clients\Clients as Clients;
  *
  * Constructor requires $app & $sqlDB.
  */
-class TokenEndpoint extends Libs\RESTModel {
+class TokenEndpoint extends EndpointBase {
     // Allow to re-use status-strings
     const MSG_NO_CLIENT_KEY = 'There is no client with this api-key.';
     const MSG_NO_CLIENT_SECRET = 'There is no client with this api-key & api-secret pair.';

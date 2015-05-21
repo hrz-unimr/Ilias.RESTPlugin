@@ -43,12 +43,12 @@ class OAuth2Middleware {
      * @param \Slim\Route $route
      */
     public static function TokenRouteAuth(\Slim\Route $route) {
-        // Fetch instance of SLIM-Framework
+        // Fetch token
         $app = RESTController::getInstance();
-        $request = $app->request();
+        $util = new Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+        $accessToken = $util->getAccessToken();
 
         // Authenticate token
-        $accessToken = $request->getAccessToken();
         self::checkAccessToken($app, $accessToken);
 
         // Check route permissions
@@ -63,12 +63,12 @@ class OAuth2Middleware {
      * @param \Slim\Route $route
      */
     public static function TokenAdminAuth(\Slim\Route $route) {
-        // Get instance of SLIM-Framework
+        // Fetch token
         $app = RESTController::getInstance();
-        $request = $app->request();
+        $util = new Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+        $accessToken = $util->getAccessToken();
 
         // Authentication by token
-        $accessToken = $request->getAccessToken();
         self::checkAccessToken($app, $accessToken);
 
         // Check if given user has admin-role
@@ -85,12 +85,12 @@ class OAuth2Middleware {
      * @param \Slim\Route $route
      */
     public static function TokenAuth(\Slim\Route $route) {
-        // Get instance of SLIM-Framework
+        // Fetch token
         $app = RESTController::getInstance();
-        $request = $app->request();
+        $util = new Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+        $accessToken = $util->getAccessToken();
 
         // Fetch and check token
-        $accessToken = $request->getAccessToken();
         self::checkAccessToken($app, $accessToken);
     }
     /* ### Auth-Middleware - End ### */

@@ -8,10 +8,8 @@
 namespace RESTController\extensions\courses_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \RESTController\extensions\users_v1\UsersModel;
+use \RESTController\libs as Libs;
+use \RESTController\extensions\users_v1 as Users;
 
 
 /*
@@ -128,7 +126,7 @@ $app->group('/v1', function () use ($app) {
                     "login" => "{$login}",
                     "auth_mode" => "ldap",
                 ), $data);
-                $um = new UsersModel();
+                $um = new Users\UsersModel();
                 $user_id = $um->addUser($userData);
             }
         } else if ($mode == "by_id") {

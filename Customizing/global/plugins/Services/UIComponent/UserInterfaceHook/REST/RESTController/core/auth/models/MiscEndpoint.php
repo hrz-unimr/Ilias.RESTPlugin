@@ -15,7 +15,7 @@ use \RESTController\libs as Libs;
  *
  * Constructor requires $app.
  */
-class MiscEndpoint extends Libs\RESTModel {
+class MiscEndpoint extends EndpointBase {
     // Allow to re-use status-strings
     const MSG_RTOKEN_AUTH_FAILED = 'Failed to authenticate via ILIAS session.';
 
