@@ -89,18 +89,8 @@ class RESTController extends \Slim\Slim {
                 // Work-around to get better backtrace
                 $e = new \Exception;
 
-                // Process data
-                $error = array(
-                    'message' => $err['message'],
-                    'code' => $err['type'],
-                    'file' => $err['file'],
-                    'line' => $err['line'],
-                    'trace' => $e->getTraceAsString()
-                );
-                $app = $this;
-
-                // Show error
-                include('views/error.php');
+                // Dsplay error
+                $this->displayError($err['message'], $err['type'], $err['file'], $err['line'], $e->getTraceAsString());
             }
         });
 
@@ -113,24 +103,8 @@ class RESTController extends \Slim\Slim {
             $line = $error->getLine();
             $trace = str_replace('/', '\\', $error->getTraceAsString());
 
-            // Generate standard message
-            $errStr = '{
-                "msg": "An error occured while handling this route!",
-                "data": {
-                    "message": ' . json_encode(isset($msg)   ?: '') . ',
-                    "code": ' .    json_encode(isset($code)  ?: '') . ',
-                    "file": ' .    json_encode(isset($file)  ?: '') . ',
-                    "line": ' .    json_encode(isset($line)  ?: '') . ',
-                    "trace": ' .   json_encode(isset($trace) ?: '') . '
-                }
-            }';
-
-            // Log error to file
-            $app->log->debug($errStr);
-
             // Display error
-            header('content-type: application/json');
-            echo $errStr;
+            $this->displayError($msg, $code, $file, $line, $trace);
         });
 
         // Set 404 fallback
@@ -292,5 +266,30 @@ class RESTController extends \Slim\Slim {
         }
         else
             parent::halt($httpCode, $message);
+    }
+
+
+    /**
+     *
+     */
+    protected function displayError($msg, $code, $file, $line, $trace) {
+        // Generate standard message
+        $errStr = '{
+    "msg": "An error occured while handling this route!",
+    "data": {
+        "message": ' . json_encode(($msg)   ?: '') . ',
+        "code": ' .    json_encode(($code)  ?: '') . ',
+        "file": ' .    json_encode(($file)  ?: '') . ',
+        "line": ' .    json_encode(($line)  ?: '') . ',
+        "trace": ' .   json_encode(($trace) ?: '') . '
+    }
+}';
+
+        // Log error to file
+        $this->log->debug($errStr);
+
+        // Display error
+        header('content-type: application/json');
+        echo $errStr;
     }
 }

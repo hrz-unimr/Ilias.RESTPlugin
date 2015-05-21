@@ -30,7 +30,7 @@ class Util extends EndpointBase {
      * @param  api_key
      * @return bool
      */
-    static public function checkClient($api_key) {
+    public function checkClient($api_key) {
         // Fetch client with given api-key (checks existance)
         $query = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
         $set = $this->sqlDB->query($query);
@@ -48,7 +48,7 @@ class Util extends EndpointBase {
      * @param string api_secret
      * @return bool
      */
-    static public function checkClientCredentials($api_key, $api_secret) {
+    public function checkClientCredentials($api_key, $api_secret) {
         // Fetch client with given api-key (checks existance)
         $query = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s" AND api_secret = "%s"', $api_key, $api_secret);
         $set = $this->sqlDB->query($query);
@@ -66,7 +66,7 @@ class Util extends EndpointBase {
      * @param api_key
      * @return bool
      */
-    static public function checkScope($route, $operation, $api_key) {
+    public function checkScope($route, $operation, $api_key) {
         $operation = strtoupper($operation);
         $query = sprintf('
             SELECT pattern, verb
@@ -98,7 +98,7 @@ class Util extends EndpointBase {
      * @param $session_id
      * @return bool
      */
-    static public function checkSession($user_id, $rtoken, $session_id) {
+    public function checkSession($user_id, $rtoken, $session_id) {
         $rtokenValid = false;
         $sessionValid = false;
 
@@ -161,6 +161,7 @@ class Util extends EndpointBase {
 
     /**
      *
+     * NOTE: May throw TokenInvalid!
      */
     public function getAccessToken() {
         /*
@@ -208,7 +209,7 @@ class Util extends EndpointBase {
 
         // Decode token
         if (isset($tokenString))
-            $accessToken = Token\GenericToken::fromMixed($tokenString);
+            $accessToken = Token\Generic::fromMixed($this->tokenSettings(), $tokenString);
 
         // Store and return token
         return $accessToken;

@@ -11,7 +11,7 @@ namespace RESTController\core\auth\Token;
 /*
  *
  */
-class TokenSettings {
+class Settings {
     protected $salt;
     protected $ttl;
 

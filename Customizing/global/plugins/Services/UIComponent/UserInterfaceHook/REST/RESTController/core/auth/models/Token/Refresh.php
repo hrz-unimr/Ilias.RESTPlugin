@@ -23,9 +23,6 @@ class Refresh extends Generic {
         if ($refreshToken->getTokenArray())
             return $refreshToken;
     }
-    public static function fromAccessToken($accessToken) {
-        
-    }
 
 
     /**

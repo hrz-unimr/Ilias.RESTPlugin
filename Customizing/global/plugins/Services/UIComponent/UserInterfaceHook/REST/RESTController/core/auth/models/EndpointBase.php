@@ -16,11 +16,11 @@ use \RESTController\core\clients\Clients as Clients;
  *
  * Constructor requires $app & $sqlDB.
  */
-class EndpointBase extends EndpointBase {
+class EndpointBase extends Libs\RESTModel {
     protected $tokenSettings;
 
 
-    public static fromBase($baseObject) {
+    public static function fromBase($baseObject) {
         $obj = new self($baseObject->app, $baseObject->sqlDB, $baseObject->plugin);
         $obj->tokenSeetings = $baseObject->tokenSettings;
         return $obj;
@@ -29,7 +29,7 @@ class EndpointBase extends EndpointBase {
 
     public function tokenSettings() {
         if (!$this->tokenSettings)
-            $this->tokenSettings = loadTokenSettings();
+            $this->tokenSettings = $this->loadTokenSettings();
 
         return $this->tokenSettings;
     }

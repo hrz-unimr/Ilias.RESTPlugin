@@ -53,8 +53,10 @@ class TokenEndpoint extends EndpointBase {
         // [All] Generate bearer & refresh-token (if enabled)
         $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $username, $api_key);
         $accessToken = $bearerToken->getEntry('access_token');
-        if ($clients->is_resourceowner_refreshtoken_enabled($api_key))
-            $refreshToken = Token\Refresh::fromAccessToken($accessToken);
+        if ($clients->is_resourceowner_refreshtoken_enabled($api_key)) {
+            $refreshModel = RefreshEndpoint::fromBase($this);
+            $refreshToken = $refreshModel->getToken($accessToken);
+        }
 
         // [All] Return generated tokens
         return array(
@@ -120,8 +122,6 @@ class TokenEndpoint extends EndpointBase {
             throw new Exceptions\LoginFailed(Util::MSG_AC_DISABLED);
 
         // Check token
-        if (!$authCodeToken)
-            throw new Exceptions\TokenInvalid(Token\Base::MSG_NO_TOKEN);
         if (!$authCodeToken->isValid())
             throw new Exceptions\TokenInvalid(Libs\Generic::MSG_INVALID);
         if ($authCodeToken->isExpired())
@@ -140,8 +140,10 @@ class TokenEndpoint extends EndpointBase {
         // [All] Generate bearer & refresh-token (if enabled)
         $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $t_user, $api_key);
         $accessToken = $bearerToken->getEntry('access_token');
-        if ($clients->is_authcode_refreshtoken_enabled($api_key))
-            $refreshToken = Token\Refresh::fromAccessToken($accessToken);
+        if ($clients->is_authcode_refreshtoken_enabled($api_key)) {
+            $refreshModel = RefreshEndpoint::fromBase($this);
+            $refreshToken = $refreshModel->getToken($accessToken);
+        }
 
         // [All] Return generated tokens
         return array(
@@ -159,8 +161,6 @@ class TokenEndpoint extends EndpointBase {
      */
     public function refresh2Bearer($refreshToken) {
         // Check token
-        if (!$refreshToken)
-            throw new Exceptions\TokenInvalid(Token\Base::MSG_NO_TOKEN);
         if (!$refreshToken->isValid())
             throw new Exceptions\TokenInvalid(Libs\Generic::MSG_INVALID);
         if ($refreshToken->isExpired())

@@ -96,7 +96,7 @@ class RESTLib {
 
         return $is_admin;
     }
-    
+
 
     /**
      * Initializes ILIAS user application class
@@ -220,7 +220,7 @@ class RESTLib {
     static public function userIdtoLogin($user_id) {
         global $ilDB;
 
-        $query = sprintf('SELECT login FROM usr_data WHERE usr_id='%s'', $user_id);
+        $query = sprintf('SELECT login FROM usr_data WHERE usr_id=\'%s\'', $user_id);
         $set = $ilDB->query($query);
         $ret = $ilDB->fetchAssoc($set);
 
@@ -238,7 +238,7 @@ class RESTLib {
     static public function loginToUserId($login) {
         global $ilDB;
 
-        $query = sprintf('SELECT usr_id FROM usr_data WHERE login='%s'', $login);
+        $query = sprintf('SELECT usr_id FROM usr_data WHERE login=\'%s\'', $login);
         $set = $ilDB->query($query);
         $ret = $ilDB->fetchAssoc($set);
 

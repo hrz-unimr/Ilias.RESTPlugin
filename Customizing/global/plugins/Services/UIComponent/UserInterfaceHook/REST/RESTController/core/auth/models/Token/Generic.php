@@ -153,7 +153,7 @@ class Generic extends Base {
         $misc = $this->tokenArray['misc'];
 
         //
-        $token = $this->generateTokenArray($user, $api_key, $type, $misc);
+        $token = $this->generateTokenArray($user, $api_key, $type, $misc, null);
         $this->setToken($token);
     }
 

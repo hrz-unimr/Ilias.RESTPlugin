@@ -9,6 +9,7 @@ namespace RESTController\libs;
 
 use RESTController\core\auth as Auth;
 use RESTController\core\auth\Token as Token;
+use RESTController\core\auth\Exceptions as TokenExceptions;
 // Requires RESTController
 // Requires RESTLib
 
@@ -43,16 +44,21 @@ class OAuth2Middleware {
      * @param \Slim\Route $route
      */
     public static function TokenRouteAuth(\Slim\Route $route) {
-        // Fetch token
-        $app = RESTController::getInstance();
-        $util = new Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
-        $accessToken = $util->getAccessToken();
+        try {
+            // Fetch token
+            $app = \RESTController\RESTController::getInstance();
+            $util = new Auth\Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+            $accessToken = $util->getAccessToken();
 
-        // Authenticate token
-        self::checkAccessToken($app, $accessToken);
+            // Authenticate token
+            self::checkAccessToken($app, $accessToken);
 
-        // Check route permissions
-        self::checkRoutePermissions($app, $route);
+            // Check route permissions
+            self::checkRoutePermissions($app, $route);
+        }
+        catch (TokenExceptions\TokenInvalid $e) {
+            $app->halt(401, $e->getMessage(), $e::ID);
+        }
     }
 
 
@@ -63,18 +69,23 @@ class OAuth2Middleware {
      * @param \Slim\Route $route
      */
     public static function TokenAdminAuth(\Slim\Route $route) {
-        // Fetch token
-        $app = RESTController::getInstance();
-        $util = new Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
-        $accessToken = $util->getAccessToken();
+        try {
+            // Fetch token
+            $app = \RESTController\RESTController::getInstance();
+            $util = new Auth\Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+            $accessToken = $util->getAccessToken();
 
-        // Authentication by token
-        self::checkAccessToken($app, $accessToken);
+            // Authentication by token
+            self::checkAccessToken($app, $accessToken);
 
-        // Check if given user has admin-role
-        $user = $accessToken->getEntry('user');
-        if (!RESTLib::isAdminByUsername($user))
-            $app->halt(401, RESTLib::MSG_NO_ADMIN, RESTLib::ID_NO_ADMIN);
+            // Check if given user has admin-role
+            $user = $accessToken->getEntry('user');
+            if (!RESTLib::isAdminByUsername($user))
+                $app->halt(401, RESTLib::MSG_NO_ADMIN, RESTLib::ID_NO_ADMIN);
+        }
+        catch (TokenExceptions\TokenInvalid $e) {
+            $app->halt(401, $e->getMessage(), $e::ID);
+        }
     }
 
 
@@ -85,13 +96,18 @@ class OAuth2Middleware {
      * @param \Slim\Route $route
      */
     public static function TokenAuth(\Slim\Route $route) {
-        // Fetch token
-        $app = RESTController::getInstance();
-        $util = new Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
-        $accessToken = $util->getAccessToken();
+        try {
+            // Fetch token
+            $app = \RESTController\RESTController::getInstance();
+            $util = new Auth\Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+            $accessToken = $util->getAccessToken();
 
-        // Fetch and check token
-        self::checkAccessToken($app, $accessToken);
+            // Fetch and check token
+            self::checkAccessToken($app, $accessToken);
+        }
+        catch (TokenExceptions\TokenInvalid $e) {
+            $app->halt(401, $e->getMessage(), $e::ID);
+        }
     }
     /* ### Auth-Middleware - End ### */
 

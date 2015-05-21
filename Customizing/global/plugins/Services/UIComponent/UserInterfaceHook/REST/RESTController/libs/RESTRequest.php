@@ -7,7 +7,6 @@
  */
 namespace RESTController\libs;
 
-use
 // Requires !!!
 
 
@@ -17,7 +16,6 @@ class RESTRequest extends \Slim\Http\Request {
     protected $content_type;
     public $json_arr;
     protected $json_decoded;
-    protected $accessToken;
 
     public function __construct ($app) {
         parent::__construct($app->environment());

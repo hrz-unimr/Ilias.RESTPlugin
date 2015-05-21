@@ -107,6 +107,8 @@ class AuthEndpoint extends EndpointBase {
         // Login-data (token) is provided, try to authenticate
         elseif ($authenticityToken) {
             // Check if token is still valid
+            if (!$authenticityToken->isValid())
+                throw new Exceptions\TokenInvalid(Token\Generic::MSG_INVALID);
             if ($authenticityToken->isExpired())
                 throw new Exceptions\TokenInvalid(Token\Generic::MSG_EXPIRED);
 

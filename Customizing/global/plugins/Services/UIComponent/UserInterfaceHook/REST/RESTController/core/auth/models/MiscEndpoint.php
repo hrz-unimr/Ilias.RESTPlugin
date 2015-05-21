@@ -25,8 +25,6 @@ class MiscEndpoint extends EndpointBase {
      */
     public function tokenInfo($accessToken) {
         // Check token
-        if (!$accessToken)
-            throw new Exceptions\TokenInvalid(Token\Base::MSG_NO_TOKEN);
         if (!$accessToken->isValid())
             throw new Exceptions\TokenInvalid(Libs\Generic::MSG_INVALID);
         if ($accessToken->isExpired())

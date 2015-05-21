@@ -416,7 +416,7 @@ class Clients extends Libs\RESTModel {
      * @param $api_key
      * @return bool
      */
-    public function is_resourceowner_Refresh_enabled($api_key) {
+    public function is_resourceowner_refreshtoken_enabled($api_key) {
         // Query if client with this aki-key has oauth2 refresh-tokens enabled (for resource-owner)
         $query = sprintf('SELECT oauth2_resource_refresh_active FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
         $set = $this->sqlDB->query($query);
