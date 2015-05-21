@@ -223,7 +223,7 @@ class RepositoryAdminModel
         // Step: get node data
         $obj_id = Libs\RESTLib::refid_to_objid($ref_id);
         $node_data = array();
-        //$node_data = RESTLib::getObjectData($obj_id, array('create_date','description','title','type'));
+        //$node_data = Libs\RESTLib::getObjectData($obj_id, array('create_date','description','title','type'));
         $obj_id = Libs\RESTLib::refid_to_objid($ref_id);
         $node_data['obj_id'] = $obj_id;
         $a_timestamps = Libs\RESTLib::getTopKReadEventTimestamp($obj_id, $k);

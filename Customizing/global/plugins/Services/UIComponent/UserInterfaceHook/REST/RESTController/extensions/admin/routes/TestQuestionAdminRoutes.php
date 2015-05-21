@@ -16,14 +16,14 @@ use \RESTController\libs as Libs;
  */
 
 $app->group('/admin', function () use ($app) {
-    $app->get('/testpool', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminRole', function () use ($app) {
+    $app->get('/testpool', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
 
     });
 
 
-    $app->get('/testquestion/:question_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminRole', function ($question_id) use ($app) {
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+    $app->get('/testquestion/:question_id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($question_id) use ($app) {
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
 
         $model = new TestQuestionModel();
         $data = $model->getQuestion($question_id);

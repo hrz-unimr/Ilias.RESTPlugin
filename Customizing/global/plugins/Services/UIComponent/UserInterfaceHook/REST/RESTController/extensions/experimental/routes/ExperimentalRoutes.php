@@ -95,7 +95,7 @@ $app->group('/dev', function () use ($app) {
     });
 
     // -------------------------------------------------------------------
-    $app->get('/hello', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthTokenOnly', function () use ($app) {
+    $app->get('/hello', '\RESTController\libs\OAuth2Middleware::TokenAuth', function () use ($app) {
 
         $app = \Slim\Slim::getInstance();
 

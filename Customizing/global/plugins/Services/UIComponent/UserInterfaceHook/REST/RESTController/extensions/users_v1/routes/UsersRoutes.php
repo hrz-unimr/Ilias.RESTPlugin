@@ -13,7 +13,7 @@ use \RESTController\libs as Libs;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // users
-$app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminRole', function () use ($app) {
+$app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
     try {
 
         $limit = 10;
@@ -55,12 +55,12 @@ $app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILI
     }
 });
 
-$app->get('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthTokenOnly', function ($user_id) use ($app) {
+$app->get('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenAuth', function ($user_id) use ($app) {
     try {
         $env = $app->environment();
         $id = $user_id;
         if ($user_id == "mine") {
-            $id = RESTLib::loginToUserId($env['user']);
+            $id = Libs\RESTLib::loginToUserId($env['user']);
         }
         $result = array();
         // $result['usr_id'] = $user_id;
@@ -81,12 +81,12 @@ $app->get('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRou
 // bulk import via XML
 // consumes the schema that is produced by Administration -> Users -> Export
 /* mutual exclusive with function below...
-$app->post('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminRole', function() use ($app) {
-    $request = new RESTRequest($app);
+$app->post('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function() use ($app) {
+    $request = new Libs\RESTRequest($app);
     $importData = $request->getRaw();
     $model = new UsersModel();
 
-    $resp = new RESTResponse($app);
+    $resp = new Libs\RESTResponse($app);
     $import_result = $model->bulkImport($importData, $resp);
     echo($resp->toJSON());
 });

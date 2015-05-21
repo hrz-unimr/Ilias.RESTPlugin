@@ -67,7 +67,7 @@ $app->group('/v1/m', function () use ($app) {
 
         // TODO: extract user_id from valid token
         $user_id = 6;//225;//6;//361; // testuser
-        //$user = RESTLib::userIdtoLogin($user_id);
+        //$user = Libs\RESTLib::userIdtoLogin($user_id);
 
         Libs\RESTLib::initAccessHandling();
 

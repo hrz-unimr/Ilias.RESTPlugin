@@ -224,15 +224,22 @@ $app->group('/v1', function () use ($app) {
          * Response:
          */
         $app->get('/refresh', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
-            // Fetch token
-            $request = $app->request();
-            $bearerToken = $request->fetchAccessToken();
+            try {
+                // Fetch token
+                $util = new Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                $accessToken = $util->getAccessToken();
 
-            // Create new refresh token
-            $model = new RefreshEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
-            $result = $model->getRefreshToken($bearerToken);
+                // Create new refresh token
+                $model = new RefreshEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                $result = $model->getRefreshToken($accessToken);
 
-            // !!! Try-Catch & success
+
+                // !!! Try-Catch
+                // !!! Success
+            }
+            catch (Exceptions\TokenInvalid $e) {
+                $app->halt(422, $e->getMessage(), $e::ID);
+            }
         });
 
 
@@ -249,10 +256,9 @@ $app->group('/v1', function () use ($app) {
          */
         $app->get('/tokeninfo', function () use ($app) {
             try {
-                // Fetch request object
-                // NOTE: Token is also fetched from header as well as body!
-                $request = $app->request();
-                $accessToken = $request->fetchAccesToken();
+                // Fetch token
+                $util = new Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                $accessToken = $util->getAccessToken();
 
                 // Generate token-information
                 $model = new MiscEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);

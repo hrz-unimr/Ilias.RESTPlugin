@@ -20,8 +20,8 @@ class RolesModel
         // TODO: c/p aus users/bulkImport
         // TODO: do it here or in route?
         $app = new \Slim\Slim();
-        RESTLib::setUserContext($app->environment['user']);  // filled by auth middleware
-        RESTLib::initAccessHandling();
+        Libs\RESTLib::setUserContext($app->environment['user']);  // filled by auth middleware
+        Libs\RESTLib::initAccessHandling();
 
 
         if(!$rbacsystem->checkAccess('read',ROLE_FOLDER_ID))

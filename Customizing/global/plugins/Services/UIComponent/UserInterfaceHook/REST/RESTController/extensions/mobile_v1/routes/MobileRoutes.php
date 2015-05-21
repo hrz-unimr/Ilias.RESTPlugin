@@ -67,7 +67,7 @@ $app->group('/m', function () use ($app) {
 
         // TODO: extract user_id from valid token
         $user_id = 6;//225;//6;//361; // testuser
-        //$user = RESTLib::userIdtoLogin($user_id);
+        //$user = Libs\RESTLib::userIdtoLogin($user_id);
 
         Libs\RESTLib::initAccessHandling();
 
@@ -127,8 +127,8 @@ $app->group('/m', function () use ($app) {
     });
 
     /*$app->get('/search/',  function () use ($app) {
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
 
         try {
             $query = $request->getParam('q');

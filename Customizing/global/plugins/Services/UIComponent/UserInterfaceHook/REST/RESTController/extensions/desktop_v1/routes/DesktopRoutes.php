@@ -20,10 +20,10 @@ $app->group('/v1', function () use ($app) {
      */
     $app->get('/desktop/overview/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth' , function ($id) use ($app) {
         $env = $app->environment();
-        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
+        $authorizedUserId =  Libs\RESTLib::loginToUserId($env['user']);
 
-        $response = new RESTResponse($app);
-        if ($authorizedUserId == $id || RESTLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
+        $response = new Libs\RESTResponse($app);
+        if ($authorizedUserId == $id || Libs\RESTLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
             $model = new DesktopModel();
             $data = $model->getPersonalDesktopItems($id);
             $response->addData('items', $data);
@@ -39,8 +39,8 @@ $app->group('/v1', function () use ($app) {
      * Deletes an item specified by ref_id from the personal desktop of the user specified by $id.
      */
     $app->delete('/desktop/overview/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($id) use ($app) {
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
         try {
             $ref_id = $request->getParam("ref_id");
             $model = new DesktopModel();
@@ -57,8 +57,8 @@ $app->group('/v1', function () use ($app) {
      * Adds an item specified by ref_id to the users's desktop. The user must be the owner or at least has read access of the item.
      */
     $app->post('/desktop/overview/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($id) use ($app) {
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
         try {
             $ref_id = $request->getParam("ref_id");
             $model = new DesktopModel();

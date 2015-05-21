@@ -25,10 +25,10 @@ $app->group('/v1', function () use ($app) {
      */
     $app->get('/files/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($id) use ($app) {
         $env = $app->environment();
-        $user_id = RESTLib::loginToUserId($env['user']);
+        $user_id = Libs\RESTLib::loginToUserId($env['user']);
 
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
 
         try {
             $meta_data = $request->getParam('meta_data');
@@ -47,7 +47,7 @@ $app->group('/v1', function () use ($app) {
 
 
         if ($id_type == "ref_id") {
-            $obj_id = RESTLib::refid_to_objid($id);
+            $obj_id = Libs\RESTLib::refid_to_objid($id);
         } else {
             $obj_id = $id;
         }

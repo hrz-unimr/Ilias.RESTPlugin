@@ -7,7 +7,7 @@
  */
 namespace RESTController\libs;
 
-
+use
 // Requires !!!
 
 
@@ -17,6 +17,7 @@ class RESTRequest extends \Slim\Http\Request {
     protected $content_type;
     public $json_arr;
     protected $json_decoded;
+    protected $accessToken;
 
     public function __construct ($app) {
         parent::__construct($app->environment());
@@ -79,64 +80,5 @@ class RESTRequest extends \Slim\Http\Request {
 
     public function getRaw() {
         return $this->app->request()->getBody();
-    }
-
-
-    /**
-     *
-     */
-    public function fetchAccessToken() {
-        /*
-        // Authentication by client certificate
-        // (see: http://cweiske.de/tagebuch/ssl-client-certificates.htm)
-        $client = ($_SERVER['SSL_CLIENT_VERIFY'] && $_SERVER['SSL_CLIENT_S_DN_CN'] && $_SERVER['SSL_CLIENT_I_DN_O']) ? $_SERVER['SSL_CLIENT_S_DN_CN'] : NULL;
-        $secret = NULL;
-        if ($client) {
-            // ToDo: no secret is needed, its just the organisation name
-            $secret = $_SERVER['SSL_CLIENT_I_DN_O'];
-            $ret = Auth\Util::checkClientCredentials($client, $secret);
-
-            // Stops everything and returns 401 response
-            if (!$ret)
-                $app->halt(401, self::MSG_INVALID_SSL, self::ID_INVALID_SSL);
-
-            // Setup slim environment
-            $env = $app->environment();
-            $env['client_id'] = $client;
-        }
-        */
-
-
-        // Fetch stored token
-        $env = $this->app->environment();
-        if ($env['accessToken'])
-            return $env['accessToken'];
-
-        // Fetch token from body GET/POST (json or plain)
-        $request = $this->app->request();
-        $tokenString = $request->getParam('token');
-
-        // Fetch access_token from GET/POST (json or plain)
-        if (is_null($tokenString))
-            $tokenString = $request->getParam('access_token');
-
-        // Fetch token from request header
-        if (is_null($tokenString)) {
-            $headers = getallheaders();
-            $authHeader = $headers['Authorization'];
-
-            // Found Authorization header?
-            if ($authHeader != null) {
-                $a_auth = explode(' ', $authHeader);
-                $tokenString = $a_auth[1];        // With "Bearer"-Prefix
-                if ($tokenString == null)
-                    $tokenString = $a_auth[0];    // Without "Bearer"-Prefix
-            }
-        }
-
-        // Decode token
-        if (isset($tokenString))
-            $accessToken = TokenLib::deserializeToken($tokenString);
-        return $token;
     }
 }

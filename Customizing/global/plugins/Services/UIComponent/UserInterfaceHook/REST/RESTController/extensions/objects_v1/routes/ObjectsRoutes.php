@@ -11,10 +11,10 @@ namespace RESTController\extensions\objects_v1;
 use \RESTController\libs as Libs;
 
 
-$app->get('/v1/object/:ref', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminRole', function ($ref) use ($app) {
+$app->get('/v1/object/:ref', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($ref) use ($app) {
 
-    $request = new RESTRequest($app);
-    $response = new RESTResponse($app);
+    $request = new Libs\RESTRequest($app);
+    $response = new Libs\RESTResponse($app);
     $model = new ObjectsModel();
 
     $model->getObject($ref, $resquest, $response);

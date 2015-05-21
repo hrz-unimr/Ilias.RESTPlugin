@@ -55,7 +55,7 @@ use \RESTController\core\clients\Exceptions as ClientExceptions;
  *    status: "<Success or Failure>"
  *  }
  */
- $app->get('/clients', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthTokenOnly', function () use ($app) {
+ $app->get('/clients', '\RESTController\libs\OAuth2Middleware::TokenAuth', function () use ($app) {
     // Fetch authorized user
     $env = $app->environment();
     $user = $env['user'];
@@ -117,7 +117,7 @@ use \RESTController\core\clients\Exceptions as ClientExceptions;
  *    status: "<Success or Failure>"
  *  }
  */
-$app->put('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthTokenOnly', function ($id) use ($app) {
+$app->put('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenAuth', function ($id) use ($app) {
     // Fetch authorized user
     $env = $app->environment();
     $user = $env['user'];
@@ -217,7 +217,7 @@ $app->put('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth
  *    status: "<Success or Failure>"
  *  }
  */
-$app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthTokenOnly', function () use ($app) {
+$app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenAuth', function () use ($app) {
     // Fetch authorized user
     $env = $app->environment();
     $user = $env['user'];
@@ -292,7 +292,7 @@ $app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthTo
  *    status: "<Success or Failure>"
  *  }
  */
-$app->delete('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthTokenOnly',  function ($id) use ($app) {
+$app->delete('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenAuth',  function ($id) use ($app) {
     // Fetch authorized user
     $env = $app->environment();
     $user = $env['user'];

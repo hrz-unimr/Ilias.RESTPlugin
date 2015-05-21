@@ -20,8 +20,8 @@ $app->group('v1/m', function () use ($app) {
 
 
     $app->get('/search/',  function () use ($app) {
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
 
         try {
             $query = utf8_encode($request->getParam('q'));
@@ -38,8 +38,8 @@ $app->group('v1/m', function () use ($app) {
     });
 
     $app->post('/search/',  function () use ($app) {
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
 
         try {
             $query = utf8_encode($request->getParam('q'));

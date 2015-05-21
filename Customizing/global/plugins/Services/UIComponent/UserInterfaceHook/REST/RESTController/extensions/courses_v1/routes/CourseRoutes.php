@@ -24,9 +24,9 @@ $app->group('/v1', function () use ($app) {
      * Retrieves the content and a description of a course specified by ref_id.
      */
     $app->get('/courses/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
-        $response = new RESTResponse($app);
+        $response = new Libs\RESTResponse($app);
         $env = $app->environment();
-        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
+        $authorizedUserId =  Libs\RESTLib::loginToUserId($env['user']);
         try {
             $crs_model = new CoursesModel();
             $data1 =  $crs_model->getCourseContent($ref_id);
@@ -43,8 +43,8 @@ $app->group('/v1', function () use ($app) {
 
     $app->post('/courses', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $env = $app->environment();
-        $response = new RESTResponse($app);
-        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
+        $response = new Libs\RESTResponse($app);
+        $authorizedUserId =  Libs\RESTLib::loginToUserId($env['user']);
 
         $parent_container_ref_id = 1;
         $new_course_title = "";
@@ -70,13 +70,13 @@ $app->group('/v1', function () use ($app) {
         //$user_id = 6; // root for testing purposes
         $user_id = $authorizedUserId;
 
-        RESTLib::loadIlUser();
+        Libs\RESTLib::loadIlUser();
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        RESTLib::initAccessHandling();
+        Libs\RESTLib::initAccessHandling();
         global $ilAccess;
-        
+
         if(!$ilAccess->checkAccess("create_crs", "", $parent_container_ref_id)) {
             $response->setMessage("Insufficient access rights");
             $response->setHttpStatus(401);
@@ -114,14 +114,14 @@ $app->group('/v1', function () use ($app) {
      * If "mode" is "by_id", the parameter "usr_id" is used for the lookup.
      * The user is then enrolled in the course with "crs_ref_id".
      */
-    $app->post('/courses/enroll', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminROle', function() use ($app) {
+    $app->post('/courses/enroll', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function() use ($app) {
         $env = $app->environment();
-        $response = new RESTResponse($app);
-        $request = new RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
         $mode = $request->getParam("mode");
         if($mode == "by_login") {
             $login = $request->getParam("login");
-            $user_id = RESTLib::loginToUserId($login);
+            $user_id = Libs\RESTLib::loginToUserId($login);
             if(empty($user_id)){
                 $data = $request->getParam("data");
                 $userData = array_merge(array(
@@ -160,9 +160,9 @@ $app->group('/v1', function () use ($app) {
 
     $app->get('/courses/join', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $env = $app->environment();
-        $response = new RESTResponse($app);
-        $request = new RESTRequest($app);
-        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
+        $response = new Libs\RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
+        $authorizedUserId =  Libs\RESTLib::loginToUserId($env['user']);
         try {
             $ref_id = $request->getParam("ref_id");
             $crsreg_model = new CoursesRegistrationModel();
@@ -183,9 +183,9 @@ $app->group('/v1', function () use ($app) {
 
     $app->get('/courses/leave', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $env = $app->environment();
-        $response = new RESTResponse($app);
-        $request = new RESTRequest($app);
-        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
+        $response = new Libs\RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
+        $authorizedUserId =  Libs\RESTLib::loginToUserId($env['user']);
         try {
             $ref_id = $request->getParam("ref_id");
             $crsreg_model = new CoursesRegistrationModel();

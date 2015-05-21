@@ -22,10 +22,10 @@ $app->group('/admin', function () use ($app) {
     /*
      * File Download
      */
-    $app->get('/files/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminRole', function ($id) use ($app) {
+    $app->get('/files/:id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($id) use ($app) {
 
         $env = $app->environment();
-        //$user_id = RESTLib::loginToUserId($env['user']);
+        //$user_id = Libs\RESTLib::loginToUserId($env['user']);
 
         $request = new Libs\RESTRequest($app);
         $response = new Libs\RESTResponse($app);
@@ -70,7 +70,7 @@ $app->group('/admin', function () use ($app) {
     /*
      * File Upload
      */
-    $app->post('/files', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminRole', function () use ($app) { // create
+    $app->post('/files', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) { // create
         $repository_ref_id = $app->request()->params("ref_id");
         $title = $app->request()->params("title");
         $description = $app->request()->params("description");

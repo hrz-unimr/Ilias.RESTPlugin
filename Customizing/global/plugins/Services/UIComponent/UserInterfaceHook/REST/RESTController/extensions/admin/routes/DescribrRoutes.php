@@ -24,9 +24,9 @@ $app->group('/admin', function () use ($app) {
      *
      * Supported types: obj_id, ref_id, usr_id and file_id
      */
-    $app->get('/describe/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminRole', function ($id) use ($app) {
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+    $app->get('/describe/:id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($id) use ($app) {
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
 
         try {
             $id_type = $request->getParam('id_type');
@@ -37,7 +37,7 @@ $app->group('/admin', function () use ($app) {
         $model = new DescribrModel();
         if ($id_type == 'ref_id' || $id_type == 'obj_id') {
             if ($id_type == 'ref_id') {
-                $obj_id = RESTLib::refid_to_objid($id);
+                $obj_id = Libs\RESTLib::refid_to_objid($id);
                 $id_type = 'obj_id';
             }
             //echo "obj_id:".$obj_id;
@@ -62,7 +62,7 @@ $app->group('/admin', function () use ($app) {
         }
 
         if ($id_type == 'usr_id') {
-            $username = RESTLib::userIdtoLogin($id);
+            $username = Libs\RESTLib::userIdtoLogin($id);
             //echo $username;
             try {
                 if ($username == 'User unknown') {

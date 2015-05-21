@@ -126,7 +126,7 @@ class Thrift extends AbstractTransport
                 $framedTransport
             );
 
-            $restRequest = new RestRequest();
+            $restRequest = new Libs\RestRequest();
             $restRequest->method = array_search($request->getMethod(), Method::$__names);
             $restRequest->uri = $request->getPath();
 

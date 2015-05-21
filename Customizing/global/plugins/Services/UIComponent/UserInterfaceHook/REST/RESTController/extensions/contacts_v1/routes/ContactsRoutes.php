@@ -21,9 +21,9 @@ $app->group('/v1', function () use ($app) {
      */
     $app->get('/contacts/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($id) use ($app) {
         $env = $app->environment();
-        $response = new RESTResponse($app);
-        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
-        if ($authorizedUserId == $id || RESTLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
+        $response = new Libs\RESTResponse($app);
+        $authorizedUserId = Libs\RESTLib::loginToUserId($env['user']);
+        if ($authorizedUserId == $id || Libs\RESTLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
             try {
                 $model = new ContactsModel();
                 $data = $model->getMyContacts($id);

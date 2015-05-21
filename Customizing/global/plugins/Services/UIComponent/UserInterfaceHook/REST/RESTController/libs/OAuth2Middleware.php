@@ -48,7 +48,7 @@ class OAuth2Middleware {
         $request = $app->request();
 
         // Authenticate token
-        $accessToken = $request->fetchAccessToken();
+        $accessToken = $request->getAccessToken();
         self::checkAccessToken($app, $accessToken);
 
         // Check route permissions
@@ -68,7 +68,7 @@ class OAuth2Middleware {
         $request = $app->request();
 
         // Authentication by token
-        $accessToken = $request->fetchAccessToken();
+        $accessToken = $request->getAccessToken();
         self::checkAccessToken($app, $accessToken);
 
         // Check if given user has admin-role
@@ -90,7 +90,7 @@ class OAuth2Middleware {
         $request = $app->request();
 
         // Fetch and check token
-        $accessToken = $request->fetchAccessToken();
+        $accessToken = $request->getAccessToken();
         self::checkAccessToken($app, $accessToken);
     }
     /* ### Auth-Middleware - End ### */
@@ -113,10 +113,6 @@ class OAuth2Middleware {
         // Check token for common problems: Invalid format
         if ($accessToken->isExpired($accessToken))
             $app->halt(401, Token\Generic::MSG_EXPIRED, Token\Generic::ID_EXPIRED);
-
-        // Set ['accessToken'] on environment
-        $env = $app->environment();
-        $env['accessToken'] = $accessToken;
     }
 
 
