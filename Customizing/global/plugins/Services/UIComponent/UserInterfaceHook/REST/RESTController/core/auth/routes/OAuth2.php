@@ -183,7 +183,8 @@ $app->group('/v1', function () use ($app) {
                     $redirect_uri = $request->getParam('redirect_uri');
 
                     // Invoke OAuth2-Model with data
-                    $result = $model->authorizationCode($api_key, $api_secret, $code, $redirect_uri);
+                    $authCodeToken = Token\Generic::fromMixed($model->tokenSettings(), $code);
+                    $result = $model->authorizationCode($api_key, $api_secret, $authCodeToken, $redirect_uri);
                     $app->success($result);
                 }
                 // grant type

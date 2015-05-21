@@ -123,12 +123,12 @@ class TokenEndpoint extends EndpointBase {
 
         // Check token
         if (!$authCodeToken->isValid())
-            throw new Exceptions\TokenInvalid(Libs\Generic::MSG_INVALID);
+            throw new Exceptions\TokenInvalid(Token\Generic::MSG_INVALID);
         if ($authCodeToken->isExpired())
-            throw new Exceptions\TokenInvalid(Libs\Generic::MSG_EXPIRED);
+            throw new Exceptions\TokenInvalid(Token\Generic::MSG_EXPIRED);
 
         // Compare token content to other request data
-        if ($authCodeToken->getEntry('redirect_uri') != $redirect_uri || $authCodeToken->getEntry('api_key') != $api_key)
+        if ($authCodeToken->getEntry('misc') != $redirect_uri || $authCodeToken->getEntry('api_key') != $api_key) 
             throw new Exceptions\LoginFailed(self::MSG_TOKEN_MISMATCH);
 
         // Check wether user is allowed to use this api-key
@@ -162,9 +162,9 @@ class TokenEndpoint extends EndpointBase {
     public function refresh2Bearer($refreshToken) {
         // Check token
         if (!$refreshToken->isValid())
-            throw new Exceptions\TokenInvalid(Libs\Generic::MSG_INVALID);
+            throw new Exceptions\TokenInvalid(Token\Generic::MSG_INVALID);
         if ($refreshToken->isExpired())
-            throw new Exceptions\TokenInvalid(Libs\Generic::MSG_EXPIRED);
+            throw new Exceptions\TokenInvalid(Token\Generic::MSG_EXPIRED);
 
         $user = $tokenArray['user'];
         $user_id = Libs\RESTLib::loginToUserId($user);

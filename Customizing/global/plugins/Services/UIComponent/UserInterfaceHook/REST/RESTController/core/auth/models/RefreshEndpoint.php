@@ -23,6 +23,7 @@ class RefreshEndpoint extends EndpointBase {
      * @return string
      */
     public function getToken($bearer_token) {
+        /*
         $user_id = Libs\RESTLib::loginToUserId($bearer_token['user']);
         $api_key = $bearer_token['api_key'];
         $entry = $this->checkRefreshTokenEntry($user_id, $api_key);
@@ -35,6 +36,8 @@ class RefreshEndpoint extends EndpointBase {
             $this->resetRefreshTokenEntry($user_id, $api_key, $newRefreshToken);
             return $newRefreshToken;
         }
+        */
+        return Token\Refresh::fromFields($this->tokenSettings(), '[STUB]', '[STUB]');
     }
 
 
