@@ -108,8 +108,8 @@ $app->group('/v1', function () use ($app) {
                 $response_type = $request->getParam('response_type', null, true);
 
                 // Render oauth2login.php for authorization code and implicit grant type flow
-                if ($response_type != 'code' && $response_type != 'bearerToken')
-                    throw new Exceptions\ResponseType('Parameter <response_type> need to match "code" or "token".');
+                if ($response_type != 'code' && $response_type != 'token')
+                    throw new Exceptions\ResponseType(Exceptions\ResponseType::MSG);
 
                 // Display login form
                 $render = new Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
@@ -198,9 +198,9 @@ $app->group('/v1', function () use ($app) {
                 }
                 // Wrong grant-type
                 else
-                    throw new Exceptions\ResponseType('Parameter <grant_type> need to match "password", "client_credentials", "authorization_code" or "refresh_token".');
+                    throw new Exceptions\GrantType(Exceptions\GrantType::MSG);
             }
-            catch (AuthExceptions\ResponseType $e) {
+            catch (AuthExceptions\GrantType $e) {
                 $app->halt(400, $e->getMessage(), $e::ID);
             }
             catch (AuthExceptions\LoginFailed $e) {

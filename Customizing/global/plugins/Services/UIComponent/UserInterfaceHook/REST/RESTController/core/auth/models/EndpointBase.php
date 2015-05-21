@@ -21,7 +21,7 @@ class EndpointBase extends Libs\RESTModel {
 
 
     public static function fromBase($baseObject) {
-        $obj = new self($baseObject->app, $baseObject->sqlDB, $baseObject->plugin);
+        $obj = new static($baseObject->app, $baseObject->sqlDB, $baseObject->plugin);
         $obj->tokenSeetings = $baseObject->tokenSettings;
         return $obj;
     }

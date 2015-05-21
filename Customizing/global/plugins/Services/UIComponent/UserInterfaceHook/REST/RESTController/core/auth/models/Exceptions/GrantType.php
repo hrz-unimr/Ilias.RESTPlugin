@@ -13,16 +13,16 @@ namespace RESTController\core\auth\Exceptions;
  * the client does not provide the correct response_type
  * value with his query.
  */
-class ResponseType extends \Exception {
+class GrantType extends \Exception {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.
      *  Using a unique string seems to be an easier solution than assigning unique numbers.
      */
-    const ID = 'RESTController\\core\\auth\\Exceptions\\ResponseType::ID';
+    const ID = 'RESTController\\core\\auth\\Exceptions\\GrantType::ID';
 
     // Allow to reuse status message
-    const MSG = 'Parameter "response_type" needs to match "code" or "token".';
+    const MSG = 'Parameter "grant_type" needs to match "password", "client_credentials", "authorization_code" or "refresh_token".';
 
 
     /**

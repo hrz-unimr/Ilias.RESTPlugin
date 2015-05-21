@@ -58,7 +58,7 @@ $app->group('/dev', function () use ($app) {
 
         $response->setMessage('Refresh 2 Bearer.');
        // $response->addData('refresh_token',$refresh_token);
-        $response->addData('bearerToken',$bearer_token['access_token']);
+        $response->addData('token',$bearer_token['access_token']);
         $response->send();
 
     });

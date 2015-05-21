@@ -29,13 +29,13 @@ class AuthEndpoint extends EndpointBase {
         $clients = new Clients(null, $this->sqlDB);
 
         // Check input
-        if ($response_type != 'code' && $response_type != 'bearerToken')
+        if ($response_type != 'code' && $response_type != 'token')
             throw new Exceptions\ResponseType(self::MSG_RESPONSE_TYPE);
 
         // Client (api-key) is not allowed to use this grant-type or doesn't exist
         if ($response_type == 'code' && !$clients->is_oauth2_gt_authcode_enabled($api_key))
             throw new Exceptions\LoginFailed(Util::MSG_AC_DISABLED);
-        if ($response_type == 'bearerToken' && !$clients->is_oauth2_gt_implicit_enabled($api_key))
+        if ($response_type == 'token' && !$clients->is_oauth2_gt_implicit_enabled($api_key))
             throw new Exceptions\LoginFailed(Util::MSG_I_DISABLED);
 
         // Login-data (username/password) is provided, try to authenticate
@@ -88,13 +88,13 @@ class AuthEndpoint extends EndpointBase {
             else {
                 // Generate a temporary token that can be exchanged for bearer-token
                 if ($response_type == 'code') {
-                    $authorizationToken = Token\Generic::fromFields($username, $api_key, 'code', $redirect_uri, 10);
+                    $authorizationToken = Token\Generic::fromFields($this->tokenSettings(), $username, $api_key, 'code', $redirect_uri, 10);
                     $url = $redirect_uri . '?code='.$authorizationToken->getTokenString();
                 }
-                elseif ($response_type == 'bearerToken') {
+                elseif ($response_type == 'token') {
                     $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $username, $api_key);
                     $accessToken = $bearerToken->getEntry('access_token');
-                    $url = $redirect_uri . '?access_token='.$accessToken->getTokenString().'&token_type=bearer'.'&expires_in='.$oauth2Token->getEntry('expires_in').'&state=xyz';
+                    $url = $redirect_uri . '#access_token='.$accessToken->getTokenString().'&token_type=bearer'.'&expires_in='.$bearerToken->getEntry('expires_in').'&state=xyz';
                 }
 
                 // Return data to route/other model
@@ -118,10 +118,10 @@ class AuthEndpoint extends EndpointBase {
                 $authorizationToken = Token\Generic::fromFields($this->tokenSettings(), $tokenUser, $api_key, 'code', $redirect_uri, 10);
                 $url = $redirect_uri . '?code='.$authorizationToken->getTokenString();
             }
-            elseif ($response_type == 'bearerToken') {
+            elseif ($response_type == 'token') {
                 $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $tokenUser, $api_key);
                 $accessToken = $bearerToken->getEntry('access_token');
-                $url = $redirect_uri . '?access_token='.$accessToken->getTokenString().'&token_type=bearer'.'&expires_in='.$oauth2Token->getEntry('expires_in').'&state=xyz';
+                $url = $redirect_uri . '#access_token='.$accessToken->getTokenString().'&token_type=bearer'.'&expires_in='.$bearerToken->getEntry('expires_in').'&state=xyz';
             }
 
             // Return data to route/other model
