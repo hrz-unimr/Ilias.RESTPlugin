@@ -164,9 +164,9 @@ class RESTLib {
     static public function refid_to_objid($ref_id) {
         global $ilDB;
 
-        $query = sprintf('SELECT obj_id FROM object_reference WHERE object_reference.ref_id = %d', $ref_id);
-        $res = $ilDB->query($query);
-        $row = $ilDB->fetchAssoc($res);
+        $sql = sprintf('SELECT obj_id FROM object_reference WHERE object_reference.ref_id = %d', $ref_id);
+        $query = $ilDB->query($sql);
+        $row = $ilDB->fetchAssoc($query);
 
         return $row['obj_id'];
     }
@@ -182,9 +182,9 @@ class RESTLib {
     static public function objid_to_refid($obj_id) {
         global $ilDB;
 
-        $query = sprintf('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', $obj_id);
-        $res = $ilDB->query($query);
-        $row = $ilDB->fetchAssoc($res);
+        $sql = sprintf('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', $obj_id);
+        $query = $ilDB->query($sql);
+        $row = $ilDB->fetchAssoc($query);
 
         return $row['ref_id'];
     }
@@ -200,15 +200,46 @@ class RESTLib {
     static public function objid_to_refids($obj_id) {
         global $ilDB;
 
-        $query = sprintf('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', $obj_id);
-        $set = $ilDB->query($query);
+        $sql = sprintf('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', $obj_id);
+        $query = $ilDB->query($sql);
 
         $res = array();
-        while($row = $ilDB->fetchAssoc($set))
+        while($row = $ilDB->fetchAssoc($query))
             $res[] = $row['ref_id'];
 
         return $res;
     }
+
+
+    /**
+     *
+     */
+    static public function apiKeyToId($api_key) {
+        $sql = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
+        $query = $this->sqlDB->query($sql);
+
+        if ($query != null && $row = $this->sqlDB->fetchAssoc($query))
+            return $row['id'];
+        else
+            throw new LibExceptions\MissingApiKey(sprintf(MSG_API_KEY, $api_key));
+    }
+
+
+    /**
+     *
+     */
+    static public function apiIdToKey($api_id) {
+        $sql = sprintf('SELECT api_key FROM ui_uihk_rest_keys WHERE id = %d', $api_id);
+        $query = $this->sqlDB->query($sql);
+
+        if ($query != null && $row = $this->sqlDB->fetchAssoc($query))
+            return $row['api_key'];
+        else
+            throw new LibExceptions\MissingApiKey(sprintf(MSG_API_ID, $api_id));
+    }
+
+
+
 
 
     /**
@@ -220,12 +251,12 @@ class RESTLib {
     static public function userIdtoLogin($user_id) {
         global $ilDB;
 
-        $query = sprintf('SELECT login FROM usr_data WHERE usr_id=\'%s\'', $user_id);
-        $set = $ilDB->query($query);
-        $ret = $ilDB->fetchAssoc($set);
+        $sql = sprintf('SELECT login FROM usr_data WHERE usr_id=\'%s\'', $user_id);
+        $query = $ilDB->query($sql);
+        $row = $ilDB->fetchAssoc($query);
 
-        if ($ret)
-            return $ret['login'];
+        if ($row)
+            return $row['login'];
     }
 
 
@@ -238,12 +269,12 @@ class RESTLib {
     static public function loginToUserId($login) {
         global $ilDB;
 
-        $query = sprintf('SELECT usr_id FROM usr_data WHERE login=\'%s\'', $login);
-        $set = $ilDB->query($query);
-        $ret = $ilDB->fetchAssoc($set);
+        $sql = sprintf('SELECT usr_id FROM usr_data WHERE login=\'%s\'', $login);
+        $query = $ilDB->query($sql);
+        $row = $ilDB->fetchAssoc($query);
 
-        if ($ret)
-            return $ret['usr_id'];
+        if ($row)
+            return $row['usr_id'];
     }
 
 
@@ -258,9 +289,9 @@ class RESTLib {
         global $ilDB;
 
         $fields = implode(',', $aFields);
-        $query = sprintf('SELECT %s FROM object_data WHERE object_data.obj_id = %d', $fields, $obj_id);
-        $set = $ilDB->query($query);
-        $row = $ilDB->fetchAssoc($set);
+        $sql = sprintf('SELECT %s FROM object_data WHERE object_data.obj_id = %d', $fields, $obj_id);
+        $query = $ilDB->query($sql);
+        $row = $ilDB->fetchAssoc($query);
 
         return $row;
     }
@@ -275,9 +306,9 @@ class RESTLib {
     public static function getLatestReadEventTimestamp($obj_id) {
         global $ilDB;
 
-        $query = sprintf('SELECT last_access FROM read_event WHERE obj_id = %d ORDER BY last_access DESC LIMIT 1', $obj_id);
-        $res = $ilDB->query($query);
-        $row = $ilDB->fetchAssoc($res);
+        $sql = sprintf('SELECT last_access FROM read_event WHERE obj_id = %d ORDER BY last_access DESC LIMIT 1', $obj_id);
+        $query = $ilDB->query($sql);
+        $row = $ilDB->fetchAssoc($query);
 
         return $row['last_access'];
     }
@@ -299,11 +330,11 @@ class RESTLib {
     public static function getTopKReadEventTimestamp($obj_id, $k) {
         global $ilDB;
 
-        $query = sprintf('SELECT last_access FROM read_event WHERE obj_id = %d ORDER BY last_access DESC LIMIT %d', $obj_id, $k);
-        $res = $ilDB->query($query);
+        $sql = sprintf('SELECT last_access FROM read_event WHERE obj_id = %d ORDER BY last_access DESC LIMIT %d', $obj_id, $k);
+        $query = $ilDB->query($sql);
         $list = array();
         $cnt = 0;
-        while ($row = $ilDB->fetchAssoc($res)){
+        while ($row = $ilDB->fetchAssoc($query)){
             $list[] = $row['last_access'];
             $cnt = $cnt + 1;
             if ($cnt == $k) break;

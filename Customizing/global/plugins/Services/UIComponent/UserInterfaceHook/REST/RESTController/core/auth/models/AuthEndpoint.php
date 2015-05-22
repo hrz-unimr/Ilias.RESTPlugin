@@ -113,7 +113,7 @@ class AuthEndpoint extends EndpointBase {
                 throw new Exceptions\TokenInvalid(Token\Generic::MSG_EXPIRED);
 
             // Generate a temporary token that can be exchanged for bearer-token
-            $tokenUser = $authenticityToken->getEntry('user');
+            $tokenUser = $authenticityToken->getUserName();
             if ($response_type == 'code') {
                 $authorizationToken = Token\Generic::fromFields($this->tokenSettings(), $tokenUser, $api_key, 'code', $redirect_uri, 10);
                 $url = $redirect_uri . '?code='.$authorizationToken->getTokenString();

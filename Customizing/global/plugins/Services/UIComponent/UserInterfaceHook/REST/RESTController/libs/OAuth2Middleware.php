@@ -79,7 +79,7 @@ class OAuth2Middleware {
             self::checkAccessToken($app, $accessToken);
 
             // Check if given user has admin-role
-            $user = $accessToken->getEntry('user');
+            $user = $accessToken->getUserName();
             if (!RESTLib::isAdminByUsername($user))
                 $app->halt(401, RESTLib::MSG_NO_ADMIN, RESTLib::ID_NO_ADMIN);
         }

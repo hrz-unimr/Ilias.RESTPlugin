@@ -17,12 +17,21 @@ use \RESTController\core\clients\Clients as Clients;
  * Constructor requires $app & $sqlDB.
  */
 class TokenEndpoint extends EndpointBase {
+    /**
+     * List of default REST error-codes
+     *  Extensions are allowed to create their own error-codes.
+     *  Using a unique string seems to be an easier solution than assigning unique numbers.
+     */
+    const ID_NO_REFRESH_LEFT = 'RESTController\\core\\auth\\TokenEndpoint::ID_NO_REFRESH_LEFT';
+
+
     // Allow to re-use status-strings
     const MSG_NO_CLIENT_KEY = 'There is no client with this api-key.';
     const MSG_NO_CLIENT_SECRET = 'There is no client with this api-key & api-secret pair.';
     const MSG_RESTRICTED_USERS = 'Given user is not allowed to use this api-key.';
     const MSG_AUTH_FAILED = 'Failed to authenticate via ILIAS username/password.';
     const MSG_TOKEN_MISMATCH = 'Token information does not match other request data.';
+    const MSG_NO_REFRESH_LEFT = 'No renewals remaing for refresh-token.';
 
     /**
      *
@@ -128,7 +137,7 @@ class TokenEndpoint extends EndpointBase {
             throw new Exceptions\TokenInvalid(Token\Generic::MSG_EXPIRED);
 
         // Compare token content to other request data
-        if ($authCodeToken->getEntry('misc') != $redirect_uri || $authCodeToken->getEntry('api_key') != $api_key) 
+        if ($authCodeToken->getEntry('misc') != $redirect_uri || $authCodeToken->getApiKey() != $api_key)
             throw new Exceptions\LoginFailed(self::MSG_TOKEN_MISMATCH);
 
         // Check wether user is allowed to use this api-key
@@ -159,34 +168,39 @@ class TokenEndpoint extends EndpointBase {
     /**
      *
      */
-    public function refresh2Bearer($refreshToken) {
+    public function refresh2Access($refreshToken) {
         // Check token
         if (!$refreshToken->isValid())
             throw new Exceptions\TokenInvalid(Token\Generic::MSG_INVALID);
         if ($refreshToken->isExpired())
             throw new Exceptions\TokenInvalid(Token\Generic::MSG_EXPIRED);
 
-        $user = $tokenArray['user'];
-        $user_id = Libs\RESTLib::loginToUserId($user);
-        $api_key = $tokenArray['api_key'];
-
+        //
         $modelRefresh = new RefreshEndpoint($this->app, $this->sqlDB, $this->plugin);
-        $entry = $this->checkRefreshTokenEntry($user_id, $api_key); // !!!
-        if ($entry == null) {
-            return false;
-        } else {
-            if ($entry['num_refresh_left'] > 0 ) {
-                if ($entry['refresh_token'] == $tokenArray) {
-                    $this->issueExistingRefreshToken($user_id, $api_key); // !!!
-                    $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $t_user, $api_key);
-                    return $bearer_token;
-                } else {
-                    return false;
-                }
-            } else {
-                $this->deleteRefreshTokenEntry($user_id, $api_key);// !!!
-                return false;
-            }
+        $remainingRefreshs = $refreshToken->getRemainingRefreshs();
+
+        //
+        if ($remainingRefreshs > 0) {
+            //
+            $user = $refreshToken->getUserName();
+            $api_key = $refreshToken->GetApiKey();
+            $modelRefresh->renewToken($user, $api_key, $refreshToken);
+
+            //
+            $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $user, $api_key);
+            $accessToken = $bearerToken->getEntry('access_token');
+
+            //
+            return array(
+                'access_token' => $accessToken->getTokenString(),
+                'expires_in' => $bearerToken->getEntry('expires_in'),
+                'token_type' => $bearerToken->getEntry('token_type'),
+                'scope' => $bearerToken->getEntry('scope'),
+                'refresh_token' => $refreshToken->getTokenString()
+            );
         }
+        //
+        elseif ($remainingRefreshs)
+            $modelRefresh->deleteToken($refreshToken);
     }
 }

@@ -128,9 +128,9 @@ class CoursesModel
         $lm_data['lm_obj'] = $lm_obj_id;
 
         global $ilDB;
-        $query = sprintf('SELECT * FROM page_object WHERE parent_id = %d', $lm_obj_id);
-        $res = $ilDB->query($query);
-        $row = $ilDB->fetchAssoc($res);
+        $sql = sprintf('SELECT * FROM page_object WHERE parent_id = %d', $lm_obj_id);
+        $query = $ilDB->query($sql);
+        $row = $ilDB->fetchAssoc($query);
         /*while($row = $ilDB->fetchAssoc($res))//fetchObject($res))
          {
              $logins[] = $row->login;

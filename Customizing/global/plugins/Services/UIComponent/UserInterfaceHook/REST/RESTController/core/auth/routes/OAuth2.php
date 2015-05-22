@@ -194,8 +194,13 @@ $app->group('/v1', function () use ($app) {
 
                     // Invoke OAuth2-Model with data
                     $refreshToken = Token\Refresh::fromMixed($model->tokenSettings(), $refresh_token);
-                    $result = $model->refresh2Bearer($refreshToken);
-                    $app->success($result);
+                    $result = $model->refresh2Access($refreshToken);
+
+                    // Send result to client
+                    if ($result)
+                        $app->success($result);
+                    else
+                        $app->halt(422, TokenEndpoint::MSG_NO_REFRESH_LEFT, TokenEndpoint::ID_NO_REFRESH_LEFT);
                 }
                 // Wrong grant-type
                 else
@@ -235,7 +240,7 @@ $app->group('/v1', function () use ($app) {
 
                 // Create new refresh token
                 $model = RefreshEndpoint::fromBase($util);
-                $result = $model->getRefreshToken($accessToken);
+                $result = $model->getToken($accessToken);
 
 
                 // !!! Try-Catch

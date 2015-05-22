@@ -32,8 +32,8 @@ class MiscEndpoint extends EndpointBase {
 
         // Generate info for (valid) token
         return array(
-            'api_key' => $accessToken->getEntry('api_key'),
-            'user' =>  $accessToken->getEntry('user'),
+            'api_key' => $accessToken->getApiKey(),
+            'user' =>  $accessToken->getUserName(),
             'type' =>  $accessToken->getEntry('type'),
             'expires_in' => $accessToken->getRemainingTime(),
             'scope' =>  $accessToken->getEntry('scope')

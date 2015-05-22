@@ -94,6 +94,21 @@ class Generic extends Base {
 
 
     /**
+     *
+     */
+    public function getUserName() {
+        return $tokenArray['user'];
+    }
+    public function getUserId() {
+        $user = $tokenArray['user'];
+        return Libs\RESTLib::loginToUserId($user);
+    }
+    public function getApiKey() {
+        return $tokenArray['api_key'];
+    }
+
+
+    /**
      * Checks if the generic token is valid by comparing its hash with its stored hash.
      *
      * @param $token - Token to check

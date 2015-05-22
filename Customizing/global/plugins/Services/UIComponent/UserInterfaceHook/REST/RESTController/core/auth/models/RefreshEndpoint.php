@@ -9,6 +9,7 @@ namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
+use \RESTController\libs\Exceptions as LibExceptions;
 
 
 /**
@@ -16,133 +17,30 @@ use \RESTController\libs as Libs;
  * Constructor requires $app & $sqlDB.
  */
 class RefreshEndpoint extends EndpointBase {
-    /**
-     * Refresh Token Endpoint routine:
-     * Returns a refresh token for a valid bearer token.
-     * @param $bearer_token_array
-     * @return string
-     */
-    public function getToken($bearer_token) {
-        /*
-        $user_id = Libs\RESTLib::loginToUserId($bearer_token['user']);
-        $api_key = $bearer_token['api_key'];
-        $entry = $this->checkRefreshTokenEntry($user_id, $api_key);
-
-        $newRefreshToken = Libs\TokenLib::serializeToken(Libs\TokenLib::generateOAuth2RefreshToken($bearer_token['user'], $bearer_token['api_key']));
-        if ($entry == null) { // Create new entry
-            $this->createNewRefreshTokenEntry($user_id,  $api_key, $newRefreshToken);
-            return $newRefreshToken;
-        } else { // Reset an existing entry
-            $this->resetRefreshTokenEntry($user_id, $api_key, $newRefreshToken);
-            return $newRefreshToken;
-        }
-        */
-        return Token\Refresh::fromFields($this->tokenSettings(), '[STUB]', '[STUB]');
-    }
-
+    //
+    const DEFAULT_RENEW_COUNT = 1000;
+    const DATE_FORMAT = 'Y-m-d H:i:s';
 
     /**
-     * Refresh Token Endpoint routine:
-     * Tester of checkRefreshTokenEntry
-     * @param $bearer_token_array
-     * @return array
      */
-     public function getInfo($bearer_token_array) {
-        $user_id = Libs\RESTLib::loginToUserId($bearer_token_array['user']);
-        $api_key = $bearer_token_array['api_key'];
+    public function getToken($accessToken) {
+        // Check token
+        if (!$accessToken->isValid())
+            throw new Exceptions\TokenInvalid(Token\Generic::MSG_INVALID);
+        if ($accessToken->isExpired())
+            throw new Exceptions\TokenInvalid(Token\Generic::MSG_EXPIRED);
 
-        $entry = $this->checkRefreshTokenEntry($user_id, $api_key);
-        if ($entry != null) {
-            $result = array();
-            $result['num_refresh_left'] = $entry['num_refresh_left'];
-            $result['num_resets'] = $entry['num_resets'];
-            $result['last_refresh_timestamp'] = $entry['last_refresh_timestamp'];
-            return $result;
+        //
+        $user_id = $accessToken->getUserId();
+        $api_key = $accessToken->getApiKey();
+        $refreshToken = Token\Refresh::fromFields($this->tokenSettings(), $user_id, $api_key);
+        $remainingRefreshs = $refreshToken->getRemainingRefreshs();
 
-        }
-        return array();
-    }
-
-
-    /**
-     * Refresh Token Endpoint routine:
-     * Returns the refresh token for an existing refresh token entry.
-     * Decreases num_refresh_left field and updates the issuing time stamp.
-     */
-    protected function issueExisting($user_id, $api_key) {
-        $query = '
-            SELECT refresh_token, num_refresh_left
-            FROM ui_uihk_rest_oauth2
-            JOIN ui_uihk_rest_keys
-            ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
-            AND ui_uihk_rest_oauth2.user_id='.$user_id.'
-            AND ui_uihk_rest_keys.api_key="'.$api_key.'"';
-        $set = $this->sqlDB->query($query);
-        if ($set != null && $entry = $this->sqlDB->fetchAssoc($set)) {
-            $ct_num_refresh_left = $entry['num_refresh_left'];
-            $refresh_token = $entry['refresh_token'];
-
-            $this->updateRefreshTokenEntry($user_id, $api_key, 'num_refresh_left', $ct_num_refresh_left-1);
-            $this->updateRefreshTokenEntry($user_id, $api_key, 'last_refresh_timestamp', date('Y-m-d H:i:s',time()));
-            return $refresh_token;
-        }
-    }
-
-
-    /**
-     * Refresh Token Endpoint routine:
-     * Resets an existing refresh token entry:
-     *  - Overwrites refresh token field
-     *  - Increases field 'num_resets'
-     *  - Overwrites field num_refresh_left
-     *  - Overwrites last_refresh_timestamp
-     */
-    protected function reset($user_id, $api_key, $newRefreshToken) {
-        $query = '
-            SELECT num_resets
-            FROM ui_uihk_rest_oauth2
-            JOIN ui_uihk_rest_keys
-            ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
-            AND ui_uihk_rest_oauth2.user_id='.$user_id.'
-            AND ui_uihk_rest_keys.api_key="'.$api_key.'"';
-
-        $set = $this->sqlDB->query($query);
-        if ($set != null && $entry = $this->sqlDB->fetchAssoc($set)) {
-            $ct_num_resets = $entry['num_resets'];
-
-            $this->updateRefreshTokenEntry($user_id, $api_key, 'refresh_token', $newRefreshToken);
-            $this->updateRefreshTokenEntry($user_id, $api_key, 'num_resets', $ct_num_resets + 1);
-            $this->updateRefreshTokenEntry($user_id, $api_key, 'last_refresh_timestamp', date('Y-m-d H:i:s',time()));
-            $this->updateRefreshTokenEntry($user_id, $api_key, 'num_refresh_left', 10000);
-        }
-    }
-
-
-    /**
-     * Refresh Token Endpoint routine:
-     * Provides information about an entry:
-     * 1) Entry exists: yes or no.
-     * 2) How many refreshs are left (num_refresh_left)
-     * 3) Number of resets (num_resets).
-     * 3) Last refresh timestamp (last_refresh_timestamp).
-     *
-     * @param $user_id
-     * @param $api_key
-     * @return array
-     */
-    protected function check($user_id, $api_key) {
-        $query = '
-            SELECT *
-            FROM ui_uihk_rest_oauth2
-            JOIN ui_uihk_rest_keys
-            ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
-            AND ui_uihk_rest_oauth2.user_id='.$user_id.'
-            AND ui_uihk_rest_keys.api_key="'.$api_key.'"';
-        $set = $this->sqlDB->query($query);
-        if ($set != null && $entry = $this->sqlDB->fetchAssoc($set))
-            return $entry;
-        else
-            return null;
+        //
+        if ($remainingRefreshs)
+            $this->createToken($refreshToken);
+        elseif
+            $this->resetToken($refreshToken);
     }
 
 
@@ -155,25 +53,26 @@ class RefreshEndpoint extends EndpointBase {
      * @param $refresh_token
      * @return mixed the insertion id
      */
-    protected function create($user_id, $api_key, $refresh_token) {
-        $sql = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
-        $query = $this->sqlDB->query($sql);
-        if ($query != null && $row = $this->sqlDB->fetchAssoc($query)) {
-            $api_id = $row['id'];
+    public function createToken($user_id, $api_key, $refreshToken) {
+        //
+        $api_id = Libs\RESTLib::apiKeyToId($api_key);
+        $refresh_token = $refreshToken->getTokenString();
+        $now = date(self::DATE_FORMAT, time());
 
-            $a_columns = array(
-                'user_id' => array('text', $user_id),
-                'api_id' => array('text', $api_id),
-                'refresh_token' => array('text', $refresh_token),
-                'num_refresh_left' => array('integer', 10000),
-                'last_refresh_timestamp' => array('date', date('Y-m-d H:i:s',0)),
-                'init_timestamp' => array('date', date('Y-m-d H:i:s',time())),
-                'num_resets' => array('integer', 0)
-            );
+        //
+        $a_columns = array(
+            'user_id'                   => array('text',        $user_id),
+            'api_id'                    => array('text',        $api_id),
+            'refresh_token'             => array('text',        $refresh_token),
+            'num_refresh_left'          => array('integer',     self::DEFAULT_RENEW_COUNT),
+            'last_refresh_timestamp'    => array('date',        $now),
+            'init_timestamp'            => array('date',        $now),
+            'num_resets'                => array('integer',     0)
+        );
+        $this->sqlDB->insert('ui_uihk_rest_oauth2', $a_columns);
 
-            $this->sqlDB->insert('ui_uihk_rest_oauth2', $a_columns);
-            return $this->sqlDB->getLastInsertId();
-        }
+        //
+        return $this->sqlDB->getLastInsertId();
     }
 
 
@@ -184,15 +83,18 @@ class RefreshEndpoint extends EndpointBase {
      * @param $api_key
      * @return mixed
      */
-    protected function delete($user_id, $api_key) {
-        $query = '
+     public function deleteToken($user_id, $api_key) {
+        $sql = sprintf('
             DELETE ui_uihk_rest_oauth2
             FROM ui_uihk_rest_oauth2
             JOIN ui_uihk_rest_keys
-            ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
-            AND ui_uihk_rest_oauth2.user_id='.$user_id.'
-            AND ui_uihk_rest_keys.api_key="'.$api_key.'"';
-        $numAffRows = $this->sqlDB->manipulate($query);
+            ON  ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
+            AND ui_uihk_rest_oauth2.user_id=%d
+            AND ui_uihk_rest_keys.api_key="%s"',
+            $user_id,
+            $api_key
+        );
+        $numAffRows = $this->sqlDB->manipulate($sql);
 
         return $numAffRows;
     }
@@ -200,22 +102,59 @@ class RefreshEndpoint extends EndpointBase {
 
     /**
      * Refresh Token Endpoint routine:
-     * Updates a refresh token entry (helper).
-     * @param $user_id
-     * @param $api_key
-     * @param $fieldname
-     * @param $newval
-     * @return mixed
+     * Returns the refresh token for an existing refresh token entry.
+     * Decreases num_refresh_left field and updates the issuing time stamp.
      */
-     protected function update($user_id, $api_key, $fieldname, $newval) {
-        $query = '
+    public function renewToken($user_id, $api_key) {
+        $now = date(self::DATE_FORMAT, time());
+
+        $sql = sprintf('
             UPDATE ui_uihk_rest_oauth2
             JOIN ui_uihk_rest_keys
-            ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
-            AND ui_uihk_rest_oauth2.user_id='.$user_id.'
-            AND ui_uihk_rest_keys.api_key="'.$api_key.'"
-            SET '.$fieldname.' = "'.$newval.'"';
-        $numAffRows = $this->sqlDB->manipulate($query);
+            ON  ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
+            AND ui_uihk_rest_oauth2.user_id=%d
+            AND ui_uihk_rest_keys.api_key="%s"
+            SET num_refresh_left = num_refresh_left - 1,
+                last_refresh_timestamp = "%s"',
+            $user_id,
+            $api_key,
+            $now
+        );
+        $numAffRows = $this->sqlDB->manipulate($sql);
+
+        return $numAffRows;
+    }
+
+
+    /**
+     * Refresh Token Endpoint routine:
+     * Resets an existing refresh token entry:
+     *  - Overwrites refresh token field
+     *  - Increases field 'num_resets'
+     *  - Overwrites field num_refresh_left
+     *  - Overwrites last_refresh_timestamp
+     */
+    public function resetToken($user_id, $api_key, $refreshToken) {
+        $refresh_token = $refreshToken->getTokenString();
+        $now = date(self::DATE_FORMAT, time());
+
+        $sql = sprintf('
+            UPDATE ui_uihk_rest_oauth2
+            JOIN ui_uihk_rest_keys
+            ON  ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
+            AND ui_uihk_rest_oauth2.user_id=%d
+            AND ui_uihk_rest_keys.api_key="%s"
+            SET refresh_token = "%s",
+                num_resets = num_resets + 1,
+                last_refresh_timestamp = "%s",
+                num_refresh_left = %d',
+            $user_id,
+            $api_key,
+            $refresh_token,
+            $now,
+            self::DEFAULT_RENEW_COUNT
+        );
+        $numAffRows = $this->sqlDB->manipulate($sql);
 
         return $numAffRows;
     }

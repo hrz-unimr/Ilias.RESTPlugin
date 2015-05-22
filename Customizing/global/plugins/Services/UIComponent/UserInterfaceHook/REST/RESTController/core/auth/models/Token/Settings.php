@@ -18,7 +18,7 @@ class Settings {
 
     public function __construct($salt, $ttl) {
         if (!$salt)
-            throw new \Exception('TokenSettings requires a valid salt-value.');
+            throw new \Exception('Token-Settings require a valid salt-value.');
         if (!$ttl)
             $ttl = 30;
 

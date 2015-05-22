@@ -32,9 +32,9 @@ class Util extends EndpointBase {
      */
     public function checkClient($api_key) {
         // Fetch client with given api-key (checks existance)
-        $query = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
-        $set = $this->sqlDB->query($query);
-        if ($this->sqlDB->numRows($set) > 0)
+        $sql = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
+        $query = $this->sqlDB->query($sql);
+        if ($this->sqlDB->numRows($query) > 0)
             return true;
         return false;
     }
@@ -50,9 +50,9 @@ class Util extends EndpointBase {
      */
     public function checkClientCredentials($api_key, $api_secret) {
         // Fetch client with given api-key (checks existance)
-        $query = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s" AND api_secret = "%s"', $api_key, $api_secret);
-        $set = $this->sqlDB->query($query);
-        if ($this->sqlDB->numRows($set) > 0)
+        $sql = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s" AND api_secret = "%s"', $api_key, $api_secret);
+        $query = $this->sqlDB->query($sql);
+        if ($this->sqlDB->numRows($query) > 0)
             return true;
         return false;
     }
@@ -68,7 +68,7 @@ class Util extends EndpointBase {
      */
     public function checkScope($route, $operation, $api_key) {
         $operation = strtoupper($operation);
-        $query = sprintf('
+        $sql = sprintf('
             SELECT pattern, verb
             FROM ui_uihk_rest_perm
             JOIN ui_uihk_rest_keys
@@ -80,8 +80,8 @@ class Util extends EndpointBase {
             $route,
             $operation
         );
-        $set = $this->sqlDB->query($query);
-        if ($this->sqlDB->fetchAssoc($set))
+        $query = $this->sqlDB->query($sql);
+        if ($this->sqlDB->fetchAssoc($query))
             return true;
         return false;
     }
@@ -102,7 +102,7 @@ class Util extends EndpointBase {
         $rtokenValid = false;
         $sessionValid = false;
 
-        $query = sprintf('
+        $sqlToken = sprintf('
             SELECT * FROM il_request_token
             WHERE user_id = %d
             AND token = "%s"
@@ -111,19 +111,19 @@ class Util extends EndpointBase {
             $rtoken,
             $session_id
         );
-        $set = $this->sqlDB->query($query);
-        if ($this->sqlDB->numRows($set) > 0)
+        $queryToken = $this->sqlDB->query($sqlToken);
+        if ($this->sqlDB->numRows($queryToken) > 0)
             $rtokenValid = true;
 
-        $query = sprintf('
+        $sqlSession = sprintf('
             SELECT * FROM usr_session
             WHERE user_id = %d
             AND session_id = "%s"',
             $user_id,
             $session_id
         );
-        $set = $this->sqlDB->query($query);
-        if ($row = $this->sqlDB->fetchAssoc($set))
+        $querySession = $this->sqlDB->query($sqlSession);
+        if ($row = $this->sqlDB->fetchAssoc($querySession))
             if ($row['expires'] > time())
                 $sessionValid = true;
 

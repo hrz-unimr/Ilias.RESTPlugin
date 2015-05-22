@@ -41,9 +41,9 @@ class EndpointBase extends Libs\RESTModel {
      */
     protected function loadTokenSettings() {
         // Fetch key, value pairs from database
-        $query = 'SELECT setting_name, setting_value FROM ui_uihk_rest_config WHERE setting_name IN ("token_salt", "token_ttl")';
-        $set = $this->sqlDB->query($query);
-        while ($set != null && $row = $this->sqlDB->fetchAssoc($set)) {
+        $sql = 'SELECT setting_name, setting_value FROM ui_uihk_rest_config WHERE setting_name IN ("token_salt", "token_ttl")';
+        $query = $this->sqlDB->query($sql);
+        while ($query != null && $row = $this->sqlDB->fetchAssoc($query)) {
             switch ($row['setting_name']) {
                 case "token_salt" :
                     $salt = $row['setting_value'];
