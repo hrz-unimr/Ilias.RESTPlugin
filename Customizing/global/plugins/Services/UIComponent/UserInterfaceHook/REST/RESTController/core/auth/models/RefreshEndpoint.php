@@ -21,6 +21,37 @@ class RefreshEndpoint extends EndpointBase {
     const DEFAULT_RENEW_COUNT = 1000;
     const DATE_FORMAT = 'Y-m-d H:i:s';
 
+
+    /**
+     *
+     */
+    public function getRemainingRefreshs($refreshToken) {
+        //
+        $user_id = $refreshToken->getUserId();
+        $api_key = $refreshToken->GetApiKey();
+        $refresh_token = $refreshToken->getTokenString();
+
+        //
+        $sql = sprintf('
+            SELECT num_refresh_left
+            FROM ui_uihk_rest_oauth2
+            JOIN ui_uihk_rest_keys
+            ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
+            AND ui_uihk_rest_oauth2.user_id=%d
+            AND ui_uihk_rest_keys.api_key="%s"
+            AND ui_uihk_rest_oauth2.refresh_token="%s"',
+            $user_id,
+            $api_key,
+            $refresh_token
+        );
+        $query = $this->sqlDB->query($sql);
+
+        //
+        if ($query != null && $entry = $this->sqlDB->fetchAssoc($query))
+            return $entry['num_refresh_left'];
+    }
+
+
     /**
      */
     public function getToken($accessToken) {
@@ -34,13 +65,16 @@ class RefreshEndpoint extends EndpointBase {
         $user_id = $accessToken->getUserId();
         $api_key = $accessToken->getApiKey();
         $refreshToken = Token\Refresh::fromFields($this->tokenSettings(), $user_id, $api_key);
-        $remainingRefreshs = $refreshToken->getRemainingRefreshs();
+        $remainingRefreshs = $this->getRemainingRefreshs($refreshToken);
 
         //
         if ($remainingRefreshs)
-            $this->createToken($refreshToken);
-        elseif
-            $this->resetToken($refreshToken);
+            $this->createToken($user_id, $api_key, $refreshToken);
+        else
+            $this->resetToken($user_id, $api_key, $refreshToken);
+
+        //
+        return $refreshToken;
     }
 
 

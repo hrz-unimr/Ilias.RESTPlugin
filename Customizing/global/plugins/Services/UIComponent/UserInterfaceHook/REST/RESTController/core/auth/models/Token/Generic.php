@@ -7,6 +7,9 @@
  */
 namespace RESTController\core\auth\Token;
 
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs as Libs;
+
 
 /*
  * This class handles all Token (Bearer & Refresh) related tasks,

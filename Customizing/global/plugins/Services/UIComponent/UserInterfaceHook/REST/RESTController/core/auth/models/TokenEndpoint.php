@@ -178,7 +178,7 @@ class TokenEndpoint extends EndpointBase {
 
         //
         $modelRefresh = new RefreshEndpoint($this->app, $this->sqlDB, $this->plugin);
-        $remainingRefreshs = $refreshToken->getRemainingRefreshs();
+        $remainingRefreshs = $modelRefresh->getRemainingRefreshs($refreshToken);
 
         //
         if ($remainingRefreshs > 0) {
