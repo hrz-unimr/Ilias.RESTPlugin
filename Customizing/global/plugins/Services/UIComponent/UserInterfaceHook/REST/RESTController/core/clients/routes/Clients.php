@@ -11,6 +11,7 @@ namespace RESTController\core\clients;
 use \RESTController\libs as Libs;
 use \RESTController\libs\Exceptions as LibExceptions;
 use \RESTController\core\clients\Exceptions as ClientExceptions;
+use \RESTController\core\auth as Auth;
 // Requires <$app = \RESTController\RESTController::getInstance()>
 
 
@@ -57,12 +58,12 @@ use \RESTController\core\clients\Exceptions as ClientExceptions;
  */
  $app->get('/clients', '\RESTController\libs\OAuth2Middleware::TokenAuth', function () use ($app) {
     // Fetch authorized user
-    $env = $app->environment();
-    $user = $env['user'];
+    $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+    $user = $auth->getAccessToken()->getUserName();
 
     // Check if user has admin role
-    if (!Libs\RESTLib::isAdminByUsername($user))
-        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::NO_ADMIN_ID);
+    if (!Libs\RESTLib::isAdminByUserName($user))
+        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
 
     // Use the model class to fetch data
     $model = new Clients($app, $GLOBALS['ilDB']);
@@ -119,12 +120,12 @@ use \RESTController\core\clients\Exceptions as ClientExceptions;
  */
 $app->put('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenAuth', function ($id) use ($app) {
     // Fetch authorized user
-    $env = $app->environment();
-    $user = $env['user'];
+    $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+    $user = $auth->getAccessToken()->getUserName();
 
     // Check if authorized user has admin role
-    if (!Libs\RESTLib::isAdminByUsername($user))
-        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::NO_ADMIN_ID);
+    if (!Libs\RESTLib::isAdminByUserName($user))
+        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
 
     // This fields will be updated (and nothing more!)
     $fields = array(
@@ -219,12 +220,12 @@ $app->put('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenAuth', fu
  */
 $app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenAuth', function () use ($app) {
     // Fetch authorized user
-    $env = $app->environment();
-    $user = $env['user'];
+    $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+    $user = $auth->getAccessToken()->getUserName();
 
     // Check if authorized user has admin role
-    if (Libs\RESTLib::isAdminByUsername($user))
-        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::NO_ADMIN_ID);
+    if (!Libs\RESTLib::isAdminByUserName($user))
+        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
 
     // Shortcut for request object
     $request = $app->request();
@@ -233,7 +234,7 @@ $app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenAuth', func
     try {
         $api_key = $request->getParam('api_key', null, true);
     } catch(LibExceptions\MissingParameter $e) {
-        $app->halt(422, $e->getMessage(), $e::ID);
+        $app->halt(422, $e->getFormatedMessage(), $e::ID);
     }
 
     // Get optional inputs
@@ -294,12 +295,12 @@ $app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenAuth', func
  */
 $app->delete('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenAuth',  function ($id) use ($app) {
     // Fetch authorized user
-    $env = $app->environment();
-    $user = $env['user'];
+    $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+    $user = $auth->getAccessToken()->getUserName();
 
     // Check if authorized user has admin role
-    if (Libs\RESTLib::isAdminByUsername($user))
-        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::NO_ADMIN_ID);
+    if (!Libs\RESTLib::isAdminByUserName($user))
+        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
 
     try {
         // Use the model class to update databse

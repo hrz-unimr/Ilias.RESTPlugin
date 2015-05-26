@@ -20,10 +20,13 @@ $app->group('/v1', function () use ($app) {
      * Returns the personal ILIAS contacts for a user specified by id.
      */
     $app->get('/contacts/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($id) use ($app) {
-        $env = $app->environment();
+        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $authorizedUserId = $accessToken->getUserId();
+
         $response = new Libs\RESTResponse($app);
-        $authorizedUserId = Libs\RESTLib::loginToUserId($env['user']);
-        if ($authorizedUserId == $id || Libs\RESTLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
+        if ($authorizedUserId == $id || Libs\RESTLib::isAdminByUserId($authorizedUserId)) { // only the user or the admin is allowed to access the data
             try {
                 $model = new ContactsModel();
                 $data = $model->getMyContacts($id);

@@ -36,7 +36,7 @@ $app->group('/m', function () use ($app) {
             $obj_id = $id;
         } else
         {
-            $obj_id = Libs\RESTLib::refid_to_objid($id);
+            $obj_id = Libs\RESTLib::getObjIdFromRef($id);
         }
 
         $result = array();
@@ -67,7 +67,7 @@ $app->group('/m', function () use ($app) {
 
         // TODO: extract user_id from valid token
         $user_id = 6;//225;//6;//361; // testuser
-        //$user = Libs\RESTLib::userIdtoLogin($user_id);
+        //$user = Libs\RESTLib::getUserNameFromId($user_id);
 
         Libs\RESTLib::initAccessHandling();
 

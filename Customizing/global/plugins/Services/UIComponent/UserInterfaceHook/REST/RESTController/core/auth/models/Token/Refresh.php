@@ -58,7 +58,7 @@ class Refresh extends Generic {
     /**
      *
      */
-    public function getTokenInfo($bearer_token_array) {
+    public function getTokenInfo() {
         //
         $user_id = $this->getUserId();
         $api_key = $this->GetApiKey();

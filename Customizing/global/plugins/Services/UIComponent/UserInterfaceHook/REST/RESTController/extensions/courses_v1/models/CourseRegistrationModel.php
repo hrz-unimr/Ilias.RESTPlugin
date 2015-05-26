@@ -40,7 +40,7 @@ class CoursesRegistrationModel
 
         $this->user_id = $user_id;
         $this->ref_id = $ref_id;
-        $this->obj_id = Libs\RESTLib::refid_to_objid($ref_id);
+        $this->obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
         $this->container = \ilObjectFactory::getInstanceByRefId($this->ref_id, false);
 
         Libs\RESTLib::loadIlUser();

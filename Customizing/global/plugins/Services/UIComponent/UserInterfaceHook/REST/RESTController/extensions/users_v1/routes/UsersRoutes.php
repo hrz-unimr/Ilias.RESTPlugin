@@ -57,10 +57,12 @@ $app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', 
 
 $app->get('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenAuth', function ($user_id) use ($app) {
     try {
-        $env = $app->environment();
         $id = $user_id;
         if ($user_id == "mine") {
-            $id = Libs\RESTLib::loginToUserId($env['user']);
+            $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+            $accessToken = $auth->getAccessToken();
+            $user = $accessToken->getUserName();
+            $id = $accessToken->getUserId();
         }
         $result = array();
         // $result['usr_id'] = $user_id;

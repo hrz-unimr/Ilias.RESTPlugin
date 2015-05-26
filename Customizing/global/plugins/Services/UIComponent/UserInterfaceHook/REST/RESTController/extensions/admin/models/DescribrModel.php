@@ -38,7 +38,7 @@ class DescribrModel
             $a_objdata['ext_owner'][$key] = $value;
         }
 
-        $a_refids = Libs\RESTLib::objid_to_refids($obj_id);
+        $a_refids = Libs\RESTLib::getRefIdsFromObj($obj_id);
         foreach ($a_refids as $ref_id)
         {
             $a_objdata['ext_refids'][] = $ref_id;

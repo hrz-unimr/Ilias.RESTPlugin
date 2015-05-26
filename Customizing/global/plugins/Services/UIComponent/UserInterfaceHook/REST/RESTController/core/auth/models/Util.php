@@ -24,6 +24,10 @@ class Util extends EndpointBase {
     const MSG_I_DISABLED = 'Implicit grant-type is disabled for this client.';
 
 
+    // Store token and fetch it only onc eper execution
+    protected $accessToken;
+
+
     /**
      * Checks if provided OAuth2 - client (aka api_key) does exist.
      *
@@ -184,34 +188,39 @@ class Util extends EndpointBase {
         }
         */
 
+        
+        // Return stored acces token
+        if (!$this->accessToken) {
+            // Fetch token from body GET/POST (json or plain)
+            $request = $this->app->request();
+            $tokenString = $request->getParam('token');
 
-        // Fetch token from body GET/POST (json or plain)
-        $request = $this->app->request();
-        $tokenString = $request->getParam('token');
+            // Fetch access_token from GET/POST (json or plain)
+            if (is_null($tokenString))
+                $tokenString = $request->getParam('access_token');
 
-        // Fetch access_token from GET/POST (json or plain)
-        if (is_null($tokenString))
-            $tokenString = $request->getParam('access_token');
+            // Fetch token from request header
+            if (is_null($tokenString)) {
+                $headers = getallheaders();
+                $authHeader = $headers['Authorization'];
 
-        // Fetch token from request header
-        if (is_null($tokenString)) {
-            $headers = getallheaders();
-            $authHeader = $headers['Authorization'];
-
-            // Found Authorization header?
-            if ($authHeader != null) {
-                $a_auth = explode(' ', $authHeader);
-                $tokenString = $a_auth[1];        // With "Bearer"-Prefix
-                if ($tokenString == null)
-                    $tokenString = $a_auth[0];    // Without "Bearer"-Prefix
+                // Found Authorization header?
+                if ($authHeader != null) {
+                    $a_auth = explode(' ', $authHeader);
+                    $tokenString = $a_auth[1];        // With "Bearer"-Prefix
+                    if ($tokenString == null)
+                        $tokenString = $a_auth[0];    // Without "Bearer"-Prefix
+                }
             }
-        }
 
-        // Decode token
-        if (isset($tokenString))
+            // Decode token (Throws Exception if token is invalid/missing)
             $accessToken = Token\Generic::fromMixed($this->tokenSettings(), $tokenString);
 
-        // Store and return token
-        return $accessToken;
+            // Store access token
+            $this->accessToken = $accessToken;
+        }
+
+        // return token
+        return $this->accessToken;
     }
 }

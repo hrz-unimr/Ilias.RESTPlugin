@@ -19,11 +19,13 @@ $app->group('/v1', function () use ($app) {
      * Retrieves all items from the personal desktop of a user specified by its id.
      */
     $app->get('/desktop/overview/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth' , function ($id) use ($app) {
-        $env = $app->environment();
-        $authorizedUserId =  Libs\RESTLib::loginToUserId($env['user']);
+        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $authorizedUserId = $accessToken->getUserId();
 
         $response = new Libs\RESTResponse($app);
-        if ($authorizedUserId == $id || Libs\RESTLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
+        if ($authorizedUserId == $id || Libs\RESTLib::isAdminByUserId($authorizedUserId)) { // only the user or the admin is allowed to access the data
             $model = new DesktopModel();
             $data = $model->getPersonalDesktopItems($id);
             $response->addData('items', $data);

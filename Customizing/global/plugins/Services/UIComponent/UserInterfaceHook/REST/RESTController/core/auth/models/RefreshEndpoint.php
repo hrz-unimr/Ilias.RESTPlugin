@@ -55,7 +55,7 @@ class RefreshEndpoint extends EndpointBase {
      */
     public function createToken($user_id, $api_key, $refreshToken) {
         //
-        $api_id = Libs\RESTLib::apiKeyToId($api_key);
+        $api_id = Libs\RESTLib::getApiIdFromKey($api_key);
         $refresh_token = $refreshToken->getTokenString();
         $now = date(self::DATE_FORMAT, time());
 

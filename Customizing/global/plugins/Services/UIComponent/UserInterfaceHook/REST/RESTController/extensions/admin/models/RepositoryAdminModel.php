@@ -83,7 +83,7 @@ class RepositoryAdminModel
     {
        // echo 'Running getRekNode ('.$ref_id.','.$parent_ref_id.') \n';
         // Step: get node data
-        $obj_id = Libs\RESTLib::refid_to_objid($ref_id);
+        $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
         $node_data = Libs\RESTLib::getObjectData($obj_id, array('create_date','description','title','type'));
         $node_data['ref_id'] = $ref_id;
 
@@ -165,7 +165,7 @@ class RepositoryAdminModel
     {
         // echo 'Running getRekNode ('.$ref_id.','.$parent_ref_id.') \n';
         // Step: get node data
-        $obj_id = Libs\RESTLib::refid_to_objid($ref_id);
+        $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
         $node_data = Libs\RESTLib::getObjectData($obj_id, array('create_date','description','title','type'));
         $node_data['ref_id'] = '$ref_id';
 
@@ -176,7 +176,7 @@ class RepositoryAdminModel
         //$a_timestamps = array();
         foreach ($childs as $item) {
             // Check if the current item has been read within the last $max_timeinterval
-            $ct_obj_id = Libs\RESTLib::refid_to_objid($item['ref_id']);
+            $ct_obj_id = Libs\RESTLib::getObjIdFromRef($item['ref_id']);
             $ct_last_read = Libs\RESTLib::getLatestReadEventTimestamp($ct_obj_id);
             if (time() - $max_timeinterval < $ct_last_read) {
                // echo 'within! last read event: '.date('Y-m-d H-i-s', $ct_last_read).'\n';
@@ -221,10 +221,10 @@ class RepositoryAdminModel
     {
         // echo 'Running getRekNode ('.$ref_id.','.$parent_ref_id.') \n';
         // Step: get node data
-        $obj_id = Libs\RESTLib::refid_to_objid($ref_id);
+        $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
         $node_data = array();
         //$node_data = Libs\RESTLib::getObjectData($obj_id, array('create_date','description','title','type'));
-        $obj_id = Libs\RESTLib::refid_to_objid($ref_id);
+        $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
         $node_data['obj_id'] = $obj_id;
         $a_timestamps = Libs\RESTLib::getTopKReadEventTimestamp($obj_id, $k);
         $node_data['timestamps'] = $a_timestamps;

@@ -22,9 +22,12 @@ $app->group('/v1', function () use ($app) {
      * Retrieves the content and a description of a course specified by ref_id.
      */
     $app->get('/courses/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
+        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $id = $accessToken->getUserId();
+
         $response = new Libs\RESTResponse($app);
-        $env = $app->environment();
-        $authorizedUserId =  Libs\RESTLib::loginToUserId($env['user']);
         try {
             $crs_model = new CoursesModel();
             $data1 =  $crs_model->getCourseContent($ref_id);
@@ -40,9 +43,12 @@ $app->group('/v1', function () use ($app) {
     });
 
     $app->post('/courses', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
-        $env = $app->environment();
+        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $authorizedUserId = $accessToken->getUserId();
+
         $response = new Libs\RESTResponse($app);
-        $authorizedUserId =  Libs\RESTLib::loginToUserId($env['user']);
 
         $parent_container_ref_id = 1;
         $new_course_title = "";
@@ -90,7 +96,6 @@ $app->group('/v1', function () use ($app) {
 
     $app->delete('/courses/:id',  function ($id) use ($app) {
         $request = $app->request();
-        $env = $app->environment();
         // todo: check permissions
         $result = array();
         $crs_model = new CoursesModel();
@@ -113,13 +118,12 @@ $app->group('/v1', function () use ($app) {
      * The user is then enrolled in the course with "crs_ref_id".
      */
     $app->post('/courses/enroll', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function() use ($app) {
-        $env = $app->environment();
         $response = new Libs\RESTResponse($app);
         $request = new Libs\RESTRequest($app);
         $mode = $request->getParam("mode");
         if($mode == "by_login") {
             $login = $request->getParam("login");
-            $user_id = Libs\RESTLib::loginToUserId($login);
+            $user_id = Libs\RESTLib::getIdFromUserName($login);
             if(empty($user_id)){
                 $data = $request->getParam("data");
                 $userData = array_merge(array(
@@ -157,10 +161,13 @@ $app->group('/v1', function () use ($app) {
     });
 
     $app->get('/courses/join', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
-        $env = $app->environment();
+        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $authorizedUserId = $accessToken->getUserId();
+
         $response = new Libs\RESTResponse($app);
         $request = new Libs\RESTRequest($app);
-        $authorizedUserId =  Libs\RESTLib::loginToUserId($env['user']);
         try {
             $ref_id = $request->getParam("ref_id");
             $crsreg_model = new CoursesRegistrationModel();
@@ -180,10 +187,13 @@ $app->group('/v1', function () use ($app) {
     });
 
     $app->get('/courses/leave', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
-        $env = $app->environment();
+        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $authorizedUserId = $accessToken->getUserId();
+
         $response = new Libs\RESTResponse($app);
         $request = new Libs\RESTRequest($app);
-        $authorizedUserId =  Libs\RESTLib::loginToUserId($env['user']);
         try {
             $ref_id = $request->getParam("ref_id");
             $crsreg_model = new CoursesRegistrationModel();

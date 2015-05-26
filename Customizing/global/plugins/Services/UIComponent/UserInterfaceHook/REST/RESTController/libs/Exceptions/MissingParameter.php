@@ -47,7 +47,7 @@ class MissingParameter extends \Exception {
     /**
      *
      */
-    public function getMessage() {
+    public function getFormatedMessage() {
         $message = parent::getMessage();
         $message = str_replace('%paramName%', $this->paramName, $message);
         return $message;

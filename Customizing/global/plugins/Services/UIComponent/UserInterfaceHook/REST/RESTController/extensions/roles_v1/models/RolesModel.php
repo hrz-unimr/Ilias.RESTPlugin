@@ -19,8 +19,12 @@ class RolesModel
         // get all roles of system role folder
         // TODO: c/p aus users/bulkImport
         // TODO: do it here or in route?
-        $app = new \Slim\Slim();
-        Libs\RESTLib::setUserContext($app->environment['user']);  // filled by auth middleware
+
+       // Fetch authorized user
+       $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+       $user = $auth->getAccessToken()->getUserName();
+
+        Libs\RESTLib::setUserContext($user);  // filled by auth middleware
         Libs\RESTLib::initAccessHandling();
 
 
@@ -35,6 +39,8 @@ class RolesModel
         $roles = $rbacreview->getAssignableRoles(false, true);
         $num_roles = 0;
 
+
+        $app = new \Slim\Slim();
         if(count($app->request->params()) != 0){
             foreach($roles as $role) {
                 $match = true;

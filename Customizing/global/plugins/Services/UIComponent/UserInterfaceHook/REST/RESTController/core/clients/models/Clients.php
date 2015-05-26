@@ -88,10 +88,10 @@ class Clients extends Libs\RESTModel {
      */
     protected function is_oauth2_grant_type_enabled($api_key, $grant_type) {
         // Check if given grant_type is enabled
-        $sql = sprintf('SELECT %s FROM ui_uihk_rest_keys WHERE api_key = %d', $grant_type, $api_key);
+        $sql = sprintf('SELECT %s FROM ui_uihk_rest_keys WHERE api_key = "%s"', $grant_type, $api_key);
         $query = $this->sqlDB->query($sql);
         if ($this->sqlDB->numRows($query) > 0) {
-            $row = $this->sqlDB->fetchAssoc($set);
+            $row = $this->sqlDB->fetchAssoc($query);
             if ($row[$grant_type] == 1)
                 return true;
         }
@@ -223,7 +223,10 @@ class Clients extends Libs\RESTModel {
         }
         // Update any other field...
         else {
-            $sql = sprintf('UPDATE ui_uihk_rest_keys SET %s = "%s" WHERE id = %d', $fieldname, $newval, $id);
+            if (is_numeric($newval))
+                $sql = sprintf('UPDATE ui_uihk_rest_keys SET %s = %d WHERE id = %d', $fieldname, $newval, $id);
+            else
+                $sql = sprintf('UPDATE ui_uihk_rest_keys SET %s = "%s" WHERE id = %d', $fieldname, $newval, $id);
             $numAffRows = $this->sqlDB->manipulate($sql);
 
             if ($numAffRows === false)

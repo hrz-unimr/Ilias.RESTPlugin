@@ -75,11 +75,13 @@ class RESTLib {
      * @param $user_name
      * @return mixed
      */
-    public static function isAdminByUsername($user_name) {
-        $a_id = \ilObjUser::searchUsers($user_name, 1, true);
+    public static function isAdminByUserName($user_name) {
+        if ($user_name) {
+            $a_id = \ilObjUser::searchUsers($user_name, 1, true);
 
-        if (count($a_id) > 0)
-            return self::isAdmin($a_id[0]);
+            if (count($a_id) > 0)
+                return self::isAdminByUserId($a_id[0]);
+        }
         return false;
     }
 
@@ -90,11 +92,14 @@ class RESTLib {
      * @param $usr_id
      * @return bool
      */
-    public static function isAdmin($usr_id) {
-        $rbacreview = new \ilRbacReview();
-        $is_admin = $rbacreview->isAssigned($usr_id, 2);
+    public static function isAdminByUserId($usr_id) {
+        if ($usr_id) {
+            $rbacreview = new \ilRbacReview();
+            $is_admin = $rbacreview->isAssigned($usr_id, 2);
 
-        return $is_admin;
+            return $is_admin;
+        }
+        return false;
     }
 
 
@@ -161,7 +166,7 @@ class RESTLib {
      * @param $ref_id
      * @return mixed
      */
-    static public function refid_to_objid($ref_id) {
+    static public function getObjIdFromRef($ref_id) {
         global $ilDB;
 
         $sql = sprintf('SELECT obj_id FROM object_reference WHERE object_reference.ref_id = %d', $ref_id);
@@ -179,7 +184,7 @@ class RESTLib {
      * @param $obj_id
      * @return mixed
      */
-    static public function objid_to_refid($obj_id) {
+    static public function getRefIdFromObj($obj_id) {
         global $ilDB;
 
         $sql = sprintf('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', $obj_id);
@@ -197,7 +202,7 @@ class RESTLib {
      * @param $obj_id
      * @return array
      */
-    static public function objid_to_refids($obj_id) {
+    static public function getRefIdsFromObj($obj_id) {
         global $ilDB;
 
         $sql = sprintf('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', $obj_id);
@@ -214,7 +219,7 @@ class RESTLib {
     /**
      *
      */
-    static public function apiKeyToId($api_key) {
+    static public function getApiIdFromKey($api_key) {
         $sql = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
         $query = $this->sqlDB->query($sql);
 
@@ -228,7 +233,7 @@ class RESTLib {
     /**
      *
      */
-    static public function apiIdToKey($api_id) {
+    static public function getApiKeyFromId($api_id) {
         $sql = sprintf('SELECT api_key FROM ui_uihk_rest_keys WHERE id = %d', $api_id);
         $query = $this->sqlDB->query($sql);
 
@@ -248,7 +253,7 @@ class RESTLib {
      * @param $user_id
      * @return string
      */
-    static public function userIdtoLogin($user_id) {
+    static public function getUserNameFromId($user_id) {
         global $ilDB;
 
         $sql = sprintf('SELECT login FROM usr_data WHERE usr_id=\'%s\'', $user_id);
@@ -266,7 +271,7 @@ class RESTLib {
      * @param login - user_name
      * @return user_id
      */
-    static public function loginToUserId($login) {
+    static public function getIdFromUserName($login) {
         global $ilDB;
 
         $sql = sprintf('SELECT usr_id FROM usr_data WHERE login=\'%s\'', $login);

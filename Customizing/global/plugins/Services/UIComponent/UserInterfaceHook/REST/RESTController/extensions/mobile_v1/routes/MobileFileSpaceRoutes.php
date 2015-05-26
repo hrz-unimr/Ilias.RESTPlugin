@@ -26,8 +26,12 @@ $app->group('/v1/m', function () use ($app) {
      */
     $app->get('/myfilespace', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $t_start = microtime();
-        $env = $app->environment();
-        $user_id = Libs\RESTLib::loginToUserId($env['user']);
+
+        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $user_id = $accessToken->getUserId();
+
         $response = new Libs\RESTResponse($app);
         Libs\RESTLib::initAccessHandling();
         $wa_model = new Admin\WorkspaceAdminModel();
@@ -46,8 +50,12 @@ $app->group('/v1/m', function () use ($app) {
      */
     $app->get('/myfilespacecopy','\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $t_start = microtime();
-        $env = $app->environment();
-        $user_id = Libs\RESTLib::loginToUserId($env['user']);
+
+        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $user_id = $accessToken->getUserId();
+
         $response = new Libs\RESTResponse($app);
         $request = new Libs\RESTRequest($app);
 
@@ -80,8 +88,12 @@ $app->group('/v1/m', function () use ($app) {
      */
     $app->post('/myfilespacecopy','\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $t_start = microtime();
-        $env = $app->environment();
-        $user_id = Libs\RESTLib::loginToUserId($env['user']);
+
+        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $user_id = $accessToken->getUserId();
+
         $response = new Libs\RESTResponse($app);
         $request = new Libs\RESTRequest($app);
 
@@ -124,8 +136,11 @@ $app->group('/v1/m', function () use ($app) {
     $app->post('/myfilespaceupload','\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $app->log->debug('Myfilespace upload via POST');
         $t_start = microtime();
-        $env = $app->environment();
-        $user_id = Libs\RESTLib::loginToUserId($env['user']);
+
+        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $user_id = $accessToken->getUserId();
 
         $response = new Libs\RESTResponse($app);
         $request = new Libs\RESTRequest($app);
@@ -158,8 +173,11 @@ $app->group('/v1/m', function () use ($app) {
     $app->delete('/myfilespacedelete', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $app->log->debug('Myfilespace delete');
         $t_start = microtime();
-        $env = $app->environment();
-        $user_id = Libs\RESTLib::loginToUserId($env['user']);
+
+        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $user_id = $accessToken->getUserId();
 
         $response = new Libs\RESTResponse($app);
         $request = new Libs\RESTRequest($app);

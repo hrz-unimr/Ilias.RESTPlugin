@@ -80,7 +80,7 @@ class OAuth2Middleware {
 
             // Check if given user has admin-role
             $user = $accessToken->getUserName();
-            if (!RESTLib::isAdminByUsername($user))
+            if (!RESTLib::isAdminByUserName($user))
                 $app->halt(401, RESTLib::MSG_NO_ADMIN, RESTLib::ID_NO_ADMIN);
         }
         catch (TokenExceptions\TokenInvalid $e) {
@@ -139,7 +139,7 @@ class OAuth2Middleware {
      */
     protected static function checkRoutePermissions($app, $route, $accessToken) {
         // Fetch data to check route access
-        $api_key = $accessToken->getEntry('api_key');
+        $api_key = $accessToken->getApiKey();
         $pattern = $route->getPattern();
         $verb = $app->request->getMethod();
 

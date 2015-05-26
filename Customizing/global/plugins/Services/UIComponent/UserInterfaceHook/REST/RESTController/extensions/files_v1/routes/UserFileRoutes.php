@@ -24,8 +24,10 @@ $app->group('/v1', function () use ($app) {
      * @param id - the ref or obj_id of the file.
      */
     $app->get('/files/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($id) use ($app) {
-        $env = $app->environment();
-        $user_id = Libs\RESTLib::loginToUserId($env['user']);
+        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $user_id = $accessToken->getUserId();
 
         $request = new Libs\RESTRequest($app);
         $response = new Libs\RESTResponse($app);
@@ -47,7 +49,7 @@ $app->group('/v1', function () use ($app) {
 
 
         if ($id_type == "ref_id") {
-            $obj_id = Libs\RESTLib::refid_to_objid($id);
+            $obj_id = Libs\RESTLib::getObjIdFromRef($id);
         } else {
             $obj_id = $id;
         }

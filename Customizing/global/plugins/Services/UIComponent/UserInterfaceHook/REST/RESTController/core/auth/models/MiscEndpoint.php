@@ -54,7 +54,7 @@ class MiscEndpoint extends EndpointBase {
             throw new Exceptions\TokenInvalid(self::MSG_RTOKEN_AUTH_FAILED);
 
         // Generate token for user (via given api-key)
-        $user = Libs\RESTLib::userIdtoLogin($user_id);
+        $user = Libs\RESTLib::getUserNameFromId($user_id);
         $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $user, $api_key);
         return $bearerToken->getTokenArray();
     }

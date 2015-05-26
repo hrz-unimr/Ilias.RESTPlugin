@@ -23,9 +23,8 @@ $app->group('/admin', function () use ($app) {
      * File Download
      */
     $app->get('/files/:id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($id) use ($app) {
-
-        $env = $app->environment();
-        //$user_id = Libs\RESTLib::loginToUserId($env['user']);
+        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        //$user_id = $auth->getAccessToken()->getUserId();
 
         $request = new Libs\RESTRequest($app);
         $response = new Libs\RESTResponse($app);
@@ -42,7 +41,7 @@ $app->group('/admin', function () use ($app) {
         if ($meta_data == true) {
 
             $model = new Files\FileModel();
-            $obj_id = Libs\RESTLib::refid_to_objid($id);
+            $obj_id = Libs\RESTLib::getObjIdFromRef($id);
             $fileObj = $model->getFileObj($obj_id);
  //           $fileObj = $model->getFileObjForUser($obj_id,6);
 

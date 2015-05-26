@@ -52,13 +52,15 @@ $app->group('/dev', function () use ($app) {
         $ilLog->write('Hello from REST Plugin - Experimental');
         $app->response()->header('Content-Type', 'application/json');
 
-        $model = new OAuth2Model();
-        $bearer_token = $model->fetchBearerTokenForRefreshToken($refresh_token);
+
+        $model = new Auth\TokenEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+        $refreshToken = Token\Refresh::fromMixed($model->tokenSettings(), $refresh_token);
+        $bearer_token = $model->refresh2Access($refreshToken);
 
 
         $response->setMessage('Refresh 2 Bearer.');
        // $response->addData('refresh_token',$refresh_token);
-        $response->addData('token',$bearer_token['access_token']);
+        $response->addData('token',$bearer_token->getEntry('access_token'));
         $response->send();
 
     });
@@ -70,26 +72,28 @@ $app->group('/dev', function () use ($app) {
      * Status: DONE
      */
     $app->get('/refresh', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
-        $env = $app->environment();
         $request = new Libs\RESTRequest($app);
         $response = new Libs\RESTResponse($app);
-        $uid = Libs\RESTLib::loginToUserId($env['user']);
+
+        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $uid = $accessToken->getUserId();
 
         global $ilLog;
         $ilLog->write('Requesting new refresh token for user '.$uid);
         //RESTLib::initAccessHandling();
 
         // Create new refresh token
-        $accessToken = $env['accessToken'];
-        $model = new Libs\OAuth2Model();
-        $refreshToken = $model->getRefreshToken($accessToken);
+        $model = new Auth\RefreshEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+        $refreshToken = $model->getToken($accessToken);
 
 
         $response->setMessage('Requesting new refresh token for user '.$uid.'.');
-        $response->setData('refresh-token', $refreshToken);
+        $response->setData('refresh-token', $refreshToken->getTokenString());
         $response->addData('maxint', PHP_INT_MAX);
-        $response->addData('beareruser', $accessToken['user']);
-        $response->addData('api-key', $accessToken['api_key']);
+        $response->addData('beareruser', $accessToken->getUserName());
+        $response->addData('api-key', $accessToken->getApiKey());
         $response->addData('ilias client: ', $env['client_id']);
         $response->send();
     });
@@ -193,7 +197,6 @@ $app->group('/dev', function () use ($app) {
     $app->get('/responsetest', function () use ($app) {
 
         $response = new Libs\RESTResponse($app);
-        $env = $app->environment();
 
         $response->addData('status','success');
         $response->addData('time',time());

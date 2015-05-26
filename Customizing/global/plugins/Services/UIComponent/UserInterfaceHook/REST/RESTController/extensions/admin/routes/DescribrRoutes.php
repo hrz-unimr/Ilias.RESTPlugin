@@ -37,7 +37,7 @@ $app->group('/admin', function () use ($app) {
         $model = new DescribrModel();
         if ($id_type == 'ref_id' || $id_type == 'obj_id') {
             if ($id_type == 'ref_id') {
-                $obj_id = Libs\RESTLib::refid_to_objid($id);
+                $obj_id = Libs\RESTLib::getObjIdFromRef($id);
                 $id_type = 'obj_id';
             }
             //echo "obj_id:".$obj_id;
@@ -62,7 +62,7 @@ $app->group('/admin', function () use ($app) {
         }
 
         if ($id_type == 'usr_id') {
-            $username = Libs\RESTLib::userIdtoLogin($id);
+            $username = Libs\RESTLib::getUserNameFromId($id);
             //echo $username;
             try {
                 if ($username == 'User unknown') {

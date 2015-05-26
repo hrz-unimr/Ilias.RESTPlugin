@@ -97,14 +97,14 @@ class Generic extends Base {
      *
      */
     public function getUserName() {
-        return $tokenArray['user'];
+        return $this->tokenArray['user'];
     }
     public function getUserId() {
-        $user = $tokenArray['user'];
-        return Libs\RESTLib::loginToUserId($user);
+        $user = $this->tokenArray['user'];
+        return Libs\RESTLib::getIdFromUserName($user);
     }
     public function getApiKey() {
-        return $tokenArray['api_key'];
+        return $this->tokenArray['api_key'];
     }
 
 
