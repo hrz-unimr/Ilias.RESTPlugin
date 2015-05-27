@@ -24,6 +24,7 @@ class CalendarModel
     /**
      * Retrieves all future appointments for a given user.
      * @param $user_id
+     * @return list of events
      */
     function getCalUpcomingEvents($user_id)
     {

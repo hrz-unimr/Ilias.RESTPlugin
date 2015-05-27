@@ -138,7 +138,7 @@ $app->group('/v1/m', function () use ($app) {
             $response->setData("Code", $errorCode);
             $response->setData("Explanation", "http://php.net/manual/en/features.file-upload.errors.php");
             $response->setHttpStatus("400");
-            $response->setRestCode("400");
+            $response->setRestCode("-1");
             $response->send();
             exit;
         }

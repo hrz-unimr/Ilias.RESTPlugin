@@ -105,7 +105,7 @@ $app->group('/v1', function () use ($app) {
     });
 
     /**
-     * Enroll an User to a Course.
+     * Enroll a user to a course.
      * Expects a "mode" parameter ("by_login"/"by_id") that determines the
      * lookup method for the user.
      * If "mode" is "by_login", the "login" parameter is used for the lookup.
