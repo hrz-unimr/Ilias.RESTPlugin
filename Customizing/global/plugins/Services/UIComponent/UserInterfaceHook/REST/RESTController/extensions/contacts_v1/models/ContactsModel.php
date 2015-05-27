@@ -2,7 +2,7 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * Authors: D.Schaefer and T. Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
 namespace RESTController\extensions\contacts_v1;
@@ -25,6 +25,7 @@ class ContactsModel
     /**
      * Retrieves contacts for a given user listed under "My Contacts".
      * @param $user_id
+     * @return array list of contact entries
      */
     function getMyContacts($user_id)
     {
