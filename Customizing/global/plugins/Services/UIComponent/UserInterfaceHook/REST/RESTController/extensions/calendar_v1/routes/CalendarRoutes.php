@@ -64,4 +64,56 @@ $app->group('/v1', function () use ($app) {
         }
         $response->toJSON();
     });
+
+    /**
+     * Returns the calendar events of the authorized user.
+     */
+    $app->get('/cal/events', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
+        $env = $app->environment();
+        $response = new RESTResponse($app);
+        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
+
+        if ($authorizedUserId>-1) { // only the user is allowed to access the data
+            $id = $authorizedUserId;
+            try {
+                $model = new CalendarModel();
+                $data = $model->getCalUpcomingEvents($id);
+                $response->setMessage("Upcoming events for user " . $id . ".");
+                $response->addData('items', $data);
+            } catch (\Exception $e) {
+                $response->setRESTCode("-15");
+                $response->setMessage('Error: Could not retrieve any events for user '.$id.".");
+            }
+        } else {
+            $response->setRESTCode("-13");
+            $response->setMessage('User has no RBAC permissions to access the data.');
+        }
+        $response->toJSON();
+    });
+
+    /**
+     * Returns the ICAL Url of the desktop calendar of the authorized user.
+     */
+    $app->get('/cal/icalurl', '\RESTController\libs\AuthMiddleware::authenticate' , function () use ($app) {
+        $env = $app->environment();
+        $response = new RESTResponse($app);
+        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
+        if ($authorizedUserId > -1 ) { // only the user or the admin is allowed to access the data
+            $id = $authorizedUserId;
+            try {
+                $model = new CalendarModel();
+                $data = $model->getIcalAdress($id);
+                $response->setMessage("ICAL (ics) address for user " . $id . ".");
+                $response->addData('icalurl', $data);
+            } catch (\Exception $e) {
+                $response->setRESTCode("-15");
+                $response->setMessage('Error: Could not retrieve ICAL url for user '.$id.".");
+            }
+        } else {
+            $response->setRESTCode("-13");
+            $response->setMessage('User has no RBAC permissions to access the data.');
+        }
+        $response->toJSON();
+    });
+
 });

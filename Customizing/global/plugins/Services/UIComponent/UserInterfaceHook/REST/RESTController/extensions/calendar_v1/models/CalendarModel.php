@@ -76,8 +76,6 @@ class CalendarModel
         foreach($events as $event)
         {
             $entry = $event['event'];
-            global $ilLog;
-            $ilLog->write(print_r($entry,true));
 
             $rec = ilCalendarRecurrences::_getFirstRecurrence($entry->getEntryId());
 
