@@ -22,23 +22,23 @@ namespace RESTController\libs;
  */
 class RESTResponse extends \Slim\Http\Response {
     /**
+     * Anforderungen
+     *  - setFormat() -> RAW, JSON (default)
+     *  - write($body, $replace = false) ODER finalize() überschreiben
+     *  - disableCache() function
+     *  - standard formate/codes definieren
+     */
+
+
+    /**
      *
      */
-    public function noCache($reset = false) {
-        if ($reset)
-            $headers = array(
-                'Cache-Control' => null,
-                'Pragma' => null,
-                'Expires' => null
-            );
-        else
-            $headers = array(
-                'Cache-Control' => 'no-cache, no-store, must-revalidate',
-                'Pragma' => 'no-cache',
-                'Expires ' => 0
-            );
-
-        $this->headers->replace($headers);
+    public function noCache() {
+        $this->headers->replace(array(
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires ' => 0
+        ));
     }
 
     // WWW-Authenticate: OAuth realm="http://server.example.com/"

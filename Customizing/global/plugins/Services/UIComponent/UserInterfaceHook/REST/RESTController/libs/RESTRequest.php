@@ -12,13 +12,24 @@ namespace RESTController\libs;
  *
  */
 class RESTRequest extends \Slim\Http\Request {
+    /*
+     * Anforderungen:
+     *  - params sollte body (JSON) und GET verstehen! [nur wenn content-type stimmt]
+     *  - params muss THROW erlauben
+     *
+     * Notiz:
+     *  - getAllHeaders() durch $app->request->headers->get('param-all'); ersetzten
+     */
+    protected $json_arr;
+
+
     /**
      *
      */
     public function getParam($param, $default = null, $throw = false) {
         $ret = $this->params($param);
         if($ret == null){
-            $this->decodeJson();
+            $this->json_arr = $this->getBody();
 
             if ($this->json_arr != null and isset($this->json_arr[$param]))
                 return $this->json_arr[$param];
@@ -30,26 +41,4 @@ class RESTRequest extends \Slim\Http\Request {
         else
             return $ret;
     }
-
-
-    /**
-     */
-    protected function decodeJson() {
-        //if ($this->content_type == 'application/json' and !$this->json_decoded) {
-        if ( !$this->json_decoded ) { // try to decode regardless of content type
-            $this->json_arr = json_decode($this->slimReq->getBody(), true);
-            $this->json_decoded = true;
-        }
-    }
 }
-
-
-
-/**
- * Tight wrapper around Slim's params() method.
- * If a parameter is not found, try to json-decode the request body
- * and look for the parameter there.
-
- * TODO Liefert Format-Einstellung-Body, RAW-Body, GET, HEAD
- * Einzelne Methoden um immer nur Format-Einstellung-Body, RAW-Body, JSON-Body, GET oder HEAD zu holen
- */

@@ -155,17 +155,17 @@ class RESTController extends \Slim\Slim {
      */
     protected function setCustomContainer() {
         // Use custom Router
-        $this->container->singleton('router', function () {
+        $this->container->singleton('router', function ($c) {
             return new \RESTController\libs\RESTRouter();
         });
 
         // Use custom Request
-        $this->container->singleton('request', function () {
-            return new \RESTController\libs\RESTRequest($this);
+        $this->container->singleton('request', function ($c) {
+            return new \RESTController\libs\RESTRequest($this->environment());
         });
 
         // Use custom Request
-        $this->container->singleton('response', function () {
+        $this->container->singleton('response', function ($c) {
             return new \RESTController\libs\RESTResponse();
         });
     }
@@ -178,7 +178,7 @@ class RESTController extends \Slim\Slim {
      * @param $userSettings - Associative array of application settings
      */
     public function __construct($appDirectory, array $userSettings = array()) {
-        parent::__construct();
+        parent::__construct($userSettings);
 
         // Global information that should be available to all routes/models
         $env = $this->environment();
@@ -188,6 +188,10 @@ class RESTController extends \Slim\Slim {
         // Set template for current view and new views
         $this->config('templates.path', $appDirectory);
         $this->view()->setTemplatesDirectory($appDirectory);
+
+        // Add Content-Type middleware (mostly for JSON)
+        $contentType = new \Slim\Middleware\ContentTypes();
+        $this->add($contentType);
 
         // REST doesn't use cookies
         $this->hook('slim.after.router', function () {

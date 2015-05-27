@@ -150,9 +150,10 @@ $app->group('/v1', function () use ($app) {
                 // Get Request & OAuth-Model objects
                 $request =  $app->request();
                 $model = new TokenEndpoint();
+                $grant_type = $request->getParam('grant_type');
 
                 // Resource Owner (User) grant type
-                if ($request->getParam('grant_type') == 'password') {
+                if ($grant_type == 'password') {
                     // Fetch request data
                     $api_key = $request->getParam('api_key', null, true);
                     $user = $request->getParam('username', null, true);
@@ -164,7 +165,7 @@ $app->group('/v1', function () use ($app) {
                     $app->success($result);
                 }
                 // grant type
-                elseif ($request->getParam('grant_type') == 'client_credentials') {
+                elseif ($grant_type == 'client_credentials') {
                     // Fetch request data
                     $api_key = $request->getParam('api_key', null, true);
                     $api_secret = $request->getParam('api_secret', null, true);
@@ -175,7 +176,7 @@ $app->group('/v1', function () use ($app) {
                     $app->success($result);
                 }
                 // grant type
-                elseif ($request->getParam('grant_type') == 'authorization_code') {
+                elseif ($grant_type == 'authorization_code') {
                     // Fetch request data (POST-Form instead of body)
                     $api_key = $_POST['api_key'];
 
@@ -191,7 +192,7 @@ $app->group('/v1', function () use ($app) {
                     $app->success($result);
                 }
                 // grant type
-                elseif ($request->getParam('grant_type') == 'refresh_token') {
+                elseif ($grant_type == 'refresh_token') {
                     // Fetch request data
                     $refresh_token = $request->getParam('refresh_token', null, true);
 
