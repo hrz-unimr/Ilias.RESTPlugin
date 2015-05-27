@@ -2,7 +2,7 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * Authors: D.Schaefer and T. Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
 namespace RESTController\extensions\calendar_v1;
@@ -12,13 +12,12 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
 
-/*
+/**
  * Route definitions for the REST Calendar API
  */
-
 $app->group('/v1', function () use ($app) {
     /**
-     * Returns the calendar events of user specified by $id.
+     * Returns the calendar events of a user specified by its user_id.
      */
     $app->get('/cal/events/:id', '\RESTController\libs\AuthMiddleware::authenticate', function ($id) use ($app) {
         $env = $app->environment();
@@ -43,7 +42,7 @@ $app->group('/v1', function () use ($app) {
     });
 
     /**
-     * Returns the ICAL Url of the desktop calendar of user specified by $id
+     * Returns the ICAL Url of the desktop calendar of a user specified by its user_id.
      */
     $app->get('/cal/icalurl/:id', '\RESTController\libs\AuthMiddleware::authenticate' , function ($id) use ($app) {
         $env = $app->environment();

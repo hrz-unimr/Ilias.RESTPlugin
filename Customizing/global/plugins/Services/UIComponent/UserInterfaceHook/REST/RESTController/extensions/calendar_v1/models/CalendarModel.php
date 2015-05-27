@@ -2,7 +2,7 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * Authors: D.Schaefer and T. Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
 namespace RESTController\extensions\calendar_v1;
@@ -24,7 +24,7 @@ class CalendarModel
     /**
      * Retrieves all future appointments for a given user.
      * @param $user_id
-     * @return list of events
+     * @return array list of events
      */
     function getCalUpcomingEvents($user_id)
     {
@@ -45,8 +45,6 @@ class CalendarModel
             "./Services/Object/classes/class.ilObjectDefinition.php");
         global $ilObjDataCache, $objDefinition;
 
-        //echo "username: ";
-        //var_dump($ilUser->getLogin());
         include_once('./Services/Calendar/classes/class.ilCalendarSchedule.php');
         include_once('./Services/Calendar/classes/class.ilDate.php');
 
@@ -55,7 +53,6 @@ class CalendarModel
         include_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
         $cats = ilCalendarCategories::_getInstance($ilUser->getId());
         //var_dump($cats);
-
 
         include_once('./Services/Calendar/classes/class.ilCalendarUserSettings.php');
         if(ilCalendarUserSettings::_getInstance()->getCalendarSelectionType() == ilCalendarUserSettings::CAL_SELECTION_MEMBERSHIP)
@@ -75,7 +72,6 @@ class CalendarModel
         $events = $schedule->getScheduledEvents();
         include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
         include_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
-
 
         foreach($events as $event)
         {
@@ -117,6 +113,7 @@ class CalendarModel
      * Returns the URL to the ICAL file from the calendar of the personal desktop.
      * See also class.ilCalendarBlockGUI.php -> showCalendarSubscription()
      * @param $user_id
+     * @return string a URL
      */
     function getIcalAdress($user_id)
     {
