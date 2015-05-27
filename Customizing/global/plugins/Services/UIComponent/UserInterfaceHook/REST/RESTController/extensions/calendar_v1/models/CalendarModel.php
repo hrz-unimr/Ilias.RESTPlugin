@@ -12,7 +12,7 @@ use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\
 use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
 
 use \ilCalendarUserSettings, \ilCalendarSchedule, \ilCalendarRecurrences, \ilHTTPS, \ilCalendarAuthenticationToken;
-
+use \ilCalendarCategories, \ilDate, \ilCalendarCategoryAssignments, \ilObject;
 
 require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
 require_once("./Modules/File/classes/class.ilObjFile.php");
@@ -76,6 +76,8 @@ class CalendarModel
         foreach($events as $event)
         {
             $entry = $event['event'];
+            global $ilLog;
+            $ilLog->write(print_r($entry,true));
 
             $rec = ilCalendarRecurrences::_getFirstRecurrence($entry->getEntryId());
 
@@ -103,6 +105,12 @@ class CalendarModel
             $tmp_arr['last_update'] = $entry->getLastUpdate()->get(IL_CAL_UNIX);
             $tmp_arr['frequence'] = $rec->getFrequenceType();
 
+            // see permalink code at ilCalendearAppointmentGUI l.804 (showInfoScreen())
+            include_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
+            $cat_id = ilCalendarCategoryAssignments::_lookupCategory($entry->getEntryId());
+            $cat_info = ilCalendarCategories::_getInstance()->getCategoryInfo($cat_id);
+            $refs = ilObject::_getAllReferences($cat_info['obj_id']);
+            $tmp_arr['reference'] = current($refs); // reference id
             $appointments[] = $tmp_arr;
         }
 
