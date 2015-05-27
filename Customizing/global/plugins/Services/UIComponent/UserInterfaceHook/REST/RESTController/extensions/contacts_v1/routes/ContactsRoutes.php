@@ -39,4 +39,30 @@ $app->group('/v1', function () use ($app) {
         }
         $response->toJSON();
     });
+
+    /**
+     * Returns the personal ILIAS contacts of the authenticated user.
+     */
+    $app->get('/contacts', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
+        $env = $app->environment();
+        $response = new RESTResponse($app);
+        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
+        if ($authorizedUserId > -1) { // only the user is allowed to access the data
+            $id = $authorizedUserId;
+            try {
+                $model = new ContactsModel();
+                $data = $model->getMyContacts($id);
+                $response->setMessage("Contacts for user " . $id . ".");
+                $response->addData('contacts', $data);
+            } catch (\Exception $e) {
+                $response->setRESTCode("-15");
+                $response->setMessage('Error: Could not retrieve data for user '.$id.".");
+            }
+        } else {
+            $response->setRESTCode("-13");
+            $response->setMessage('User has no RBAC permissions to access the data.');
+        }
+        $response->toJSON();
+    });
+
 });
