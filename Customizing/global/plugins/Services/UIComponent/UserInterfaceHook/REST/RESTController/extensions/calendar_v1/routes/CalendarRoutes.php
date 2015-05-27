@@ -66,7 +66,7 @@ $app->group('/v1', function () use ($app) {
     });
 
     /**
-     * Returns the calendar events of the authorized user.
+     * Returns the calendar events of the authenticated user.
      */
     $app->get('/cal/events', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
         $env = $app->environment();
@@ -92,7 +92,7 @@ $app->group('/v1', function () use ($app) {
     });
 
     /**
-     * Returns the ICAL Url of the desktop calendar of the authorized user.
+     * Returns the ICAL Url of the desktop calendar of the authenticated user.
      */
     $app->get('/cal/icalurl', '\RESTController\libs\AuthMiddleware::authenticate' , function () use ($app) {
         $env = $app->environment();
