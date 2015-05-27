@@ -20,7 +20,7 @@ $app->group('/v1', function () use ($app) {
      * Returns the calendar events of user specified by $id.
      */
     $app->get('/cal/events/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($id) use ($app) {
-        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
@@ -48,7 +48,7 @@ $app->group('/v1', function () use ($app) {
      * Returns the ICAL Url of the desktop calendar of user specified by $id
      */
     $app->get('/cal/icalurl/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth' , function ($id) use ($app) {
-        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();

@@ -14,36 +14,35 @@ use \RESTController\core\clients\Clients as Clients;
 
 /**
  *
- * Constructor requires $app & $sqlDB.
  */
 class EndpointBase extends Libs\RESTModel {
-    protected $tokenSettings;
+    /*
+     *
+     */
+    protected static $tokenSettings;
 
 
-    public static function fromBase($baseObject) {
-        $obj = new static($baseObject->app, $baseObject->sqlDB, $baseObject->plugin);
-        $obj->tokenSeetings = $baseObject->tokenSettings;
-        return $obj;
+    /**
+     *
+     */
+    public static function tokenSettings() {
+        if (!self::$tokenSettings)
+            self::$tokenSettings = self::loadTokenSettings();
+
+        return self::$tokenSettings;
     }
 
-
-    public function tokenSettings() {
-        if (!$this->tokenSettings)
-            $this->tokenSettings = $this->loadTokenSettings();
-
-        return $this->tokenSettings;
-    }
 
     /**
      * Load all settings from database, could also load each value when
      * its required, but doing only one query should be better overall.
      * Sets $tokenSalt and $tokenTTL.
      */
-    protected function loadTokenSettings() {
+    protected static function loadTokenSettings() {
         // Fetch key, value pairs from database
         $sql = 'SELECT setting_name, setting_value FROM ui_uihk_rest_config WHERE setting_name IN ("token_salt", "token_ttl")';
-        $query = $this->sqlDB->query($sql);
-        while ($query != null && $row = $this->sqlDB->fetchAssoc($query)) {
+        $query = self::$sqlDB->query($sql);
+        while ($query != null && $row = self::$sqlDB->fetchAssoc($query)) {
             switch ($row['setting_name']) {
                 case "token_salt" :
                     $salt = $row['setting_value'];

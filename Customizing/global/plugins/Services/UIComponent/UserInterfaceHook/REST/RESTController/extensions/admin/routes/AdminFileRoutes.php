@@ -23,7 +23,7 @@ $app->group('/admin', function () use ($app) {
      * File Download
      */
     $app->get('/files/:id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($id) use ($app) {
-        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $auth = new Auth\Util();
         //$user_id = $auth->getAccessToken()->getUserId();
 
         $request = new Libs\RESTRequest($app);

@@ -14,7 +14,6 @@ use \RESTController\libs\Exceptions as LibExceptions;
 
 /**
  *
- * Constructor requires $app & $sqlDB.
  */
 class RefreshEndpoint extends EndpointBase {
     //
@@ -44,10 +43,10 @@ class RefreshEndpoint extends EndpointBase {
             $api_key,
             $refresh_token
         );
-        $query = $this->sqlDB->query($sql);
+        $query = self::$sqlDB->query($sql);
 
         //
-        if ($query != null && $entry = $this->sqlDB->fetchAssoc($query))
+        if ($query != null && $entry = self::$sqlDB->fetchAssoc($query))
             return $entry['num_refresh_left'];
     }
 
@@ -64,7 +63,7 @@ class RefreshEndpoint extends EndpointBase {
         //
         $user_id = $accessToken->getUserId();
         $api_key = $accessToken->getApiKey();
-        $refreshToken = Token\Refresh::fromFields($this->tokenSettings(), $user_id, $api_key);
+        $refreshToken = Token\Refresh::fromFields(self::tokenSettings(), $user_id, $api_key);
         $remainingRefreshs = $this->getRemainingRefreshs($refreshToken);
 
         //
@@ -89,7 +88,8 @@ class RefreshEndpoint extends EndpointBase {
      */
     public function createToken($user_id, $api_key, $refreshToken) {
         //
-        $api_id = Libs\RESTLib::getApiIdFromKey($api_key);
+        $clientsModel = new Clients\Clients();
+        $api_id =  $clientsModel->getApiIdFromKey($api_key);
         $refresh_token = $refreshToken->getTokenString();
         $now = date(self::DATE_FORMAT, time());
 
@@ -103,10 +103,10 @@ class RefreshEndpoint extends EndpointBase {
             'init_timestamp'            => array('date',        $now),
             'num_resets'                => array('integer',     0)
         );
-        $this->sqlDB->insert('ui_uihk_rest_oauth2', $a_columns);
+        self::$sqlDB->insert('ui_uihk_rest_oauth2', $a_columns);
 
         //
-        return $this->sqlDB->getLastInsertId();
+        return self::$sqlDB->getLastInsertId();
     }
 
 
@@ -128,7 +128,7 @@ class RefreshEndpoint extends EndpointBase {
             $user_id,
             $api_key
         );
-        $numAffRows = $this->sqlDB->manipulate($sql);
+        $numAffRows = self::$sqlDB->manipulate($sql);
 
         return $numAffRows;
     }
@@ -154,7 +154,7 @@ class RefreshEndpoint extends EndpointBase {
             $api_key,
             $now
         );
-        $numAffRows = $this->sqlDB->manipulate($sql);
+        $numAffRows = self::$sqlDB->manipulate($sql);
 
         return $numAffRows;
     }
@@ -188,7 +188,7 @@ class RefreshEndpoint extends EndpointBase {
             $now,
             self::DEFAULT_RENEW_COUNT
         );
-        $numAffRows = $this->sqlDB->manipulate($sql);
+        $numAffRows = self::$sqlDB->manipulate($sql);
 
         return $numAffRows;
     }

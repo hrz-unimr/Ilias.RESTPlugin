@@ -155,13 +155,18 @@ class RESTController extends \Slim\Slim {
      */
     protected function setCustomContainer() {
         // Use custom Router
-        $this->container->singleton('router', function ($c) {
+        $this->container->singleton('router', function () {
             return new \RESTController\libs\RESTRouter();
         });
 
         // Use custom Request
-        $this->container->singleton('request', function ($c) {
+        $this->container->singleton('request', function () {
             return new \RESTController\libs\RESTRequest($this);
+        });
+
+        // Use custom Request
+        $this->container->singleton('response', function () {
+            return new \RESTController\libs\RESTResponse();
         });
     }
 
@@ -245,14 +250,6 @@ class RESTController extends \Slim\Slim {
     /**
      *
      */
-    // Move to response (& request -> should be based on request-header -> content-type) class?
-    public function setFormat($format) {
-    }
-
-
-    /**
-     *
-     */
     public function halt($httpCode, $message = null, $restCode = "", $format = null) {
         // 'halt($code, $message) <Stub - Implement Me>';
         // Build a JSON with msg=$message, status=failed, code=$restCode
@@ -274,7 +271,7 @@ class RESTController extends \Slim\Slim {
      */
     protected function displayError($msg, $code, $file, $line, $trace) {
         // Generate standard message
-        $errStr = '{
+$errStr = '{
     "msg": "An error occured while handling this route!",
     "data": {
         "message": ' . json_encode(($msg)   ?: '') . ',

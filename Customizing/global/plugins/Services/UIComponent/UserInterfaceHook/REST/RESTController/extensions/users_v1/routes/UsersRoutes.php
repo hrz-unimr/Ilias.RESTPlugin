@@ -59,7 +59,7 @@ $app->get('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenAut
     try {
         $id = $user_id;
         if ($user_id == "mine") {
-            $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+            $auth = new Auth\Util();
             $accessToken = $auth->getAccessToken();
             $user = $accessToken->getUserName();
             $id = $accessToken->getUserId();

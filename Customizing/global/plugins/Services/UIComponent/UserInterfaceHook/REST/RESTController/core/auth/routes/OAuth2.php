@@ -50,18 +50,18 @@ $app->group('/v1', function () use ($app) {
                 $authenticity_token = $request->getParam('authenticity_token');
 
                 // Proccess with OAuth2-Model
-                $model = new AuthEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                $model = new AuthEndpoint();
                 if ($authenticity_token)
                     $authenticityToken = Token\Generic::fromMixed($model->tokenSettings(), $authenticity_token);
                 $result = $model->allGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticityToken);
 
                 // Process results (send response)
                 if ($result['status'] == 'showLogin') {
-                    $render = Util::fromBase($model);
+                    $render = new Util();
                     $render->renderWebsite('REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', $result['data']);
                 }
                 elseif ($result['status'] == 'showPermission') {
-                    $render = Util::fromBase($model);
+                    $render = new Util();
                     $render->renderWebsite('REST OAuth - Client autorisieren', 'oauth2grantpermissionform.php', $result['data']);
                 }
                 elseif ($result['status'] == 'redirect')
@@ -112,7 +112,7 @@ $app->group('/v1', function () use ($app) {
                     throw new Exceptions\ResponseType(Exceptions\ResponseType::MSG);
 
                 // Display login form
-                $render = new Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                $render = new Util();
                 $render->renderWebsite(
                     'REST OAuth - Login für Tokengenerierung',
                     'oauth2loginform.php',
@@ -149,7 +149,7 @@ $app->group('/v1', function () use ($app) {
             try {
                 // Get Request & OAuth-Model objects
                 $request =  $app->request();
-                $model = new TokenEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                $model = new TokenEndpoint();
 
                 // Resource Owner (User) grant type
                 if ($request->getParam('grant_type') == 'password') {
@@ -160,6 +160,7 @@ $app->group('/v1', function () use ($app) {
 
                     // Invoke OAuth2-Model with data
                     $result = $model->userCredentials($api_key, $user, $password);
+                    $app->response()->noCache();
                     $app->success($result);
                 }
                 // grant type
@@ -170,6 +171,7 @@ $app->group('/v1', function () use ($app) {
 
                     // Invoke OAuth2-Model with data
                     $result = $model->clientCredentials($api_key, $api_secret);
+                    $app->response()->noCache();
                     $app->success($result);
                 }
                 // grant type
@@ -185,6 +187,7 @@ $app->group('/v1', function () use ($app) {
                     // Invoke OAuth2-Model with data
                     $authCodeToken = Token\Generic::fromMixed($model->tokenSettings(), $code);
                     $result = $model->authorizationCode($api_key, $api_secret, $authCodeToken, $redirect_uri);
+                    $app->response()->noCache();
                     $app->success($result);
                 }
                 // grant type
@@ -197,8 +200,10 @@ $app->group('/v1', function () use ($app) {
                     $result = $model->refresh2Access($refreshToken);
 
                     // Send result to client
-                    if ($result)
+                    if ($result) {
+                        $app->response()->noCache();
                         $app->success($result);
+                    }
                     else
                         $app->halt(422, TokenEndpoint::MSG_NO_REFRESH_LEFT, TokenEndpoint::ID_NO_REFRESH_LEFT);
                 }
@@ -235,16 +240,16 @@ $app->group('/v1', function () use ($app) {
         $app->get('/refresh', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
             try {
                 // Fetch token
-                $util = new Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                $util = new Util();
                 $accessToken = $util->getAccessToken();
 
                 // Create new refresh token
-                $model = RefreshEndpoint::fromBase($util);
-                $result = $model->getToken($accessToken);
+                $model = new RefreshEndpoint();
+                $refreshToken = $model->getToken($accessToken);
 
-
-                // !!! Try-Catch
-                // !!! Success
+                // Return token
+                $app->response()->noCache();
+                $app->success($refreshToken->getTokenString());
             }
             catch (Exceptions\TokenInvalid $e) {
                 $app->halt(422, $e->getMessage(), $e::ID);
@@ -266,11 +271,11 @@ $app->group('/v1', function () use ($app) {
         $app->get('/tokeninfo', function () use ($app) {
             try {
                 // Fetch token
-                $util = new Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+                $util = new Util();
                 $accessToken = $util->getAccessToken();
 
                 // Generate token-information
-                $model = MiscEndpoint::fromBase($util);
+                $model = new MiscEndpoint();
                 $result = $model->tokenInfo($accessToken);
 
                 // Return status-data
@@ -306,10 +311,11 @@ $app->group('/v1', function () use ($app) {
             $session_id = $request->getParam('session_id', null, true);
 
             // Convert userId, rToken and sessionId to bearer-token (using api-key)
-            $model = new MiscEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+            $model = new MiscEndpoint();
             $result = $model->rToken2Bearer($api_key, $user_id, $rtoken, $session_id);
 
             // Return status-data
+            $app->response()->noCache();
             $app->success($result);
         }
         catch (LibExceptions\TokenInvalid $e) {

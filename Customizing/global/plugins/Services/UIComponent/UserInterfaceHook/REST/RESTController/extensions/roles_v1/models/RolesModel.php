@@ -21,7 +21,7 @@ class RolesModel
         // TODO: do it here or in route?
 
        // Fetch authorized user
-       $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+       $auth = new Auth\Util();
        $user = $auth->getAccessToken()->getUserName();
 
         Libs\RESTLib::setUserContext($user);  // filled by auth middleware

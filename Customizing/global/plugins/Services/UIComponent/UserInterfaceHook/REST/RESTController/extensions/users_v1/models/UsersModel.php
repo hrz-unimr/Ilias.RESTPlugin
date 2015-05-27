@@ -168,7 +168,7 @@ class UsersModel
         require_once('./Services/Authentication/classes/class.ilAuthUtils.php');
 
        // Fetch authorized user
-       $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+       $auth = new Auth\Util();
        $user = $auth->getAccessToken()->getUserName();
 
         // TODO: do it here or in route?

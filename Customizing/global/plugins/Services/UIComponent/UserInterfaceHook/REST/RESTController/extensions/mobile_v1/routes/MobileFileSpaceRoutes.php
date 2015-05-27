@@ -27,7 +27,7 @@ $app->group('/v1/m', function () use ($app) {
     $app->get('/myfilespace', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $t_start = microtime();
 
-        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
@@ -51,7 +51,7 @@ $app->group('/v1/m', function () use ($app) {
     $app->get('/myfilespacecopy','\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $t_start = microtime();
 
-        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
@@ -89,7 +89,7 @@ $app->group('/v1/m', function () use ($app) {
     $app->post('/myfilespacecopy','\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $t_start = microtime();
 
-        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
@@ -137,7 +137,7 @@ $app->group('/v1/m', function () use ($app) {
         $app->log->debug('Myfilespace upload via POST');
         $t_start = microtime();
 
-        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
@@ -174,7 +174,7 @@ $app->group('/v1/m', function () use ($app) {
         $app->log->debug('Myfilespace delete');
         $t_start = microtime();
 
-        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();

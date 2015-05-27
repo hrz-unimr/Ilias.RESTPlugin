@@ -20,7 +20,7 @@ $app->group('/v1', function () use ($app) {
      * Returns the personal ILIAS contacts for a user specified by id.
      */
     $app->get('/contacts/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($id) use ($app) {
-        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();

@@ -37,8 +37,8 @@ class Util extends EndpointBase {
     public function checkClient($api_key) {
         // Fetch client with given api-key (checks existance)
         $sql = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
-        $query = $this->sqlDB->query($sql);
-        if ($this->sqlDB->numRows($query) > 0)
+        $query = self::$sqlDB->query($sql);
+        if (self::$sqlDB->numRows($query) > 0)
             return true;
         return false;
     }
@@ -55,8 +55,8 @@ class Util extends EndpointBase {
     public function checkClientCredentials($api_key, $api_secret) {
         // Fetch client with given api-key (checks existance)
         $sql = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s" AND api_secret = "%s"', $api_key, $api_secret);
-        $query = $this->sqlDB->query($sql);
-        if ($this->sqlDB->numRows($query) > 0)
+        $query = self::$sqlDB->query($sql);
+        if (self::$sqlDB->numRows($query) > 0)
             return true;
         return false;
     }
@@ -84,8 +84,8 @@ class Util extends EndpointBase {
             $route,
             $operation
         );
-        $query = $this->sqlDB->query($sql);
-        if ($this->sqlDB->fetchAssoc($query))
+        $query = self::$sqlDB->query($sql);
+        if (self::$sqlDB->fetchAssoc($query))
             return true;
         return false;
     }
@@ -115,8 +115,8 @@ class Util extends EndpointBase {
             $rtoken,
             $session_id
         );
-        $queryToken = $this->sqlDB->query($sqlToken);
-        if ($this->sqlDB->numRows($queryToken) > 0)
+        $queryToken = self::$sqlDB->query($sqlToken);
+        if (self::$sqlDB->numRows($queryToken) > 0)
             $rtokenValid = true;
 
         $sqlSession = sprintf('
@@ -126,8 +126,8 @@ class Util extends EndpointBase {
             $user_id,
             $session_id
         );
-        $querySession = $this->sqlDB->query($sqlSession);
-        if ($row = $this->sqlDB->fetchAssoc($querySession))
+        $querySession = self::$sqlDB->query($sqlSession);
+        if ($row = self::$sqlDB->fetchAssoc($querySession))
             if ($row['expires'] > time())
                 $sessionValid = true;
 
@@ -147,14 +147,14 @@ class Util extends EndpointBase {
     public function renderWebsite($title, $file, $data) {
         // Build absolute-path (relative to document-root)
         $sub_dir = 'core/auth/views';
-        $rel_path = $this->plugin->getPluginObject(IL_COMP_SERVICE, 'UIComponent', 'uihk', 'REST')->getDirectory();
+        $rel_path = self::$plugin->getPluginObject(IL_COMP_SERVICE, 'UIComponent', 'uihk', 'REST')->getDirectory();
         $scriptName = dirname($_SERVER['SCRIPT_NAME']);
         $scriptName = str_replace('\\', '/', $scriptName);
         $scriptName = ($scriptName == '/' ? '' : $scriptName);
         $abs_path = $scriptName.'/'.$rel_path.'/RESTController/'.$sub_dir;
 
         // Supply data to slim application
-        $this->app->render($sub_dir.'/core.php', array(
+        self::$app->render($sub_dir.'/core.php', array(
             'tpl_path' => $abs_path,
             'tpl_title' => $title,
             'tpl_file' => $file,
@@ -188,11 +188,11 @@ class Util extends EndpointBase {
         }
         */
 
-        
+
         // Return stored acces token
         if (!$this->accessToken) {
             // Fetch token from body GET/POST (json or plain)
-            $request = $this->app->request();
+            $request = self::$app->request();
             $tokenString = $request->getParam('token');
 
             // Fetch access_token from GET/POST (json or plain)
@@ -214,7 +214,7 @@ class Util extends EndpointBase {
             }
 
             // Decode token (Throws Exception if token is invalid/missing)
-            $accessToken = Token\Generic::fromMixed($this->tokenSettings(), $tokenString);
+            $accessToken = Token\Generic::fromMixed(self::tokenSettings(), $tokenString);
 
             // Store access token
             $this->accessToken = $accessToken;

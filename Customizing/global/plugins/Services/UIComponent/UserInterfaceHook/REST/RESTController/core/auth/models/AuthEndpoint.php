@@ -14,7 +14,6 @@ use \RESTController\core\clients\Clients as Clients;
 
 /**
  *
- * Constructor requires $app & $sqlDB.
  */
 class AuthEndpoint extends EndpointBase {
     // Allow to re-use status-strings
@@ -26,7 +25,7 @@ class AuthEndpoint extends EndpointBase {
      */
     public function allGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticityToken) {
         // Client-Model required
-        $clients = new Clients(null, $this->sqlDB);
+        $clients = new Clients();
 
         // Check input
         if ($response_type != 'code' && $response_type != 'token')
@@ -69,7 +68,7 @@ class AuthEndpoint extends EndpointBase {
             // Need to show grant-permission site?
             if($clients->is_oauth2_consent_message_enabled($api_key)) {
                 // Generate a temporary token that can be exchanged for bearer-token
-                $tempAuthenticityToken = Token\Generic::fromFields($this->tokenSettings(), $username, $api_key, 'temporary-code', '', 10);
+                $tempAuthenticityToken = Token\Generic::fromFields(self::tokenSettings(), $username, $api_key, 'temporary', '', 10);
                 $oauth2_consent_message = $clients->getOAuth2ConsentMessage($api_key);
 
                 // Return data to route/other model
@@ -88,11 +87,11 @@ class AuthEndpoint extends EndpointBase {
             else {
                 // Generate a temporary token that can be exchanged for bearer-token
                 if ($response_type == 'code') {
-                    $authorizationToken = Token\Generic::fromFields($this->tokenSettings(), $username, $api_key, 'code', $redirect_uri, 10);
+                    $authorizationToken = Token\Generic::fromFields(self::tokenSettings(), $username, $api_key, 'code', $redirect_uri, 10);
                     $url = $redirect_uri . '?code='.$authorizationToken->getTokenString();
                 }
                 elseif ($response_type == 'token') {
-                    $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $username, $api_key);
+                    $bearerToken = Token\Bearer::fromFields(self::tokenSettings(), $username, $api_key);
                     $accessToken = $bearerToken->getEntry('access_token');
                     $url = $redirect_uri . '#access_token='.$accessToken->getTokenString().'&token_type=bearer'.'&expires_in='.$bearerToken->getEntry('expires_in').'&state=xyz';
                 }
@@ -115,11 +114,11 @@ class AuthEndpoint extends EndpointBase {
             // Generate a temporary token that can be exchanged for bearer-token
             $tokenUser = $authenticityToken->getUserName();
             if ($response_type == 'code') {
-                $authorizationToken = Token\Generic::fromFields($this->tokenSettings(), $tokenUser, $api_key, 'code', $redirect_uri, 10);
+                $authorizationToken = Token\Generic::fromFields(self::tokenSettings(), $tokenUser, $api_key, 'code', $redirect_uri, 10);
                 $url = $redirect_uri . '?code='.$authorizationToken->getTokenString();
             }
             elseif ($response_type == 'token') {
-                $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $tokenUser, $api_key);
+                $bearerToken = Token\Bearer::fromFields(self::tokenSettings(), $tokenUser, $api_key);
                 $accessToken = $bearerToken->getEntry('access_token');
                 $url = $redirect_uri . '#access_token='.$accessToken->getTokenString().'&token_type=bearer'.'&expires_in='.$bearerToken->getEntry('expires_in').'&state=xyz';
             }

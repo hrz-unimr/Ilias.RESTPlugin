@@ -47,7 +47,7 @@ class OAuth2Middleware {
         try {
             // Fetch token
             $app = \RESTController\RESTController::getInstance();
-            $util = new Auth\Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+            $util = new Auth\Util();
             $accessToken = $util->getAccessToken();
 
             // Authenticate token
@@ -72,7 +72,7 @@ class OAuth2Middleware {
         try {
             // Fetch token
             $app = \RESTController\RESTController::getInstance();
-            $util = new Auth\Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+            $util = new Auth\Util();
             $accessToken = $util->getAccessToken();
 
             // Authentication by token
@@ -99,7 +99,7 @@ class OAuth2Middleware {
         try {
             // Fetch token
             $app = \RESTController\RESTController::getInstance();
-            $util = new Auth\Util($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+            $util = new Auth\Util();
             $accessToken = $util->getAccessToken();
 
             // Fetch and check token
@@ -114,8 +114,6 @@ class OAuth2Middleware {
 
     /**
      * Checks the validity of a token and stops application if invalid.
-
-     * !!!
      */
     protected static function checkAccessToken($app, $accessToken) {
         // Check token for common problems: Non given or invalid format
@@ -134,8 +132,6 @@ class OAuth2Middleware {
 
     /**
      * Checks the permission for the current client to access a route with a certain action.
-     *
-     * !!!
      */
     protected static function checkRoutePermissions($app, $route, $accessToken) {
         // Fetch data to check route access

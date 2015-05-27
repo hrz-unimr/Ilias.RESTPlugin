@@ -22,7 +22,7 @@ $app->group('/v1', function () use ($app) {
      * Retrieves the content and a description of a course specified by ref_id.
      */
     $app->get('/courses/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
-        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
         $id = $accessToken->getUserId();
@@ -43,7 +43,7 @@ $app->group('/v1', function () use ($app) {
     });
 
     $app->post('/courses', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
-        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
@@ -161,7 +161,7 @@ $app->group('/v1', function () use ($app) {
     });
 
     $app->get('/courses/join', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
-        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
@@ -187,7 +187,7 @@ $app->group('/v1', function () use ($app) {
     });
 
     $app->get('/courses/leave', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
-        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();

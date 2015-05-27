@@ -7,36 +7,16 @@
  */
 namespace RESTController\libs;
 
-// Requires !!!
 
-
+/**
+ *
+ */
 class RESTRequest extends \Slim\Http\Request {
-
-    protected $app;
-    protected $content_type;
-    public $json_arr;
-    protected $json_decoded;
-
-    public function __construct ($app) {
-        parent::__construct($app->environment());
-
-        $this->app = $app;
-        $this->slimReq = $this;
-        $this->content_type = $this->headers()->get('Content-Type');
-        $this->json_arr = null;
-        $this->json_decoded = false;
-    }
-
     /**
-     * Tight wrapper around Slim's params() method.
-     * If a parameter is not found, try to json-decode the request body
-     * and look for the parameter there.
-
-     * TODO Liefert Format-Einstellung-Body, RAW-Body, GET, HEAD
-     * Einzelne Methoden um immer nur Format-Einstellung-Body, RAW-Body, JSON-Body, GET oder HEAD zu holen
+     *
      */
     public function getParam($param, $default = null, $throw = false) {
-        $ret = $this->app->request()->params($param);
+        $ret = $this->params($param);
         if($ret == null){
             $this->decodeJson();
 
@@ -51,32 +31,25 @@ class RESTRequest extends \Slim\Http\Request {
             return $ret;
     }
 
+
     /**
-     * Try to json decode the request body, only once.
-     * @return associative array if successful
      */
     protected function decodeJson() {
-//        if ($this->content_type == 'application/json' and !$this->json_decoded) {
+        //if ($this->content_type == 'application/json' and !$this->json_decoded) {
         if ( !$this->json_decoded ) { // try to decode regardless of content type
             $this->json_arr = json_decode($this->slimReq->getBody(), true);
             $this->json_decoded = true;
         }
     }
-
-    /**
-     * Get request as associative array.
-     * Union of parameters (as provided by Slim) and json decoded body.
-     */
-    public function getObject() {
-        $this->decodeJson();
-        if($this->json_arr != null) {
-            return array_merge($this->slimReq->params(), $this->json_arr);
-        } else {
-            throw new \Exception("No JSON data present");
-        }
-    }
-
-    public function getRaw() {
-        return $this->app->request()->getBody();
-    }
 }
+
+
+
+/**
+ * Tight wrapper around Slim's params() method.
+ * If a parameter is not found, try to json-decode the request body
+ * and look for the parameter there.
+
+ * TODO Liefert Format-Einstellung-Body, RAW-Body, GET, HEAD
+ * Einzelne Methoden um immer nur Format-Einstellung-Body, RAW-Body, JSON-Body, GET oder HEAD zu holen
+ */

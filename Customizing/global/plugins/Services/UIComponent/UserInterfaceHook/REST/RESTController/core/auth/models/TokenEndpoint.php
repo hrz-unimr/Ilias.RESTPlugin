@@ -38,7 +38,7 @@ class TokenEndpoint extends EndpointBase {
      */
     public function userCredentials($api_key, $username, $password) {
         // Client-Model required
-        $clients = new Clients(null, $this->sqlDB);
+        $clients = new Clients();
 
         // [All] Client (api-key) is not allowed to use this grant-type or doesn't exist
         if (!Util::checkClient($api_key))
@@ -60,10 +60,10 @@ class TokenEndpoint extends EndpointBase {
             throw new Exceptions\LoginFailed(self::MSG_AUTH_FAILED);
 
         // [All] Generate bearer & refresh-token (if enabled)
-        $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $username, $api_key);
+        $bearerToken = Token\Bearer::fromFields(self::tokenSettings(), $username, $api_key);
         $accessToken = $bearerToken->getEntry('access_token');
         if ($clients->is_resourceowner_refreshtoken_enabled($api_key)) {
-            $refreshModel = RefreshEndpoint::fromBase($this);
+            $refreshModel = new RefreshEndpoint();
             $refreshToken = $refreshModel->getToken($accessToken);
         }
 
@@ -83,7 +83,7 @@ class TokenEndpoint extends EndpointBase {
      */
     public function clientCredentials($api_key, $api_secret) {
         // Client-Model required
-        $clients = new Clients(null, $this->sqlDB);
+        $clients = new Clients();
 
         // [All] Client (api-key) is not allowed to use this grant-type or doesn't exist
         if (!Util::checkClientCredentials($api_key, $api_secret))
@@ -100,7 +100,7 @@ class TokenEndpoint extends EndpointBase {
         $username = Libs\RESTLib::getUserNameFromId($uid);
 
         // [All] Generate bearer & refresh-token (if enabled)
-        $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $username, $api_key);
+        $bearerToken = Token\Bearer::fromFields(self::tokenSettings(), $username, $api_key);
         $accessToken = $bearerToken->getEntry('access_token');
         // -- [no] Refresh-token --
 
@@ -120,7 +120,7 @@ class TokenEndpoint extends EndpointBase {
      */
     public function authorizationCode($api_key, $api_secret, $authCodeToken, $redirect_uri) {
         // Client-Model required
-        $clients = new Clients(null, $this->sqlDB);
+        $clients = new Clients();
 
         // [All] Client (api-key) is not allowed to use this grant-type or doesn't exist
         if (!Util::checkClientCredentials($api_key, $api_secret))
@@ -148,10 +148,10 @@ class TokenEndpoint extends EndpointBase {
             throw new Exceptions\LoginFailed(self::MSG_RESTRICTED_USERS);
 
         // [All] Generate bearer & refresh-token (if enabled)
-        $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $userName, $api_key);
+        $bearerToken = Token\Bearer::fromFields(self::tokenSettings(), $userName, $api_key);
         $accessToken = $bearerToken->getEntry('access_token');
         if ($clients->is_authcode_refreshtoken_enabled($api_key)) {
-            $refreshModel = RefreshEndpoint::fromBase($this);
+            $refreshModel = new RefreshEndpoint();
             $refreshToken = $refreshModel->getToken($accessToken);
         }
 
@@ -177,7 +177,7 @@ class TokenEndpoint extends EndpointBase {
             throw new Exceptions\TokenInvalid(Token\Generic::MSG_EXPIRED);
 
         //
-        $modelRefresh = new RefreshEndpoint($this->app, $this->sqlDB, $this->plugin);
+        $modelRefresh = new RefreshEndpoint();
         $remainingRefreshs = $modelRefresh->getRemainingRefreshs($refreshToken);
 
         //
@@ -188,7 +188,7 @@ class TokenEndpoint extends EndpointBase {
             $modelRefresh->renewToken($user, $api_key, $refreshToken);
 
             //
-            $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $user, $api_key);
+            $bearerToken = Token\Bearer::fromFields(self::tokenSettings(), $user, $api_key);
             $accessToken = $bearerToken->getEntry('access_token');
 
             //

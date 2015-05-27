@@ -217,37 +217,6 @@ class RESTLib {
 
 
     /**
-     *
-     */
-    static public function getApiIdFromKey($api_key) {
-        $sql = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
-        $query = $this->sqlDB->query($sql);
-
-        if ($query != null && $row = $this->sqlDB->fetchAssoc($query))
-            return $row['id'];
-        else
-            throw new LibExceptions\MissingApiKey(sprintf(MSG_API_KEY, $api_key));
-    }
-
-
-    /**
-     *
-     */
-    static public function getApiKeyFromId($api_id) {
-        $sql = sprintf('SELECT api_key FROM ui_uihk_rest_keys WHERE id = %d', $api_id);
-        $query = $this->sqlDB->query($sql);
-
-        if ($query != null && $row = $this->sqlDB->fetchAssoc($query))
-            return $row['api_key'];
-        else
-            throw new LibExceptions\MissingApiKey(sprintf(MSG_API_ID, $api_id));
-    }
-
-
-
-
-
-    /**
      * Given a user id, this function returns the ilias login name of a user.
      *
      * @param $user_id

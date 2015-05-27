@@ -58,7 +58,7 @@ use \RESTController\core\auth as Auth;
  */
  $app->get('/clients', '\RESTController\libs\OAuth2Middleware::TokenAuth', function () use ($app) {
     // Fetch authorized user
-    $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+    $auth = new Auth\Util();
     $user = $auth->getAccessToken()->getUserName();
 
     // Check if user has admin role
@@ -66,7 +66,7 @@ use \RESTController\core\auth as Auth;
         $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
 
     // Use the model class to fetch data
-    $model = new Clients($app, $GLOBALS['ilDB']);
+    $model = new Clients();
     $data = $model->getClients();
 
     // Prepare data
@@ -120,7 +120,7 @@ use \RESTController\core\auth as Auth;
  */
 $app->put('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenAuth', function ($id) use ($app) {
     // Fetch authorized user
-    $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+    $auth = new Auth\Util();
     $user = $auth->getAccessToken()->getUserName();
 
     // Check if authorized user has admin role
@@ -147,7 +147,7 @@ $app->put('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenAuth', fu
     );
 
     // Try to fetch each fields data and update its db-entry
-    $model = new Clients($app, $GLOBALS['ilDB']);
+    $model = new Clients();
     $request = $app->request;
     $failed = array();
     foreach ($fields as $field) {
@@ -220,7 +220,7 @@ $app->put('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenAuth', fu
  */
 $app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenAuth', function () use ($app) {
     // Fetch authorized user
-    $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+    $auth = new Auth\Util();
     $user = $auth->getAccessToken()->getUserName();
 
     // Check if authorized user has admin role
@@ -254,7 +254,7 @@ $app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenAuth', func
     $oauth2_resource_refresh_active = $request->getParam('oauth2_resource_refresh_active', 0);
 
     // Supply data to model which processes it further
-    $model = new Clients($app, $GLOBALS['ilDB']);
+    $model = new Clients();
     $new_id = $model->createClient(
         $api_key,
         $api_secret,
@@ -295,7 +295,7 @@ $app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenAuth', func
  */
 $app->delete('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenAuth',  function ($id) use ($app) {
     // Fetch authorized user
-    $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+    $auth = new Auth\Util();
     $user = $auth->getAccessToken()->getUserName();
 
     // Check if authorized user has admin role
@@ -304,7 +304,7 @@ $app->delete('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenAuth',
 
     try {
         // Use the model class to update databse
-        $model = new Clients($app, $GLOBALS['ilDB']);
+        $model = new Clients();
         $model->deleteClient($id);
 
         // Send affirmation status

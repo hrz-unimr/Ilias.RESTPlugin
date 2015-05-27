@@ -25,7 +25,7 @@ $app->group('/dev', function () use ($app) {
         $request = new Libs\RESTRequest($app);
         $response = new Libs\RESTResponse($app);
 
-        $model = new Clients\Clients(null, $this->sqlDB);
+        $model = new Clients\Clients();
         $data1 = $model->getAllowedUsersForApiKey('9065710a-16b9-4b4c-9230-f76dc72d2a2d');
         $data2 = $model->getClientCredentialsUser('9065710a-16b9-4b4c-9230-f76dc72d2a2d');
 
@@ -53,7 +53,7 @@ $app->group('/dev', function () use ($app) {
         $app->response()->header('Content-Type', 'application/json');
 
 
-        $model = new Auth\TokenEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+        $model = new Auth\TokenEndpoint();
         $refreshToken = Token\Refresh::fromMixed($model->tokenSettings(), $refresh_token);
         $bearer_token = $model->refresh2Access($refreshToken);
 
@@ -75,7 +75,7 @@ $app->group('/dev', function () use ($app) {
         $request = new Libs\RESTRequest($app);
         $response = new Libs\RESTResponse($app);
 
-        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
         $uid = $accessToken->getUserId();
@@ -85,7 +85,7 @@ $app->group('/dev', function () use ($app) {
         //RESTLib::initAccessHandling();
 
         // Create new refresh token
-        $model = new Auth\RefreshEndpoint($app, $GLOBALS['ilDB'], $GLOBALS['ilPluginAdmin']);
+        $model = new Auth\RefreshEndpoint();
         $refreshToken = $model->getToken($accessToken);
 
 

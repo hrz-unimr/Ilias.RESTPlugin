@@ -55,7 +55,7 @@ class MiscEndpoint extends EndpointBase {
 
         // Generate token for user (via given api-key)
         $user = Libs\RESTLib::getUserNameFromId($user_id);
-        $bearerToken = Token\Bearer::fromFields($this->tokenSettings(), $user, $api_key);
+        $bearerToken = Token\Bearer::fromFields(self::tokenSettings(), $user, $api_key);
         return $bearerToken->getTokenArray();
     }
 }

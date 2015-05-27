@@ -24,7 +24,7 @@ $app->group('/v1', function () use ($app) {
      * @param id - the ref or obj_id of the file.
      */
     $app->get('/files/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($id) use ($app) {
-        $auth = new Auth\Util($app, $GLOBALS['ilDB']);
+        $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();

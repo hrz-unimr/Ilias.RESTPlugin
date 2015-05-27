@@ -5,7 +5,7 @@
  * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
-namespace RESTController\libs\Exceptions;
+ namespace RESTController\core\clients\Exceptions;
 
 
 /**
@@ -19,7 +19,7 @@ class MissingApiKey extends \Exception {
      *  Extensions are allowed to create their own error-codes.
      *  Using a unique string seems to be an easier solution than assigning unique numbers.
      */
-    const ID = 'RESTController\\libs\\Exceptions\\MissingApiKey::ID';
+    const ID = 'RESTController\\core\\clients\\Exceptions\\MissingApiKey::ID';
 
     // Allow to re-use statuse messages
     const MSG_API_KEY = 'Could not find client with API-Key: %s';

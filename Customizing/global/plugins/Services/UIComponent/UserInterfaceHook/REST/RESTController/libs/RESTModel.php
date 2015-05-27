@@ -21,33 +21,36 @@ class RESTModel {
      *  stuff (eg. halt(), success(), environment())
      *  with $app inside a model as much as possible.
      */
-    protected $app;
+    protected static $app;
 
 
     /*
      * Inject ilDB. Should remove "global-like"
      * nature of $ilDB.
      */
-    protected $sqlDB;
+    protected static $sqlDB;
 
     /**
      * Inject ilPluginAdmin. Should remove "global-like"
      * nature of $ilPluginAdmin.
      */
-    protected $plugin;
+    protected static $plugin;
 
 
     /**
      * Create a new instance & inject RESTController
      */
-    public function __construct($app = null, $sqlDB = null, $plugin = null) {
+    public function __construct() {
         // Inject RESTController
-        $this->app = $app;
+        if (!self::$app)
+            self::$app = \RESTController\RESTController::getInstance();
 
         // Inject $ilDB
-        $this->sqlDB = $sqlDB;
+        if (!self::$sqlDB)
+            self::$sqlDB = $GLOBALS['ilDB'];
 
         // Inject $ilPluginAdmin
-        $this->plugin = $plugin;
+        if (!self::$plugin)
+            self::$plugin = $GLOBALS['ilPluginAdmin'];
     }
 }
