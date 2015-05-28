@@ -153,7 +153,7 @@ $app->put('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenAuth', fu
     foreach ($fields as $field) {
         try {
             // Fetch request data (Throws exception to prevent updateClient call)
-            $api_key = $request->getParam($field, null, true);
+            $api_key = $request->params($field, null, true);
 
             // Update client
             try {
@@ -232,26 +232,26 @@ $app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenAuth', func
 
     // Try/Catch all required inputs
     try {
-        $api_key = $request->getParam('api_key', null, true);
+        $api_key = $request->params('api_key', null, true);
     } catch(LibExceptions\MissingParameter $e) {
         $app->halt(422, $e->getFormatedMessage(), $e::ID);
     }
 
     // Get optional inputs
-    $api_secret = $request->getParam('api_secret', '');
-    $client_oauth2_consent_message = $request->getParam('oauth2_consent_message', '');
-    $client_permissions = $request->getParam('permissions', '');
-    $client_oauth2_redirect_url = $request->getParam('oauth2_redirection_uri', '');
-    $oauth2_gt_client_user = $request->getParam('oauth2_gt_client_user', '');
-    $access_user_csv = $request->getParam('access_user_csv', '');
-    $oauth2_gt_client_active = $request->getParam('oauth2_gt_client_active', 0);
-    $oauth2_gt_authcode_active = $request->getParam('oauth2_gt_authcode_active', 0);
-    $oauth2_gt_implicit_active = $request->getParam('oauth2_gt_implicit_active', 0);
-    $oauth2_gt_resourceowner_active = $request->getParam('oauth2_gt_resourceowner_active', 0);
-    $oauth2_user_restriction_active = $request->getParam('oauth2_user_restriction_active', 0);
-    $oauth2_consent_message_active = $request->getParam('oauth2_consent_message_active', 0);
-    $oauth2_authcode_refresh_active = $request->getParam('oauth2_authcode_refresh_active', 0);
-    $oauth2_resource_refresh_active = $request->getParam('oauth2_resource_refresh_active', 0);
+    $api_secret = $request->params('api_secret', '');
+    $client_oauth2_consent_message = $request->params('oauth2_consent_message', '');
+    $client_permissions = $request->params('permissions', '');
+    $client_oauth2_redirect_url = $request->params('oauth2_redirection_uri', '');
+    $oauth2_gt_client_user = $request->params('oauth2_gt_client_user', '');
+    $access_user_csv = $request->params('access_user_csv', '');
+    $oauth2_gt_client_active = $request->params('oauth2_gt_client_active', 0);
+    $oauth2_gt_authcode_active = $request->params('oauth2_gt_authcode_active', 0);
+    $oauth2_gt_implicit_active = $request->params('oauth2_gt_implicit_active', 0);
+    $oauth2_gt_resourceowner_active = $request->params('oauth2_gt_resourceowner_active', 0);
+    $oauth2_user_restriction_active = $request->params('oauth2_user_restriction_active', 0);
+    $oauth2_consent_message_active = $request->params('oauth2_consent_message_active', 0);
+    $oauth2_authcode_refresh_active = $request->params('oauth2_authcode_refresh_active', 0);
+    $oauth2_resource_refresh_active = $request->params('oauth2_resource_refresh_active', 0);
 
     // Supply data to model which processes it further
     $model = new Clients();

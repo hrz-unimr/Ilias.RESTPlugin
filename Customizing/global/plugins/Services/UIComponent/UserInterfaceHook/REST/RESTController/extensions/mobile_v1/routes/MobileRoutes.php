@@ -131,7 +131,7 @@ $app->group('/m', function () use ($app) {
         $response = new Libs\RESTResponse($app);
 
         try {
-            $query = $request->getParam('q');
+            $query = $request->params('q');
         } catch (\Exception $e) {
             $query = '';
         }

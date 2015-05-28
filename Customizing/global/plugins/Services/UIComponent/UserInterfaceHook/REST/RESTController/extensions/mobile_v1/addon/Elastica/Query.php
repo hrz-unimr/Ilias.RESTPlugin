@@ -125,7 +125,7 @@ class Query extends Param
      **/
     public function getQuery()
     {
-        return $this->getParam('query');
+        return $this->params('query');
     }
 
     /**

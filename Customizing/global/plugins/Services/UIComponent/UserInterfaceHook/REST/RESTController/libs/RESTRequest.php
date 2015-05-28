@@ -12,33 +12,41 @@ namespace RESTController\libs;
  *
  */
 class RESTRequest extends \Slim\Http\Request {
-    /*
-     * Anforderungen:
-     *  - params sollte body (JSON) und GET verstehen! [nur wenn content-type stimmt]
-     *  - params muss THROW erlauben
+    /**
      *
-     * Notiz:
-     *  - getAllHeaders() durch $app->request->headers->get('param-all'); ersetzten
      */
-    protected $json_arr;
+    public function __construct(\Slim\Environment $env) {
+        //
+        parent::__construct($env);
 
+        // 
+        foreach (getallheaders() as $key => $value)
+            $this->headers->set($key, $value);
+    }
 
     /**
      *
      */
-    public function getParam($param, $default = null, $throw = false) {
-        $ret = $this->params($param);
-        if($ret == null){
-            $this->json_arr = $this->getBody();
+    public function params($key = null, $default = null, $throw = false) {
+        // Fetch body, this should be a decoded json
+        $body = $this->getBody();
 
-            if ($this->json_arr != null and isset($this->json_arr[$param]))
-                return $this->json_arr[$param];
-            else if ($throw)
-                throw new Exceptions\MissingParameter('Mandatory data is missing, parameter %paramName% not set.', $param);
+        // Return key-value from body (JSON PHP-Array)
+        if ($body && $body[$key])
+            return $body[$key];
+        else {
+            // Return key-value from RAW body or get
+            $value = parent::params($key, $default);
+            if ($value != $default)
+                return $value;
 
-            return $default;
+            // Return default value or throw exception?
+            if (!$throw)
+                return $default;
+
+            // Throw exception because its enabled
+            throw new Exceptions\MissingParameter('Mandatory data is missing, parameter %paramName% not set.', $param);
         }
-        else
-            return $ret;
+
     }
 }

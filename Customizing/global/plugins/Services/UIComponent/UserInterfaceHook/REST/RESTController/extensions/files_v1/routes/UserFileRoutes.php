@@ -33,7 +33,7 @@ $app->group('/v1', function () use ($app) {
         $response = new Libs\RESTResponse($app);
 
         try {
-            $meta_data = $request->getParam('meta_data');
+            $meta_data = $request->params('meta_data');
             if (isset($meta_data)) {
                 $meta_data = true;
             }
@@ -42,7 +42,7 @@ $app->group('/v1', function () use ($app) {
         }
 
         try {
-            $id_type = $request->getParam('$id_type');
+            $id_type = $request->params('$id_type');
         } catch (\Exception $e) {
             $id_type = "ref_id";
         }

@@ -24,7 +24,7 @@ $app->group('v1/m', function () use ($app) {
         $response = new Libs\RESTResponse($app);
 
         try {
-            $query = utf8_encode($request->getParam('q'));
+            $query = utf8_encode($request->params('q'));
         } catch (\Exception $e) {
             $query = '';
         }
@@ -42,7 +42,7 @@ $app->group('v1/m', function () use ($app) {
         $response = new Libs\RESTResponse($app);
 
         try {
-            $query = utf8_encode($request->getParam('q'));
+            $query = utf8_encode($request->params('q'));
         } catch (\Exception $e) {
             $query = '';
         }

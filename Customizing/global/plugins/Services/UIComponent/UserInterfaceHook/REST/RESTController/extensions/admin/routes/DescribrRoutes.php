@@ -29,7 +29,7 @@ $app->group('/admin', function () use ($app) {
         $response = new Libs\RESTResponse($app);
 
         try {
-            $id_type = $request->getParam('id_type');
+            $id_type = $request->params('id_type');
         } catch (\Exception $e) {
             $id_type = 'ref_id';
         }

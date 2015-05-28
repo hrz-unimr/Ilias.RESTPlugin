@@ -60,9 +60,9 @@ $app->group('/v1/m', function () use ($app) {
         $request = new Libs\RESTRequest($app);
 
         try {
-            $file_id = $request->getParam('file_id', null, false);
+            $file_id = $request->params('file_id', null, false);
            // if ($file_id == null) throw RESTException::getWrongParamException('Parameter is missing', 'file_id');
-            $target_ref_id = $request->getParam('target_ref_id', null, false);
+            $target_ref_id = $request->params('target_ref_id', null, false);
            // if ($target_ref_id == null) throw RESTException::getWrongParamException('Parameter is missing', 'target_ref_id');
 
            Libs\RESTLib::initAccessHandling();
@@ -98,9 +98,9 @@ $app->group('/v1/m', function () use ($app) {
         $request = new Libs\RESTRequest($app);
 
         try {
-            $file_id = $request->getParam('file_id', null, false);
+            $file_id = $request->params('file_id', null, false);
             // if ($file_id == null) throw RESTException::getWrongParamException('Parameter is missing', 'file_id');
-            $target_ref_id = $request->getParam('target_ref_id', null, false);
+            $target_ref_id = $request->params('target_ref_id', null, false);
             // if ($target_ref_id == null) throw RESTException::getWrongParamException('Parameter is missing', 'target_ref_id');
 
             Libs\RESTLib::initAccessHandling();
@@ -183,7 +183,7 @@ $app->group('/v1/m', function () use ($app) {
         $request = new Libs\RESTRequest($app);
 
         try {
-            $file_id = $request->getParam('file_id', null, false);
+            $file_id = $request->params('file_id', null, false);
             Libs\RESTLib::initAccessHandling();
             $model = new Files\PersonalFileSpaceModel();
             $model->deleteFromMyFileSpace($file_id, $user_id);

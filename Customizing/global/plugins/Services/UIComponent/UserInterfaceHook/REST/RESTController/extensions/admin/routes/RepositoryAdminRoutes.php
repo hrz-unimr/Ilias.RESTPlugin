@@ -27,11 +27,11 @@ $app->group('/admin', function () use ($app) {
         $maxDepth = 1000;
         $maxAge = 24; // 24 month
         try {
-            $maxDepth = $request->getParam("depth");
+            $maxDepth = $request->params("depth");
         } catch(\Exception $e){
         }
         try {
-            $maxAge = $request->getParam("age");
+            $maxAge = $request->params("age");
         } catch(\Exception $e){
         }
         $repModel = new RepositoryAdminModel();
@@ -76,9 +76,9 @@ $app->group('/admin', function () use ($app) {
         $request = new Libs\RESTRequest($app);
         $response = new Libs\RESTResponse($app);
         $repModel = new RepositoryAdminModel();
-        $parent_ref_id = $request->getParam("ref_id");
-        $title = $request->getParam("title");
-        $description = $request->getParam("description");
+        $parent_ref_id = $request->params("ref_id");
+        $title = $request->params("title");
+        $description = $request->params("description");
         $new_ref_id = $repModel->createNewCategoryAsUser($parent_ref_id, $title, $description);
         $response->setData("new_ref_id", $new_ref_id);
         $response->setMessage('New Category added to container '.$ref_id.' successfully.');

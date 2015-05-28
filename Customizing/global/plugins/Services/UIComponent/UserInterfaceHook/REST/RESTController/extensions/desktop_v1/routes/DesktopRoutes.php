@@ -44,7 +44,7 @@ $app->group('/v1', function () use ($app) {
         $request = new Libs\RESTRequest($app);
         $response = new Libs\RESTResponse($app);
         try {
-            $ref_id = $request->getParam("ref_id");
+            $ref_id = $request->params("ref_id");
             $model = new DesktopModel();
             $model->removeItemFromDesktop($id, $ref_id);
             $response->setMessage("Item ".$ref_id." removed successfully from the users PD overview.");
@@ -62,7 +62,7 @@ $app->group('/v1', function () use ($app) {
         $request = new Libs\RESTRequest($app);
         $response = new Libs\RESTResponse($app);
         try {
-            $ref_id = $request->getParam("ref_id");
+            $ref_id = $request->params("ref_id");
             $model = new DesktopModel();
             $model->addItemToDesktop($id, $ref_id);
             $response->setMessage("Item ".$ref_id." added successfully to the users PD overview.");

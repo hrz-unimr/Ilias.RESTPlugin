@@ -58,7 +58,7 @@ class Connection extends Param
      */
     public function getPort()
     {
-        return $this->hasParam('port') ? $this->getParam('port') : self::DEFAULT_PORT;
+        return $this->hasParam('port') ? $this->params('port') : self::DEFAULT_PORT;
     }
 
     /**
@@ -75,7 +75,7 @@ class Connection extends Param
      */
     public function getHost()
     {
-        return $this->hasParam('host') ? $this->getParam('host') : self::DEFAULT_HOST;
+        return $this->hasParam('host') ? $this->params('host') : self::DEFAULT_HOST;
     }
 
     /**
@@ -92,7 +92,7 @@ class Connection extends Param
      */
     public function getProxy()
     {
-        return $this->hasParam('proxy') ? $this->getParam('proxy') : null;
+        return $this->hasParam('proxy') ? $this->params('proxy') : null;
     }
 
     /**
@@ -113,7 +113,7 @@ class Connection extends Param
      */
     public function getTransport()
     {
-        return $this->hasParam('transport') ? $this->getParam('transport') : self::DEFAULT_TRANSPORT;
+        return $this->hasParam('transport') ? $this->params('transport') : self::DEFAULT_TRANSPORT;
     }
 
     /**
@@ -130,7 +130,7 @@ class Connection extends Param
      */
     public function getPath()
     {
-        return $this->hasParam('path') ? $this->getParam('path') : '';
+        return $this->hasParam('path') ? $this->params('path') : '';
     }
 
     /**
@@ -156,7 +156,7 @@ class Connection extends Param
      */
     public function getTimeout()
     {
-        return (int) $this->hasParam('timeout') ? $this->getParam('timeout') : self::TIMEOUT;
+        return (int) $this->hasParam('timeout') ? $this->params('timeout') : self::TIMEOUT;
     }
 
     /**
@@ -175,7 +175,7 @@ class Connection extends Param
      */
     public function isEnabled()
     {
-        return (bool) $this->getParam('enabled');
+        return (bool) $this->params('enabled');
     }
 
     /**
@@ -196,7 +196,7 @@ class Connection extends Param
      */
     public function isPersistent()
     {
-        return (bool) $this->hasParam('persistent') ? $this->getParam('persistent') : true;
+        return (bool) $this->hasParam('persistent') ? $this->params('persistent') : true;
     }
 
     /**
@@ -241,7 +241,7 @@ class Connection extends Param
      */
     public function getConfig($key = '')
     {
-        $config = $this->getParam('config');
+        $config = $this->params('config');
         if (empty($key)) {
             return $config;
         }

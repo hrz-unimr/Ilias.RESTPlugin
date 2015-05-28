@@ -44,7 +44,7 @@ $app->group('/dev', function () use ($app) {
         $request = new Libs\RESTRequest($app);
         $response = new Libs\RESTResponse($app);
 
-        $refresh_token = $request->getParam('refresh_token');
+        $refresh_token = $request->params('refresh_token');
 
         Libs\RESTLib::initAccessHandling();
 

@@ -30,7 +30,7 @@ $app->group('/admin', function () use ($app) {
         $response = new Libs\RESTResponse($app);
 
         try {
-            $meta_data = $request->getParam('meta_data');
+            $meta_data = $request->params('meta_data');
             if (isset($meta_data)) {
                 $meta_data = true;
             }

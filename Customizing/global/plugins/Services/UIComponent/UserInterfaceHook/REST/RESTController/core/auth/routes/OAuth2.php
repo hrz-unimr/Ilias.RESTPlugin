@@ -40,14 +40,14 @@ $app->group('/v1', function () use ($app) {
                 $request = $app->request();
 
                 // Mandatory parameters
-                $api_key = $request->getParam('api_key', null, true);
-                $redirect_uri = $request->getParam('redirect_uri', null, true);
-                $response_type = $request->getParam('response_type', null, true);
+                $api_key = $request->params('api_key', null, true);
+                $redirect_uri = $request->params('redirect_uri', null, true);
+                $response_type = $request->params('response_type', null, true);
 
                 // Optional parameters (will be checked by model)
-                $username = $request->getParam('username');
-                $password = $request->getParam('password');
-                $authenticity_token = $request->getParam('authenticity_token');
+                $username = $request->params('username');
+                $password = $request->params('password');
+                $authenticity_token = $request->params('authenticity_token');
 
                 // Proccess with OAuth2-Model
                 $model = new AuthEndpoint();
@@ -101,11 +101,11 @@ $app->group('/v1', function () use ($app) {
                 $request = $app->request();
 
                 // Mandatory parameters
-                $api_key = $request->getParam('client_id');
+                $api_key = $request->params('client_id');
                 if (is_null($api_key))
-                    $api_key = $request->getParam('api_key', null, true);
-                $redirect_uri = $request->getParam('redirect_uri', null, true);
-                $response_type = $request->getParam('response_type', null, true);
+                    $api_key = $request->params('api_key', null, true);
+                $redirect_uri = $request->params('redirect_uri', null, true);
+                $response_type = $request->params('response_type', null, true);
 
                 // Render oauth2login.php for authorization code and implicit grant type flow
                 if ($response_type != 'code' && $response_type != 'token')
@@ -150,14 +150,14 @@ $app->group('/v1', function () use ($app) {
                 // Get Request & OAuth-Model objects
                 $request =  $app->request();
                 $model = new TokenEndpoint();
-                $grant_type = $request->getParam('grant_type');
+                $grant_type = $request->params('grant_type');
 
                 // Resource Owner (User) grant type
                 if ($grant_type == 'password') {
                     // Fetch request data
-                    $api_key = $request->getParam('api_key', null, true);
-                    $user = $request->getParam('username', null, true);
-                    $password = $request->getParam('password', null, true);
+                    $api_key = $request->params('api_key', null, true);
+                    $user = $request->params('username', null, true);
+                    $password = $request->params('password', null, true);
 
                     // Invoke OAuth2-Model with data
                     $result = $model->userCredentials($api_key, $user, $password);
@@ -167,8 +167,8 @@ $app->group('/v1', function () use ($app) {
                 // grant type
                 elseif ($grant_type == 'client_credentials') {
                     // Fetch request data
-                    $api_key = $request->getParam('api_key', null, true);
-                    $api_secret = $request->getParam('api_secret', null, true);
+                    $api_key = $request->params('api_key', null, true);
+                    $api_secret = $request->params('api_secret', null, true);
 
                     // Invoke OAuth2-Model with data
                     $result = $model->clientCredentials($api_key, $api_secret);
@@ -181,9 +181,9 @@ $app->group('/v1', function () use ($app) {
                     $api_key = $_POST['api_key'];
 
                     // Fetch request data
-                    $code = $request->getParam('code', null, true);
-                    $api_secret = $request->getParam('api_secret', null, true);
-                    $redirect_uri = $request->getParam('redirect_uri');
+                    $code = $request->params('code', null, true);
+                    $api_secret = $request->params('api_secret', null, true);
+                    $redirect_uri = $request->params('redirect_uri');
 
                     // Invoke OAuth2-Model with data
                     $authCodeToken = Token\Generic::fromMixed($model->tokenSettings(), $code);
@@ -194,7 +194,7 @@ $app->group('/v1', function () use ($app) {
                 // grant type
                 elseif ($grant_type == 'refresh_token') {
                     // Fetch request data
-                    $refresh_token = $request->getParam('refresh_token', null, true);
+                    $refresh_token = $request->params('refresh_token', null, true);
 
                     // Invoke OAuth2-Model with data
                     $refreshToken = Token\Refresh::fromMixed($model->tokenSettings(), $refresh_token);
@@ -306,10 +306,10 @@ $app->group('/v1', function () use ($app) {
         try {
             // Fetch parameters
             $request = $app->request();
-            $api_key = $request->getParam('api_key', null, true);
-            $user_id = $request->getParam('user_id', null, true);
-            $rtoken = $request->getParam('rtoken', null, true);
-            $session_id = $request->getParam('session_id', null, true);
+            $api_key = $request->params('api_key', null, true);
+            $user_id = $request->params('user_id', null, true);
+            $rtoken = $request->params('rtoken', null, true);
+            $session_id = $request->params('session_id', null, true);
 
             // Convert userId, rToken and sessionId to bearer-token (using api-key)
             $model = new MiscEndpoint();

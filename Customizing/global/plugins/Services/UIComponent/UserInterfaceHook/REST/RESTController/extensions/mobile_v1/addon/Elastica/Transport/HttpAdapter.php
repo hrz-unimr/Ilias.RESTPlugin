@@ -112,7 +112,7 @@ class HttpAdapter extends AbstractTransport
                 $method = ElasticaRequest::POST;
             }
 
-            if ($this->hasParam('postWithRequestBody') && $this->getParam('postWithRequestBody') == true) {
+            if ($this->hasParam('postWithRequestBody') && $this->params('postWithRequestBody') == true) {
                 $elasticaRequest->setMethod(ElasticaRequest::POST);
                 $method = ElasticaRequest::POST;
             }

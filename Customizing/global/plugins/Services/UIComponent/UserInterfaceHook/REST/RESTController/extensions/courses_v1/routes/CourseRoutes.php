@@ -120,12 +120,12 @@ $app->group('/v1', function () use ($app) {
     $app->post('/courses/enroll', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function() use ($app) {
         $response = new Libs\RESTResponse($app);
         $request = new Libs\RESTRequest($app);
-        $mode = $request->getParam("mode");
+        $mode = $request->params("mode");
         if($mode == "by_login") {
-            $login = $request->getParam("login");
+            $login = $request->params("login");
             $user_id = Libs\RESTLib::getIdFromUserName($login);
             if(empty($user_id)){
-                $data = $request->getParam("data");
+                $data = $request->params("data");
                 $userData = array_merge(array(
                     "login" => "{$login}",
                     "auth_mode" => "ldap",
@@ -134,14 +134,14 @@ $app->group('/v1', function () use ($app) {
                 $user_id = $um->addUser($userData);
             }
         } else if ($mode == "by_id") {
-            $user_id = $request->getParam("usr_id");
+            $user_id = $request->params("usr_id");
         } else {
             $response->setHttpStatus(400);
             $response->setMessage("Unsupported or missing mode: '$mode'. Use eiter 'by_login' or 'by_id'");
             $response->toJSON();
             return;
         }
-        $crs_ref_id = $request->getParam("crs_ref_id");
+        $crs_ref_id = $request->params("crs_ref_id");
         try {
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->joinCourse($user_id, $crs_ref_id);
@@ -169,7 +169,7 @@ $app->group('/v1', function () use ($app) {
         $response = new Libs\RESTResponse($app);
         $request = new Libs\RESTRequest($app);
         try {
-            $ref_id = $request->getParam("ref_id");
+            $ref_id = $request->params("ref_id");
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->joinCourse($authorizedUserId, $ref_id);
             /*$data1 =  $crs_model->getCourseContent($ref_id);
@@ -195,7 +195,7 @@ $app->group('/v1', function () use ($app) {
         $response = new Libs\RESTResponse($app);
         $request = new Libs\RESTRequest($app);
         try {
-            $ref_id = $request->getParam("ref_id");
+            $ref_id = $request->params("ref_id");
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->leaveCourse($authorizedUserId, $ref_id);
 

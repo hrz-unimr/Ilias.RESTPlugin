@@ -64,7 +64,7 @@ class Request extends Param
      */
     public function getMethod()
     {
-        return $this->getParam('method');
+        return $this->params('method');
     }
 
     /**
@@ -85,7 +85,7 @@ class Request extends Param
      */
     public function getData()
     {
-        return $this->getParam('data');
+        return $this->params('data');
     }
 
     /**
@@ -106,7 +106,7 @@ class Request extends Param
      */
     public function getPath()
     {
-        return $this->getParam('path');
+        return $this->params('path');
     }
 
     /**
@@ -116,7 +116,7 @@ class Request extends Param
      */
     public function getQuery()
     {
-        return $this->getParam('query');
+        return $this->params('query');
     }
 
     /**

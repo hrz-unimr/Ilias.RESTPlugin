@@ -56,7 +56,7 @@ class Filtered extends AbstractQuery
      */
     public function getFilter()
     {
-        return $this->getParam('filter');
+        return $this->params('filter');
     }
 
     /**
@@ -66,7 +66,7 @@ class Filtered extends AbstractQuery
      */
     public function getQuery()
     {
-        return $this->getParam('query');
+        return $this->params('query');
     }
 
     /**
@@ -79,12 +79,12 @@ class Filtered extends AbstractQuery
     {
         $filtered = array();
 
-        if ($this->hasParam('query') && $this->getParam('query') instanceof AbstractQuery) {
-            $filtered['query'] = $this->getParam('query')->toArray();
+        if ($this->hasParam('query') && $this->params('query') instanceof AbstractQuery) {
+            $filtered['query'] = $this->params('query')->toArray();
         }
 
-        if ($this->hasParam('filter') && $this->getParam('filter') instanceof AbstractFilter) {
-            $filtered['filter'] = $this->getParam('filter')->toArray();
+        if ($this->hasParam('filter') && $this->params('filter') instanceof AbstractFilter) {
+            $filtered['filter'] = $this->params('filter')->toArray();
         }
 
         if (empty($filtered)) {

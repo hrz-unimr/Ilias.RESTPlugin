@@ -193,16 +193,16 @@ class Util extends EndpointBase {
         if (!$this->accessToken) {
             // Fetch token from body GET/POST (json or plain)
             $request = self::$app->request();
-            $tokenString = $request->getParam('token');
+            $tokenString = $request->params('token');
 
             // Fetch access_token from GET/POST (json or plain)
             if (is_null($tokenString))
-                $tokenString = $request->getParam('access_token');
+                $tokenString = $request->params('access_token');
 
             // Fetch token from request header
             if (is_null($tokenString)) {
-                $headers = getallheaders();
-                $authHeader = $headers['Authorization'];
+                // Fetch Authorization-Header
+                $authHeader = $request->headers('Authorization');
 
                 // Found Authorization header?
                 if ($authHeader != null) {
