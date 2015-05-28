@@ -8,24 +8,23 @@
 namespace RESTController\extensions\mobile_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+use \RESTController\libs as Libs;
 
 
 /*
  * Mobile Search Routes
  */
- 
+
 
 $app->group('v1/m', function () use ($app) {
 
 
     $app->get('/search/',  function () use ($app) {
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
 
         try {
-            $query = utf8_encode($request->getParam('q'));
+            $query = utf8_encode($request->params('q'));
         } catch (\Exception $e) {
             $query = '';
         }
@@ -39,11 +38,11 @@ $app->group('v1/m', function () use ($app) {
     });
 
     $app->post('/search/',  function () use ($app) {
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
 
         try {
-            $query = utf8_encode($request->getParam('q'));
+            $query = utf8_encode($request->params('q'));
         } catch (\Exception $e) {
             $query = '';
         }

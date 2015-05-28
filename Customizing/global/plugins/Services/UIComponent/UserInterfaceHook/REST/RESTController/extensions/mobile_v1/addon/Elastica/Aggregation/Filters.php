@@ -37,7 +37,7 @@ class Filters extends AbstractAggregation
     public function toArray()
     {
         $array   = array();
-        $filters = $this->getParam('filters');
+        $filters = $this->params('filters');
 
         foreach ($filters as $filter) {
             // Detect between anonymous filters and named ones

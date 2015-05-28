@@ -8,36 +8,33 @@
 namespace RESTController\extensions\files_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \ilObject, \ilObjectFactory, \ilUtil, \ilFileUtils, \ilObjFileAccess, \ilObjFile, \ilChangeEvent, \ilRbacLog;
+use \RESTController\libs as Libs;
 
 
-require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
-require_once("./Modules/File/classes/class.ilObjFile.php");
-require_once("./Services/User/classes/class.ilObjUser.php");
+require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
+require_once('./Modules/File/classes/class.ilObjFile.php');
+require_once('./Services/User/classes/class.ilObjUser.php');
 
 class FileModel
 {
 
     function getFileObjForUser($file_obj_id, $user_id)
     {
-        
-        RESTLib::loadIlUser();
+
+        Libs\RESTLib::loadIlUser();
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        RESTLib::initAccessHandling();
+        Libs\RESTLib::initAccessHandling();
 
-        require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        RESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
+        require_once('./Services/Xml/classes/class.ilSaxParser.php');
+        Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
         global $ilAccess;
 
         // Check access
         $permission_ok = false;
-        foreach($ref_ids = ilObject::_getAllReferences($file_obj_id) as $ref_id)
+        foreach($ref_ids = \ilObject::_getAllReferences($file_obj_id) as $ref_id)
         {
             if($ilAccess->checkAccess('read','',$ref_id))
             {
@@ -50,7 +47,7 @@ class FileModel
             return array();
         }
 
-        $fileObj=  ilObjectFactory::getInstanceByObjId($file_obj_id);
+        $fileObj=  \ilObjectFactory::getInstanceByObjId($file_obj_id);
 
         return $fileObj;
     }
@@ -59,10 +56,10 @@ class FileModel
     function getFileObj($obj_id)
     {
         //        //global $ilDB;
-        require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        RESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
+        require_once('./Services/Xml/classes/class.ilSaxParser.php');
+        Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
-        $fileObj=  ilObjectFactory::getInstanceByObjId($obj_id);
+        $fileObj=  \ilObjectFactory::getInstanceByObjId($obj_id);
 
         return $fileObj;
     }
@@ -80,32 +77,32 @@ class FileModel
      */
     function handleFileUpload($file_upload, $ref_id, $owner_id = 13)
     {
-        define("IL_VIRUS_SCANNER", "None");
+        define('IL_VIRUS_SCANNER', 'None');
         // The following constants are normally set by class.ilInitialisation.php->initClientInitFile()
-        define ("MAXLENGTH_OBJ_TITLE",125);
-        define ("MAXLENGTH_OBJ_DESC",123);
+        define ('MAXLENGTH_OBJ_TITLE',125);
+        define ('MAXLENGTH_OBJ_DESC',123);
 
-        require_once("./Services/Xml/classes/class.ilSaxParser.php");
-        RESTLib::initGlobal("objDefinition", "ilObjectDefinition","./Services/Object/classes/class.ilObjectDefinition.php");
-        RESTLib::initGlobal("ilAppEventHandler", "ilAppEventHandler","./Services/EventHandling/classes/class.ilAppEventHandler.php");
-        RESTLib::initGlobal("ilObjDataCache", "ilObjectDataCache","./Services/Object/classes/class.ilObjectDataCache.php");
-        RESTLib::loadIlUser();
+        require_once('./Services/Xml/classes/class.ilSaxParser.php');
+        Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
+        Libs\RESTLib::initGlobal('ilAppEventHandler', 'ilAppEventHandler','./Services/EventHandling/classes/class.ilAppEventHandler.php');
+        Libs\RESTLib::initGlobal('ilObjDataCache', 'ilObjectDataCache','./Services/Object/classes/class.ilObjectDataCache.php');
+        Libs\RESTLib::loadIlUser();
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilAppEventHandler, $ilObjDataCache, $ilUser;
 
         // file upload params
-        $filename = $file_upload["name"];
-        $type = $file_upload["type"];
-        $size = $file_upload["size"];
-        $temp_name = $file_upload["tmp_name"];
+        $filename = $file_upload['name'];
+        $type = $file_upload['type'];
+        $size = $file_upload['size'];
+        $temp_name = $file_upload['tmp_name'];
 
         // additional params
-        $title = $file_upload["title"];
-        $description = $file_upload["description"];
-        //$extract = $file_upload["extract"];
-        //$keep_structure = $file_upload["keep_structure"];
+        $title = $file_upload['title'];
+        $description = $file_upload['description'];
+        //$extract = $file_upload['extract'];
+        //$keep_structure = $file_upload['keep_structure'];
 
         // create answer object
-        $response = new stdClass();
+        $response = new \stdClass();
         $response->fileName = $filename;
         $response->fileSize = intval($size);
         $response->fileType = $type;
@@ -118,20 +115,20 @@ class FileModel
             $zip_file = $filename;
             $adopt_structure = $keep_structure;
 
-            include_once("Services/Utilities/classes/class.ilFileUtils.php");
+            include_once('Services/Utilities/classes/class.ilFileUtils.php');
 
             // Create unzip-directory
-            $newDir = ilUtil::ilTempnam();
-            ilUtil::makeDir($newDir);
+            $newDir = \ilUtil::ilTempnam();
+            \ilUtil::makeDir($newDir);
 
             // Check if permission is granted for creation of object, if necessary
             if($this->id_type != self::WORKSPACE_NODE_ID)
             {
-                $type = ilObject::_lookupType((int)$this->parent_id, true);
+                $type = \ilObject::_lookupType((int)$this->parent_id, true);
             }
             else
             {
-                $type = ilObject::_lookupType($this->tree->lookupObjectId($this->parent_id), false);
+                $type = \ilObject::_lookupType($this->tree->lookupObjectId($this->parent_id), false);
             }
 
             $tree = $access_handler = null;
@@ -140,8 +137,8 @@ class FileModel
                 // workspace structure
                 case 'wfld':
                 case 'wsrt':
-                    $permission = $this->checkPermissionBool("create", "", "wfld");
-                    $containerType = "WorkspaceFolder";
+                    $permission = $this->checkPermissionBool('create', '', 'wfld');
+                    $containerType = 'WorkspaceFolder';
                     $tree = $this->tree;
                     $access_handler = $this->getAccessHandler();
                     break;
@@ -149,14 +146,14 @@ class FileModel
                 // use categories as structure
                 case 'cat':
                 case 'root':
-                    $permission = $this->checkPermissionBool("create", "", "cat");
-                    $containerType = "Category";
+                    $permission = $this->checkPermissionBool('create', '', 'cat');
+                    $containerType = 'Category';
                     break;
 
                 // use folders as structure (in courses)
                 default:
-                    $permission = $this->checkPermissionBool("create", "", "fold");
-                    $containerType = "Folder";
+                    $permission = $this->checkPermissionBool('create', '', 'fold');
+                    $containerType = 'Folder';
                     break;
             }
 
@@ -169,7 +166,7 @@ class FileModel
                 //        ref_id of parent
                 //        object that contains files (folder or category)
                 //        should sendInfo be persistent?)
-                ilFileUtils::processZipFile(
+                \ilFileUtils::processZipFile(
                     $newDir,
                     $temp_name,
                     ($adopt_structure && $permission),
@@ -187,21 +184,21 @@ class FileModel
                 $response->error = $ex->getMessage();
             }
 
-            ilUtil::delDir($newDir);
+            \ilUtil::delDir($newDir);
         }
         else
        */
         if (true) {
-            if (trim($title) == "")
+            if (trim($title) == '')
             {
                 $title = $filename;
             }
             else
             {
-                include_once("./Modules/File/classes/class.ilObjFileAccess.php");
+                include_once('./Modules/File/classes/class.ilObjFileAccess.php');
                 // BEGIN WebDAV: Ensure that object title ends with the filename extension
-                $fileExtension = ilObjFileAccess::_getFileExtension($filename);
-                $titleExtension = ilObjFileAccess::_getFileExtension($title);
+                $fileExtension = \ilObjFileAccess::_getFileExtension($filename);
+                $titleExtension = \ilObjFileAccess::_getFileExtension($title);
                 if ($titleExtension != $fileExtension && strlen($fileExtension) > 0)
                 {
                     $title .= '.'.$fileExtension;
@@ -213,15 +210,15 @@ class FileModel
             //var_dump($title);
 
             // create and insert file in grp_tree
-            include_once("./Modules/File/classes/class.ilObjFile.php");
-            $fileObj = new ilObjFile();
+            include_once('./Modules/File/classes/class.ilObjFile.php');
+            $fileObj = new \ilObjFile();
             $fileObj->setOwner($owner_id);
             $fileObj->setTitle($title);
             $fileObj->setDescription($description);
             $fileObj->setFileName($filename);
 
-            include_once("./Services/Utilities/classes/class.ilMimeTypeUtil.php");
-            $fileObj->setFileType(ilMimeTypeUtil::getMimeType("", $filename, $type));
+            include_once('./Services/Utilities/classes/class.ilMimeTypeUtil.php');
+            $fileObj->setFileType(\ilMimeTypeUtil::getMimeType('', $filename, $type));
             $fileObj->setFileSize($size);
             $object_id = $fileObj->create();
             //var_dump($fileObj);
@@ -248,10 +245,10 @@ class FileModel
      * @param ilObject $a_obj
      * @param int $a_parent_node_id
      */
-    protected function putObjectInTree(ilObject $a_obj, $a_parent_node_id = null)
+    protected function putObjectInTree(\ilObject $a_obj, $a_parent_node_id = null)
     {
-        RESTLib::initGlobal("rbacreview", "ilRbacReview", "./Services/AccessControl/classes/class.ilRbacReview.php");
-        RESTLib::initGlobal("rbacadmin", "ilRbacAdmin", "./Services/AccessControl/classes/class.ilRbacAdmin.php");
+        Libs\RESTLib::initGlobal('rbacreview', 'ilRbacReview', './Services/AccessControl/classes/class.ilRbacReview.php');
+        Libs\RESTLib::initGlobal('rbacadmin', 'ilRbacAdmin', './Services/AccessControl/classes/class.ilRbacAdmin.php');
         //ilInitialisation::initAccessHandling();
         global $rbacreview, $ilUser, $objDefinition;
 
@@ -264,14 +261,14 @@ class FileModel
 
         // BEGIN ChangeEvent: Record save object.
         require_once('Services/Tracking/classes/class.ilChangeEvent.php');
-        ilChangeEvent::_recordWriteEvent($this->obj_id, $ilUser->getId(), 'create');
+        \ilChangeEvent::_recordWriteEvent($this->obj_id, $ilUser->getId(), 'create');
         // END ChangeEvent: Record save object.
 
         // rbac log
-        include_once("Services/AccessControl/classes/class.ilRbacLog.php");
+        include_once('Services/AccessControl/classes/class.ilRbacLog.php');
         $rbac_log_roles = $rbacreview->getParentRoleIds($ref_id, false);
-        $rbac_log = ilRbacLog::gatherFaPa($ref_id, array_keys($rbac_log_roles), true);
-        ilRbacLog::add(ilRbacLog::CREATE_OBJECT, $ref_id, $rbac_log);
+        $rbac_log = \ilRbacLog::gatherFaPa($ref_id, array_keys($rbac_log_roles), true);
+        \ilRbacLog::add(\ilRbacLog::CREATE_OBJECT, $ref_id, $rbac_log);
     }
 
 }

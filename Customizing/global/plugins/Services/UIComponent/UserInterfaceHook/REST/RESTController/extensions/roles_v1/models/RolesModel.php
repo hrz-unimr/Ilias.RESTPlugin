@@ -8,8 +8,7 @@
 namespace RESTController\extensions\roles_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+use \RESTController\libs as Libs;
 
 
 class RolesModel
@@ -20,9 +19,13 @@ class RolesModel
         // get all roles of system role folder
         // TODO: c/p aus users/bulkImport
         // TODO: do it here or in route?
-        $app = new \Slim\Slim();
-        AuthLib::setUserContext($app->environment['user']);  // filled by auth middleware
-        RESTLib::initAccessHandling();
+
+       // Fetch authorized user
+       $auth = new Auth\Util();
+       $user = $auth->getAccessToken()->getUserName();
+
+        Libs\RESTLib::setUserContext($user);  // filled by auth middleware
+        Libs\RESTLib::initAccessHandling();
 
 
         if(!$rbacsystem->checkAccess('read',ROLE_FOLDER_ID))
@@ -36,6 +39,8 @@ class RolesModel
         $roles = $rbacreview->getAssignableRoles(false, true);
         $num_roles = 0;
 
+
+        $app = new \Slim\Slim();
         if(count($app->request->params()) != 0){
             foreach($roles as $role) {
                 $match = true;
@@ -47,10 +52,10 @@ class RolesModel
                 }
 
                 if($match == true) {
-                    $resp->addData('roles', $role); 
+                    $resp->addData('roles', $role);
                     $num_roles++;
                 }
-            
+
             }
         } else {
             $resp->setData('roles', $roles);
@@ -60,7 +65,7 @@ class RolesModel
         $resp->setRESTCode(200);
         $resp->setHttpStatus(200);
     }
-    
+
 }
 
 ?>

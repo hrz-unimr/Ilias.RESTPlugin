@@ -8,19 +8,18 @@
 namespace RESTController\extensions\roles_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+use \RESTController\libs as Libs;
 
 
-$app->get('/v1/roles', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function () use ($app) {
+$app->get('/v1/roles', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
 
-    $request = new RESTRequest($app);
+    $request = new Libs\RESTRequest($app);
     $model = new RolesModel();
-    
-    $resp = new RESTResponse($app);
+
+    $resp = new Libs\RESTResponse($app);
     $model->getAllRoles($request, $resp);
     echo($resp->toJSON());
-    
+
 
 });
 

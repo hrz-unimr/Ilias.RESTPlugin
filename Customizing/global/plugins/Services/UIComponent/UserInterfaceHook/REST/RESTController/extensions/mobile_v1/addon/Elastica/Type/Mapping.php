@@ -78,7 +78,7 @@ class Mapping
      */
     public function getProperties()
     {
-        return $this->getParam('properties');
+        return $this->params('properties');
     }
 
     /**

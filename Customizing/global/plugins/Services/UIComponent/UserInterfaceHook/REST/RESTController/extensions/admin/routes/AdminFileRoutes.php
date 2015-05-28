@@ -8,10 +8,8 @@
 namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \RESTController\extensions\files_v1\FileModel;
+use \RESTController\libs as Libs;
+use \RESTController\extensions\files_v1 as Files;
 
 
 /*
@@ -24,16 +22,15 @@ $app->group('/admin', function () use ($app) {
     /*
      * File Download
      */
-    $app->get('/files/:id', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function ($id) use ($app) {
+    $app->get('/files/:id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($id) use ($app) {
+        $auth = new Auth\Util();
+        //$user_id = $auth->getAccessToken()->getUserId();
 
-        $env = $app->environment();
-        //$user_id = RESTLib::loginToUserId($env['user']);
-
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
 
         try {
-            $meta_data = $request->getParam('meta_data');
+            $meta_data = $request->params('meta_data');
             if (isset($meta_data)) {
                 $meta_data = true;
             }
@@ -43,8 +40,8 @@ $app->group('/admin', function () use ($app) {
 
         if ($meta_data == true) {
 
-            $model = new FileModel();
-            $obj_id = RESTLib::refid_to_objid($id);
+            $model = new Files\FileModel();
+            $obj_id = Libs\RESTLib::getObjIdFromRef($id);
             $fileObj = $model->getFileObj($obj_id);
  //           $fileObj = $model->getFileObjForUser($obj_id,6);
 
@@ -62,7 +59,7 @@ $app->group('/admin', function () use ($app) {
             $response->send();
         } else
         {
-            $model = new FileModel();
+            $model = new Files\FileModel();
             $fileObj = $model->getFileObj($id);
             $fileObj->sendFile();
         }
@@ -72,7 +69,7 @@ $app->group('/admin', function () use ($app) {
     /*
      * File Upload
      */
-    $app->post('/files', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function () use ($app) { // create
+    $app->post('/files', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) { // create
         $repository_ref_id = $app->request()->params("ref_id");
         $title = $app->request()->params("title");
         $description = $app->request()->params("description");
@@ -90,7 +87,7 @@ $app->group('/admin', function () use ($app) {
             $file_upload['description'] = $description == null ? "" : $description;
             //var_dump($file_upload);
 
-            $model = new FileModel();
+            $model = new Files\FileModel();
             $uploadresult = $model->handleFileUpload($file_upload, $repository_ref_id);
             //var_dump($result);
             $result['status'] = "success";

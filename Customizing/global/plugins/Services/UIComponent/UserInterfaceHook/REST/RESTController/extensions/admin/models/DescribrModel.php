@@ -8,13 +8,11 @@
 namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \RESTController\extensions\files_v1\FileModel;
+use \RESTController\libs as Libs;
+use \RESTController\extensions\files_v1 as Files;
 
 
-require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
+require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
 
 
 class DescribrModel
@@ -40,7 +38,7 @@ class DescribrModel
             $a_objdata['ext_owner'][$key] = $value;
         }
 
-        $a_refids = RESTLib::objid_to_refids($obj_id);
+        $a_refids = Libs\RESTLib::getRefIdsFromObj($obj_id);
         foreach ($a_refids as $ref_id)
         {
             $a_objdata['ext_refids'][] = $ref_id;
@@ -61,7 +59,7 @@ class DescribrModel
 
     public function describeFile($id)
     {
-        $model = new FileModel();
+        $model = new Files\FileModel();
 
         $fileObj = $model->getFileObj($id);
         $result = array();
@@ -85,9 +83,9 @@ class DescribrModel
     protected  function getObjectData($obj_id)
     {
         global $ilDB;
-        $query = sprintf('SELECT * FROM object_data WHERE object_data.obj_id = %d', $obj_id);
-        $set = $ilDB->query($query);
-        $row = $ilDB->fetchAssoc($set);
+        $sql = sprintf('SELECT * FROM object_data WHERE object_data.obj_id = %d', $obj_id);
+        $query = $ilDB->query($sql);
+        $row = $ilDB->fetchAssoc($query);
         return $row;
     }
 
@@ -100,9 +98,9 @@ class DescribrModel
     protected function getUserData($owner_id)
     {
         global $ilDB;
-        $query = sprintf('SELECT usr_id, login, firstname, lastname, gender, email, last_login, last_update, create_date FROM usr_data WHERE usr_id = %d', $owner_id);
-        $set = $ilDB->query($query);
-        $row = $ilDB->fetchAssoc($set);
+        $sql = sprintf('SELECT usr_id, login, firstname, lastname, gender, email, last_login, last_update, create_date FROM usr_data WHERE usr_id = %d', $owner_id);
+        $query = $ilDB->query($sql);
+        $row = $ilDB->fetchAssoc($query);
         return $row;
     }
 
@@ -115,9 +113,9 @@ class DescribrModel
     protected function get_next_parent($rid)
     {
         global $ilDB;
-        $query = sprintf('SELECT parent FROM tree WHERE child = %d', $rid);
-        $set = $ilDB->query($query);
-        $row = $ilDB->fetchAssoc($set);
+        $sql = sprintf('SELECT parent FROM tree WHERE child = %d', $rid);
+        $query = $ilDB->query($sql);
+        $row = $ilDB->fetchAssoc($query);
         return $row['parent'];
     }
 
@@ -154,18 +152,18 @@ class DescribrModel
             }
         }
         // Ref_id nach Obj_Id Konversion und Title - Ermittlung
-        $hierarch_str="";
+        $hierarch_str='';
         $levels=count($a_ref_ids);
         for ($i=0;$i<$levels;$i++){
             $r_id=$a_ref_ids[$i];
             $sql = sprintf('SELECT object_data.title, object_data.type FROM object_reference LEFT JOIN object_data ON object_data.obj_id = object_reference.obj_id WHERE object_reference.ref_id = %d', $r_id);
-            $set = $ilDB->query($sql);
-            $row = $ilDB->fetchAssoc($set);
+            $query = $ilDB->query($sql);
+            $row = $ilDB->fetchAssoc($query);
             $title=$row['title'];
             $type=$row['type'];
-            $hierarch_str.="[\"".$title."\" (".$type.")]";
+            $hierarch_str.='["'.$title.'" ('.$type.')]';
             if ($i<$levels-1){
-                $hierarch_str.="<";
+                $hierarch_str.='<';
             }
         }
         return $hierarch_str;

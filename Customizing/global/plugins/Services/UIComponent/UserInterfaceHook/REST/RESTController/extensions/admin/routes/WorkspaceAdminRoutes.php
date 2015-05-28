@@ -8,9 +8,7 @@
 namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-use \RESTController\extensions\admin\models;
+use \RESTController\libs as Libs;
 
 /*
  * Prototypical implementation of some rest endpoints for development
@@ -18,7 +16,7 @@ use \RESTController\extensions\admin\models;
  */
 
 $app->group('/admin', function () use ($app) {
-    $app->get('/workspaces', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function () use ($app) {
+    $app->get('/workspaces', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
         try {
             if (count($app->request->post()) == 0 && count($app->request->get()) == 0) {
                 $req_data = json_decode($app->request()->getBody(),true); // json
@@ -39,7 +37,7 @@ $app->group('/admin', function () use ($app) {
             $t_start = microtime();
             $result = array();
             $result['msg'] = 'Overview Workspaces';
-            RESTLib::initAccessHandling();
+            Libs\RESTLib::initAccessHandling();
             $wa_model = new WorkspaceAdminModel();
 
             $result['result'] = $wa_model->scanUsersForWorkspaces($limit, $offset);
@@ -60,13 +58,13 @@ $app->group('/admin', function () use ($app) {
     });
 
 
-    $app->get('/workspaces/:user_id', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function ($user_id) use ($app) {
+    $app->get('/workspaces/:user_id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($user_id) use ($app) {
         try {
             $t_start = microtime();
             $result = array();
             $result['msg'] = 'Workspaces of user.';
 
-            RESTLib::initAccessHandling();
+            Libs\RESTLib::initAccessHandling();
             $wa_model = new WorkspaceAdminModel();
             $ws_array = $wa_model->getUserWorkspaceItems($user_id);
             $result['data'] = $ws_array;

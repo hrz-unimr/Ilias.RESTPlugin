@@ -8,10 +8,7 @@
 namespace RESTController\extensions\contacts_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \ilAddressbook;
+use \RESTController\libs as Libs;
 
 
 require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
@@ -29,13 +26,13 @@ class ContactsModel
      */
     function getMyContacts($user_id)
     {
-        RESTLib::loadIlUser();
+        Libs\RESTLib::loadIlUser();
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        RESTLib::initAccessHandling();
+        Libs\RESTLib::initAccessHandling();
 
-        $abook = new ilAddressbook($ilUser->getId());
+        $abook = new \ilAddressbook($ilUser->getId());
         $entries = $abook->getEntries();
 
         return $entries;

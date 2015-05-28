@@ -8,15 +8,12 @@
 namespace RESTController\extensions\desktop_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \ilObjectFactory;
+use \RESTController\libs as Libs;
 
 
-require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
-require_once("./Modules/File/classes/class.ilObjFile.php");
-require_once("./Services/User/classes/class.ilObjUser.php");
+require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
+require_once('./Modules/File/classes/class.ilObjFile.php');
+require_once('./Services/User/classes/class.ilObjUser.php');
 
 class DesktopModel
 {
@@ -27,12 +24,12 @@ class DesktopModel
      */
     function getPersonalDesktopItems($user_id)
     {
-        
-        RESTLib::loadIlUser();
+
+        Libs\RESTLib::loadIlUser();
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        RESTLib::initAccessHandling();
+        Libs\RESTLib::initAccessHandling();
 
         $items = $ilUser->getDesktopItems();
         return $items;
@@ -40,26 +37,26 @@ class DesktopModel
 
     function removeItemFromDesktop($user_id, $ref_id)
     {
-        $obj = ilObjectFactory::getInstanceByRefId($ref_id,false);
+        $obj = \ilObjectFactory::getInstanceByRefId($ref_id,false);
         $item_type = $obj->getType();
         $this->removeItemFromDesktopWithType($user_id, $ref_id, $item_type);
     }
 
     function removeItemFromDesktopWithType($user_id, $ref_id, $item_type)
     {
-        
-        RESTLib::loadIlUser();
+
+        Libs\RESTLib::loadIlUser();
         global    $ilUser;
         global $ilDB;
         $ilUser->setId($user_id);
         $ilUser->read();
-        RESTLib::initAccessHandling();
+        Libs\RESTLib::initAccessHandling();
         $ilUser->dropDesktopItem($ref_id, $item_type);
     }
 
     function addItemToDesktop($user_id, $ref_id)
     {
-        $obj = ilObjectFactory::getInstanceByRefId($ref_id,false);
+        $obj = \ilObjectFactory::getInstanceByRefId($ref_id,false);
         $item_type = $obj->getType();
         $this->addItemToDesktopWithType($user_id, $ref_id, $item_type);
         return true;
@@ -68,12 +65,12 @@ class DesktopModel
 
     function addItemToDesktopWithType($user_id, $ref_id, $item_type)
     {
-        
-        RESTLib::loadIlUser();
+
+        Libs\RESTLib::loadIlUser();
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        RESTLib::initAccessHandling();
+        Libs\RESTLib::initAccessHandling();
         $ilUser->addDesktopItem($ref_id, $item_type);
         return true;
     }
@@ -81,14 +78,14 @@ class DesktopModel
 
     function isDesktopItem($user_id, $ref_id)
     {
-        
-        RESTLib::loadIlUser();
+
+        Libs\RESTLib::loadIlUser();
         global    $ilUser;
         if ($ilUser->getId()!=$user_id) {
             $ilUser->setId($user_id);
             $ilUser->read();
         }
-        RESTLib::initAccessHandling();
+        Libs\RESTLib::initAccessHandling();
         return $ilUser->isDesktopItem($a_item_id, $a_type);
     }
 

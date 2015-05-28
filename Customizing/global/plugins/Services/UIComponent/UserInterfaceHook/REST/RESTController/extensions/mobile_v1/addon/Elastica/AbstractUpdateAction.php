@@ -35,7 +35,7 @@ class AbstractUpdateAction extends Param
      */
     public function getId()
     {
-        return ($this->hasParam('_id')) ? $this->getParam('_id') : null;
+        return ($this->hasParam('_id')) ? $this->params('_id') : null;
     }
 
     /**
@@ -62,7 +62,7 @@ class AbstractUpdateAction extends Param
      */
     public function getTtl()
     {
-        return $this->getParam('_ttl');
+        return $this->params('_ttl');
     }
 
     /**
@@ -97,7 +97,7 @@ class AbstractUpdateAction extends Param
      */
     public function getType()
     {
-        return $this->getParam('_type');
+        return $this->params('_type');
     }
 
     /**
@@ -123,7 +123,7 @@ class AbstractUpdateAction extends Param
      */
     public function getIndex()
     {
-        return $this->getParam('_index');
+        return $this->params('_index');
     }
 
     /**
@@ -145,7 +145,7 @@ class AbstractUpdateAction extends Param
      */
     public function getVersion()
     {
-        return $this->getParam('_version');
+        return $this->params('_version');
     }
 
     /**
@@ -176,7 +176,7 @@ class AbstractUpdateAction extends Param
      */
     public function getVersionType()
     {
-        return $this->getParam('_version_type');
+        return $this->params('_version_type');
     }
 
     /**
@@ -206,7 +206,7 @@ class AbstractUpdateAction extends Param
      */
     public function getParent()
     {
-        return $this->getParam('_parent');
+        return $this->params('_parent');
     }
 
     /**
@@ -234,7 +234,7 @@ class AbstractUpdateAction extends Param
      */
     public function getOpType()
     {
-        return $this->getParam('_op_type');
+        return $this->params('_op_type');
     }
 
     /**
@@ -263,7 +263,7 @@ class AbstractUpdateAction extends Param
      */
     public function getPercolate()
     {
-        return $this->getParam('_percolate');
+        return $this->params('_percolate');
     }
 
     /**
@@ -292,7 +292,7 @@ class AbstractUpdateAction extends Param
      */
     public function getRouting()
     {
-        return $this->getParam('_routing');
+        return $this->params('_routing');
     }
 
     /**
@@ -329,7 +329,7 @@ class AbstractUpdateAction extends Param
      */
     public function getFields()
     {
-        return $this->getParam('_fields');
+        return $this->params('_fields');
     }
 
     /**
@@ -354,7 +354,7 @@ class AbstractUpdateAction extends Param
      */
     public function getRetryOnConflict()
     {
-        return $this->getParam('_retry_on_conflict');
+        return $this->params('_retry_on_conflict');
     }
 
     /**
@@ -379,7 +379,7 @@ class AbstractUpdateAction extends Param
      */
     public function getTimestamp()
     {
-        return $this->getParam('_timestamp');
+        return $this->params('_timestamp');
     }
 
     /**
@@ -404,7 +404,7 @@ class AbstractUpdateAction extends Param
      */
     public function getRefresh()
     {
-        return $this->getParam('_refresh');
+        return $this->params('_refresh');
     }
 
     /**
@@ -429,7 +429,7 @@ class AbstractUpdateAction extends Param
      */
     public function getTimeout()
     {
-        return $this->getParam('_timeout');
+        return $this->params('_timeout');
     }
 
     /**
@@ -454,7 +454,7 @@ class AbstractUpdateAction extends Param
      */
     public function getConsistency()
     {
-        return $this->getParam('_consistency');
+        return $this->params('_consistency');
     }
 
     /**
@@ -479,7 +479,7 @@ class AbstractUpdateAction extends Param
      */
     public function getReplication()
     {
-        return $this->getParam('_replication');
+        return $this->params('_replication');
     }
 
     /**
@@ -529,8 +529,8 @@ class AbstractUpdateAction extends Param
             $data = array();
             foreach ($fields as $field) {
                 $key = '_'.ltrim($field, '_');
-                if ($this->hasParam($key) && '' !== (string) $this->getParam($key)) {
-                    $data[$key] = $this->getParam($key);
+                if ($this->hasParam($key) && '' !== (string) $this->params($key)) {
+                    $data[$key] = $this->params($key);
                 }
             }
         } else {

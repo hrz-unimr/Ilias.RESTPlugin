@@ -8,8 +8,7 @@
 namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+use \RESTController\libs as Libs;
 
 
 /*
@@ -25,12 +24,12 @@ $app->group('/admin', function () use ($app) {
      *
      * Supported types: obj_id, ref_id, usr_id and file_id
      */
-    $app->get('/describe/:id', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function ($id) use ($app) {
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+    $app->get('/describe/:id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($id) use ($app) {
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
 
         try {
-            $id_type = $request->getParam('id_type');
+            $id_type = $request->params('id_type');
         } catch (\Exception $e) {
             $id_type = 'ref_id';
         }
@@ -38,7 +37,7 @@ $app->group('/admin', function () use ($app) {
         $model = new DescribrModel();
         if ($id_type == 'ref_id' || $id_type == 'obj_id') {
             if ($id_type == 'ref_id') {
-                $obj_id = RESTLib::refid_to_objid($id);
+                $obj_id = Libs\RESTLib::getObjIdFromRef($id);
                 $id_type = 'obj_id';
             }
             //echo "obj_id:".$obj_id;
@@ -63,7 +62,7 @@ $app->group('/admin', function () use ($app) {
         }
 
         if ($id_type == 'usr_id') {
-            $username = RESTLib::userIdtoLogin($id);
+            $username = Libs\RESTLib::getUserNameFromId($id);
             //echo $username;
             try {
                 if ($username == 'User unknown') {

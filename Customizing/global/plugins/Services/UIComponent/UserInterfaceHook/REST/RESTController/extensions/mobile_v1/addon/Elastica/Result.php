@@ -67,7 +67,7 @@ class Result
      */
     public function getId()
     {
-        return $this->getParam('_id');
+        return $this->params('_id');
     }
 
     /**
@@ -77,7 +77,7 @@ class Result
      */
     public function getType()
     {
-        return $this->getParam('_type');
+        return $this->params('_type');
     }
 
     /**
@@ -87,7 +87,7 @@ class Result
      */
     public function getFields()
     {
-        return $this->getParam('fields');
+        return $this->params('fields');
     }
 
     /**
@@ -107,7 +107,7 @@ class Result
      */
     public function getIndex()
     {
-        return $this->getParam('_index');
+        return $this->params('_index');
     }
 
     /**
@@ -117,7 +117,7 @@ class Result
      */
     public function getScore()
     {
-        return $this->getParam('_score');
+        return $this->params('_score');
     }
 
     /**
@@ -137,7 +137,7 @@ class Result
      */
     public function getVersion()
     {
-        return $this->getParam('_version');
+        return $this->params('_version');
     }
 
     /**
@@ -163,7 +163,7 @@ class Result
      */
     public function getSource()
     {
-        return $this->getParam('_source');
+        return $this->params('_source');
     }
 
     /**
@@ -173,7 +173,7 @@ class Result
      */
     public function getHighlights()
     {
-        return $this->getParam('highlight');
+        return $this->params('highlight');
     }
 
     /**
@@ -183,7 +183,7 @@ class Result
      */
     public function getExplanation()
     {
-        return $this->getParam('_explanation');
+        return $this->params('_explanation');
     }
 
     /**

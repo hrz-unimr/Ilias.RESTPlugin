@@ -8,10 +8,8 @@
 namespace RESTController\extensions\courses_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \RESTController\extensions\users_v1\UsersModel;
+use \RESTController\libs as Libs;
+use \RESTController\extensions\users_v1 as Users;
 
 
 /*
@@ -23,10 +21,13 @@ $app->group('/v1', function () use ($app) {
     /**
      * Retrieves the content and a description of a course specified by ref_id.
      */
-    $app->get('/courses/:ref_id', '\RESTController\libs\AuthMiddleware::authenticate', function ($ref_id) use ($app) {
-        $response = new RESTResponse($app);
-        $env = $app->environment();
-        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
+    $app->get('/courses/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
+        $auth = new Auth\Util();
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $id = $accessToken->getUserId();
+
+        $response = new Libs\RESTResponse($app);
         try {
             $crs_model = new CoursesModel();
             $data1 =  $crs_model->getCourseContent($ref_id);
@@ -41,10 +42,13 @@ $app->group('/v1', function () use ($app) {
         $response->toJSON();
     });
 
-    $app->post('/courses', '\RESTController\libs\AuthMiddleware::authenticate', function() use ($app) {
-        $env = $app->environment();
-        $response = new RESTResponse($app);
-        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
+    $app->post('/courses', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
+        $auth = new Auth\Util();
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $authorizedUserId = $accessToken->getUserId();
+
+        $response = new Libs\RESTResponse($app);
 
         $parent_container_ref_id = 1;
         $new_course_title = "";
@@ -70,13 +74,13 @@ $app->group('/v1', function () use ($app) {
         //$user_id = 6; // root for testing purposes
         $user_id = $authorizedUserId;
 
-        RESTLib::loadIlUser();
+        Libs\RESTLib::loadIlUser();
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        RESTLib::initAccessHandling();
+        Libs\RESTLib::initAccessHandling();
         global $ilAccess;
-        
+
         if(!$ilAccess->checkAccess("create_crs", "", $parent_container_ref_id)) {
             $response->setMessage("Insufficient access rights");
             $response->setHttpStatus(401);
@@ -92,7 +96,6 @@ $app->group('/v1', function () use ($app) {
 
     $app->delete('/courses/:id',  function ($id) use ($app) {
         $request = $app->request();
-        $env = $app->environment();
         // todo: check permissions
         $result = array();
         $crs_model = new CoursesModel();
@@ -114,32 +117,31 @@ $app->group('/v1', function () use ($app) {
      * If "mode" is "by_id", the parameter "usr_id" is used for the lookup.
      * The user is then enrolled in the course with "crs_ref_id".
      */
-    $app->post('/courses/enroll', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminROle', function() use ($app) {
-        $env = $app->environment();
-        $response = new RESTResponse($app);
-        $request = new RESTRequest($app);
-        $mode = $request->getParam("mode");
+    $app->post('/courses/enroll', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function() use ($app) {
+        $response = new Libs\RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
+        $mode = $request->params("mode");
         if($mode == "by_login") {
-            $login = $request->getParam("login");
-            $user_id = RESTLib::loginToUserId($login);
+            $login = $request->params("login");
+            $user_id = Libs\RESTLib::getIdFromUserName($login);
             if(empty($user_id)){
-                $data = $request->getParam("data");
+                $data = $request->params("data");
                 $userData = array_merge(array(
                     "login" => "{$login}",
                     "auth_mode" => "ldap",
                 ), $data);
-                $um = new UsersModel();
+                $um = new Users\UsersModel();
                 $user_id = $um->addUser($userData);
             }
         } else if ($mode == "by_id") {
-            $user_id = $request->getParam("usr_id");
+            $user_id = $request->params("usr_id");
         } else {
             $response->setHttpStatus(400);
             $response->setMessage("Unsupported or missing mode: '$mode'. Use eiter 'by_login' or 'by_id'");
             $response->toJSON();
             return;
         }
-        $crs_ref_id = $request->getParam("crs_ref_id");
+        $crs_ref_id = $request->params("crs_ref_id");
         try {
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->joinCourse($user_id, $crs_ref_id);
@@ -158,13 +160,16 @@ $app->group('/v1', function () use ($app) {
 
     });
 
-    $app->get('/courses/join', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
-        $env = $app->environment();
-        $response = new RESTResponse($app);
-        $request = new RESTRequest($app);
-        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
+    $app->get('/courses/join', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+        $auth = new Auth\Util();
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $authorizedUserId = $accessToken->getUserId();
+
+        $response = new Libs\RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
         try {
-            $ref_id = $request->getParam("ref_id");
+            $ref_id = $request->params("ref_id");
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->joinCourse($authorizedUserId, $ref_id);
             /*$data1 =  $crs_model->getCourseContent($ref_id);
@@ -181,13 +186,16 @@ $app->group('/v1', function () use ($app) {
         $response->toJSON();
     });
 
-    $app->get('/courses/leave', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
-        $env = $app->environment();
-        $response = new RESTResponse($app);
-        $request = new RESTRequest($app);
-        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
+    $app->get('/courses/leave', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+        $auth = new Auth\Util();
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $authorizedUserId = $accessToken->getUserId();
+
+        $response = new Libs\RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
         try {
-            $ref_id = $request->getParam("ref_id");
+            $ref_id = $request->params("ref_id");
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->leaveCourse($authorizedUserId, $ref_id);
 

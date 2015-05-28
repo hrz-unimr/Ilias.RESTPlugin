@@ -8,8 +8,7 @@
 namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+use \RESTController\libs as Libs;
 
 
 /*
@@ -22,17 +21,17 @@ $app->group('/admin', function () use ($app) {
      * Returns a subtree of the current repository object, where the root node's ref_id must be specified.
      * In the extreme case, the complete repository (tree) will be retrieved.
      */
-    $app->get('/repository/:ref_id', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function ($ref_id) use ($app) {
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+    $app->get('/repository/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($ref_id) use ($app) {
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
         $maxDepth = 1000;
         $maxAge = 24; // 24 month
         try {
-            $maxDepth = $request->getParam("depth");
+            $maxDepth = $request->params("depth");
         } catch(\Exception $e){
         }
         try {
-            $maxAge = $request->getParam("age");
+            $maxAge = $request->params("age");
         } catch(\Exception $e){
         }
         $repModel = new RepositoryAdminModel();
@@ -48,8 +47,8 @@ $app->group('/admin', function () use ($app) {
     /**
      * Get subtree of categories.
      */
-    $app->get('/repository/categories/:ref_id', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function ($ref_id) use ($app) {
-        $response = new RESTResponse($app);
+    $app->get('/repository/categories/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($ref_id) use ($app) {
+        $response = new Libs\RESTResponse($app);
         $repModel = new RepositoryAdminModel();
         $data = $repModel->getRekNode($ref_id, 0, array('cat'), 0, 1000);
 
@@ -58,9 +57,9 @@ $app->group('/admin', function () use ($app) {
         $response->send();
     });
 
-    $app->get('/repository/analytics/:ref_id', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function ($ref_id) use ($app) {
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+    $app->get('/repository/analytics/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($ref_id) use ($app) {
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
         $repModel = new RepositoryAdminModel();
         //  $data = $repModel->getSubTree($ref_id);
         $data = $repModel->getRepositoryReadEvents($ref_id);
@@ -73,13 +72,13 @@ $app->group('/admin', function () use ($app) {
     /**
      * Creates a new category within the repository container object specfied by ref_id
      */
-    $app->post('/categories', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function () use ($app) {
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+    $app->post('/categories', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
         $repModel = new RepositoryAdminModel();
-        $parent_ref_id = $request->getParam("ref_id");
-        $title = $request->getParam("title");
-        $description = $request->getParam("description");
+        $parent_ref_id = $request->params("ref_id");
+        $title = $request->params("title");
+        $description = $request->params("description");
         $new_ref_id = $repModel->createNewCategoryAsUser($parent_ref_id, $title, $description);
         $response->setData("new_ref_id", $new_ref_id);
         $response->setMessage('New Category added to container '.$ref_id.' successfully.');

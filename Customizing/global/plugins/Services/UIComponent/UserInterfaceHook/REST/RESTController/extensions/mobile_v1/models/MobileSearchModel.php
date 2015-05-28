@@ -7,16 +7,12 @@
  */
 namespace RESTController\extensions\mobile_v1;
 
-// This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
 
 class MobileSearchModel
 {
     /**
-     * This method triggers an "elastic search" on basis of repository titles by using the php client
-     * elastica installed under "addon".
+     * This method triggers an 'elastic search' on basis of repository titles by using the php client
+     * elastica installed under 'addon'.
      * @param $query - a string
      * @return array $searchResults - an associative reaults of hits
      */

@@ -8,8 +8,7 @@
 namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+use \RESTController\libs as Libs;
 
 
 /*
@@ -17,14 +16,14 @@ use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
  */
 
 $app->group('/admin', function () use ($app) {
-    $app->get('/testpool', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function () use ($app) {
+    $app->get('/testpool', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
 
     });
 
 
-    $app->get('/testquestion/:question_id', '\RESTController\libs\AuthMiddleware::authenticateILIASAdminRole', function ($question_id) use ($app) {
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+    $app->get('/testquestion/:question_id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($question_id) use ($app) {
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
 
         $model = new TestQuestionModel();
         $data = $model->getQuestion($question_id);

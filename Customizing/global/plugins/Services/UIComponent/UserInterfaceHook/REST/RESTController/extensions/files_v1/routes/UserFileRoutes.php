@@ -8,8 +8,7 @@
 namespace RESTController\extensions\files_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+use \RESTController\libs as Libs;
 
 
 /*
@@ -24,15 +23,17 @@ $app->group('/v1', function () use ($app) {
      * @param id_type - (optional) "ref_id" or "obj_id", if ommited the type ref_id is assumed.
      * @param id - the ref or obj_id of the file.
      */
-    $app->get('/files/:id', '\RESTController\libs\AuthMiddleware::authenticate',  function ($id) use ($app) {
-        $env = $app->environment();
-        $user_id = RESTLib::loginToUserId($env['user']);
+    $app->get('/files/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($id) use ($app) {
+        $auth = new Auth\Util();
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $user_id = $accessToken->getUserId();
 
-        $request = new RESTRequest($app);
-        $response = new RESTResponse($app);
+        $request = new Libs\RESTRequest($app);
+        $response = new Libs\RESTResponse($app);
 
         try {
-            $meta_data = $request->getParam('meta_data');
+            $meta_data = $request->params('meta_data');
             if (isset($meta_data)) {
                 $meta_data = true;
             }
@@ -41,14 +42,14 @@ $app->group('/v1', function () use ($app) {
         }
 
         try {
-            $id_type = $request->getParam('$id_type');
+            $id_type = $request->params('$id_type');
         } catch (\Exception $e) {
             $id_type = "ref_id";
         }
 
 
         if ($id_type == "ref_id") {
-            $obj_id = RESTLib::refid_to_objid($id);
+            $obj_id = Libs\RESTLib::getObjIdFromRef($id);
         } else {
             $obj_id = $id;
         }

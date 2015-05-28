@@ -94,7 +94,7 @@ class Http extends AbstractTransport
         $httpMethod = $request->getMethod();
 
         if (!empty($data) || '0' === $data) {
-            if ($this->hasParam('postWithRequestBody') && $this->getParam('postWithRequestBody') == true) {
+            if ($this->hasParam('postWithRequestBody') && $this->params('postWithRequestBody') == true) {
                 $httpMethod = Request::POST;
             }
 

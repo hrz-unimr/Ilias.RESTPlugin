@@ -8,8 +8,8 @@
 namespace RESTController\extensions\contacts_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
+use \RESTController\libs as Libs;
+
 
 /**
  * Contacts API
@@ -19,11 +19,14 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the personal ILIAS contacts for a user specified by id.
      */
-    $app->get('/contacts/:id', '\RESTController\libs\AuthMiddleware::authenticate', function ($id) use ($app) {
-        $env = $app->environment();
-        $response = new RESTResponse($app);
-        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
-        if ($authorizedUserId == $id || RESTLib::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
+    $app->get('/contacts/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($id) use ($app) {
+        $auth = new Auth\Util();
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $authorizedUserId = $accessToken->getUserId();
+
+        $response = new Libs\RESTResponse($app);
+        if ($authorizedUserId == $id || Libs\RESTLib::isAdminByUserId($authorizedUserId)) { // only the user or the admin is allowed to access the data
             try {
                 $model = new ContactsModel();
                 $data = $model->getMyContacts($id);

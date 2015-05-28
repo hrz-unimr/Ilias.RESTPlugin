@@ -8,37 +8,34 @@
 namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
-use \RESTController\libs\RESTRequest, \RESTController\libs\RESTResponse;
-
-use \ilTree, \ilObjCategory;
+use \RESTController\libs as Libs;
 
 
 class RepositoryAdminModel
 {
     public function getChildrenOfRoot()
     {
-        
-        $tree = new ilTree(ROOT_FOLDER_ID);
+
+        $tree = new \ilTree(ROOT_FOLDER_ID);
         $childs = $tree->getChilds(ROOT_FOLDER_ID);
         return $childs;
     }
 
     public function getChildren($ref_id)
     {
-        
-        $tree = new ilTree(ROOT_FOLDER_ID);
+
+        $tree = new \ilTree(ROOT_FOLDER_ID);
         $childs = $tree->getChilds($ref_id);
         return $childs;
     }
 
     public function getCategoryListOfRootTree()
     {
-        $tree = new ilTree(ROOT_FOLDER_ID);
+        $tree = new \ilTree(ROOT_FOLDER_ID);
 
         $root = $tree->getNodeData(1);
         $childs = $tree->getSubTree($root, false, array('cat')); // 'crs','grp'
-        //getSubTree($a_node,$a_with_data = true, $a_type = "")
+        //getSubTree($a_node,$a_with_data = true, $a_type = '')
         return $childs;
     }
 
@@ -84,14 +81,14 @@ class RepositoryAdminModel
      */
     public function getRekNode($ref_id, $parent_ref_id, $a_types, $ct_level, $max_level)
     {
-       // echo "Running getRekNode (".$ref_id.",".$parent_ref_id.") \n";
+       // echo 'Running getRekNode ('.$ref_id.','.$parent_ref_id.') \n';
         // Step: get node data
-        $obj_id = RESTLib::refid_to_objid($ref_id);
-        $node_data = RESTLib::getObjectData($obj_id, array('create_date','description','title','type'));
-        $node_data['ref_id'] = "$ref_id";
+        $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
+        $node_data = Libs\RESTLib::getObjectData($obj_id, array('create_date','description','title','type'));
+        $node_data['ref_id'] = $ref_id;
 
         // Step: get children (crs, cat)
-        $tree = new ilTree(ROOT_FOLDER_ID);
+        $tree = new \ilTree(ROOT_FOLDER_ID);
         $childs = $tree->getChildsByTypeFilter($ref_id, $a_types);
         $a_children_ref_ids = array();
         foreach ($childs as $item) {
@@ -99,18 +96,18 @@ class RepositoryAdminModel
         }
         // Step: add children ref ids to node data
         $node_data['children'] = $a_children_ref_ids;
-        $node_data['parent'] = "$parent_ref_id";
+        $node_data['parent'] = $parent_ref_id;
 
         // Step: for each children ref_id call this function
         $childresults = array();
         if ($ct_level < $max_level) {
             foreach ($a_children_ref_ids as $item_ref_id) {
                 $childresult = $this->getRekNode($item_ref_id, $ref_id, $a_types, $ct_level + 1, $max_level); // result: array('id1'=>{child1}, 'id1sub1'=>{child11}, ...);
-                $childresults = $childresults + $childresult; // "+" in contrast to array_merge preserves numerical keys
+                $childresults = $childresults + $childresult; // '+' in contrast to array_merge preserves numerical keys
             }
         }
         // Step: return merge this node data with result arrays from child calls
-        $result = array("$ref_id" => $node_data) + $childresults;
+        $result = array($ref_id => $node_data) + $childresults;
         return $result;
     }
 
@@ -166,32 +163,32 @@ class RepositoryAdminModel
      */
     public function getRekNodeTimespan($ref_id, $parent_ref_id, $a_types, $ct_level, $max_level, $max_timeinterval)
     {
-        // echo "Running getRekNode (".$ref_id.",".$parent_ref_id.") \n";
+        // echo 'Running getRekNode ('.$ref_id.','.$parent_ref_id.') \n';
         // Step: get node data
-        $obj_id = RESTLib::refid_to_objid($ref_id);
-        $node_data = RESTLib::getObjectData($obj_id, array('create_date','description','title','type'));
-        $node_data['ref_id'] = "$ref_id";
+        $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
+        $node_data = Libs\RESTLib::getObjectData($obj_id, array('create_date','description','title','type'));
+        $node_data['ref_id'] = '$ref_id';
 
         // Step: get children (crs, cat)
-        $tree = new ilTree(ROOT_FOLDER_ID);
+        $tree = new \ilTree(ROOT_FOLDER_ID);
         $childs = $tree->getChildsByTypeFilter($ref_id, $a_types);
         $a_children_ref_ids = array();
         //$a_timestamps = array();
         foreach ($childs as $item) {
             // Check if the current item has been read within the last $max_timeinterval
-            $ct_obj_id = RESTLib::refid_to_objid($item['ref_id']);
-            $ct_last_read = RESTLib::getLatestReadEventTimestamp($ct_obj_id);
+            $ct_obj_id = Libs\RESTLib::getObjIdFromRef($item['ref_id']);
+            $ct_last_read = Libs\RESTLib::getLatestReadEventTimestamp($ct_obj_id);
             if (time() - $max_timeinterval < $ct_last_read) {
-               // echo "within! last read event: ".date('Y-m-d H-i-s', $ct_last_read)."\n";
+               // echo 'within! last read event: '.date('Y-m-d H-i-s', $ct_last_read).'\n';
                 //$a_timestamps [] = date('Y-m-d H-i-s', $ct_last_read);
                 $a_children_ref_ids[] = $item['ref_id'];
             } else {
-               // echo "NOT within! last read event: ".date('Y-m-d H-i-s', $ct_last_read)."\n";
+               // echo 'NOT within! last read event: '.date('Y-m-d H-i-s', $ct_last_read).'\n';
             }
         }
         // Step: add children ref ids to node data
         $node_data['children'] = $a_children_ref_ids;
-        $node_data['parent'] = "$parent_ref_id";
+        $node_data['parent'] = $parent_ref_id;
         //$node_data['children_ts'] = $a_timestamps;
 
         // Step: for each children ref_id call this function
@@ -199,11 +196,11 @@ class RepositoryAdminModel
         if ($ct_level < $max_level) {
             foreach ($a_children_ref_ids as $item_ref_id) {
                 $childresult = $this->getRekNodeTimespan($item_ref_id, $ref_id, $a_types, $ct_level + 1, $max_level, $max_timeinterval); // result: array('id1'=>{child1}, 'id1sub1'=>{child11}, ...);
-                $childresults = $childresults + $childresult; // "+" in contrast to array_merge preserves numerical keys
+                $childresults = $childresults + $childresult; // '+' in contrast to array_merge preserves numerical keys
             }
         }
         // Step: return merge this node data with result arrays from child calls
-        $result = array("$ref_id" => $node_data) + $childresults;
+        $result = array($ref_id => $node_data) + $childresults;
         return $result;
     }
 
@@ -212,7 +209,7 @@ class RepositoryAdminModel
     /**
      * The purpose of this function is to provide data for decision making.
      * In particular it is necessary to decide which kind of containers should be displayed on the mobile phone.
-     * The difficulty consists of deciding what is an "old" or "not used" item.
+     * The difficulty consists of deciding what is an 'old' or 'not used' item.
      */
     public function getRepositoryReadEvents($ref_id)
     {
@@ -222,18 +219,18 @@ class RepositoryAdminModel
 
     protected function getRepositoryReadEventsHelperRec($ref_id, $parent_ref_id, $a_types, $ct_level, $max_level, $k)
     {
-        // echo "Running getRekNode (".$ref_id.",".$parent_ref_id.") \n";
+        // echo 'Running getRekNode ('.$ref_id.','.$parent_ref_id.') \n';
         // Step: get node data
-        $obj_id = RESTLib::refid_to_objid($ref_id);
+        $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
         $node_data = array();
-        //$node_data = RESTLib::getObjectData($obj_id, array('create_date','description','title','type'));
-        $obj_id = RESTLib::refid_to_objid($ref_id);
-        $node_data['obj_id'] = "$obj_id";
-        $a_timestamps = RESTLib::getTopKReadEventTimestamp($obj_id, $k);
+        //$node_data = Libs\RESTLib::getObjectData($obj_id, array('create_date','description','title','type'));
+        $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
+        $node_data['obj_id'] = $obj_id;
+        $a_timestamps = Libs\RESTLib::getTopKReadEventTimestamp($obj_id, $k);
         $node_data['timestamps'] = $a_timestamps;
 
         // Step: get children (crs, cat)
-        $tree = new ilTree(ROOT_FOLDER_ID);
+        $tree = new \ilTree(ROOT_FOLDER_ID);
         $childs = $tree->getChildsByTypeFilter($ref_id, $a_types);
         $a_children_ref_ids = array();
         //$a_timestamps = array();
@@ -244,7 +241,7 @@ class RepositoryAdminModel
         }
         // Step: add children ref ids to node data
        // $node_data['children'] = $a_children_ref_ids;
-       // $node_data['parent'] = "$parent_ref_id";
+       // $node_data['parent'] = '$parent_ref_id';
         //$node_data['children_ts'] = $a_timestamps;
 
         // Step: for each children ref_id call this function
@@ -252,11 +249,11 @@ class RepositoryAdminModel
         if ($ct_level < $max_level) {
             foreach ($a_children_ref_ids as $item_ref_id) {
                 $childresult = $this->getRepositoryReadEventsHelperRec($item_ref_id, $ref_id, $a_types, $ct_level + 1, $max_level, $k); // result: array('id1'=>{child1}, 'id1sub1'=>{child11}, ...);
-                $childresults = $childresults + $childresult; // "+" in contrast to array_merge preserves numerical keys
+                $childresults = $childresults + $childresult; // '+' in contrast to array_merge preserves numerical keys
             }
         }
         // Step: return merge this node data with result arrays from child calls
-        $result = array("$ref_id" => $node_data) + $childresults;
+        $result = array($ref_id => $node_data) + $childresults;
         return $result;
     }
 
@@ -270,15 +267,15 @@ class RepositoryAdminModel
      */
     public function createNewCategoryAsUser($parent_ref_id, $title, $desc)
     {
-        RESTLib::loadIlUser();
-        
+        Libs\RESTLib::loadIlUser();
+
         global    $ilUser;
         $ilUser->setId(6);
         $ilUser->read();
-        RESTLib::initAccessHandling();
+        Libs\RESTLib::initAccessHandling();
 
-        include_once("Modules/Category/classes/class.ilObjCategory.php");
-        $newObj = new ilObjCategory();
+        include_once('Modules/Category/classes/class.ilObjCategory.php');
+        $newObj = new \ilObjCategory();
         $newObj->setType('cat');
         $newObj->setTitle($title);
         $newObj->setDescription($desc);
@@ -287,7 +284,7 @@ class RepositoryAdminModel
         $newObj->putInTree($parent_ref_id);
         $newObj->setPermissions($parent_ref_id);
 
-        return $newObj->getRefId() ? $newObj->getRefId() : "0";
+        return $newObj->getRefId() ? $newObj->getRefId() : 0;
     }
 
 }
