@@ -19,10 +19,11 @@ class RESTRequest extends \Slim\Http\Request {
         //
         parent::__construct($env);
 
-        // 
+        //
         foreach (getallheaders() as $key => $value)
             $this->headers->set($key, $value);
     }
+
 
     /**
      *
@@ -32,20 +33,22 @@ class RESTRequest extends \Slim\Http\Request {
         $body = $this->getBody();
 
         // Return key-value from body (JSON PHP-Array)
-        if ($body && $body[$key])
+        if (isset($body) && isset($body[$key]))
             return $body[$key];
         else {
             // Return key-value from RAW body or get
             $value = parent::params($key, $default);
             if ($value != $default)
                 return $value;
+            if (isset($_POST[$key]))
+                return $_POST[$key];
 
             // Return default value or throw exception?
             if (!$throw)
                 return $default;
 
             // Throw exception because its enabled
-            throw new Exceptions\MissingParameter('Mandatory data is missing, parameter %paramName% not set.', $param);
+            throw new Exceptions\MissingParameter('Mandatory data is missing, parameter \'%paramName%\' not set.', $key);
         }
 
     }

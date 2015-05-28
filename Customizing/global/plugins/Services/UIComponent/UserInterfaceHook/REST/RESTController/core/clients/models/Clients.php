@@ -442,7 +442,7 @@ class Clients extends Libs\RESTModel {
         if ($query != null && $row = self::$sqlDB->fetchAssoc($query))
             return $row['id'];
         else
-            throw new Exceptions\MissingApiKey(sprintf(MSG_API_KEY, $api_key));
+            throw new Exceptions\MissingApiKey(sprintf(self::MSG_API_KEY, $api_key));
     }
 
 
@@ -456,6 +456,6 @@ class Clients extends Libs\RESTModel {
         if ($query != null && $row = self::$sqlDB->fetchAssoc($query))
             return $row['api_key'];
         else
-            throw new Exceptions\MissingApiKey(sprintf(MSG_API_ID, $api_id));
+            throw new Exceptions\MissingApiKey(sprintf(self::MSG_API_ID, $api_id));
     }
 }

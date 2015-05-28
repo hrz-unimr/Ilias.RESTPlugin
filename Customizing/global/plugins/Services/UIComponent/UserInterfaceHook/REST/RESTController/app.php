@@ -168,7 +168,7 @@ class RESTController extends \Slim\Slim {
 
         // Set 404 fallback
         $this->notFound(function () {
-            $this->halt(404, 'There is no route matching this URI!', ID_NO_ROUTE);
+            $this->halt(404, 'There is no route matching this URI!', self::ID_NO_ROUTE);
         });
 
         // Set error-handler
@@ -176,6 +176,7 @@ class RESTController extends \Slim\Slim {
             $this->displayError($error->getMessage(), $error->getCode(), $error->getFile(), $error->getLine(), $error->getTraceAsString());
         });
 
+        // Set error.handler for fatal errors
         ini_set('display_errors', 'off');
         register_shutdown_function(function () {
             // Fetch errors
@@ -237,14 +238,16 @@ class RESTController extends \Slim\Slim {
      *
      */
     public function success($data, $format = null) {
-        // 'sendData($data, $format) <Stub - Implement Me>';
-        // Handle format!
-        // $result['status'] = 'success';
-        $data['status'] = 'success';
-        $this->response->headers->remove('Content-Type');
-        header('Content-Type: application/json');
-        echo json_encode($data); // Move to response class?
+        if (isset($data) && $data != '')
+            if (!is_array($data))
+                $data = array(
+                    'status' => 'success',
+                    'msg' => $data
+                );
+            else
+                $data['status'] = 'success';
 
+        $this->response->setBody($data);
         $this->stop();
     }
 
@@ -252,18 +255,17 @@ class RESTController extends \Slim\Slim {
     /**
      *
      */
-    public function halt($httpCode, $message = null, $restCode = '', $format = null) {
-        // 'halt($code, $message) <Stub - Implement Me>';
-        // Build a JSON with msg=$message, status=failed, code=$restCode
-        if (isset($message) && $message != '') {
-            $data = array(
-                'status' => 'failure',
-                'msg' => $message
-            );
-            $data = json_encode($data);
-            parent::halt($httpCode, $data);
-        }
-        else
-            parent::halt($httpCode, $message);
+    public function halt($httpCode, $data = null, $restCode = 'halt', $format = null) {
+        if (isset($data) && $data != '')
+            if (!is_array($data))
+                $data = array(
+                    'status' => $restCode,
+                    'msg' => $data
+                );
+            else
+                $data['status'] = $restCode;
+
+
+        parent::halt($httpCode);
     }
 }

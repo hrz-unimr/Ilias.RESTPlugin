@@ -150,7 +150,7 @@ $app->group('/v1', function () use ($app) {
                 // Get Request & OAuth-Model objects
                 $request =  $app->request();
                 $model = new TokenEndpoint();
-                $grant_type = $request->params('grant_type');
+                $grant_type = $request->params('grant_type', null, true);
 
                 // Resource Owner (User) grant type
                 if ($grant_type == 'password') {
@@ -161,7 +161,7 @@ $app->group('/v1', function () use ($app) {
 
                     // Invoke OAuth2-Model with data
                     $result = $model->userCredentials($api_key, $user, $password);
-                    $app->response()->noCache();
+                    $app->response()->disableCache();
                     $app->success($result);
                 }
                 // grant type
@@ -172,7 +172,7 @@ $app->group('/v1', function () use ($app) {
 
                     // Invoke OAuth2-Model with data
                     $result = $model->clientCredentials($api_key, $api_secret);
-                    $app->response()->noCache();
+                    $app->response()->disableCache();
                     $app->success($result);
                 }
                 // grant type
@@ -188,7 +188,7 @@ $app->group('/v1', function () use ($app) {
                     // Invoke OAuth2-Model with data
                     $authCodeToken = Token\Generic::fromMixed($model->tokenSettings(), $code);
                     $result = $model->authorizationCode($api_key, $api_secret, $authCodeToken, $redirect_uri);
-                    $app->response()->noCache();
+                    $app->response()->disableCache();
                     $app->success($result);
                 }
                 // grant type
@@ -202,7 +202,7 @@ $app->group('/v1', function () use ($app) {
 
                     // Send result to client
                     if ($result) {
-                        $app->response()->noCache();
+                        $app->response()->disableCache();
                         $app->success($result);
                     }
                     else
@@ -249,7 +249,7 @@ $app->group('/v1', function () use ($app) {
                 $refreshToken = $model->getToken($accessToken);
 
                 // Return token
-                $app->response()->noCache();
+                $app->response()->disableCache();
                 $app->success($refreshToken->getTokenString());
             }
             catch (Exceptions\TokenInvalid $e) {
@@ -316,7 +316,7 @@ $app->group('/v1', function () use ($app) {
             $result = $model->rToken2Bearer($api_key, $user_id, $rtoken, $session_id);
 
             // Return status-data
-            $app->response()->noCache();
+            $app->response()->disableCache();
             $app->success($result);
         }
         catch (LibExceptions\TokenInvalid $e) {
