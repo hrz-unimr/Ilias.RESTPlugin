@@ -48,9 +48,9 @@ class RESTController extends \Slim\Slim {
         if ($subNames[0] === __NAMESPACE__) {
             // (Core-) Extentions can leave-out the "models" subname in their namespace
             if ($subNames[1] == 'extensions' || $subNames[1] == 'core') {
-                array_splice($subNames, 3, 0, array("models"));
+                array_splice($subNames, 3, 0, array('models'));
                 array_shift($subNames);
-                parent::autoload(implode($subNames, "\\"));
+                parent::autoload(implode($subNames, '\\'));
 
                 // Fallback
                 if (!class_exists($className, false))
@@ -71,103 +71,79 @@ class RESTController extends \Slim\Slim {
      *  Call this before doing $app = new RESTController();
      */
     public static function registerAutoloader() {
-        spl_autoload_register(__NAMESPACE__ . "\\RESTController::autoload");
+        spl_autoload_register(__NAMESPACE__.'\\RESTController::autoload');
     }
 
 
     /**
      *
      */
-    protected function setErrorHandler() {
-        // Handle fatal errors
-        register_shutdown_function(function () {
-            // Fetch errors
-            $err = error_get_last();
-
-            // Display error
-            if ($err['type'] === E_ERROR) {
-                // Work-around to get better backtrace
-                $e = new \Exception;
-
-                // Dsplay error
-                $this->displayError($err['message'], $err['type'], $err['file'], $err['line'], $e->getTraceAsString());
-            }
-        });
-
-        // Set error-handler
-        $this->error(function (\Exception $error) {
-            // fetch error-data
-            $msg = $error->getMessage();
-            $code = $error->getCode();
-            $file = str_replace('/', '\\', $error->getFile());
-            $line = $error->getLine();
-            $trace = str_replace('/', '\\', $error->getTraceAsString());
-
-            // Display error
-            $this->displayError($msg, $code, $file, $line, $trace);
-        });
-
-        // Set 404 fallback
-        $this->notFound(function () {
-            $this->halt(404, 'There is no route matching this URI!', ID_NO_ROUTE);
-        });
-
-        // Disable defailt error output
-        ini_set('display_errors', 'off');
-    }
-
-
-    /**
-     *
-     */
-    protected function setLogHandler() {
-        // Disable fancy debugging
-        $this->config('debug', false);
-
-        // Log directory
-        $restLog = ILIAS_LOG_DIR . '/restplugin.log';
-
-        // Create a new file?
-        if (!file_exists($restLog)) {
-            $fh = fopen($restLog, 'w');
-            fclose($fh);
-        }
-
-        // Use own file or use ILIAS for logging
-        if (is_writable($restLog)) {
-            $logWriter = new \Slim\LogWriter(fopen(ILIAS_LOG_DIR . '/restplugin.log', 'a'));
-            $this->config('log.writer', $logWriter);
-        }
-        else {
-            global $ilLog;
-            $ilLog->write('Plugin REST -> Warning: Log file <' . $restLog . '> is not writeable!');
-            $this->config('log.writer', $ilLog);
-        }
-
-        // Enable logging
-        $this->log->setEnabled(true);
-        $this->log->setLevel(\Slim\Log::DEBUG);
-    }
-
-
-    /**
-     *
-     */
-    protected function setCustomContainer() {
+    protected function setCustomContainers() {
         // Use custom Router
         $this->container->singleton('router', function ($c) {
-            return new \RESTController\libs\RESTRouter();
+            return new libs\RESTRouter();
         });
 
         // Use custom Request
         $this->container->singleton('request', function ($c) {
-            return new \RESTController\libs\RESTRequest($this->environment());
+            return new libs\RESTRequest($this->environment());
         });
 
         // Use custom Request
         $this->container->singleton('response', function ($c) {
-            return new \RESTController\libs\RESTResponse();
+            return new libs\RESTResponse();
         });
+
+        // Use custom log-writer
+        $this->container->singleton('logWriter', function ($c) {
+            // Log directory
+            $restLog = ILIAS_LOG_DIR.'/restplugin.log';
+
+            // Create a new file?
+            if (!file_exists($restLog)) {
+                $fh = fopen($restLog, 'w');
+                fclose($fh);
+            }
+
+            // Use own file or use ILIAS for logging
+            if (!is_writable($restLog)) {
+                global $ilLog;
+                $ilLog->write('Plugin REST -> Warning: Log file ' . $restLog . ' is not write-able!');
+
+                return $ilLog;
+            }
+
+            return new \Slim\LogWriter(fopen($restLog, 'a'));
+        });
+    }
+
+
+    /**
+     *
+     */
+    protected function displayError($msg = '', $code = '', $file = '', $line = '', $trace = '') {
+        // Format data
+        $file = str_replace('/', '\\', $file);
+        $trace = str_replace('/', '\\', $trace);
+
+        // Generate standard message
+        $error = array(
+            'msg' => 'An error occured while handling this route!',
+            'data' => array(
+                'message' => $msg,
+                'code' => $code,
+                'file' => $file,
+                'line' => $line,
+                'trace' => $trace
+            )
+        );
+
+        // Log error to file
+        $this->log->critical($error);
+
+        // Display error
+        header('content-type: application/json');
+        echo json_encode($error);
     }
 
 
@@ -180,32 +156,54 @@ class RESTController extends \Slim\Slim {
     public function __construct($appDirectory, array $userSettings = array()) {
         parent::__construct($userSettings);
 
-        // Global information that should be available to all routes/models
-        $env = $this->environment();
-        $env['client_id'] = CLIENT_ID;
-        $env['app_directory'] = $appDirectory;
-
-        // Set template for current view and new views
-        $this->config('templates.path', $appDirectory);
-        $this->view()->setTemplatesDirectory($appDirectory);
+        // Setup custom router, request- & response classes
+        $this->setCustomContainers();
 
         // Add Content-Type middleware (mostly for JSON)
         $contentType = new \Slim\Middleware\ContentTypes();
         $this->add($contentType);
 
-        // REST doesn't use cookies
-        $this->hook('slim.after.router', function () {
-            header_remove('Set-Cookie');
+        // Set template for current view and new views
+        $this->view()->setTemplatesDirectory($appDirectory);
+
+        // Set 404 fallback
+        $this->notFound(function () {
+            $this->halt(404, 'There is no route matching this URI!', ID_NO_ROUTE);
         });
 
-        // Setup custom router, request- & response classes
-        $this->setCustomContainer();
+        // Set error-handler
+        $this->error(function (\Exception $error) {
+            $this->displayError($error->getMessage(), $error->getCode(), $error->getFile(), $error->getLine(), $error->getTraceAsString());
+        });
 
-        // Setup logging
-        $this->setLogHandler();
+        ini_set('display_errors', 'off');
+        register_shutdown_function(function () {
+            // Fetch errors
+            $err = error_get_last();
+            $allowed = array(
+                E_ERROR => 'E_ERROR',
+                E_PARSE => 'E_PARSE',
+                E_CORE_ERROR => 'E_CORE_ERROR',
+                E_COMPILE_ERROR => 'E_COMPILE_ERROR',
+                E_USER_ERROR => 'E_USER_ERROR'
+            );
+            $errName = $allowed[$err['type']];
 
-        // Set default error-handler and 404 result
-        $this->setErrorHandler();
+            // Display error
+            if ($errName)
+                $this->displayError($err['message'], $err['type'], $err['file'], $err['line'], sprintf('\'%s\' errors can\'t be traced.', $errName));
+
+        });
+
+        // Disable fancy debug-messages but enable logging
+        $this->config('debug', false);
+        $this->log->setEnabled(true);
+        $this->log->setLevel(\Slim\Log::DEBUG);
+
+        // Global information that should be available to all routes/models
+        $env = $this->environment();
+        $env['client_id'] = CLIENT_ID;
+        $env['app_directory'] = $appDirectory;
     }
 
 
@@ -218,17 +216,17 @@ class RESTController extends \Slim\Slim {
      */
     public function run() {
         // Log some debug usage information
-        $this->log->debug("REST call from " . $_SERVER['REMOTE_ADDR'] . " at " . date("d/m/Y,H:i:s", time()));
+        $this->log->info('REST call from ' . $_SERVER['REMOTE_ADDR'] . ' at ' . date('d/m/Y,H:i:s', time()));
 
         // Make $this available in all included models/routes
         $app = self::getInstance();
 
         // Load core models & routes
-        foreach (glob(realpath(__DIR__)."/core/*/routes/*.php") as $filename)
+        foreach (glob(realpath(__DIR__).'/core/*/routes/*.php') as $filename)
             include_once($filename);
 
         // Load extension models & routes
-        foreach (glob(realpath(__DIR__)."/extensions/*/routes/*.php") as $filename)
+        foreach (glob(realpath(__DIR__).'/extensions/*/routes/*.php') as $filename)
             include_once($filename);
 
         parent::run();
@@ -254,7 +252,7 @@ class RESTController extends \Slim\Slim {
     /**
      *
      */
-    public function halt($httpCode, $message = null, $restCode = "", $format = null) {
+    public function halt($httpCode, $message = null, $restCode = '', $format = null) {
         // 'halt($code, $message) <Stub - Implement Me>';
         // Build a JSON with msg=$message, status=failed, code=$restCode
         if (isset($message) && $message != '') {
@@ -267,30 +265,5 @@ class RESTController extends \Slim\Slim {
         }
         else
             parent::halt($httpCode, $message);
-    }
-
-
-    /**
-     *
-     */
-    protected function displayError($msg, $code, $file, $line, $trace) {
-        // Generate standard message
-$errStr = '{
-    "msg": "An error occured while handling this route!",
-    "data": {
-        "message": ' . json_encode(($msg)   ?: '') . ',
-        "code": ' .    json_encode(($code)  ?: '') . ',
-        "file": ' .    json_encode(($file)  ?: '') . ',
-        "line": ' .    json_encode(($line)  ?: '') . ',
-        "trace": ' .   json_encode(($trace) ?: '') . '
-    }
-}';
-
-        // Log error to file
-        $this->log->debug($errStr);
-
-        // Display error
-        header('content-type: application/json');
-        echo $errStr;
     }
 }

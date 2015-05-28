@@ -42,4 +42,5 @@ class RESTResponse extends \Slim\Http\Response {
     }
 
     // WWW-Authenticate: OAuth realm="http://server.example.com/"
+    // header_remove('Set-Cookie');
 }
