@@ -24,7 +24,7 @@ $app->group('/v1', function () use ($app) {
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 
-        $response = new Libs\RESTResponse($app);
+        $response = null; //new Libs\RESTResponse($app);
 
         if ($authorizedUserId == $id || Libs\RESTLib::isAdminByUserId($authorizedUserId)) { // only the user or the admin is allowed to access the data
             try {
@@ -42,6 +42,7 @@ $app->group('/v1', function () use ($app) {
         }
         $response->toJSON();
     });
+    
 
     /**
      * Returns the ICAL Url of the desktop calendar of a user specified by its user_id.
@@ -52,7 +53,7 @@ $app->group('/v1', function () use ($app) {
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 
-        $response = new Libs\RESTResponse($app);
+        $response = null; //new Libs\RESTResponse($app);
         if ($authorizedUserId == $id || Libs\RESTLib::isAdminByUserId($authorizedUserId)) { // only the user or the admin is allowed to access the data
             try {
                 $model = new CalendarModel();
@@ -70,10 +71,11 @@ $app->group('/v1', function () use ($app) {
         $response->toJSON();
     });
 
+
     /**
      * Returns the calendar events of the authenticated user.
      */
-    $app->get('/cal/events', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
+    $app->get('/cal/events', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $env = $app->environment();
         $response = new RESTResponse($app);
         $authorizedUserId =  RESTLib::loginToUserId($env['user']);
@@ -96,10 +98,12 @@ $app->group('/v1', function () use ($app) {
         $response->toJSON();
     });
 
+
     /**
      * Returns the ICAL Url of the desktop calendar of the authenticated user.
      */
-    $app->get('/cal/icalurl', '\RESTController\libs\AuthMiddleware::authenticate' , function () use ($app) {
+
+    $app->get('/cal/icalurl', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth' , function () use ($app) {
         $env = $app->environment();
         $response = new RESTResponse($app);
         $authorizedUserId =  RESTLib::loginToUserId($env['user']);
@@ -120,5 +124,4 @@ $app->group('/v1', function () use ($app) {
         }
         $response->toJSON();
     });
-
 });

@@ -266,6 +266,6 @@ class RESTController extends \Slim\Slim {
                 $data['status'] = $restCode;
 
 
-        parent::halt($httpCode);
+        parent::halt($httpCode, $data);
     }
 }

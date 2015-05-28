@@ -42,11 +42,12 @@ $app->group('/v1', function () use ($app) {
         }
         $response->toJSON();
     });
+    
 
     /**
      * Returns the personal ILIAS contacts of the authenticated user.
      */
-    $app->get('/contacts', '\RESTController\libs\AuthMiddleware::authenticate', function () use ($app) {
+    $app->get('/contacts', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $env = $app->environment();
         $response = new RESTResponse($app);
         $authorizedUserId =  RESTLib::loginToUserId($env['user']);
@@ -67,5 +68,4 @@ $app->group('/v1', function () use ($app) {
         }
         $response->toJSON();
     });
-
 });
