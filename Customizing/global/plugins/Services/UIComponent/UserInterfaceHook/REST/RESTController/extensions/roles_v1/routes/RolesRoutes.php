@@ -12,15 +12,20 @@ use \RESTController\libs as Libs;
 
 
 $app->get('/v1/roles', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
+    try {
+        // Fetch authorized user
+        $auth = new Auth\Util();
+        $user = $auth->getAccessToken()->getUserName();
+        $roles = $app->request()->params('roles');
 
-    $request = new Libs\RESTRequest($app);
-    $model = new RolesModel();
+        $model = new RolesModel();
+        $model->getAllRoles($user, $roles);
 
-    $resp = new Libs\RESTResponse($app);
-    $model->getAllRoles($request, $resp);
-    echo($resp->toJSON());
-
-
+        $app->success($result);
+    }
+    catch(\Exception $e) {
+        $app->halt(422, $e->getMessage());
+    }
 });
 
 

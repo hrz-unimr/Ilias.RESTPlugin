@@ -27,19 +27,20 @@ $app->group('/v1', function () use ($app) {
         $user = $accessToken->getUserName();
         $id = $accessToken->getUserId();
 
-        $response = new Libs\RESTResponse($app);
         try {
             $crs_model = new CoursesModel();
             $data1 =  $crs_model->getCourseContent($ref_id);
             $data2 =  $crs_model->getCourseInfo($ref_id);
-            $response->addData('coursecontents', $data1);
-            $response->addData('courseinfo', $data2);
-            $response->setMessage("Content of course " . $ref_id . ".");
+
+            $result = array(
+                'coursecontents' => $data1,
+                'courseinfo' => $data2
+            );
+            $app->success($result, "Content of course " . $ref_id . ".");
         } catch (\Exception $e) {
-            $response->setRESTCode("-15");
-            $response->setMessage('Error: Could not retrieve data for user '.$id.".");
+            // TODO: Replace message with const-class-variable and error-code with unique string
+            $app->halt(500, 'Error: Could not retrieve data for user '.$id.".", -15);
         }
-        $response->toJSON();
     });
 
     $app->post('/courses', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
@@ -48,17 +49,13 @@ $app->group('/v1', function () use ($app) {
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 
-        $response = new Libs\RESTResponse($app);
-
         $parent_container_ref_id = 1;
         $new_course_title = "";
         $new_course_description = "";
 
-        $reqBodyData = $app->request()->getBody(); // json
         $request = $app->request();
-
         if (count($request->post()) == 0) {
-            $requestData = json_decode($reqBodyData, true);
+            $requestData = $app->request()->getBody(); // Gives php-array (with correct request content-type!!!)
             var_dump($requestData);
             die();
             $parent_container_ref_id = array_key_exists('ref_id', $requestData) ? $requestData['ref_id'] : null;
@@ -81,17 +78,11 @@ $app->group('/v1', function () use ($app) {
         Libs\RESTLib::initAccessHandling();
         global $ilAccess;
 
-        if(!$ilAccess->checkAccess("create_crs", "", $parent_container_ref_id)) {
-            $response->setMessage("Insufficient access rights");
-            $response->setHttpStatus(401);
-            $response->send();
-            return;
-        }
+        if(!$ilAccess->checkAccess("create_crs", "", $parent_container_ref_id))
+            $app->halt(401, "Insufficient access rights");
 
         $new_ref_id =  $crs_model->createNewCourse($parent_container_ref_id, $new_course_title, $new_course_description);
-        $response->setMessage("Created a new course with ref id ".$new_ref_id.". Parent ref_id: ".$parent_container_ref_id);
-        $response->setData("newRefId", $new_ref_id);
-        $response->send();
+        $app->success($new_ref_id);
     });
 
     $app->delete('/courses/:id',  function ($id) use ($app) {
@@ -103,8 +94,8 @@ $app->group('/v1', function () use ($app) {
 
         $result['msg'] = 'OP: Delete Course . '.$id;
         $result['soap_result'] = $soap_result;
-        $app->response()->header('Content-Type', 'application/json');
-        echo json_encode($result);
+
+        $app->success($result);
     });
 
     /**
@@ -118,9 +109,9 @@ $app->group('/v1', function () use ($app) {
      * The user is then enrolled in the course with "crs_ref_id".
      */
     $app->post('/courses/enroll', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function() use ($app) {
-        $response = new Libs\RESTResponse($app);
-        $request = new Libs\RESTRequest($app);
+        $request = $app->request();
         $mode = $request->params("mode");
+
         if($mode == "by_login") {
             $login = $request->params("login");
             $user_id = Libs\RESTLib::getIdFromUserName($login);
@@ -133,31 +124,24 @@ $app->group('/v1', function () use ($app) {
                 $um = new Users\UsersModel();
                 $user_id = $um->addUser($userData);
             }
-        } else if ($mode == "by_id") {
+        else if ($mode == "by_id")
             $user_id = $request->params("usr_id");
-        } else {
-            $response->setHttpStatus(400);
-            $response->setMessage("Unsupported or missing mode: '$mode'. Use eiter 'by_login' or 'by_id'");
-            $response->toJSON();
-            return;
-        }
+        else
+            $app->halt(400, "Unsupported or missing mode: '$mode'. Use eiter 'by_login' or 'by_id'");
+
         $crs_ref_id = $request->params("crs_ref_id");
         try {
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->joinCourse($user_id, $crs_ref_id);
         } catch (\Exception $e) {
-            $response->setMessage("Error: Subscribing user ".$user_id." to course with ref_id = ".$crs_ref_id." failed. Exception:".$e);
-            $response->setHttpStatus(400);
-            $response->toJSON();
-            return;
+            // TODO: Replace message with const-class-variable and error-code with unique string
+            $app->halt(400, "Error: Subscribing user ".$user_id." to course with ref_id = ".$crs_ref_id." failed. Exception:".$e->getMessage())
         }
-        if($mode = "by_login") {
-            $response->setMessage("Enrolled user $login to course with id $crs_ref_id");
-        } else {
-            $response->setMessage("Enrolled user with id $user_id to course with id $crs_ref_id");
-        }
-        $response->toJSON();
 
+        if($mode = "by_login")
+            $app->success(null, "Enrolled user $login to course with id $crs_ref_id");
+        else
+            $app->success(null, "Enrolled user with id $user_id to course with id $crs_ref_id");
     });
 
     $app->get('/courses/join', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
@@ -166,24 +150,25 @@ $app->group('/v1', function () use ($app) {
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 
-        $response = new Libs\RESTResponse($app);
-        $request = new Libs\RESTRequest($app);
+        $request = $app->request();
         try {
             $ref_id = $request->params("ref_id");
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->joinCourse($authorizedUserId, $ref_id);
-            /*$data1 =  $crs_model->getCourseContent($ref_id);
+
+            /*
+            $data1 =  $crs_model->getCourseContent($ref_id);
             $data2 =  $crs_model->getCourseInfo($ref_id);
-            $response->addData('coursecontents', $data1);
-            $response->addData('courseinfo', $data2);*/
-            $response->setMessage("User ".$authorizedUserId." subscribed to course with ref_id = " . $ref_id . " successfully.");
+            */
+            $result = array(
+                //'coursecontents' => $data1,
+                //'courseinfo' => $data2,
+            );
+            $app->success($result, "User ".$authorizedUserId." subscribed to course with ref_id = " . $ref_id . " successfully.");
         } catch (\Exception $e) {
-            $response->setRESTCode("-15");
-            $response->setMessage("Error: Subscribing user ".$authorziedUserid." to course with ref_id = ".$ref_id." failed. Exception:".$e);
-            //$response->setMessage('Error: Could not perform action for user '.$id.".".$e);
-            $response->setMessage($e);
+            // TODO: Replace message with const-class-variable and error-code with unique string
+            $app->halt(400, "Error: Subscribing user ".$authorziedUserid." to course with ref_id = ".$ref_id." failed. Exception:".$e->getMessage(), -15);
         }
-        $response->toJSON();
     });
 
     $app->get('/courses/leave', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
@@ -192,20 +177,17 @@ $app->group('/v1', function () use ($app) {
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 
-        $response = new Libs\RESTResponse($app);
-        $request = new Libs\RESTRequest($app);
+        $request = $app->request();
         try {
-            $ref_id = $request->params("ref_id");
+            $ref_id = $request->params("ref_id", null, true);
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->leaveCourse($authorizedUserId, $ref_id);
 
-            $response->setMessage("User ".$authorizedUserId." has left course with ref_id = " . $ref_id . ".");
+            $app->success(null, "User ".$authorizedUserId." has left course with ref_id = " . $ref_id . ".");
         } catch (\Exception $e) {
-            $response->setRESTCode("-15");
-            $response->setMessage('Error: Could not perform action for user '.$authorizedUserId.".".$e);
-            $response->setMessage($e);
+            // TODO: Replace message with const-class-variable and error-code with unique string
+            $app->halt(400, 'Error: Could not perform action for user '.$authorizedUserId.". ".$e->getMessage(), -15);
         }
-        $response->toJSON();
     });
 
 

@@ -25,47 +25,43 @@ $app->group('/v1', function () use ($app) {
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 
-        $response = new Libs\RESTResponse($app);
         if ($authorizedUserId == $id || Libs\RESTLib::isAdminByUserId($authorizedUserId)) { // only the user or the admin is allowed to access the data
             try {
                 $model = new ContactsModel();
                 $data = $model->getMyContacts($id);
-                $response->setMessage("Contacts for user " . $id . ".");
-                $response->addData('contacts', $data);
+
+                $app->success();
             } catch (\Exception $e) {
-                $response->setRESTCode("-15");
-                $response->setMessage('Error: Could not retrieve data for user '.$id.".");
+                $app->halt(500, 'Error: Could not retrieve data for user '.$id.".", -15);
             }
-        } else {
-            $response->setRESTCode("-13");
-            $response->setMessage('User has no RBAC permissions to access the data.');
         }
-        $response->toJSON();
+        else
+            $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
+
     });
-    
+
 
     /**
      * Returns the personal ILIAS contacts of the authenticated user.
      */
     $app->get('/contacts', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
-        $env = $app->environment();
-        $response = new RESTResponse($app);
-        $authorizedUserId =  RESTLib::loginToUserId($env['user']);
+        $auth = new Auth\Util();
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $authorizedUserId =  RESTLib::loginToUserId($user);
+
         if ($authorizedUserId > -1) { // only the user is allowed to access the data
             $id = $authorizedUserId;
             try {
                 $model = new ContactsModel();
                 $data = $model->getMyContacts($id);
-                $response->setMessage("Contacts for user " . $id . ".");
-                $response->addData('contacts', $data);
+
+                $app->success();
             } catch (\Exception $e) {
-                $response->setRESTCode("-15");
-                $response->setMessage('Error: Could not retrieve data for user '.$id.".");
+                $app->halt(500, 'Error: Could not retrieve data for user '.$id.".", -15);
             }
-        } else {
-            $response->setRESTCode("-13");
-            $response->setMessage('User has no RBAC permissions to access the data.');
         }
-        $response->toJSON();
+        else
+            $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
     });
 });

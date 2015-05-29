@@ -22,14 +22,10 @@ $app->group('/admin', function () use ($app) {
 
 
     $app->get('/testquestion/:question_id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($question_id) use ($app) {
-        $request = new Libs\RESTRequest($app);
-        $response = new Libs\RESTResponse($app);
-
         $model = new TestQuestionModel();
         $data = $model->getQuestion($question_id);
-        $response->setData('question',$data);
-        $response->setMessage('Success.');
-        $response->send();
+
+        $app->success($data);
     });
 });
 ?>

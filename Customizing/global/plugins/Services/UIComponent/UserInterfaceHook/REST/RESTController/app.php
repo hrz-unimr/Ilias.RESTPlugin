@@ -237,35 +237,24 @@ class RESTController extends \Slim\Slim {
     /**
      *
      */
-    public function success($data, $format = null) {
-        if (isset($data) && $data != '')
-            if (!is_array($data))
-                $data = array(
-                    'status' => 'success',
-                    'msg' => $data
-                );
-            else
-                $data['status'] = 'success';
-
-        $this->response->setBody($data);
-        $this->stop();
+    public function success($dataOrMsg, $status = 'success') {
+        $this->halt(200, $dataOrMsg, $status);
     }
 
 
     /**
      *
      */
-    public function halt($httpCode, $data = null, $restCode = 'halt', $format = null) {
-        if (isset($data) && $data != '')
-            if (!is_array($data))
-                $data = array(
-                    'status' => $restCode,
-                    'msg' => $data
+    public function halt($httpCode, $dataOrMsg = null, $status = 'halt') {
+        if (is_array($dataOrMsg))
+            $dataOrMsg['status'] = ($dataOrMsg['status']) ?: $status;
+        else
+            if ($dataOrMsg != '')
+                $dataOrMsg = array(
+                    'status' => $status,
+                    'msg' => $dataOrMsg
                 );
-            else
-                $data['status'] = $restCode;
 
-
-        parent::halt($httpCode, $data);
+        parent::halt($httpCode, $dataOrMsg);
     }
 }

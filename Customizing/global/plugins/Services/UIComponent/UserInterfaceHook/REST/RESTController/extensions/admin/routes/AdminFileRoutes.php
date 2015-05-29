@@ -23,12 +23,7 @@ $app->group('/admin', function () use ($app) {
      * File Download
      */
     $app->get('/files/:id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($id) use ($app) {
-        $auth = new Auth\Util();
-        //$user_id = $auth->getAccessToken()->getUserId();
-
-        $request = new Libs\RESTRequest($app);
-        $response = new Libs\RESTResponse($app);
-
+        $request = $app->request();
         try {
             $meta_data = $request->params('meta_data');
             if (isset($meta_data)) {
@@ -45,9 +40,8 @@ $app->group('/admin', function () use ($app) {
             $fileObj = $model->getFileObj($obj_id);
  //           $fileObj = $model->getFileObjForUser($obj_id,6);
 
-            $response->setMessage('Meta-data of file with id = ' . $id . '.');
-
             $result = array();
+            $result['msg'] = 'Meta-data of file with id = ' . $id . '.';
             $result['file']['ext'] = $fileObj->getFileExtension();
             $result['file']['name'] = $fileObj->getFileName();
             $result['file']['size'] = $fileObj->getFileSize();
@@ -55,8 +49,8 @@ $app->group('/admin', function () use ($app) {
             $result['file']['dir'] = $fileObj->getDirectory();
             $result['file']['version'] = $fileObj->getVersion();
             $result['file']['realpath'] = $fileObj->getFile();
-            $response->addData("file", $result['file']);
-            $response->send();
+
+            $app->success($result);
         } else
         {
             $model = new Files\FileModel();
@@ -70,36 +64,29 @@ $app->group('/admin', function () use ($app) {
      * File Upload
      */
     $app->post('/files', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) { // create
-        $repository_ref_id = $app->request()->params("ref_id");
-        $title = $app->request()->params("title");
-        $description = $app->request()->params("description");
+        $request = $app->request();
+        $repository_ref_id = $request->params("ref_id");
+        $title = $request->params("title");
+        $description = $request->params("description");
 
         $result = array();
         if (isset($_FILES['uploadfile'])) {
             $_FILES['uploadfile']['name'];
             $_FILES['uploadfile']['size'];
 
-            //echo "Repository ID: ".$repository_ref_id;
-
             $file_upload = $_FILES['uploadfile'];
-
             $file_upload['title']= $title==null ? "" : $title;
             $file_upload['description'] = $description == null ? "" : $description;
-            //var_dump($file_upload);
 
             $model = new Files\FileModel();
             $uploadresult = $model->handleFileUpload($file_upload, $repository_ref_id);
-            //var_dump($result);
-            $result['status'] = "success";
             $result['msg'] = sprintf("Uploaded = [%s] [%d]", $_FILES['uploadfile']['name'], $_FILES['uploadfile']['size']);
             $result['target_in_repository'] = $repository_ref_id;
-        } else {
-            $result['status'] = "upload failed";
+
+            $app->success($result);
         }
-
-        $app->response()->header('Content-Type', 'application/json');
-        echo json_encode($result);
-
+        else
+            $app->halt('Upload failed');
     });
 
 });

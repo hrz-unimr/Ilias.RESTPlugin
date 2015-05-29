@@ -77,12 +77,10 @@ class CoursesRegistrationModel
         $ilUser->setId($user_id);
         $ilUser->read();
         Libs\RESTLib::initAccessHandling();
-        if ($this->checkUnsubscribeConditions() == false) {
-            echo 'User cannot leave the course, because she is the last course admin.';
-        } else {
-            // proceed
+        if ($this->checkUnsubscribeConditions() == false) 
+            throw new \Exception('User cannot leave the course, because he is the last course admin.');
+        else
             $this->performUnsubscribeObject();
-        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -18,21 +18,9 @@ use \RESTController\libs as Libs;
 $app->group('/admin', function () use ($app) {
     $app->get('/workspaces', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
         try {
-            if (count($app->request->post()) == 0 && count($app->request->get()) == 0) {
-                $req_data = json_decode($app->request()->getBody(),true); // json
-            } else {
-                $req_data = $_REQUEST;
-            }
-
-            $limit = $req_data['limit'];
-            $offset = $req_data['offset'];
-            if (!isset($limit)) {
-                $limit = 25;
-
-            }
-            if (!isset($offset)) {
-                $offset = 0;
-            }
+            $request = $app->request;
+            $limit = $request->params('limit', 25);
+            $offset = $request->params('offset', 0);
 
             $t_start = microtime();
             $result = array();
@@ -48,12 +36,10 @@ $app->group('/admin', function () use ($app) {
             $result['offset'] = $offset;
             $result['limit'] = $limit;
 
-            $app->response()->header('Content-Type', 'application/json');
-            echo json_encode($result);
+            $app->success($result);
 
         } catch (\Exception $e) {
-            $app->response()->status(400);
-            $app->response()->header('X-Status-Reason', $e->getMessage());
+            $app->halt(400, $e->getMessage());
         }
     });
 
@@ -62,7 +48,7 @@ $app->group('/admin', function () use ($app) {
         try {
             $t_start = microtime();
             $result = array();
-            $result['msg'] = 'Workspaces of user.';
+            $result['msg'] = sprintf('Workspaces of user %d.', $user_id);
 
             Libs\RESTLib::initAccessHandling();
             $wa_model = new WorkspaceAdminModel();
@@ -71,12 +57,11 @@ $app->group('/admin', function () use ($app) {
 
             $t_end = microtime();
             $result['execution_time'] = $t_end - $t_start;
-            $app->response()->header('Content-Type', 'application/json');
-            echo json_encode($result);
+
+            $app->success($result);
 
         } catch (\Exception $e) {
-            $app->response()->status(400);
-            $app->response()->header('X-Status-Reason', $e->getMessage());
+            $app->halt(400, $e->getMessage());
         }
     });
 });

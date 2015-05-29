@@ -44,9 +44,7 @@ $app->group('/v1/m', function () use ($app) {
         $a_descr = $model->describeIliasObject($obj_id);
         $result['object_description'] = $a_descr;
 
-        $app->response()->header('Content-Type', 'application/json');
-        echo json_encode($result);
-
+        $app->success($result);
     });
 
     /**
@@ -123,7 +121,8 @@ $app->group('/v1/m', function () use ($app) {
         $t_end = microtime();
         $result['status']['duration'] = abs($t_end-$t_start);
         $result['status']['tstamp'] = time();
-        echo json_encode($result);
+
+        $app->success($result);
     });
 
 });

@@ -46,12 +46,10 @@ $app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', 
             $result['users'][] = $current_user;
         }
 
-        $app->response()->header('Content-Type', 'application/json');
-        echo json_encode($result);
+        $app->success($result);
 
     } catch (\Exception $e) {
-        $app->response()->status(400);
-        $app->response()->header('X-Status-Reason', $e->getMessage());
+        $app->halt(400, $e->getMessage());
     }
 });
 
@@ -70,29 +68,12 @@ $app->get('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenAut
         $usr_basic_info =  $usr_model->getBasicUserData($id);
         $result['user'] = $usr_basic_info;
 
-        // if (($mediaType == 'application/json'))
-        $app->response()->header('Content-Type', 'application/json');
-        echo json_encode($result);
+        $app->success($result);
 
     } catch (\Exception $e) {
-        $app->response()->status(400);
-        $app->response()->header('X-Status-Reason', $e->getMessage());
+        $app->halt(400, $e->getMessage());
     }
 });
-
-// bulk import via XML
-// consumes the schema that is produced by Administration -> Users -> Export
-/* mutual exclusive with function below...
-$app->post('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function() use ($app) {
-    $request = new Libs\RESTRequest($app);
-    $importData = $request->getRaw();
-    $model = new UsersModel();
-
-    $resp = new Libs\RESTResponse($app);
-    $import_result = $model->bulkImport($importData, $resp);
-    echo($resp->toJSON());
-});
- */
 
 
 
@@ -124,23 +105,21 @@ $app->post('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',
             $result['status'] = "User could not be created!";
         }
 
-        $app->response()->header('Content-Type', 'application/json');
-        echo json_encode($result);
+        $app->success($result);
 
     } catch (\Exception $e) {
-        $app->response()->status(400);
-        $app->response()->header('X-Status-Reason', $e->getMessage());
+        $app->halt(400, $e->getMessage());
     }
 });
 
 
 $app->put('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($user_id) use ($app){ // update
     try {
-
-        $usr_model = new UsersModel();
-        $a_Requests = $app->request->put();
-
-        foreach ($a_Requests as $key => $value) {
+        $request = $app->request();
+        $attribs = array("login", "passwd", "firstname", "lastname", "email", "gender", "auth_mode");
+        $user_data = array();
+        foreach($attribs as $key) {
+            $value = $request->params($key);
             $usr_model->updateUser($user_id, $key, $value);
         }
 
@@ -148,12 +127,11 @@ $app->put('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRou
         $result['status'] = 'success';
         $usr_basic_info =  $usr_model->getBasicUserData($user_id);
         $result['user'] = $usr_basic_info;
-        $app->response()->header('Content-Type', 'application/json');
-        echo json_encode($result);
+
+        $app->success($result);
 
     } catch (\Exception $e) {
-        $app->response()->status(400);
-        $app->response()->header('X-Status-Reason', $e->getMessage());
+        $app->halt(400, $e->getMessage());
     }
 });
 
@@ -169,12 +147,10 @@ $app->delete('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::Token
             $result['status'] = "User ".$user_id." not deleted!";
         }
 
-        $app->response()->header('Content-Type', 'application/json');
-        echo json_encode($result);
+        $app->success($result);
 
     } catch (\Exception $e) {
-        $app->response()->status(400);
-        $app->response()->header('X-Status-Reason', $e->getMessage());
+        $app->halt(400, $e->getMessage());
     }
 });
 ?>

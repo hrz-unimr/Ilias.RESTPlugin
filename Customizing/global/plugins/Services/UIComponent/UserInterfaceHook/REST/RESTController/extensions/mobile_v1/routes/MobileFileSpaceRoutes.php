@@ -9,6 +9,7 @@ namespace RESTController\extensions\mobile_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
+use \RESTController\libs\Exceptions as Exceptions;
 use \RESTController\extensions\admin as Admin;
 use \RESTController\extensions\files_v1 as Files;
 
@@ -32,15 +33,17 @@ $app->group('/v1/m', function () use ($app) {
         $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
 
-        $response = new Libs\RESTResponse($app);
         Libs\RESTLib::initAccessHandling();
         $wa_model = new Admin\WorkspaceAdminModel();
         $ws_array = $wa_model->getUserWorkspaceItems($user_id);
-        $response->addData('myfilespace', $ws_array);
         $t_end = microtime();
-        $response->addData('execution_time', $t_end - $t_start);
-        $response->setMessage('MyFilespace listing');
-        $response->send();
+
+        // TODO: Remove timing info, just send success();
+        $app->success(array(
+            'time' => $t_end - $t_start,
+            'msg' => 'MyFilespace listing',
+            'myfilespace' => $ws_array
+        ));
     });
 
     /**
@@ -56,30 +59,28 @@ $app->group('/v1/m', function () use ($app) {
         $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
 
-        $response = new Libs\RESTResponse($app);
-        $request = new Libs\RESTRequest($app);
-
+        $request = $app->request();
         try {
             $file_id = $request->params('file_id', null, false);
-           // if ($file_id == null) throw RESTException::getWrongParamException('Parameter is missing', 'file_id');
             $target_ref_id = $request->params('target_ref_id', null, false);
-           // if ($target_ref_id == null) throw RESTException::getWrongParamException('Parameter is missing', 'target_ref_id');
 
-           Libs\RESTLib::initAccessHandling();
+            Libs\RESTLib::initAccessHandling();
             $model = new Files\PersonalFileSpaceModel();
             $status = $model->clone_file_into_repository($user_id, $file_id, $target_ref_id);
             $t_end = microtime();
-            $responseMsg = 'Success';
-            if ($status == false) {
-                $responseMsg = 'Failed';
-            }
-            $response->addData('execution_time', $t_end - $t_start);
-            $response->addData('Status', $responseMsg);
-            $response->setMessage('MyFilespaceCopy');
-        } catch (Libs\RESTException $e) {
-            $response->setRESTCode($e->getCode());
+
+            if ($status == false)
+                $app->halt(500, 'File could not be copied!');
+            else
+                // TODO: Remove timing info, just send success();
+                $app->success(array(
+                    'execution_time' => $t_end - $t_start,
+                    'msg' => 'MyFilespaceCopy: File was copied'
+                ));
+
+        } catch(LibExceptions\MissingParameter $e) {
+            $app->halt(422, $e->getFormatedMessage(), $e::ID);
         }
-        $response->send();
     });
 
 
@@ -94,28 +95,26 @@ $app->group('/v1/m', function () use ($app) {
         $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
 
-        $response = new Libs\RESTResponse($app);
-        $request = new Libs\RESTRequest($app);
-
+        $request = $app->request();
         try {
             $file_id = $request->params('file_id', null, false);
-            // if ($file_id == null) throw RESTException::getWrongParamException('Parameter is missing', 'file_id');
             $target_ref_id = $request->params('target_ref_id', null, false);
-            // if ($target_ref_id == null) throw RESTException::getWrongParamException('Parameter is missing', 'target_ref_id');
 
             Libs\RESTLib::initAccessHandling();
             $model = new Files\PersonalFileSpaceModel();
             $status = $model->clone_file_into_repository($user_id, $file_id, $target_ref_id);
             $t_end = microtime();
-            $responseMsg = 'Success';
-            if ($status == false) {
-                $responseMsg = 'Failed';
-            }
-            $response->addData('execution_time', $t_end - $t_start);
-            $response->addData('Status', $responseMsg);
-            $response->setMessage('MyFilespaceCopy');
-        } catch (Libs\RESTException $e) {
-            $response->setRESTCode($e->getCode());
+
+            if ($status == false)
+                $app->halt(500, 'File could not be copied!');
+            else
+                // TODO: Remove timing info, just send success();
+                $app->success(array(
+                    'execution_time' => $t_end - $t_start,
+                    'msg' => 'MyFilespaceCopy: File was copied'
+                ));
+        } catch(LibExceptions\MissingParameter $e) {
+            $app->halt(422, $e->getFormatedMessage(), $e::ID);
         }
         $response->send();
     });
@@ -125,9 +124,7 @@ $app->group('/v1/m', function () use ($app) {
      */
     $app->get('/myfilespaceupload', function() use ($app) {
         $app->log->debug('Myfilespace upload via GET');
-        $response = new Libs\RESTResponse($app);
-        $response->setMessage('Pls use the POST method');
-        $response->send();
+        $app->halt(422, 'Pls use the POST method', 'RESTController\\extensions\\mobile_v1\\MyFileSpaceRoutes::ID_USE_GET');
     });
 
     /**
@@ -142,18 +139,14 @@ $app->group('/v1/m', function () use ($app) {
         $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
 
-        $response = new Libs\RESTResponse($app);
-        $request = new Libs\RESTRequest($app);
-
         $errorCode = $_FILES['mupload']['error'];
         if ($errorCode > UPLOAD_ERR_OK) {
-            $response->setMessage('Error during file upload');
-            $response->setData('Code', $errorCode);
-            $response->setData('Explanation', 'http://php.net/manual/en/features.file-upload.errors.php');
-            $response->setHttpStatus('400');
-            $response->setRestCode('-1');
-            $response->send();
-            exit;
+            $error = array(
+                'msg' => 'Error during file upload',
+                'code' => $errorCode,
+                'Explanation' => 'http://php.net/manual/en/features.file-upload.errors.php'
+            );
+            $app->halt(400, $error, -1);
         }
         //error_log(1);
         // Try to upload file
@@ -161,10 +154,14 @@ $app->group('/v1/m', function () use ($app) {
         $model = new Files\PersonalFileSpaceModel();
         $model->handleFileUploadIntoMyFileSpace($_FILES['mupload'],$user_id);
         $t_end = microtime();
-        $response->addData('farraydump',print_r($_FILES['mupload'],true));
-        $response->addMessage('Done Uploading File');
-        $response->addData('execution_time', $t_end - $t_start);
-        $response->send();
+
+        // TODO: Remove timing info, just send success();
+        $result = array(
+            'farraydump' => print_r($_FILES['mupload'],true),
+            'msg' => 'Done Uploading File',
+            'execution_time' => $t_end - $t_start
+        );
+        $app->success($result);
     });
 
     /**
@@ -179,22 +176,23 @@ $app->group('/v1/m', function () use ($app) {
         $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
 
-        $response = new Libs\RESTResponse($app);
-        $request = new Libs\RESTRequest($app);
-
+        $request = $app->request();
         try {
             $file_id = $request->params('file_id', null, false);
             Libs\RESTLib::initAccessHandling();
             $model = new Files\PersonalFileSpaceModel();
             $model->deleteFromMyFileSpace($file_id, $user_id);
-
-        } catch (Libs\RESTException $e) {
-            $response->setRESTCode($e->getCode());
+        } catch(LibExceptions\MissingParameter $e) {
+            $app->halt(422, $e->getFormatedMessage(), $e::ID);
         }
         $t_end = microtime();
-        $response->addData('execution_time', $t_end - $t_start);
-        $response->setMessage('Dev Delete File From MyFileSpace');
-        $response->send();
+
+        // TODO: Remove timing info, just send success();
+        $result = array(
+            'msg' => 'Dev Delete File From MyFileSpace',
+            'execution_time' => $t_end - $t_start
+        );
+        $app->success($result);
     });
 
 });

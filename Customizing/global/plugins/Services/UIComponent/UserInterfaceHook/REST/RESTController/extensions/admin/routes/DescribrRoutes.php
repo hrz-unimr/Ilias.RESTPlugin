@@ -25,78 +25,57 @@ $app->group('/admin', function () use ($app) {
      * Supported types: obj_id, ref_id, usr_id and file_id
      */
     $app->get('/describe/:id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($id) use ($app) {
-        $request = new Libs\RESTRequest($app);
-        $response = new Libs\RESTResponse($app);
+        $request = $app->request();
+        $id_type = $request->params('id_type', 'ref_id');
 
-        try {
-            $id_type = $request->params('id_type');
-        } catch (\Exception $e) {
-            $id_type = 'ref_id';
-        }
-
+        $result = array('msg' = array());
         $model = new DescribrModel();
         if ($id_type == 'ref_id' || $id_type == 'obj_id') {
             if ($id_type == 'ref_id') {
                 $obj_id = Libs\RESTLib::getObjIdFromRef($id);
                 $id_type = 'obj_id';
             }
-            //echo "obj_id:".$obj_id;
-            try {
-                if (is_numeric($obj_id) == false) {
-                    throw new \Exception('Obj id does not exist');
-                }
-                $a_descr = $model->describeIliasObject($obj_id);
-                $response->addData('object_description', $a_descr);
-                $response->setMessage('Object found.');
 
-                if ($a_descr['type'] == "file") {
-                    $id = $obj_id;
-                    $id_type = "file_id";
-                }
-            } catch (\Exception $e) {
-                $response->setRESTCode('-11');
-                $response->setMessage('Error: Object not found.');
-                // Try to explain a user with id = '.$id.' instead.';
-                $id_type = 'usr_id';
+            if (!is_numeric($obj_id)) {
+                $result['status'] = 'Object does not exist.';
+
+            $a_descr = $model->describeIliasObject($obj_id);
+
+            $result['object_description'] = $a_descr;
+            $result['status'] = 'Object found.';
+
+            if ($a_descr['type'] == "file") {
+                $id = $obj_id;
+                $id_type = "file_id";
             }
         }
 
         if ($id_type == 'usr_id') {
             $username = Libs\RESTLib::getUserNameFromId($id);
-            //echo $username;
-            try {
-                if ($username == 'User unknown') {
-                    $response->setMessage('User not found.');
-                    throw new \Exception('User does not exist');
+            if ($username == 'User unknown') {
+                $result['msg'][] = 'User not found.';
+            } else {
+                $usr_model = new UsersModel();
+                $usr_basic_info =  $usr_model->getBasicUserData($id);
+                if (empty($usr_basic_info) == true) {
+                    $result['status'] = 'Error: User not found.';
                 } else {
-                    $usr_model = new UsersModel();
-                    $usr_basic_info =  $usr_model->getBasicUserData($id);
-                    if (empty($usr_basic_info) == true) {
-                        $response->setMessage('Error: User not found.');
-                    } else {
-                        $response->setMessage('User  found.');
-                        $response->addData('user', $usr_basic_info);
-                    }
+                    $result['user'] = $usr_basic_info;
+                    $result['status'] = 'User  found.';
                 }
-            } catch (\Exception $e) {
-                $response->setRESTCode('-11');
-                $response->setMessage('Error: User not found.');
-                // Try to explain a file with id = '.$id.' instead.';
-                $id_type = 'file_id';
             }
         }
 
         if ($id_type == 'file_id') {
             try {
                 $data = $model->describeFile($id);
-                $response->addMessage('Description of file with id = '.$id.'.');
-                $response->addData('file', $data);
+                $result['file'] = $data;
+                $result['status'] = 'Description of file with id = '.$id.'.';
             } catch (\Exception $e) {
-                $response->setRESTCode('-11');
-                $response->setMessage('Error: File not found.');
+                $result['status'] = 'Error: File not found.';
             }
         }
-        $response->send();
+        $app->success($result);
     });
 
 });

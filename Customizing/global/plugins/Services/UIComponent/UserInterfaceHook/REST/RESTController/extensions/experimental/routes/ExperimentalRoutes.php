@@ -21,18 +21,15 @@ $app->group('/dev', function () use ($app) {
 
 
     $app->get('/clientcheck', function () use ($app) {
-        $env = $app->environment();
-        $request = new Libs\RESTRequest($app);
-        $response = new Libs\RESTResponse($app);
-
         $model = new Clients\Clients();
         $data1 = $model->getAllowedUsersForApiKey('9065710a-16b9-4b4c-9230-f76dc72d2a2d');
         $data2 = $model->getClientCredentialsUser('9065710a-16b9-4b4c-9230-f76dc72d2a2d');
 
-        $response->setMessage('Client Check');
-        $response->addData('allowed_users', $data1);
-        $response->addData('cc_user',$data2);
-        $response->send();
+        $result = array(
+            'allowed_users' => $data1,
+            'cc_user' => $data2
+        );
+        $app->success($result);
     });
 
     /**
@@ -40,10 +37,7 @@ $app->group('/dev', function () use ($app) {
      * Status: DONE
     */
     $app->get('/reftoken', function () use ($app) {
-        $env = $app->environment();
-        $request = new Libs\RESTRequest($app);
-        $response = new Libs\RESTResponse($app);
-
+        $request = $app->request();
         $refresh_token = $request->params('refresh_token');
 
         Libs\RESTLib::initAccessHandling();
@@ -52,17 +46,11 @@ $app->group('/dev', function () use ($app) {
         $ilLog->write('Hello from REST Plugin - Experimental');
         $app->response()->header('Content-Type', 'application/json');
 
-
         $model = new Auth\TokenEndpoint();
         $refreshToken = Token\Refresh::fromMixed($model->tokenSettings(), $refresh_token);
         $bearer_token = $model->refresh2Access($refreshToken);
 
-
-        $response->setMessage('Refresh 2 Bearer.');
-       // $response->addData('refresh_token',$refresh_token);
-        $response->addData('token',$bearer_token->getEntry('access_token'));
-        $response->send();
-
+        $app->success($bearer_token->getEntry('access_token'));
     });
 
     /**
@@ -72,9 +60,6 @@ $app->group('/dev', function () use ($app) {
      * Status: DONE
      */
     $app->get('/refresh', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
-        $request = new Libs\RESTRequest($app);
-        $response = new Libs\RESTResponse($app);
-
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
@@ -88,40 +73,31 @@ $app->group('/dev', function () use ($app) {
         $model = new Auth\RefreshEndpoint();
         $refreshToken = $model->getToken($accessToken);
 
-
-        $response->setMessage('Requesting new refresh token for user '.$uid.'.');
-        $response->setData('refresh-token', $refreshToken->getTokenString());
-        $response->addData('maxint', PHP_INT_MAX);
-        $response->addData('beareruser', $accessToken->getUserName());
-        $response->addData('api-key', $accessToken->getApiKey());
-        $response->addData('ilias client: ', $env['client_id']);
-        $response->send();
+        $result = array(
+            'refresh-token', $refreshToken->getTokenString());
+            'maxint' => PHP_INT_MAX,
+            'beareruser' => $accessToken->getUserName(),
+            'api-key' => $accessToken->getApiKey(),
+            'ilias client' => $app->environment()['client_id']
+        );
+        $app->success($result);
     });
 
     // -------------------------------------------------------------------
     $app->get('/hello', '\RESTController\libs\OAuth2Middleware::TokenAuth', function () use ($app) {
-
-        $app = \Slim\Slim::getInstance();
-
-        $result = array();
-        $result['status'] = 'success';
         $msg = 'Hello @ '.time();
         $referer = $_SERVER['HTTP_REFERER'];
         $host = $_SERVER['HTTP_HOST'];
+
+        $result = array();
         $result['msg'] = $msg;
         $result['referer'] = $referer;
         $result['host'] = $host;
 
-
-        $app->response()->header('Content-Type', 'application/json');
-        echo json_encode($result);
-
-
+        $app->success($result);
     });
 
     $app->get('/roundtrip', function () use ($app) {
-
-
         $destiny_url = 'http://localhost/restplugin.php/experimental/hello';
 
         $curl = curl_init($destiny_url);
@@ -138,20 +114,15 @@ $app->group('/dev', function () use ($app) {
         $t_end = microtime();
         curl_close($curl);
 
-        $result = array();
+        $result = array();success
         $result['status'] = 'success';
         $result['remote_response'] = $curl_response;
         $result['rtt'] = $t_end - $t_start;
 
-        $app->response()->header('Content-Type', 'application/json');
-        echo json_encode($result);
-
-
+        $app->success($result);
     });
 
     $app->get('/transportfile', function () use ($app) {
-
-
         // Get file info
         $self_service_url = 'http://localhost/restplugin.php/v1/files/96?meta_data=1';
         $curl = curl_init($self_service_url);
@@ -160,7 +131,6 @@ $app->group('/dev', function () use ($app) {
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
-        $file_metadata = json_decode($file_metadata_json,true);
         $file_metadata = json_decode($file_metadata_json,true);
 
 
@@ -189,25 +159,21 @@ $app->group('/dev', function () use ($app) {
         $result['remote_response'] = $curl_response;
         $result['rtt'] = $t_end - $t_start;
 
-        $app->response()->header('Content-Type', 'application/json');
-        echo json_encode($result);
-
+        $app->success($result);
     });
 
     $app->get('/responsetest', function () use ($app) {
+        $result = array(
+            'time' => time(),
+            'host' => $_SERVER['HTTP_HOST'],
+            'referrer' => $_SERVER['HTTP_REFERER'],
+            'mynumbers' => array(0.5, 0.3, 0.2, 0.3, 0.5),
+            'time' => 0
+        );
+        $app->success($result);
 
-        $response = new Libs\RESTResponse($app);
-
-        $response->addData('status','success');
-        $response->addData('time',time());
-        $response->addData('host',$_SERVER['HTTP_HOST']);
-        $response->addData('referrer', $_SERVER['HTTP_REFERER']);
-        $somenumbers = array(0.5, 0.3, 0.2, 0.3, 0.5);
-        $response->addData('mynumbers', $somenumbers);
-        $response->setData('time',0);
-        $response->addData('status','full');
-
-        $response->toJSON();
+        // Never reached, just for show
+        $app->halt(42, $result);
     });
 
 });

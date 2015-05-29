@@ -187,18 +187,9 @@ class UsersModel
             $parser = new \ilUserImportParser();
             $parser->setXMLContent($xmlData);
             $parser->startParsing();
-
-            $resp->setData('num_users', $parser->getUserCount());
-            $resp->setMessage('Import successful');
-            $resp->setRESTCode(200);
-        } else {
-            $resp->setData('ILIAS_log', $parser->getProtocol());
-            $resp->setMessage('Import failed, nothing done').
-            $resp->setRESTCode(400);
-            $resp->setHttpStatus(400);
         }
-
-
+        else
+            throw new \Exception('Could not parse import-data.');
     }
 
 

@@ -11,61 +11,40 @@ namespace RESTController\extensions\roles_v1;
 use \RESTController\libs as Libs;
 
 
-class RolesModel
-{
-    public function getAllRoles($req, &$resp){
-
+class RolesModel {
+    public function getAllRoles($user, $data){
         global $rbacsystem, $rbacreview;
         // get all roles of system role folder
         // TODO: c/p aus users/bulkImport
         // TODO: do it here or in route?
 
-       // Fetch authorized user
-       $auth = new Auth\Util();
-       $user = $auth->getAccessToken()->getUserName();
-
-        Libs\RESTLib::setUserContext($user);  // filled by auth middleware
+        Libs\RESTLib::setUserContext($user);
         Libs\RESTLib::initAccessHandling();
 
 
         if(!$rbacsystem->checkAccess('read',ROLE_FOLDER_ID))
-        {
-            $resp->setRESTCode(-100);
-            $resp->setMessage("No access to list roles");
-            $resp->setHttpStatus(400);
-            return;
-        }
+            throw new \Exception("No access to list roles");
 
         $roles = $rbacreview->getAssignableRoles(false, true);
-        $num_roles = 0;
 
-
-        $app = new \Slim\Slim();
-        if(count($app->request->params()) != 0){
+        $result = array();
+        if(count($data) != 0){
             foreach($roles as $role) {
                 $match = true;
-                foreach($app->request->params() as $param=>$value) {
-                    if(!isset($role[$param]) || $role[$param] != $value){
+
+                foreach($data as $key => $value)
+                    if (!isset($role[$key]) || $role[$key] != $value) {
                         $match = false;
                         break;
                     }
-                }
 
-                if($match == true) {
-                    $resp->addData('roles', $role);
-                    $num_roles++;
-                }
-
+                if($match == true)
+                    $result[] = $role;
             }
-        } else {
-            $resp->setData('roles', $roles);
-            $num_roles = count($roles);
         }
-        $resp->setMessage("$num_roles roles found");
-        $resp->setRESTCode(200);
-        $resp->setHttpStatus(200);
+        else
+            $result = $roles;
+
+        return $result;
     }
-
 }
-
-?>

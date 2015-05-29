@@ -29,9 +29,7 @@ $app->group('/v1', function () use ($app) {
         $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
 
-        $request = new Libs\RESTRequest($app);
-        $response = new Libs\RESTResponse($app);
-
+        $request = $app->request();
         try {
             $meta_data = $request->params('meta_data');
             if (isset($meta_data)) {
@@ -60,36 +58,30 @@ $app->group('/v1', function () use ($app) {
             $fileObj = $model->getFileObjForUser($obj_id, $user_id);
 
             if (empty($fileObj)) {
-                $response->setRESTCode("-1");
-                $response->setMessage('Could not retrieve file with obj_id = ' . $obj_id . '.');
-               // $result['status'] = 'fail';
-               // $result['msg'] = 'Could not retrieve file with obj_id = ' . $obj_id . ".";
+                // TODO: Replace string with const class-variable und error-code too!
+                $app->halt(500, 'Could not retrieve file with obj_id = ' . $obj_id . '.', -1);
             } else {
-                $response->setMessage('Meta-data of file with id = ' . $id . '.');
-
                 $result = array();
-                $result['file']['ext'] = $fileObj->getFileExtension();
-                $result['file']['name'] = $fileObj->getFileName();
-                $result['file']['size'] = $fileObj->getFileSize();
-                $result['file']['type'] = $fileObj->getFileType();
-                $result['file']['dir'] = $fileObj->getDirectory();
-                $result['file']['version'] = $fileObj->getVersion();
-                $result['file']['realpath'] = $fileObj->getFile();
-                $response->addData("file", $result['file']);
-                $response->send();
+                $result['ext'] = $fileObj->getFileExtension();
+                $result['name'] = $fileObj->getFileName();
+                $result['size'] = $fileObj->getFileSize();
+                $result['type'] = $fileObj->getFileType();
+                $result['dir'] = $fileObj->getDirectory();
+                $result['version'] = $fileObj->getVersion();
+                $result['realpath'] = $fileObj->getFile();
+
+                $app->success($result);
             }
-        } else
-        {
+        }
+        else {
             $model = new FileModel();
             $fileObj = $model->getFileObjForUser($obj_id, $user_id);
-            if (empty($fileObj)) {
-                $response->setRESTCode("-1");
-                $response->setMessage('Could not retrieve file with obj_id = ' . $obj_id . '.');
-                $response->send();
-                echo json_encode($result);
-            } else {
+            
+            if (empty($fileObj))
+                // TODO: Replace string with const class-variable und error-code too!
+                $app->halt(500, 'Could not retrieve file with obj_id = ' . $obj_id . '.', -1);
+            else
                 $fileObj->sendFile();
-            }
         }
     });
 });

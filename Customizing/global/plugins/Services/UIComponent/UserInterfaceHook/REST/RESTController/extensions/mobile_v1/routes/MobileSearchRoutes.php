@@ -17,11 +17,8 @@ use \RESTController\libs as Libs;
 
 
 $app->group('v1/m', function () use ($app) {
-
-
     $app->get('/search/',  function () use ($app) {
-        $request = new Libs\RESTRequest($app);
-        $response = new Libs\RESTResponse($app);
+        $response = $app->request();
 
         try {
             $query = utf8_encode($request->params('q'));
@@ -32,14 +29,11 @@ $app->group('v1/m', function () use ($app) {
         $model = new MobileSearchModel();
         $searchResults = $model->performSearch($query);
 
-        $response->addData('search_results', $searchResults);
-        $response->setMessage('You have been searching for: "'.$query.'"');
-        $response->send();
+        $app->success($searchResults);
     });
 
     $app->post('/search/',  function () use ($app) {
-        $request = new Libs\RESTRequest($app);
-        $response = new Libs\RESTResponse($app);
+        $response = $app->request();
 
         try {
             $query = utf8_encode($request->params('q'));
@@ -50,10 +44,6 @@ $app->group('v1/m', function () use ($app) {
         $model = new MobileSearchModel();
         $searchResults = $model->performSearch($query);
 
-        $response->addData('search_results', $searchResults);
-        $response->setMessage('You have been searching for: "'.$query.'"');
-        $response->send();
+        $app->success($searchResults);
     });
-
-
 });

@@ -24,53 +24,46 @@ $app->group('/v1', function () use ($app) {
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 
-        $response = new Libs\RESTResponse($app);
         if ($authorizedUserId == $id || Libs\RESTLib::isAdminByUserId($authorizedUserId)) { // only the user or the admin is allowed to access the data
             $model = new DesktopModel();
             $data = $model->getPersonalDesktopItems($id);
-            $response->addData('items', $data);
-            $response->setMessage("Personal desktop items for user ".$id.".");
-        } else {
-            $response->setRESTCode("-13");
-            $response->setMessage('User has no RBAC permissions to access the data.');
+
+            $app->success($data);
         }
-        $response->toJSON();
+        else
+            $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
     });
 
     /**
      * Deletes an item specified by ref_id from the personal desktop of the user specified by $id.
      */
     $app->delete('/desktop/overview/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($id) use ($app) {
-        $request = new Libs\RESTRequest($app);
-        $response = new Libs\RESTResponse($app);
+        $request = $app->request();
         try {
             $ref_id = $request->params("ref_id");
             $model = new DesktopModel();
             $model->removeItemFromDesktop($id, $ref_id);
-            $response->setMessage("Item ".$ref_id." removed successfully from the users PD overview.");
+
+            $app->success("Item ".$ref_id." removed successfully from the users PD overview.");
         } catch (\Exception $e) {
-            $response->setRESTCode("-13");
-            $response->setMessage("Error: ".$e);
+            $app->halt(500, "Error: ".$e->getMessage(), -15);
         }
-        $response->toJSON();
     });
 
     /**
      * Adds an item specified by ref_id to the users's desktop. The user must be the owner or at least has read access of the item.
      */
     $app->post('/desktop/overview/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($id) use ($app) {
-        $request = new Libs\RESTRequest($app);
-        $response = new Libs\RESTResponse($app);
+        $request = $app->request();
         try {
             $ref_id = $request->params("ref_id");
             $model = new DesktopModel();
             $model->addItemToDesktop($id, $ref_id);
-            $response->setMessage("Item ".$ref_id." added successfully to the users PD overview.");
+
+            $app->success("Item ".$ref_id." added successfully to the users PD overview.");
         } catch (\Exception $e) {
-            $response->setRESTCode("-13");
-            $response->setMessage("Error: ".$e);
+            $app->halt(500, "Error: ".$e->getMessage(), -15);
         }
-        $response->toJSON();
     });
 
 

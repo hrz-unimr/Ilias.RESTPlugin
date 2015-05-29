@@ -12,16 +12,13 @@ use \RESTController\libs as Libs;
 
 
 $app->get('/v1/object/:ref', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($ref) use ($app) {
-
-    $request = new Libs\RESTRequest($app);
-    $response = new Libs\RESTResponse($app);
-    $model = new ObjectsModel();
-
-    $model->getObject($ref, $resquest, $response);
-    echo($response->toJSON());
-
-
+    try {
+        $model = new ObjectsModel();
+        $result = $model->getObject($ref);
+        
+        $app->success($result);
+    }
+    catch(\Exception $e) {
+        $app->halt(422, $e->getMessage());
+    }
 });
-
-
-?>
