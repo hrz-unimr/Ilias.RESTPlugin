@@ -12,12 +12,6 @@ use \RESTController\libs as Libs;
 use \RESTController\extensions\files_v1 as Files;
 
 
-/*
- * Prototypical implementation of some rest endpoints for development
- * and testing.
- */
-
-
 $app->group('/admin', function () use ($app) {
     /*
      * File Download
@@ -60,6 +54,7 @@ $app->group('/admin', function () use ($app) {
 
     });
 
+
     /*
      * File Upload
      */
@@ -86,7 +81,6 @@ $app->group('/admin', function () use ($app) {
             $app->success($result);
         }
         else
-            $app->halt('Upload failed');
+            $app->halt(400, 'Upload failed');
     });
-
 });

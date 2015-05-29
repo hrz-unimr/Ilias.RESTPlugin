@@ -9,11 +9,9 @@ namespace RESTController\extensions\calendar_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
+use \RESTController\core\auth as Auth;
 
 
-/**
- * Route definitions for the REST Calendar API
- */
 $app->group('/v1', function () use ($app) {
     /**
      * Returns the calendar events of a user specified by its user_id.
@@ -74,7 +72,7 @@ $app->group('/v1', function () use ($app) {
         $user = $accessToken->getUserName();
         $authorizedUserId =  Libs\RESTLib::loginToUserId($user);
 
-        if ($authorizedUserId>-1) { // only the user is allowed to access the data
+        if ($authorizedUserId > -1) { // only the user is allowed to access the data
             $id = $authorizedUserId;
             try {
                 $model = new CalendarModel();
@@ -94,7 +92,6 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the ICAL Url of the desktop calendar of the authenticated user.
      */
-
     $app->get('/cal/icalurl', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth' , function () use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();

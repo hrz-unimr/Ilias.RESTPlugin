@@ -18,34 +18,27 @@ use \RESTController\extensions\contacts_v1 as Contacts;
 use \RESTController\extensions\calendar_v1 as Calendar;
 
 
-/*
- * Prototypical implementation of some rest endpoints for development
- * and testing.
- */
-
 $app->group('/v1/m', function () use ($app) {
 
     $app->get('/courses/:id', function ($id) use ($app) {
-
-
         $id_type = $app->request()->params("id_type");
         $id_type = $id_type = null ? 'ref_id' : $id_type;
         $obj_id = -1;
         if ($id_type == 'obj_id')
-        {
             $obj_id = $id;
-        } else
-        {
+        else
             $obj_id = Libs\RESTLib::getObjIdFromRef($id);
-        }
 
-        $result = array();
         $model = new Admin\DescribrModel();
         $a_descr = $model->describeIliasObject($obj_id);
-        $result['object_description'] = $a_descr;
+
+        $result = array(
+            'object_description' => $a_descr
+        );
 
         $app->success($result);
     });
+
 
     /**
      *  Loads the following data:

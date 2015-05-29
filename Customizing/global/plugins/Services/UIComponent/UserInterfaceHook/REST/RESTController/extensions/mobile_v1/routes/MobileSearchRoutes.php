@@ -7,14 +7,6 @@
  */
 namespace RESTController\extensions\mobile_v1;
 
-// This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs as Libs;
-
-
-/*
- * Mobile Search Routes
- */
-
 
 $app->group('v1/m', function () use ($app) {
     $app->get('/search/',  function () use ($app) {

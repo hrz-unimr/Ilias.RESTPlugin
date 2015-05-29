@@ -10,10 +10,6 @@ namespace RESTController\extensions\admin;
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
 
-/*
- * Prototypical implementation of some rest endpoints for development
- * and testing.
- */
 
 $app->group('/admin', function () use ($app) {
     $app->get('/workspaces', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
@@ -23,21 +19,18 @@ $app->group('/admin', function () use ($app) {
             $offset = $request->params('offset', 0);
 
             $t_start = microtime();
-            $result = array();
-            $result['msg'] = 'Overview Workspaces';
             Libs\RESTLib::initAccessHandling();
             $wa_model = new WorkspaceAdminModel();
-
-            $result['result'] = $wa_model->scanUsersForWorkspaces($limit, $offset);
-
+            $result = $wa_model->scanUsersForWorkspaces($limit, $offset);
             $t_end = microtime();
-            $result['execution_time'] = $t_end - $t_start;
 
-            $result['offset'] = $offset;
-            $result['limit'] = $limit;
-
-            $app->success($result);
-
+            // TODO: Remove timing, just return data
+            $app->success(array(
+                'data' => $result,
+                'execution_time' => $t_end - $t_start,
+                'offset' => $offset,
+                'limit' => $limit
+            ));
         } catch (\Exception $e) {
             $app->halt(400, $e->getMessage());
         }
@@ -53,12 +46,13 @@ $app->group('/admin', function () use ($app) {
             Libs\RESTLib::initAccessHandling();
             $wa_model = new WorkspaceAdminModel();
             $ws_array = $wa_model->getUserWorkspaceItems($user_id);
-            $result['data'] = $ws_array;
-
             $t_end = microtime();
-            $result['execution_time'] = $t_end - $t_start;
 
-            $app->success($result);
+            // TODO: Remove timing, just return data
+            $app->success(array(
+                'data' => $ws_array,
+                'execution_time' => $t_end - $t_start
+            ));
 
         } catch (\Exception $e) {
             $app->halt(400, $e->getMessage());

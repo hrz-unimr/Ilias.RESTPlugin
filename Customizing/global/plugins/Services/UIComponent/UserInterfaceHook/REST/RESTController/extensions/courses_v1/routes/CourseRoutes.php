@@ -9,13 +9,9 @@ namespace RESTController\extensions\courses_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
+use \RESTController\core\auth as Auth;
 use \RESTController\extensions\users_v1 as Users;
 
-
-/*
- * Prototypical implementation of some rest endpoints for development
- * and testing.
- */
 
 $app->group('/v1', function () use ($app) {
     /**
@@ -36,12 +32,13 @@ $app->group('/v1', function () use ($app) {
                 'coursecontents' => $data1,
                 'courseinfo' => $data2
             );
-            $app->success($result, "Content of course " . $ref_id . ".");
+            $app->success($result);
         } catch (\Exception $e) {
             // TODO: Replace message with const-class-variable and error-code with unique string
             $app->halt(500, 'Error: Could not retrieve data for user '.$id.".", -15);
         }
     });
+
 
     $app->post('/courses', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $auth = new Auth\Util();
@@ -85,6 +82,7 @@ $app->group('/v1', function () use ($app) {
         $app->success($new_ref_id);
     });
 
+
     $app->delete('/courses/:id',  function ($id) use ($app) {
         $request = $app->request();
         // todo: check permissions
@@ -92,11 +90,9 @@ $app->group('/v1', function () use ($app) {
         $crs_model = new CoursesModel();
         $soap_result = $crs_model->deleteCourse($id);
 
-        $result['msg'] = 'OP: Delete Course . '.$id;
-        $result['soap_result'] = $soap_result;
-
-        $app->success($result);
+        $app->success($soap_result);
     });
+
 
     /**
      * Enroll a user to a course.
@@ -144,6 +140,7 @@ $app->group('/v1', function () use ($app) {
             $app->success(null, "Enrolled user with id $user_id to course with id $crs_ref_id");
     });
 
+
     $app->get('/courses/join', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
@@ -170,6 +167,7 @@ $app->group('/v1', function () use ($app) {
             $app->halt(400, "Error: Subscribing user ".$authorziedUserid." to course with ref_id = ".$ref_id." failed. Exception:".$e->getMessage(), -15);
         }
     });
+
 
     $app->get('/courses/leave', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $auth = new Auth\Util();

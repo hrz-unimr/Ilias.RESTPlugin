@@ -9,11 +9,9 @@ namespace RESTController\extensions\desktop_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
+use \RESTController\core\auth as Auth;
 
 
-/*
- * REST endpoints regarding the User Personal Desktop
- */
 $app->group('/v1', function () use ($app) {
     /**
      * Retrieves all items from the personal desktop of a user specified by its id.
@@ -34,6 +32,7 @@ $app->group('/v1', function () use ($app) {
             $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
     });
 
+
     /**
      * Deletes an item specified by ref_id from the personal desktop of the user specified by $id.
      */
@@ -44,11 +43,12 @@ $app->group('/v1', function () use ($app) {
             $model = new DesktopModel();
             $model->removeItemFromDesktop($id, $ref_id);
 
-            $app->success("Item ".$ref_id." removed successfully from the users PD overview.");
+            $app->success();
         } catch (\Exception $e) {
             $app->halt(500, "Error: ".$e->getMessage(), -15);
         }
     });
+
 
     /**
      * Adds an item specified by ref_id to the users's desktop. The user must be the owner or at least has read access of the item.
@@ -60,7 +60,7 @@ $app->group('/v1', function () use ($app) {
             $model = new DesktopModel();
             $model->addItemToDesktop($id, $ref_id);
 
-            $app->success("Item ".$ref_id." added successfully to the users PD overview.");
+            $app->success();
         } catch (\Exception $e) {
             $app->halt(500, "Error: ".$e->getMessage(), -15);
         }

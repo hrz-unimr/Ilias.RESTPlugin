@@ -8,11 +8,9 @@
 namespace RESTController\extensions\users_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs as Libs;
+use \RESTController\core\auth as Auth;
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// users
 $app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
     try {
 
@@ -34,13 +32,14 @@ $app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', 
         if ($request->params('offset')){
             $offset = $request->params('offset');
         }
-        $result['_metadata']['limit'] = $limit;
-        $result['_metadata']['offset'] = $offset;
+        $result['limit'] = $limit;
+        $result['offset'] = $offset;
         $all_users = $usr_model->getAllUsers($fields);
         $totalCount = count($all_users);
-        $result['_metadata']['totalCount'] = $totalCount;
+        $result['totalCount'] = $totalCount;
         // TODO: Sanity check on $offset parameter
 
+        $result['users'] = array();
         for ($i = $offset; $i<min($totalCount, $offset+$limit); $i++) {
             $current_user = array('user'=>$all_users[$i]);
             $result['users'][] = $current_user;
@@ -53,6 +52,7 @@ $app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', 
     }
 });
 
+
 $app->get('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenAuth', function ($user_id) use ($app) {
     try {
         $id = $user_id;
@@ -62,19 +62,16 @@ $app->get('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenAut
             $user = $accessToken->getUserName();
             $id = $accessToken->getUserId();
         }
-        $result = array();
         // $result['usr_id'] = $user_id;
         $usr_model = new UsersModel();
         $usr_basic_info =  $usr_model->getBasicUserData($id);
-        $result['user'] = $usr_basic_info;
 
-        $app->success($result);
+        $app->success($usr_basic_info);
 
     } catch (\Exception $e) {
         $app->halt(400, $e->getMessage());
     }
 });
-
 
 
 $app->post('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { // create
@@ -96,17 +93,7 @@ $app->post('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',
         $usr_model = new UsersModel();
         $user_id = $usr_model->addUser($user_data);
 
-        $status = true;
-
-        if ($status == true) {
-            $result['status'] = "User ".$user_id." created.";
-            $result['data'] = array("id" => $user_id);
-        }else {
-            $result['status'] = "User could not be created!";
-        }
-
-        $app->success($result);
-
+        $app->success($user_id);
     } catch (\Exception $e) {
         $app->halt(400, $e->getMessage());
     }
@@ -122,18 +109,15 @@ $app->put('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRou
             $value = $request->params($key);
             $usr_model->updateUser($user_id, $key, $value);
         }
-
-        $result = array();
-        $result['status'] = 'success';
         $usr_basic_info =  $usr_model->getBasicUserData($user_id);
-        $result['user'] = $usr_basic_info;
 
-        $app->success($result);
+        $app->success($usr_basic_info);
 
     } catch (\Exception $e) {
         $app->halt(400, $e->getMessage());
     }
 });
+
 
 $app->delete('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($user_id) use ($app) {
     try {
@@ -141,16 +125,11 @@ $app->delete('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::Token
         $usr_model = new UsersModel();
         $status = $usr_model->deleteUser($user_id);
 
-        if ($status == true) {
-            $result['status'] = "User ".$user_id." deleted.";
-        }else {
-            $result['status'] = "User ".$user_id." not deleted!";
-        }
-
-        $app->success($result);
-
+        if ($status)
+            $app->success();
+        else
+            $app->halt(500, "Coulld not delete user ".$user_id.".");
     } catch (\Exception $e) {
         $app->halt(400, $e->getMessage());
     }
 });
-?>

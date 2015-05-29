@@ -8,18 +8,14 @@
 namespace RESTController\extensions\mobile_v1;
 
 // This allows us to use shortcuts instead of full quantifier
+use \RESTController\core\auth as Auth;
 use \RESTController\libs as Libs;
 use \RESTController\libs\Exceptions as Exceptions;
 use \RESTController\extensions\admin as Admin;
 use \RESTController\extensions\files_v1 as Files;
 
-/*
- * Prototypical implementation of some rest endpoints for development
- * and testing.
- */
 
 $app->group('/v1/m', function () use ($app) {
-
     /**
      * This route retrieves a listing of files that are contained in the user's 'personal workspace'.
      * In this version, the user file space is indeed the 'workspace'. In a future version it could be imagined, that
@@ -41,10 +37,10 @@ $app->group('/v1/m', function () use ($app) {
         // TODO: Remove timing info, just send success();
         $app->success(array(
             'time' => $t_end - $t_start,
-            'msg' => 'MyFilespace listing',
             'myfilespace' => $ws_array
         ));
     });
+
 
     /**
      * This route enables the user to add a file object from her/his personal file space to a location within the the repository.
@@ -74,8 +70,7 @@ $app->group('/v1/m', function () use ($app) {
             else
                 // TODO: Remove timing info, just send success();
                 $app->success(array(
-                    'execution_time' => $t_end - $t_start,
-                    'msg' => 'MyFilespaceCopy: File was copied'
+                    'execution_time' => $t_end - $t_start
                 ));
 
         } catch(LibExceptions\MissingParameter $e) {
@@ -110,14 +105,14 @@ $app->group('/v1/m', function () use ($app) {
             else
                 // TODO: Remove timing info, just send success();
                 $app->success(array(
-                    'execution_time' => $t_end - $t_start,
-                    'msg' => 'MyFilespaceCopy: File was copied'
+                    'execution_time' => $t_end - $t_start
                 ));
         } catch(LibExceptions\MissingParameter $e) {
             $app->halt(422, $e->getFormatedMessage(), $e::ID);
         }
         $response->send();
     });
+
 
     /**
      * see POST /myfilespaceupload
@@ -126,6 +121,7 @@ $app->group('/v1/m', function () use ($app) {
         $app->log->debug('Myfilespace upload via GET');
         $app->halt(422, 'Pls use the POST method', 'RESTController\\extensions\\mobile_v1\\MyFileSpaceRoutes::ID_USE_GET');
     });
+
 
     /**
      * Uploads a single file via POST into the user's 'myfilespace'.
@@ -158,11 +154,11 @@ $app->group('/v1/m', function () use ($app) {
         // TODO: Remove timing info, just send success();
         $result = array(
             'farraydump' => print_r($_FILES['mupload'],true),
-            'msg' => 'Done Uploading File',
             'execution_time' => $t_end - $t_start
         );
         $app->success($result);
     });
+
 
     /**
      * Deletes a file from a user's filespace.
@@ -189,7 +185,6 @@ $app->group('/v1/m', function () use ($app) {
 
         // TODO: Remove timing info, just send success();
         $result = array(
-            'msg' => 'Dev Delete File From MyFileSpace',
             'execution_time' => $t_end - $t_start
         );
         $app->success($result);

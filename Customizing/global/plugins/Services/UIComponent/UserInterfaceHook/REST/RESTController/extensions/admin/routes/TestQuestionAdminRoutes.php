@@ -11,13 +11,9 @@ namespace RESTController\extensions\admin;
 use \RESTController\libs as Libs;
 
 
-/*
- * Admin REST routes for TestPool and TestQuestion
- */
-
 $app->group('/admin', function () use ($app) {
     $app->get('/testpool', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
-
+        $app->halt(500, 'There be dragons!');
     });
 
 

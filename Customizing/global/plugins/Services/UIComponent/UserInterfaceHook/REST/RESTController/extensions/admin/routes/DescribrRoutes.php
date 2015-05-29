@@ -11,11 +11,6 @@ namespace RESTController\extensions\admin;
 use \RESTController\libs as Libs;
 
 
-/*
- * Prototypical implementation of some rest endpoints for development
- * and testing.
- */
-
 $app->group('/admin', function () use ($app) {
     /**
      * this is a tool for developers / admins to get

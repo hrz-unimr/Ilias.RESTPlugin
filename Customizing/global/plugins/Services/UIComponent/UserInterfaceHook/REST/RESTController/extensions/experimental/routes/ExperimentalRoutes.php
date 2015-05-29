@@ -9,17 +9,11 @@ namespace RESTController\extensions\experimental;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
+use \RESTController\core\auth as Auth;
 use \RESTController\core\clients as Clients;
 
 
-/*
- * Prototypical implementation of some rest endpoints for development
- * and testing.
- */
-
 $app->group('/dev', function () use ($app) {
-
-
     $app->get('/clientcheck', function () use ($app) {
         $model = new Clients\Clients();
         $data1 = $model->getAllowedUsersForApiKey('9065710a-16b9-4b4c-9230-f76dc72d2a2d');
@@ -31,6 +25,7 @@ $app->group('/dev', function () use ($app) {
         );
         $app->success($result);
     });
+
 
     /**
      * Refresh-Token Part 1: extended token-endpoint: hier kann durch ein gültiges refresh-token ein bearer-token erzeugt werden. der code hier geht in jedem fall in den oauth2 token endpunkt ein.
@@ -52,6 +47,7 @@ $app->group('/dev', function () use ($app) {
 
         $app->success($bearer_token->getEntry('access_token'));
     });
+
 
     /**
      * Refresh-Token Part 2.1: new refresh end-point ; erzeugt ein NEUES refresh-token für ein valides bearer token. der
@@ -83,19 +79,22 @@ $app->group('/dev', function () use ($app) {
         $app->success($result);
     });
 
+
     // -------------------------------------------------------------------
     $app->get('/hello', '\RESTController\libs\OAuth2Middleware::TokenAuth', function () use ($app) {
         $msg = 'Hello @ '.time();
         $referer = $_SERVER['HTTP_REFERER'];
         $host = $_SERVER['HTTP_HOST'];
 
-        $result = array();
-        $result['msg'] = $msg;
-        $result['referer'] = $referer;
-        $result['host'] = $host;
+        $result = array(
+            'msg' => $msg,
+            'referer' => $referer,
+            'host' => $host
+        );
 
         $app->success($result);
     });
+
 
     $app->get('/roundtrip', function () use ($app) {
         $destiny_url = 'http://localhost/restplugin.php/experimental/hello';
@@ -114,13 +113,15 @@ $app->group('/dev', function () use ($app) {
         $t_end = microtime();
         curl_close($curl);
 
-        $result = array();success
-        $result['status'] = 'success';
-        $result['remote_response'] = $curl_response;
-        $result['rtt'] = $t_end - $t_start;
+        $result = array(
+            'status' => 'success',
+            'remote_response' => $curl_response,
+            'rtt' => $t_end - $t_start
+        );
 
         $app->success($result);
     });
+
 
     $app->get('/transportfile', function () use ($app) {
         // Get file info
@@ -132,8 +133,6 @@ $app->group('/dev', function () use ($app) {
         curl_close($curl);
 
         $file_metadata = json_decode($file_metadata_json,true);
-
-
         $destination_service_url = 'http://localhost/restplugin.php/v1/files';
         $curl_post_data = array(
             'ref_id' => 99,
@@ -141,26 +140,23 @@ $app->group('/dev', function () use ($app) {
             'uploadfile' => '@'.$file_metadata['file']['realpath'].';filename='.$file_metadata['file']['name'].';type='.$file_metadata['file']['type']
         );
 
-
         $curl = curl_init($destination_service_url);
-
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $curl_post_data);
-
-
 
         $t_start = microtime();
         $curl_response = curl_exec($curl);
         $t_end = microtime();
 
-        $result = array();
-        $result['status'] = 'success';
-        $result['remote_response'] = $curl_response;
-        $result['rtt'] = $t_end - $t_start;
+        $result = array(
+            'remote_response' => $curl_response,
+            'rtt' => $t_end - $t_start
+        );
 
         $app->success($result);
     });
+
 
     $app->get('/responsetest', function () use ($app) {
         $result = array(

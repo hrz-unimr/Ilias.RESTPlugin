@@ -64,6 +64,7 @@ class UsersModel
 
     /**
      * Adds a user specified by $user_data. Automatically accepts the terms of use.
+     * TODO: Throw Exception when adding user failed!
      *
      * @param $user_data
      * @return int

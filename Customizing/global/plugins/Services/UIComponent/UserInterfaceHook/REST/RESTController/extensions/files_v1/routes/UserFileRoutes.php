@@ -8,12 +8,8 @@
 namespace RESTController\extensions\files_v1;
 
 // This allows us to use shortcuts instead of full quantifier
+use \RESTController\core\auth as Auth;
 use \RESTController\libs as Libs;
-
-
-/*
- * Route definitions for the ILIAS File REST API
- */
 
 
 $app->group('/v1', function () use ($app) {
@@ -61,14 +57,15 @@ $app->group('/v1', function () use ($app) {
                 // TODO: Replace string with const class-variable und error-code too!
                 $app->halt(500, 'Could not retrieve file with obj_id = ' . $obj_id . '.', -1);
             } else {
-                $result = array();
-                $result['ext'] = $fileObj->getFileExtension();
-                $result['name'] = $fileObj->getFileName();
-                $result['size'] = $fileObj->getFileSize();
-                $result['type'] = $fileObj->getFileType();
-                $result['dir'] = $fileObj->getDirectory();
-                $result['version'] = $fileObj->getVersion();
-                $result['realpath'] = $fileObj->getFile();
+                $result = array(
+                    'ext' => $fileObj->getFileExtension(),
+                    'name' => $fileObj->getFileName(),
+                    'size' => $fileObj->getFileSize(),
+                    'type' => $fileObj->getFileType(),
+                    'dir' => $fileObj->getDirectory(),
+                    'version' => $fileObj->getVersion(),
+                    'realpath' => $fileObj->getFile()
+                );
 
                 $app->success($result);
             }
@@ -76,7 +73,7 @@ $app->group('/v1', function () use ($app) {
         else {
             $model = new FileModel();
             $fileObj = $model->getFileObjForUser($obj_id, $user_id);
-            
+
             if (empty($fileObj))
                 // TODO: Replace string with const class-variable und error-code too!
                 $app->halt(500, 'Could not retrieve file with obj_id = ' . $obj_id . '.', -1);

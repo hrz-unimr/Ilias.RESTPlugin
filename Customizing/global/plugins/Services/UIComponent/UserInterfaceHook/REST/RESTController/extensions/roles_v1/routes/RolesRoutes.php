@@ -8,7 +8,7 @@
 namespace RESTController\extensions\roles_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs as Libs;
+use \RESTController\core\auth as Auth;
 
 
 $app->get('/v1/roles', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
@@ -27,6 +27,3 @@ $app->get('/v1/roles', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', 
         $app->halt(422, $e->getMessage());
     }
 });
-
-
-?>

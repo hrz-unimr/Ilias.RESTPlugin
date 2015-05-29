@@ -7,15 +7,12 @@
  */
 namespace RESTController\extensions\objects_v1;
 
-// This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs as Libs;
-
 
 $app->get('/v1/object/:ref', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($ref) use ($app) {
     try {
         $model = new ObjectsModel();
         $result = $model->getObject($ref);
-        
+
         $app->success($result);
     }
     catch(\Exception $e) {

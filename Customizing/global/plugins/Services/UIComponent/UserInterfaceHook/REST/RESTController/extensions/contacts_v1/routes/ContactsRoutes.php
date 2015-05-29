@@ -9,13 +9,10 @@ namespace RESTController\extensions\contacts_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
+use \RESTController\core\auth as Auth;
 
 
-/**
- * Contacts API
- */
 $app->group('/v1', function () use ($app) {
-
     /**
      * Returns the personal ILIAS contacts for a user specified by id.
      */
@@ -30,7 +27,7 @@ $app->group('/v1', function () use ($app) {
                 $model = new ContactsModel();
                 $data = $model->getMyContacts($id);
 
-                $app->success();
+                $app->success($data);
             } catch (\Exception $e) {
                 $app->halt(500, 'Error: Could not retrieve data for user '.$id.".", -15);
             }
@@ -56,7 +53,7 @@ $app->group('/v1', function () use ($app) {
                 $model = new ContactsModel();
                 $data = $model->getMyContacts($id);
 
-                $app->success();
+                $app->success($data);
             } catch (\Exception $e) {
                 $app->halt(500, 'Error: Could not retrieve data for user '.$id.".", -15);
             }
