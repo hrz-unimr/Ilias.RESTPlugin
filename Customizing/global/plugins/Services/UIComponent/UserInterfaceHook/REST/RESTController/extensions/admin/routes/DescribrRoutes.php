@@ -23,7 +23,7 @@ $app->group('/admin', function () use ($app) {
         $request = $app->request();
         $id_type = $request->params('id_type', 'ref_id');
 
-        $result = array('msg' = array());
+        $result = array('msg' => array());
         $model = new DescribrModel();
         if ($id_type == 'ref_id' || $id_type == 'obj_id') {
             if ($id_type == 'ref_id') {
@@ -31,7 +31,7 @@ $app->group('/admin', function () use ($app) {
                 $id_type = 'obj_id';
             }
 
-            if (!is_numeric($obj_id)) {
+            if (!is_numeric($obj_id))
                 $result['status'] = 'Object does not exist.';
 
             $a_descr = $model->describeIliasObject($obj_id);

@@ -83,7 +83,7 @@ class DescribrModel
     protected  function getObjectData($obj_id)
     {
         global $ilDB;
-        $sql = sprintf('SELECT * FROM object_data WHERE object_data.obj_id = %d', $obj_id);
+        $sql = Libs\RESTLib::safeSQL('SELECT * FROM object_data WHERE object_data.obj_id = %d', $obj_id);
         $query = $ilDB->query($sql);
         $row = $ilDB->fetchAssoc($query);
         return $row;
@@ -98,7 +98,7 @@ class DescribrModel
     protected function getUserData($owner_id)
     {
         global $ilDB;
-        $sql = sprintf('SELECT usr_id, login, firstname, lastname, gender, email, last_login, last_update, create_date FROM usr_data WHERE usr_id = %d', $owner_id);
+        $sql = Libs\RESTLib::safeSQL('SELECT usr_id, login, firstname, lastname, gender, email, last_login, last_update, create_date FROM usr_data WHERE usr_id = %d', $owner_id);
         $query = $ilDB->query($sql);
         $row = $ilDB->fetchAssoc($query);
         return $row;
@@ -113,7 +113,7 @@ class DescribrModel
     protected function get_next_parent($rid)
     {
         global $ilDB;
-        $sql = sprintf('SELECT parent FROM tree WHERE child = %d', $rid);
+        $sql = Libs\RESTLib::safeSQL('SELECT parent FROM tree WHERE child = %d', $rid);
         $query = $ilDB->query($sql);
         $row = $ilDB->fetchAssoc($query);
         return $row['parent'];
@@ -156,7 +156,7 @@ class DescribrModel
         $levels=count($a_ref_ids);
         for ($i=0;$i<$levels;$i++){
             $r_id=$a_ref_ids[$i];
-            $sql = sprintf('SELECT object_data.title, object_data.type FROM object_reference LEFT JOIN object_data ON object_data.obj_id = object_reference.obj_id WHERE object_reference.ref_id = %d', $r_id);
+            $sql = Libs\RESTLib::safeSQL('SELECT object_data.title, object_data.type FROM object_reference LEFT JOIN object_data ON object_data.obj_id = object_reference.obj_id WHERE object_reference.ref_id = %d', $r_id);
             $query = $ilDB->query($sql);
             $row = $ilDB->fetchAssoc($query);
             $title=$row['title'];

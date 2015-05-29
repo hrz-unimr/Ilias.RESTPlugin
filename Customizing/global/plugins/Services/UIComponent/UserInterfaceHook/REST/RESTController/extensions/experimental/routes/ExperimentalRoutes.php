@@ -70,7 +70,7 @@ $app->group('/dev', function () use ($app) {
         $refreshToken = $model->getToken($accessToken);
 
         $result = array(
-            'refresh-token', $refreshToken->getTokenString());
+            'refresh-token' => $refreshToken->getTokenString(),
             'maxint' => PHP_INT_MAX,
             'beareruser' => $accessToken->getUserName(),
             'api-key' => $accessToken->getApiKey(),

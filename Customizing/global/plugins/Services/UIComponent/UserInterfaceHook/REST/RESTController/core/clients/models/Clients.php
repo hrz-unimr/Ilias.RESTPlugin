@@ -29,7 +29,7 @@ class Clients extends Libs\RESTModel {
      */
     protected function addPermissions($id, $perm) {
         // Remove old entries
-        $sql = sprintf('DELETE FROM ui_uihk_rest_perm WHERE api_id = %d', $id);
+        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_perm WHERE api_id = %d', $id);
         self::$sqlDB->manipulate($sql);
 
         /*
@@ -64,7 +64,7 @@ class Clients extends Libs\RESTModel {
      */
     protected function fillApikeyUserMap($api_key_id, $a_user_csv = NULL) {
         // Remove old entries
-        $sql = sprintf('DELETE FROM ui_uihk_rest_keymap WHERE api_id = %d', $api_key_id);
+        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_keymap WHERE api_id = %d', $api_key_id);
         self::$sqlDB->manipulate($sql);
 
         // Add new entries
@@ -88,7 +88,8 @@ class Clients extends Libs\RESTModel {
      */
     protected function is_oauth2_grant_type_enabled($api_key, $grant_type) {
         // Check if given grant_type is enabled
-        $sql = sprintf('SELECT %s FROM ui_uihk_rest_keys WHERE api_key = "%s"', $grant_type, $api_key);
+        // TODO: remove sprintf after safeSQL is fixed
+        $sql = Libs\RESTLib::safeSQL("SELECT $grant_type FROM ui_uihk_rest_keys WHERE api_key = %s", $api_key);
         $query = self::$sqlDB->query($sql);
         if (self::$sqlDB->numRows($query) > 0) {
             $row = self::$sqlDB->fetchAssoc($query);
@@ -118,7 +119,7 @@ class Clients extends Libs\RESTModel {
             $perm = array();
 
             // Query api-key permissions
-            $sqlPerm = sprintf('SELECT pattern, verb FROM ui_uihk_rest_perm WHERE api_id = %d', $id);
+            $sqlPerm = Libs\RESTLib::safeSQL('SELECT pattern, verb FROM ui_uihk_rest_perm WHERE api_id = %d', $id);
             $queryPerm = self::$sqlDB->query($sqlPerm);
             while($rowPerm = self::$sqlDB->fetchAssoc($queryPerm))
                 $perm[] = $rowPerm;
@@ -128,7 +129,7 @@ class Clients extends Libs\RESTModel {
             $csv = array();
 
             // fetch allowd users for api-key
-            $sqlCSV = sprintf('SELECT user_id FROM ui_uihk_rest_keymap WHERE api_id = %d', $id);
+            $sqlCSV = Libs\RESTLib::safeSQL('SELECT user_id FROM ui_uihk_rest_keymap WHERE api_id = %d', $id);
             $queryCSV = self::$sqlDB->query($sqlCSV);
             while($rowCSV = self::$sqlDB->fetchAssoc($queryCSV))
                 $csv[] = $rowCSV['user_id'];
@@ -224,9 +225,9 @@ class Clients extends Libs\RESTModel {
         // Update any other field...
         else {
             if (is_numeric($newval))
-                $sql = sprintf('UPDATE ui_uihk_rest_keys SET %s = %d WHERE id = %d', $fieldname, $newval, $id);
+                $sql = Libs\RESTLib::safeSQL('UPDATE ui_uihk_rest_keys SET %s = %d WHERE id = %d', $fieldname, $newval, $id);
             else
-                $sql = sprintf('UPDATE ui_uihk_rest_keys SET %s = "%s" WHERE id = %d', $fieldname, $newval, $id);
+                $sql = Libs\RESTLib::safeSQL('UPDATE ui_uihk_rest_keys SET %s = %s WHERE id = %d', $fieldname, $newval, $id);
             $numAffRows = self::$sqlDB->manipulate($sql);
 
             if ($numAffRows === false)
@@ -243,19 +244,19 @@ class Clients extends Libs\RESTModel {
      */
     public function deleteClient($id) {
         // Delete acutal client
-        $sql = sprintf('DELETE FROM ui_uihk_rest_keys WHERE id = %d', $id);
+        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_keys WHERE id = %d', $id);
         $numAffRows = self::$sqlDB->manipulate($sql);
 
         // Delete all his permissions
-        $sql = sprintf('DELETE FROM ui_uihk_rest_perm WHERE api_id = %d', $id);
+        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_perm WHERE api_id = %d', $id);
         self::$sqlDB->manipulate($sql);
 
         // Delete list of allowed users
-        $sql = sprintf('DELETE FROM ui_uihk_rest_keymap WHERE api_id = %d', $id);
+        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_keymap WHERE api_id = %d', $id);
         self::$sqlDB->manipulate($sql);
 
         // Delete oauth tokens
-        $sql = sprintf('DELETE FROM ui_uihk_rest_oauth2 WHERE api_id = %d', $id);
+        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_oauth2 WHERE api_id = %d', $id);
         self::$sqlDB->manipulate($sql);
 
         if ($numAffRows === false)
@@ -271,7 +272,7 @@ class Clients extends Libs\RESTModel {
      */
     public function getClientCredentialsUser($api_key) {
         // Fetch client-credentials for api-key
-        $sql = sprintf('SELECT id, oauth2_gt_client_user FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
+        $sql = Libs\RESTLib::safeSQL('SELECT id, oauth2_gt_client_user FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
         $query = self::$sqlDB->query($sql);
         $row = self::$sqlDB->fetchAssoc($query);
         return $row['oauth2_gt_client_user'];
@@ -287,7 +288,7 @@ class Clients extends Libs\RESTModel {
      */
     public function getAllowedUsersForApiKey($api_key) {
         // Fetch api_id for api-key
-        $sql = sprintf('SELECT id, oauth2_user_restriction_active FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
+        $sql = Libs\RESTLib::safeSQL('SELECT id, oauth2_user_restriction_active FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
         $query = self::$sqlDB->query($sql);
         $row = self::$sqlDB->fetchAssoc($query);
         $id = $row['id'];
@@ -298,7 +299,7 @@ class Clients extends Libs\RESTModel {
             $a_user_ids = array();
 
             // Fetch allowed users
-            $sql2 = sprintf('SELECT user_id FROM ui_uihk_rest_keymap WHERE api_id = "%s"', $id);
+            $sql2 = Libs\RESTLib::safeSQL('SELECT user_id FROM ui_uihk_rest_keymap WHERE api_id = %s', $id);
             $query2 = self::$sqlDB->query($sql2);
             while($row2 = self::$sqlDB->fetchAssoc($query2))
                 $a_user_ids[] = (int)$row2['user_id'];
@@ -365,7 +366,7 @@ class Clients extends Libs\RESTModel {
      */
     public function is_oauth2_consent_message_enabled($api_key) {
         // Query if client with this aki-key has an oauth2 consent-message set
-        $sql = sprintf('SELECT oauth2_consent_message_active FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
+        $sql = Libs\RESTLib::safeSQL('SELECT oauth2_consent_message_active FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
         $query = self::$sqlDB->query($sql);
         if (self::$sqlDB->numRows($query) > 0) {
             $row = self::$sqlDB->fetchAssoc($query);
@@ -384,7 +385,7 @@ class Clients extends Libs\RESTModel {
      */
     public function getOAuth2ConsentMessage($api_key) {
         // Fetch ouath2 consent-message for client with given api-key
-        $sql = sprintf('SELECT oauth2_consent_message FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
+        $sql = Libs\RESTLib::safeSQL('SELECT oauth2_consent_message FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
         $query = self::$sqlDB->query($sql);
         if (self::$sqlDB->numRows($query) > 0) {
             $row = self::$sqlDB->fetchAssoc($query);
@@ -402,7 +403,7 @@ class Clients extends Libs\RESTModel {
      */
     public function is_authcode_refreshtoken_enabled($api_key) {
         // Query if client with this aki-key has oauth2 refresh-tokens enabled (for authentification-code)
-        $sql = sprintf('SELECT oauth2_authcode_refresh_active FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
+        $sql = Libs\RESTLib::safeSQL('SELECT oauth2_authcode_refresh_active FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
         $query = self::$sqlDB->query($sql);
         if (self::$sqlDB->numRows($query) > 0) {
             $row = self::$sqlDB->fetchAssoc($query);
@@ -421,7 +422,7 @@ class Clients extends Libs\RESTModel {
      */
     public function is_resourceowner_refreshtoken_enabled($api_key) {
         // Query if client with this aki-key has oauth2 refresh-tokens enabled (for resource-owner)
-        $sql = sprintf('SELECT oauth2_resource_refresh_active FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
+        $sql = Libs\RESTLib::safeSQL('SELECT oauth2_resource_refresh_active FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
         $query = self::$sqlDB->query($sql);
         if (self::$sqlDB->numRows($query) > 0) {
             $row = self::$sqlDB->fetchAssoc($query);
@@ -436,7 +437,7 @@ class Clients extends Libs\RESTModel {
      *
      */
     public function getApiIdFromKey($api_key) {
-        $sql = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
+        $sql = Libs\RESTLib::safeSQL('SELECT id FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
         $query = self::$sqlDB->query($sql);
 
         if ($query != null && $row = self::$sqlDB->fetchAssoc($query))
@@ -450,7 +451,7 @@ class Clients extends Libs\RESTModel {
      *
      */
     public function getApiKeyFromId($api_id) {
-        $sql = sprintf('SELECT api_key FROM ui_uihk_rest_keys WHERE id = %d', $api_id);
+        $sql = Libs\RESTLib::safeSQL('SELECT api_key FROM ui_uihk_rest_keys WHERE id = %d', $api_id);
         $query = self::$sqlDB->query($sql);
 
         if ($query != null && $row = self::$sqlDB->fetchAssoc($query))

@@ -36,7 +36,7 @@ class Util extends EndpointBase {
      */
     public function checkClient($api_key) {
         // Fetch client with given api-key (checks existance)
-        $sql = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s"', $api_key);
+        $sql = Libs\RESTLib::safeSQL('SELECT id FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
         $query = self::$sqlDB->query($sql);
         if (self::$sqlDB->numRows($query) > 0)
             return true;
@@ -54,7 +54,7 @@ class Util extends EndpointBase {
      */
     public function checkClientCredentials($api_key, $api_secret) {
         // Fetch client with given api-key (checks existance)
-        $sql = sprintf('SELECT id FROM ui_uihk_rest_keys WHERE api_key = "%s" AND api_secret = "%s"', $api_key, $api_secret);
+        $sql = Libs\RESTLib::safeSQL('SELECT id FROM ui_uihk_rest_keys WHERE api_key = %s AND api_secret = %s', $api_key, $api_secret);
         $query = self::$sqlDB->query($sql);
         if (self::$sqlDB->numRows($query) > 0)
             return true;
@@ -72,7 +72,7 @@ class Util extends EndpointBase {
      */
     public function checkScope($route, $operation, $api_key) {
         $operation = strtoupper($operation);
-        $sql = sprintf('
+        $sql = Libs\RESTLib::safeSQL('
             SELECT pattern, verb
             FROM ui_uihk_rest_perm
             JOIN ui_uihk_rest_keys
@@ -106,7 +106,7 @@ class Util extends EndpointBase {
         $rtokenValid = false;
         $sessionValid = false;
 
-        $sqlToken = sprintf('
+        $sqlToken = Libs\RESTLib::safeSQL('
             SELECT * FROM il_request_token
             WHERE user_id = %d
             AND token = "%s"
@@ -119,7 +119,7 @@ class Util extends EndpointBase {
         if (self::$sqlDB->numRows($queryToken) > 0)
             $rtokenValid = true;
 
-        $sqlSession = sprintf('
+        $sqlSession = Libs\RESTLib::safeSQL('
             SELECT * FROM usr_session
             WHERE user_id = %d
             AND session_id = "%s"',

@@ -31,7 +31,7 @@ class RefreshEndpoint extends EndpointBase {
         $refresh_token = $refreshToken->getTokenString();
 
         //
-        $sql = sprintf('
+        $sql = Libs\RESTLib::safeSQL('
             SELECT num_refresh_left
             FROM ui_uihk_rest_oauth2
             JOIN ui_uihk_rest_keys
@@ -118,7 +118,7 @@ class RefreshEndpoint extends EndpointBase {
      * @return mixed
      */
      public function deleteToken($user_id, $api_key) {
-        $sql = sprintf('
+        $sql = Libs\RESTLib::safeSQL('
             DELETE ui_uihk_rest_oauth2
             FROM ui_uihk_rest_oauth2
             JOIN ui_uihk_rest_keys
@@ -142,7 +142,7 @@ class RefreshEndpoint extends EndpointBase {
     public function renewToken($user_id, $api_key) {
         $now = date(self::DATE_FORMAT, time());
 
-        $sql = sprintf('
+        $sql = Libs\RESTLib::safeSQL('
             UPDATE ui_uihk_rest_oauth2
             JOIN ui_uihk_rest_keys
             ON  ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
@@ -172,7 +172,7 @@ class RefreshEndpoint extends EndpointBase {
         $refresh_token = $refreshToken->getTokenString();
         $now = date(self::DATE_FORMAT, time());
 
-        $sql = sprintf('
+        $sql = Libs\RESTLib::safeSQL('
             UPDATE ui_uihk_rest_oauth2
             JOIN ui_uihk_rest_keys
             ON  ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id

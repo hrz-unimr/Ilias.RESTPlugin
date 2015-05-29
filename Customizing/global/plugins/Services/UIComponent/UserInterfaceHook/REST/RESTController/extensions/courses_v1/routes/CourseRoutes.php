@@ -120,6 +120,7 @@ $app->group('/v1', function () use ($app) {
                 $um = new Users\UsersModel();
                 $user_id = $um->addUser($userData);
             }
+        }
         else if ($mode == "by_id")
             $user_id = $request->params("usr_id");
         else
@@ -131,7 +132,7 @@ $app->group('/v1', function () use ($app) {
             $crsreg_model->joinCourse($user_id, $crs_ref_id);
         } catch (\Exception $e) {
             // TODO: Replace message with const-class-variable and error-code with unique string
-            $app->halt(400, "Error: Subscribing user ".$user_id." to course with ref_id = ".$crs_ref_id." failed. Exception:".$e->getMessage())
+            $app->halt(400, "Error: Subscribing user ".$user_id." to course with ref_id = ".$crs_ref_id." failed. Exception:".$e->getMessage());
         }
 
         if($mode = "by_login")

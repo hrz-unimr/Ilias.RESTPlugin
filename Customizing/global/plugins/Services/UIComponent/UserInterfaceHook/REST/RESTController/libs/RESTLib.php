@@ -62,6 +62,57 @@ class RESTLib {
 
 
     /**
+    * Use this (or  $ilDB-quote(<value>, <type>) directly) to make sure
+    * alle variables in an sql-statement are escaped (thus the query is safe).
+    */
+    public static function safeSQL($sql) {
+
+        $params = array_splice(func_get_args(), 1);
+        $params = self::quoteParams($params);
+
+        // TODO: Escape params (or is that done by MDB2?)
+
+        $app = \RESTController\RESTController::getInstance();
+        $app->log->debug(vsprintf($sql, $params));
+
+        return vsprintf($sql, $params);
+    }
+    protected static function quoteParams($params) {
+        global $ilDB;
+
+        foreach ($params as $key => $value) {
+            if (is_bool($value))
+                $params[$key] = $ilDB->quote($value, 'boolean');
+            elseif (is_array($value)) {
+                $value = self::safeParams($value);
+                $value = sprintf('(%s)', implode(', ', $value));
+                $params[$key] = $value;
+            }
+            elseif (is_string($value))
+                $params[$key] = $ilDB->quote($value, 'text');
+            elseif (is_int($value))
+                $params[$key] = $ilDB->quote($value, 'integer');
+            elseif (is_integer($value))
+                $params[$key] = $ilDB->quote($value, 'integer');
+            elseif (is_float($value))
+                $params[$key] = $ilDB->quote($value, 'float');
+            elseif (is_double($value))
+                $params[$key] = $ilDB->quote($value, 'float');
+            elseif (is_numeric($value))
+                $params[$key] = $ilDB->quote($value, 'float');
+
+            // TODO: Create custom-class (type) that won't get quoted
+
+            // Fallback solution
+            else 
+                $params[$key] = $value;
+        }
+
+        return $params;
+    }
+
+
+    /**
      * Shortcut for loading ilObjUser via initGlobal
      */
     public static function loadIlUser() {
@@ -169,7 +220,7 @@ class RESTLib {
     static public function getObjIdFromRef($ref_id) {
         global $ilDB;
 
-        $sql = sprintf('SELECT obj_id FROM object_reference WHERE object_reference.ref_id = %d', $ref_id);
+        $sql = self::safeSQL('SELECT obj_id FROM object_reference WHERE object_reference.ref_id = %d', $ref_id);
         $query = $ilDB->query($sql);
         $row = $ilDB->fetchAssoc($query);
 
@@ -187,7 +238,7 @@ class RESTLib {
     static public function getRefIdFromObj($obj_id) {
         global $ilDB;
 
-        $sql = sprintf('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', $obj_id);
+        $sql = self::safeSQL('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', $obj_id);
         $query = $ilDB->query($sql);
         $row = $ilDB->fetchAssoc($query);
 
@@ -205,7 +256,7 @@ class RESTLib {
     static public function getRefIdsFromObj($obj_id) {
         global $ilDB;
 
-        $sql = sprintf('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', $obj_id);
+        $sql = self::safeSQL('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', $obj_id);
         $query = $ilDB->query($sql);
 
         $res = array();
@@ -225,7 +276,7 @@ class RESTLib {
     static public function getUserNameFromId($user_id) {
         global $ilDB;
 
-        $sql = sprintf('SELECT login FROM usr_data WHERE usr_id=\'%s\'', $user_id);
+        $sql = self::safeSQL('SELECT login FROM usr_data WHERE usr_id=%s', $user_id);
         $query = $ilDB->query($sql);
         $row = $ilDB->fetchAssoc($query);
 
@@ -243,7 +294,7 @@ class RESTLib {
     static public function getIdFromUserName($login) {
         global $ilDB;
 
-        $sql = sprintf('SELECT usr_id FROM usr_data WHERE login=\'%s\'', $login);
+        $sql = self::safeSQL('SELECT usr_id FROM usr_data WHERE login=%s', $login);
         $query = $ilDB->query($sql);
         $row = $ilDB->fetchAssoc($query);
 
@@ -259,11 +310,11 @@ class RESTLib {
      * @param $aFields array of strings; to query all fields please specify 'array('*')'
      * @return mixed
      */
-    public static  function getObjectData($obj_id, $aFields) {
+    public static  function getObjectData($obj_id, $fields) {
         global $ilDB;
 
-        $fields = implode(',', $aFields);
-        $sql = sprintf('SELECT %s FROM object_data WHERE object_data.obj_id = %d', $fields, $obj_id);
+        // TODO: remove sprintf after safeSQL is fixed
+        $sql = self::safeSQL('SELECT '. implode(', ', $fields) .' FROM object_data WHERE object_data.obj_id = %d', $obj_id);
         $query = $ilDB->query($sql);
         $row = $ilDB->fetchAssoc($query);
 
@@ -280,7 +331,7 @@ class RESTLib {
     public static function getLatestReadEventTimestamp($obj_id) {
         global $ilDB;
 
-        $sql = sprintf('SELECT last_access FROM read_event WHERE obj_id = %d ORDER BY last_access DESC LIMIT 1', $obj_id);
+        $sql = self::safeSQL('SELECT last_access FROM read_event WHERE obj_id = %d ORDER BY last_access DESC LIMIT 1', $obj_id);
         $query = $ilDB->query($sql);
         $row = $ilDB->fetchAssoc($query);
 
@@ -304,7 +355,7 @@ class RESTLib {
     public static function getTopKReadEventTimestamp($obj_id, $k) {
         global $ilDB;
 
-        $sql = sprintf('SELECT last_access FROM read_event WHERE obj_id = %d ORDER BY last_access DESC LIMIT %d', $obj_id, $k);
+        $sql = self::safeSQL('SELECT last_access FROM read_event WHERE obj_id = %d ORDER BY last_access DESC LIMIT %d', $obj_id, $k);
         $query = $ilDB->query($sql);
         $list = array();
         $cnt = 0;

@@ -128,7 +128,7 @@ class CoursesModel
         $lm_data['lm_obj'] = $lm_obj_id;
 
         global $ilDB;
-        $sql = sprintf('SELECT * FROM page_object WHERE parent_id = %d', $lm_obj_id);
+        $sql = Libs\RESTLib::safeSQL('SELECT * FROM page_object WHERE parent_id = %d', $lm_obj_id);
         $query = $ilDB->query($sql);
         $row = $ilDB->fetchAssoc($query);
         /*while($row = $ilDB->fetchAssoc($res))//fetchObject($res))
