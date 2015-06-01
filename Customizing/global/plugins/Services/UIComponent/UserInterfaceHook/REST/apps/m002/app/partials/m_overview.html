@@ -1,0 +1,24 @@
+<div class="content">
+    <ul class="list-group list-group-flush">
+
+    <div ng-repeat="itemid in personalDesktop" class="list-group-item"  ng-swipe-right="handleSwipe('left-to-right')"
+         ng-swipe-left="handleSwipe('right-to-left');$event.stopPropagation()"  ng-click="viewItem(itemid)">
+        <span class="badge">{{itemid | getRepositoryItemNumChildren}}</span>
+        <h4 class="list-group-item-heading">{{itemid | getRepositoryItemTitle}}</h4>
+        <span class="badge" ng-show="debug">Debug: {{itemid}}</span>
+        <p class="list-group-item-text">{{itemid| getRepositoryItemDescription}}</p>
+        <p class="list-group-item-text" ng-bind-html="itemid | display_type_icon_for_id"></span></p>
+    </div>
+    </ul>
+
+</div>
+
+<div ng-show="debug">
+    <!--{{getAccessToken()}} -->
+    <!-- {{mdeskData}} -->
+    {{personalDesktop}}
+    <div>Swipe was: {{swipeType}}</div>
+    <p>PD: {{personalDesktop}}</p>
+    <p>AllData: {{mdeskData}}</p>
+    <p>RItems: {{repositoryItems}}</p>
+</div>
