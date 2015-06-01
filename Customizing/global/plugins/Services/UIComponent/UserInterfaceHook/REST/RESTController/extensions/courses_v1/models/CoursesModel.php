@@ -5,7 +5,7 @@
  * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
-namespace RESTController\extensions\courses_1;
+namespace RESTController\extensions\courses_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs\RESTLib, \RESTController\libs\AuthLib, \RESTController\libs\TokenLib;
