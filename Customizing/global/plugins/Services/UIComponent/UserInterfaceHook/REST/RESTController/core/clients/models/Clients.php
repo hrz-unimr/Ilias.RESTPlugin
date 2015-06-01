@@ -182,7 +182,7 @@ class Clients extends Libs\RESTModel {
             'oauth2_resource_refresh_active' => array('integer', $oauth2_resource_refresh_active)
         );
         self::$sqlDB->insert('ui_uihk_rest_keys', $a_columns);
-        $insertId = self::$sqlDB->getLastInsertId();
+        $insertId = intval(self::$sqlDB->getLastInsertId());
 
         // Add permissions to separate table
         $this->addPermissions($insertId, $permissions);
@@ -292,7 +292,7 @@ class Clients extends Libs\RESTModel {
         $sql = Libs\RESTLib::safeSQL('SELECT id, oauth2_user_restriction_active FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
         $query = self::$sqlDB->query($sql);
         $row = self::$sqlDB->fetchAssoc($query);
-        $id = $row['id'];
+        $id = intval($row['id']);
 
         // Check restrictions
         if ($row['oauth2_user_restriction_active'] == 1) {
@@ -442,7 +442,7 @@ class Clients extends Libs\RESTModel {
         $query = self::$sqlDB->query($sql);
 
         if ($query != null && $row = self::$sqlDB->fetchAssoc($query))
-            return $row['id'];
+            return intval($row['id']);
         else
             throw new Exceptions\MissingApiKey(sprintf(self::MSG_API_KEY, $api_key));
     }
@@ -456,7 +456,7 @@ class Clients extends Libs\RESTModel {
         $query = self::$sqlDB->query($sql);
 
         if ($query != null && $row = self::$sqlDB->fetchAssoc($query))
-            return $row['api_key'];
+            return intval($row['api_key']);
         else
             throw new Exceptions\MissingApiKey(sprintf(self::MSG_API_ID, $api_id));
     }
