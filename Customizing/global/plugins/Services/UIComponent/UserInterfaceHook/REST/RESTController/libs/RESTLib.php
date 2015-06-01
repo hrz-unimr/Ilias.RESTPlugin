@@ -66,49 +66,44 @@ class RESTLib {
     * alle variables in an sql-statement are escaped (thus the query is safe).
     */
     public static function safeSQL($sql) {
-
-        $params = array_splice(func_get_args(), 1);
+        $params = func_get_args();
+        $params = array_slice($params, 1);
         $params = self::quoteParams($params);
 
-        // TODO: Escape params (or is that done by MDB2?)
-
         $app = \RESTController\RESTController::getInstance();
-        $app->log->debug(vsprintf($sql, $params));
 
         return vsprintf($sql, $params);
     }
     protected static function quoteParams($params) {
         global $ilDB;
 
+        $result = array();
         foreach ($params as $key => $value) {
             if (is_bool($value))
-                $params[$key] = $ilDB->quote($value, 'boolean');
+                $result[] = $ilDB->quote($value, 'boolean');
             elseif (is_array($value)) {
                 $value = self::safeParams($value);
                 $value = sprintf('(%s)', implode(', ', $value));
-                $params[$key] = $value;
+                $result[] = $value;
             }
             elseif (is_string($value))
-                $params[$key] = $ilDB->quote($value, 'text');
+                $result[] = $ilDB->quote($value, 'text');
             elseif (is_int($value))
-                $params[$key] = $ilDB->quote($value, 'integer');
+                $result[] = $ilDB->quote($value, 'integer');
             elseif (is_integer($value))
-                $params[$key] = $ilDB->quote($value, 'integer');
+                $result[] = $ilDB->quote($value, 'integer');
             elseif (is_float($value))
-                $params[$key] = $ilDB->quote($value, 'float');
+                $result[] = $ilDB->quote($value, 'float');
             elseif (is_double($value))
-                $params[$key] = $ilDB->quote($value, 'float');
+                $result[] = $ilDB->quote($value, 'float');
             elseif (is_numeric($value))
-                $params[$key] = $ilDB->quote($value, 'float');
-
-            // TODO: Create custom-class (type) that won't get quoted
-
+                $result[] = $ilDB->quote($value, 'float');
             // Fallback solution
-            else 
-                $params[$key] = $value;
+            else
+                $result[] = $value;
         }
 
-        return $params;
+        return $result;
     }
 
 

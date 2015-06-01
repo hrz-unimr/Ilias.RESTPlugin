@@ -76,10 +76,10 @@ class Util extends EndpointBase {
             SELECT pattern, verb
             FROM ui_uihk_rest_perm
             JOIN ui_uihk_rest_keys
-            ON ui_uihk_rest_keys.api_key = "%s"
+            ON ui_uihk_rest_keys.api_key = %s
             AND ui_uihk_rest_keys.id = ui_uihk_rest_perm.api_id
-            AND ui_uihk_rest_perm.pattern = "%s"
-            AND ui_uihk_rest_perm.verb = "%s"',
+            AND ui_uihk_rest_perm.pattern = %s
+            AND ui_uihk_rest_perm.verb = %s',
             $api_key,
             $route,
             $operation
@@ -109,8 +109,8 @@ class Util extends EndpointBase {
         $sqlToken = Libs\RESTLib::safeSQL('
             SELECT * FROM il_request_token
             WHERE user_id = %d
-            AND token = "%s"
-            AND session_id = "%s"',
+            AND token = %s
+            AND session_id = %s',
             $user_id,
             $rtoken,
             $session_id
@@ -122,7 +122,7 @@ class Util extends EndpointBase {
         $sqlSession = Libs\RESTLib::safeSQL('
             SELECT * FROM usr_session
             WHERE user_id = %d
-            AND session_id = "%s"',
+            AND session_id = %s',
             $user_id,
             $session_id
         );

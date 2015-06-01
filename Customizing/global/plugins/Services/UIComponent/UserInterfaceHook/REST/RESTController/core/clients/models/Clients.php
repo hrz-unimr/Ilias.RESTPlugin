@@ -113,13 +113,14 @@ class Clients extends Libs\RESTModel {
         $sqlKeys = 'SELECT * FROM ui_uihk_rest_keys ORDER BY id';
         $queryKeys = self::$sqlDB->query($sqlKeys);
         while($rowKeys = self::$sqlDB->fetchAssoc($queryKeys)) {
-            $id = $rowKeys['id'];
+            $id = intval($rowKeys['id']);
 
             // Will store permission
             $perm = array();
 
             // Query api-key permissions
             $sqlPerm = Libs\RESTLib::safeSQL('SELECT pattern, verb FROM ui_uihk_rest_perm WHERE api_id = %d', $id);
+            //\RESTController\RESTController::getInstance()->log->debug($id);
             $queryPerm = self::$sqlDB->query($sqlPerm);
             while($rowPerm = self::$sqlDB->fetchAssoc($queryPerm))
                 $perm[] = $rowPerm;

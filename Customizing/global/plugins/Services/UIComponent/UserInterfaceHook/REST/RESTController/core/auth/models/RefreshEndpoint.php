@@ -37,8 +37,8 @@ class RefreshEndpoint extends EndpointBase {
             JOIN ui_uihk_rest_keys
             ON ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
             AND ui_uihk_rest_oauth2.user_id=%d
-            AND ui_uihk_rest_keys.api_key="%s"
-            AND ui_uihk_rest_oauth2.refresh_token="%s"',
+            AND ui_uihk_rest_keys.api_key=%s
+            AND ui_uihk_rest_oauth2.refresh_token=%s',
             $user_id,
             $api_key,
             $refresh_token
@@ -124,7 +124,7 @@ class RefreshEndpoint extends EndpointBase {
             JOIN ui_uihk_rest_keys
             ON  ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
             AND ui_uihk_rest_oauth2.user_id=%d
-            AND ui_uihk_rest_keys.api_key="%s"',
+            AND ui_uihk_rest_keys.api_key=%s',
             $user_id,
             $api_key
         );
@@ -147,9 +147,9 @@ class RefreshEndpoint extends EndpointBase {
             JOIN ui_uihk_rest_keys
             ON  ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
             AND ui_uihk_rest_oauth2.user_id=%d
-            AND ui_uihk_rest_keys.api_key="%s"
+            AND ui_uihk_rest_keys.api_key=%s
             SET num_refresh_left = num_refresh_left - 1,
-                last_refresh_timestamp = "%s"',
+                last_refresh_timestamp = %s',
             $user_id,
             $api_key,
             $now
@@ -177,10 +177,10 @@ class RefreshEndpoint extends EndpointBase {
             JOIN ui_uihk_rest_keys
             ON  ui_uihk_rest_oauth2.api_id = ui_uihk_rest_keys.id
             AND ui_uihk_rest_oauth2.user_id=%d
-            AND ui_uihk_rest_keys.api_key="%s"
-            SET refresh_token = "%s",
+            AND ui_uihk_rest_keys.api_key=%s
+            SET refresh_token = %s,
                 num_resets = num_resets + 1,
-                last_refresh_timestamp = "%s",
+                last_refresh_timestamp = %s,
                 num_refresh_left = %d',
             $user_id,
             $api_key,
