@@ -1,0 +1,14 @@
+<div class="content">
+    <ul class="list-group list-group-flush">
+    <!-- real data ... -->
+        <li ng-repeat="item in contacts" href="" class="list-group-item" >
+            <h4 class="list-group-item-heading">{{item.firstname}} {{item.lastname}}</h4>
+            <p class="list-group-item-text">{{item.email | format_description}}</p>
+        </li>
+
+    </ul>
+</div>
+<div ng-show="debug">
+    <div>contacts</div>
+    {{contacts}}
+</div>

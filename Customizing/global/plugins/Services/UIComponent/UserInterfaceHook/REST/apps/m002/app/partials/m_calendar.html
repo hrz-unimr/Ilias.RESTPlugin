@@ -1,0 +1,21 @@
+<div class="content">
+    <ul class="list-group list-group-flush">
+    <!-- real data ... -->
+        <li ng-repeat="item in events" href="" class="list-group-item" >
+            <h4 class="list-group-item-heading">{{item.title}}</h4>
+            <p class="list-group-item-text">Beginn: {{item.begin * 1000 | date:'dd-MM-yyyy HH:mm'}}</p>
+            <p class="list-group-item-text">Ende: {{item.end * 1000 | date:'dd-MM-yyyy HH:mm'}} </p>
+            <p class="list-group-item-text">Dauer: {{item.duration | secondsToHuman}}</p>
+            <p class="list-group-item-text">{{item.description | format_description}}</p>
+        </li>
+        <div class="input-group">
+            <span class="input-group-addon">iCAL Feed URL:</span>
+            <input type="text" class="form-control"
+                   value="{{icalurl}}">
+        </div>
+    </ul>
+</div>
+<div ng-show="debug">
+    <div>termine</div>
+    {{events}}
+</div>
