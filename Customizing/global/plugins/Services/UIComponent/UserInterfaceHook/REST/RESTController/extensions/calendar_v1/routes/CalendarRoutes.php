@@ -2,7 +2,7 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer and T. Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
 namespace RESTController\extensions\calendar_v1;
@@ -23,15 +23,9 @@ $app->group('/v1', function () use ($app) {
         $authorizedUserId = $accessToken->getUserId();
 
         if ($authorizedUserId == $id || Libs\RESTLib::isAdminByUserId($authorizedUserId)) { // only the user or the admin is allowed to access the data
-            try {
-                $model = new CalendarModel();
-                $data = $model->getCalUpcomingEvents($id);
-
-                $app->success($data);
-            }
-            catch (\Exception $e) {
-                $app->halt(500, 'Error: Could not retrieve any events for user '.$id.".", -15);
-            }
+            $model = new CalendarModel();
+            $data = $model->getCalUpcomingEvents($id);
+            $app->success($data);
         }
         else
             $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
@@ -48,15 +42,10 @@ $app->group('/v1', function () use ($app) {
         $authorizedUserId = $accessToken->getUserId();
 
         if ($authorizedUserId == $id || Libs\RESTLib::isAdminByUserId($authorizedUserId)) { // only the user or the admin is allowed to access the data
-            try {
-                $model = new CalendarModel();
-                $data = $model->getIcalAdress($id);
+            $model = new CalendarModel();
+            $data = $model->getIcalAdress($id);
 
-                $app->success($data);
-            }
-            catch (\Exception $e) {
-                $app->halt(500, 'Error: Could not retrieve ICAL url for user '.$id.".", -15);
-            }
+            $app->success($data);
         }
         else
             $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
@@ -74,15 +63,10 @@ $app->group('/v1', function () use ($app) {
 
         if ($authorizedUserId > -1) { // only the user is allowed to access the data
             $id = $authorizedUserId;
-            try {
-                $model = new CalendarModel();
-                $data = $model->getCalUpcomingEvents($id);
+            $model = new CalendarModel();
+            $data = $model->getCalUpcomingEvents($id);
 
-                $app->success($data);
-            }
-            catch (\Exception $e) {
-                $app->halt(500, 'Error: Could not retrieve any events for user '.$id.".", -15);
-            }
+            $app->success($data);
         }
         else
             $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
@@ -100,15 +84,10 @@ $app->group('/v1', function () use ($app) {
 
         if ($authorizedUserId > -1 ) { // only the user or the admin is allowed to access the data
             $id = $authorizedUserId;
-            try {
-                $model = new CalendarModel();
-                $data = $model->getIcalAdress($id);
+            $model = new CalendarModel();
+            $data = $model->getIcalAdress($id);
 
-                $app->success($data);
-            }
-            catch (\Exception $e) {
-                $app->halt(500, 'Error: Could not retrieve ICAL url for user '.$id.".", -15);
-            }
+            $app->success($data);
         }
         else
             $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);

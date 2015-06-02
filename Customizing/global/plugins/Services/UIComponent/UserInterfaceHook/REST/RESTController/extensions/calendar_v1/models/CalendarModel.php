@@ -102,9 +102,9 @@ class CalendarModel
 
             // see permalink code at ilCalendearAppointmentGUI l.804 (showInfoScreen())
             include_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
-            $cat_id = ilCalendarCategoryAssignments::_lookupCategory($entry->getEntryId());
-            $cat_info = ilCalendarCategories::_getInstance()->getCategoryInfo($cat_id);
-            $refs = ilObject::_getAllReferences($cat_info['obj_id']);
+            $cat_id = \ilCalendarCategoryAssignments::_lookupCategory($entry->getEntryId());
+            $cat_info = \ilCalendarCategories::_getInstance()->getCategoryInfo($cat_id);
+            $refs = \ilObject::_getAllReferences($cat_info['obj_id']);
             $tmp_arr['reference'] = current($refs); // reference id
             $appointments[] = $tmp_arr;
         }
