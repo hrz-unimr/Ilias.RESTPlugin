@@ -54,7 +54,7 @@ class OAuth2Middleware {
             self::checkAccessToken($app, $accessToken);
 
             // Check route permissions
-            self::checkRoutePermissions($app, $route);
+            self::checkRoutePermissions($app, $route, $accessToken);
         }
         catch (TokenExceptions\TokenInvalid $e) {
             $app->halt(401, $e->getMessage(), $e::ID);
@@ -140,7 +140,7 @@ class OAuth2Middleware {
         $verb = $app->request->getMethod();
 
         // Check route access rights given route, method and api-key
-        if (!Auth\Util::checkOAuth2Scope($current_route, $current_verb, $api_key))
+        if (!Auth\Util::checkScope($pattern, $verb, $api_key))
             $app->halt(401, self::MSG_NO_PERMISSION, self::ID_NO_PERMISSION);
     }
  }

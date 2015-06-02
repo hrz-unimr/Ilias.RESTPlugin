@@ -23,7 +23,7 @@ $app->group('/v1', function () use ($app) {
         $user = $accessToken->getUserName();
         $id = $accessToken->getUserId();
 
-        try {
+        //try {
             $crs_model = new CoursesModel();
             $data1 =  $crs_model->getCourseContent($ref_id);
             $data2 =  $crs_model->getCourseInfo($ref_id);
@@ -33,10 +33,10 @@ $app->group('/v1', function () use ($app) {
                 'courseinfo' => $data2
             );
             $app->success($result);
-        } catch (\Exception $e) {
+        /*} catch (\Exception $e) {
             // TODO: Replace message with const-class-variable and error-code with unique string
             $app->halt(500, 'Error: Could not retrieve data for user '.$id.".", -15);
-        }
+        }*/
     });
 
 

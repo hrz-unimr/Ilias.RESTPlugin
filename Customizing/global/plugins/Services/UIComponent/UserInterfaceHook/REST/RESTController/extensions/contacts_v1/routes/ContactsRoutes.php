@@ -45,18 +45,16 @@ $app->group('/v1', function () use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
-        $authorizedUserId =  RESTLib::loginToUserId($user);
+        $authorizedUserId =  Libs\RESTLib::getIdFromUserName($user);
 
         if ($authorizedUserId > -1) { // only the user is allowed to access the data
             $id = $authorizedUserId;
-            try {
+
                 $model = new ContactsModel();
                 $data = $model->getMyContacts($id);
-
+                $app->log->debug(print_r($data,true));
                 $app->success($data);
-            } catch (\Exception $e) {
-                $app->halt(500, 'Error: Could not retrieve data for user '.$id.".", -15);
-            }
+
         }
         else
             $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
