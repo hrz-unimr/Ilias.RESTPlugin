@@ -15,8 +15,7 @@ use \RESTController\extensions\files_v1 as Files;
 require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
 
 
-class DescribrModel
-{
+class DescribrModel extends Libs\RESTModel {
 
     /**
      * Returns a description of an ILIAS object consisting of
@@ -29,8 +28,11 @@ class DescribrModel
      */
     public function describeIliasObject($obj_id)
     {
+        self::$app->log->debug('describe '.$obj_id);
+
         $a_objdata = $this->getObjectData($obj_id);
         $owner_id = $a_objdata['owner'];
+
 
         $a_usrdata = $this->getUserData($owner_id);
         foreach ($a_usrdata as $key => $value)

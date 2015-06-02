@@ -12,8 +12,6 @@ use \RESTController\core\auth as Auth;
 
 
 $app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
-    try {
-
         $limit = 10;
         $offset = 0;
 
@@ -47,14 +45,10 @@ $app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', 
 
         $app->success($result);
 
-    } catch (\Exception $e) {
-        $app->halt(400, $e->getMessage());
-    }
 });
 
 
 $app->get('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenAuth', function ($user_id) use ($app) {
-    try {
         $id = $user_id;
         if ($user_id == "mine") {
             $auth = new Auth\Util();
@@ -68,14 +62,10 @@ $app->get('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenAut
 
         $app->success($usr_basic_info);
 
-    } catch (\Exception $e) {
-        $app->halt(400, $e->getMessage());
-    }
 });
 
 
 $app->post('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { // create
-    try { // root only
 
         $request = $app->request();
         $attribs = array("login", "passwd", "firstname", "lastname", "email", "gender", "auth_mode");
@@ -94,9 +84,7 @@ $app->post('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',
         $user_id = $usr_model->addUser($user_data);
 
         $app->success($user_id);
-    } catch (\Exception $e) {
-        $app->halt(400, $e->getMessage());
-    }
+
 });
 
 

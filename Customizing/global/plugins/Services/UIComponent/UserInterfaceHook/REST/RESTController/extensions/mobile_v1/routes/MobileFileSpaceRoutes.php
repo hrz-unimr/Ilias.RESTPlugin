@@ -73,7 +73,7 @@ $app->group('/v1/m', function () use ($app) {
                     'execution_time' => $t_end - $t_start
                 ));
 
-        } catch(LibExceptions\MissingParameter $e) {
+        } catch(Exceptions\MissingParameter $e) {
             $app->halt(422, $e->getFormatedMessage(), $e::ID);
         }
     });
@@ -107,7 +107,7 @@ $app->group('/v1/m', function () use ($app) {
                 $app->success(array(
                     'execution_time' => $t_end - $t_start
                 ));
-        } catch(LibExceptions\MissingParameter $e) {
+        } catch(Exceptions\MissingParameter $e) {
             $app->halt(422, $e->getFormatedMessage(), $e::ID);
         }
         $response->send();
@@ -178,7 +178,7 @@ $app->group('/v1/m', function () use ($app) {
             Libs\RESTLib::initAccessHandling();
             $model = new Files\PersonalFileSpaceModel();
             $model->deleteFromMyFileSpace($file_id, $user_id);
-        } catch(LibExceptions\MissingParameter $e) {
+        } catch(Exceptions\MissingParameter $e) {
             $app->halt(422, $e->getFormatedMessage(), $e::ID);
         }
         $t_end = microtime();

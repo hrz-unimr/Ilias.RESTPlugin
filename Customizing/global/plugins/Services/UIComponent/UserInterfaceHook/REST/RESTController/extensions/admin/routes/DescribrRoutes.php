@@ -23,11 +23,16 @@ $app->group('/admin', function () use ($app) {
         $request = $app->request();
         $id_type = $request->params('id_type', 'ref_id');
 
+        $app->log->debug('in route '.$id_type);
+
+
         $result = array('msg' => array());
         $model = new DescribrModel();
         if ($id_type == 'ref_id' || $id_type == 'obj_id') {
             if ($id_type == 'ref_id') {
+                $app->log->debug('in route id: '.$id);
                 $obj_id = Libs\RESTLib::getObjIdFromRef($id);
+                $app->log->debug('in route id: '.$obj_id);
                 $id_type = 'obj_id';
             }
 

@@ -86,8 +86,6 @@ class RESTLib {
                 $value = sprintf('(%s)', implode(', ', $value));
                 $result[] = $value;
             }
-            elseif (is_string($value))
-                $result[] = $ilDB->quote($value, 'text');
             elseif (is_int($value))
                 $result[] = $ilDB->quote($value, 'integer');
             elseif (is_integer($value))
@@ -96,8 +94,10 @@ class RESTLib {
                 $result[] = $ilDB->quote($value, 'float');
             elseif (is_double($value))
                 $result[] = $ilDB->quote($value, 'float');
-            elseif (is_numeric($value))
+            elseif (is_numeric($value)) // TODO: could be improved
                 $result[] = $ilDB->quote($value, 'float');
+            elseif (is_string($value))
+                $result[] = $ilDB->quote($value, 'text');
             // Fallback solution
             else
                 $result[] = $value;
@@ -215,7 +215,7 @@ class RESTLib {
     static public function getObjIdFromRef($ref_id) {
         global $ilDB;
 
-        $sql = self::safeSQL('SELECT obj_id FROM object_reference WHERE object_reference.ref_id = %d', $ref_id);
+        $sql = self::safeSQL('SELECT obj_id FROM object_reference WHERE object_reference.ref_id = %d', intval($ref_id));
         $query = $ilDB->query($sql);
         $row = $ilDB->fetchAssoc($query);
 
@@ -233,7 +233,7 @@ class RESTLib {
     static public function getRefIdFromObj($obj_id) {
         global $ilDB;
 
-        $sql = self::safeSQL('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', $obj_id);
+        $sql = self::safeSQL('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', intval($obj_id));
         $query = $ilDB->query($sql);
         $row = $ilDB->fetchAssoc($query);
 
