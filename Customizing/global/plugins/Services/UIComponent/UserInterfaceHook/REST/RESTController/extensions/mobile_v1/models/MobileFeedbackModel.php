@@ -17,23 +17,29 @@ use \RESTController\libs as Libs;
  *
  * @package RESTController\extensions\mobile_v1
  */
-class MobileFeedbackModel
-{
+class MobileFeedbackModel extends Libs\RESTModel {
+
+    const TABLE = 'aamobile_feedback';
+
     /**
      * Creates a new feedback item.
-     * @param $title
-     * @param $description
-     * @return bool
+     * @param $user_id
+     * @param $message
+     * @param $environment
+     * @return mixed
      */
-    function createFeedbackItem($title, $description)
+    function createFeedbackItem($user_id, $message, $environment)
     {
-        // TODO
+        //$sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_perm WHERE api_id = %d', $id);
+        //self::$sqlDB->manipulate($sql);
+
         global $ilDB;
         $a_columns = array(
-            "title" => array("text", $title),
-            "description" => array("text", $description));
-        $ilDB->insert("mobile_feedback", $a_columns);
-        return $ilDB->getLastInsertId();
+            "userid" => array("text", $user_id),
+            "message" => array("text", $message),
+            "environment" => array("text", $environment));
+        self::$sqlDB->insert(self::TABLE, $a_columns);
+        return self::$sqlDB->getLastInsertId();
     }
 
     /**
@@ -42,10 +48,13 @@ class MobileFeedbackModel
      */
     function getFeedbackItems()
     {
-        global $ilDB;
-        $query = "SELECT * FROM dev_items";
-        $set = $ilDB->query($query);
-        while($row = $ilDB->fetchAssoc($set))
+        $sql = Libs\RESTLib::safeSQL("SELECT * FROM ".self::TABLE);
+        $set = self::$sqlDB->query($sql);
+
+        if ($set == null) {
+            return array();
+        }
+        while($row = self::$sqlDB->fetchAssoc($set))
         {
             $res[] = $row;
         }
@@ -58,9 +67,13 @@ class MobileFeedbackModel
      */
     function getFeedbackItem($item_id)
     {
-        // TODO
-    }
+        $sql = Libs\RESTLib::safeSQL('SELECT * FROM '.self::TABLE.' WHERE id = %d', $item_id);
+        $set = self::$sqlDB->query($sql);
 
+        if ($set != null && $row = self::$sqlDB->fetchAssoc($set)) {
+            return $row;
+        }
+    }
 
     /**
      * Updates a feedback entry
@@ -70,12 +83,9 @@ class MobileFeedbackModel
      */
     public function updateFeedbackItem($id, $fieldname, $newval)
     {
-        // TODO
-       /* global $ilDB;
-        $sql = "UPDATE dev_items SET $fieldname = \"$newval\" WHERE id = $id";
-        $numAffRows = $ilDB->manipulate($sql);
+        $sql = Libs\RESTLib::safeSQL('UPDATE '.self::TABLE.' SET %s = %s WHERE id = %d', $fieldname, $newval, $id);
+        $numAffRows = self::$sqlDB->manipulate($sql);
         return $numAffRows;
-       */
     }
 
     /**
@@ -85,9 +95,8 @@ class MobileFeedbackModel
      */
     public function deleteFeedbackItem($id)
     {
-        global $ilDB;
-        $sql = "DELETE FROM mobile_feedback WHERE id =".$ilDB->quote($id, "integer");
-        $numAffRows = $ilDB->manipulate($sql);
+        $sql = Libs\RESTLib::safeSQL('DELETE FROM '.self::TABLE.' WHERE id = %d', $id);
+        $numAffRows = self::$sqlDB->manipulate($sql);
         return $numAffRows;
     }
 
@@ -97,14 +106,33 @@ class MobileFeedbackModel
      */
     function createMobileFeedbackDatabaseTable()
     {
-        // TODO
-        /*CREATE TABLE IF NOT EXISTS `mobile_feedback` (
-            `id` int(11) NOT NULL AUTO_INCREMENT,
-          `name` varchar(1000) NOT NULL,
-          `description` varchar(1024) NOT NULL,
-          PRIMARY KEY (`id`)
-        ) ENGINE=InnoDB;
-        */
+        $fields = array(
+            'id' => array(
+                'type' => 'integer',
+                'length' => 4,
+                'notnull' => true
+            ),
+            'userid' => array(
+                'type' => 'text',
+                'length' => 512,
+                'fixed' => false,
+                'notnull' => false
+            ),
+            'message' => array(
+                'type' => 'text',
+                'length' => 1024,
+                'fixed' => false,
+                'notnull' => false
+            ),
+            'environment' => array(
+                'type' => 'text',
+                'length' =>  1024,
+                'notnull' => true
+            )
+        );
+        self::$sqlDB->createTable(self::TABLE, $fields, true);
+        self::$sqlDB->addPrimaryKey(self::TABLE, array("id"));
+        self::$sqlDB->manipulate('ALTER TABLE '.self::TABLE.' CHANGE id id INT NOT NULL AUTO_INCREMENT');
     }
 
 }
