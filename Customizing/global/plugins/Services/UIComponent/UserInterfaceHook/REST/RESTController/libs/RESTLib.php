@@ -70,7 +70,7 @@ class RESTLib {
      *
      * Throws exception when using on route without auth-middleware!
      */
-    public static function setUserContext($userId = null) {
+    public static function setupUserContext($userId = null) {
         if ($userId == null)
           $userId = self::getUserId();
 
