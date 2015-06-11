@@ -41,45 +41,26 @@ $app->group('/v1', function () use ($app) {
 
 
     $app->post('/courses', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
-        $user = $accessToken->getUserName();
-        $authorizedUserId = $accessToken->getUserId();
+        try {
+            $request = $app->request();
+            $ref_id = $request->params('ref_id', null, true);
+            $title = $request->params('title', null, true);
+            $description = $request->params('description', '');
 
-        $parent_container_ref_id = 1;
-        $new_course_title = "";
-        $new_course_description = "";
+            Libs\RestLib::setUserContext();
 
-        $request = $app->request();
-        if (count($request->post()) == 0) {
-            $requestData = $app->request()->getBody(); // Gives php-array (with correct request content-type!!!)
-            var_dump($requestData);
-            die();
-            $parent_container_ref_id = array_key_exists('ref_id', $requestData) ? $requestData['ref_id'] : null;
-            $new_course_title = array_key_exists('new_course_title', $requestData) ? $requestData['title'] : null;
-            $new_course_description= array_key_exists('new_course_description', $requestData) ? $requestData['description'] : null;
-        } else {
-            $parent_container_ref_id = $request->post('ref_id');
-            $new_course_title = $request->post('title');
-            $new_course_description = $request->post('description');
+            if(!$ilAccess->checkAccess("create_crs", "", $ref_id))
+                $app->halt(401, "Insufficient access rights");
+
+            $crs_model = new CoursesModel();
+            $new_ref_id =  $crs_model->createNewCourse($ref_id, $title, $description);
+
+            $result = array('refId' => $new_ref_id);
+            $app->success($result);
         }
-        // $result['usr_id'] = $user_id;
-        $crs_model = new CoursesModel();
-        //$user_id = 6; // root for testing purposes
-        $user_id = $authorizedUserId;
-
-        Libs\RESTLib::loadIlUser();
-        global $ilUser;
-        $ilUser->setId($user_id);
-        $ilUser->read();
-        Libs\RESTLib::initAccessHandling();
-        global $ilAccess;
-
-        if(!$ilAccess->checkAccess("create_crs", "", $parent_container_ref_id))
-            $app->halt(401, "Insufficient access rights");
-
-        $new_ref_id =  $crs_model->createNewCourse($parent_container_ref_id, $new_course_title, $new_course_description);
-        $app->success($new_ref_id);
+        catch (LibExceptions\MissingParameter $e) {
+            $app->halt(422, $e->getFormatedMessage(), $e::ID);
+        }
     });
 
 
