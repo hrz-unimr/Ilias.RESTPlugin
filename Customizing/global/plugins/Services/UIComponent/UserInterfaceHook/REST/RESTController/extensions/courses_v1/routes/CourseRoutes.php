@@ -48,7 +48,7 @@ $app->group('/v1', function () use ($app) {
             $description = $request->params('description', '');
 
             Libs\RestLib::setupUserContext();
-            if(!$ilAccess->checkAccess("create_crs", "", $ref_id))
+            if(!$GLOBALS['ilAccess']->checkAccess("create_crs", "", $ref_id))
                 $app->halt(401, "Insufficient access rights");
 
             $crs_model = new CoursesModel();
@@ -116,9 +116,9 @@ $app->group('/v1', function () use ($app) {
         }
 
         if($mode = "by_login")
-            $app->success(null, "Enrolled user $login to course with id $crs_ref_id");
+            $app->success("Enrolled user $login to course with id $crs_ref_id");
         else
-            $app->success(null, "Enrolled user with id $user_id to course with id $crs_ref_id");
+            $app->success("Enrolled user with id $user_id to course with id $crs_ref_id");
     });
 
 
@@ -141,8 +141,9 @@ $app->group('/v1', function () use ($app) {
             $result = array(
                 //'coursecontents' => $data1,
                 //'courseinfo' => $data2,
+                'msg' => "User ".$authorizedUserId." subscribed to course with ref_id = " . $ref_id . " successfully.",
             );
-            $app->success($result, "User ".$authorizedUserId." subscribed to course with ref_id = " . $ref_id . " successfully.");
+            $app->success($result);
         } catch (\Exception $e) {
             // TODO: Replace message with const-class-variable and error-code with unique string
             $app->halt(400, "Error: Subscribing user ".$authorziedUserid." to course with ref_id = ".$ref_id." failed. Exception:".$e->getMessage(), -15);
@@ -162,7 +163,7 @@ $app->group('/v1', function () use ($app) {
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->leaveCourse($authorizedUserId, $ref_id);
 
-            $app->success(null, "User ".$authorizedUserId." has left course with ref_id = " . $ref_id . ".");
+            $app->success("User ".$authorizedUserId." has left course with ref_id = " . $ref_id . ".");
         } catch (\Exception $e) {
             // TODO: Replace message with const-class-variable and error-code with unique string
             $app->halt(400, 'Error: Could not perform action for user '.$authorizedUserId.". ".$e->getMessage(), -15);

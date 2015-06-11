@@ -73,9 +73,6 @@ $app->post('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',
         foreach($attribs as $a) {
             $user_data[$a] = $request->params($a);
         }
-        //$user = $request->params('login');
-//        $pass = $request->params('passwd');
-
         // http://ildoc.hrz.uni-giessen.de/ildoc/Release_4_4_x_branch/html/de/da1/classilObjUser.html
         $user_data['profile_incomplete'] = false;
 
@@ -83,6 +80,7 @@ $app->post('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',
         $usr_model = new UsersModel();
         $user_id = $usr_model->addUser($user_data);
 
+        $result = array('id' => $user_id);
         $app->success($user_id);
 
 });

@@ -45,7 +45,8 @@ $app->group('/dev', function () use ($app) {
         $refreshToken = Token\Refresh::fromMixed($model->tokenSettings(), $refresh_token);
         $bearer_token = $model->refresh2Access($refreshToken);
 
-        $app->success($bearer_token->getEntry('access_token'));
+        $result = array('token' => $bearer_token->getEntry('access_token'));
+        $app->success($result);
     });
 
 

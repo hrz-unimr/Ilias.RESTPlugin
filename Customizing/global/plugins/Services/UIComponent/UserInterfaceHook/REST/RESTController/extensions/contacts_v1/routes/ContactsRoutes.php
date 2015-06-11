@@ -52,7 +52,6 @@ $app->group('/v1', function () use ($app) {
 
                 $model = new ContactsModel();
                 $data = $model->getMyContacts($id);
-                $app->log->debug(print_r($data,true));
                 $app->success($data);
 
         }
