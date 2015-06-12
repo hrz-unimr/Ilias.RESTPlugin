@@ -18,9 +18,9 @@ use \RESTController\core\auth as Auth;
 $app->group('/v1/news', function () use ($app) {
 
     /**
-     * Allows for submission of a new feedback entry via GET.
+     * Gets the personal desktop (pd) news items of the authenticated user.
      */
-    $app->get('/news', '\RESTController\libs\OAuth2Middleware::TokenAuth' ,  function () use ($app) {
+    $app->get('/pdnews', '\RESTController\libs\OAuth2Middleware::TokenAuth' ,  function () use ($app) {
         //$request = $app->request();
 
         $auth = new Auth\Util();
@@ -29,11 +29,26 @@ $app->group('/v1/news', function () use ($app) {
         $uname = $accessToken->getUserName();
 
         $model = new NewsModel();
+        $pdnews = $model->getPDNewsForUser($uid);
 
         $result = array();
         $result['msg'] = 'In get News OP.';
         $result['debug_uid'] = $uid;
         $result['debug_uname'] = $uname;
+        $result['pdnews'] = $pdnews;
+        $app->success($result);
+    });
+
+    /**
+     * Admin: Gets the personal desktop (pd) news items of any user.
+     */
+    $app->get('/pdnews/:user_id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth' ,  function ($user_id) use ($app) {
+        $model = new NewsModel();
+        $pdnews = $model->getPDNewsForUser($user_id);
+
+        $result = array();
+        $result['msg'] = 'Personal Desktop News Items for User: '.$user_id.'.';
+        $result['pdnews'] = $pdnews;
         $app->success($result);
     });
 
