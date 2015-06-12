@@ -32,15 +32,8 @@ $app->group('/v1/m', function () use ($app) {
         $s_env = $request->params('env');
         $s_uid = $request->params('token');
         $model = new MobileFeedbackModel();
-        $rmsg = $model->createFeedbackItem($s_uid, $s_msg, $s_env);
-
-        $result = array();
-        $result['msg'] = $s_msg;
-        $result['env'] = $s_env;
-
-        //$result[] = $s_env;
-        //$result[] = $s_uid;
-        $app->success($result);
+        $model->createFeedbackItem($s_uid, $s_msg, $s_env);
+        $app->success("Created new feedback entry.");
     });
 
     /**
