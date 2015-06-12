@@ -81,7 +81,7 @@ $app->post('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',
         $user_id = $usr_model->addUser($user_data);
 
         $result = array('id' => $user_id);
-        $app->success($user_id);
+        $app->success($result);
 
 });
 
