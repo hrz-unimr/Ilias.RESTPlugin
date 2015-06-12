@@ -115,7 +115,7 @@ $app->group('/v1', function () use ($app) {
             $app->halt(400, "Error: Subscribing user ".$user_id." to course with ref_id = ".$crs_ref_id." failed. Exception:".$e->getMessage());
         }
 
-        if($mode = "by_login")
+        if($mode == "by_login")
             $app->success("Enrolled user $login to course with id $crs_ref_id");
         else
             $app->success("Enrolled user with id $user_id to course with id $crs_ref_id");
