@@ -109,7 +109,9 @@ $app->group('/v1', function () use ($app) {
         $crs_ref_id = $request->params("crs_ref_id");
         try {
             $crsreg_model = new CoursesRegistrationModel();
-            $crsreg_model->joinCourse($user_id, $crs_ref_id);
+            if(!$crsreg_model->joinCourse($user_id, $crs_ref_id)) {
+                $app->halt(400, "Error: Subscribing user ".$user_id." to course with ref_id = ".$crs_ref_id." failed.");
+            }
         } catch (\Exception $e) {
             // TODO: Replace message with const-class-variable and error-code with unique string
             $app->halt(400, "Error: Subscribing user ".$user_id." to course with ref_id = ".$crs_ref_id." failed. Exception:".$e->getMessage());
