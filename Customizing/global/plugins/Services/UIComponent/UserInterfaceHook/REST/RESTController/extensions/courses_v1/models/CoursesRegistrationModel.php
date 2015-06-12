@@ -36,8 +36,6 @@ class CoursesRegistrationModel
      */
     public function joinCourse($user_id, $ref_id)
     {
-
-
         $this->user_id = $user_id;
         $this->ref_id = $ref_id;
         $this->obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
@@ -46,19 +44,13 @@ class CoursesRegistrationModel
         Libs\RESTLib::loadIlUser();
         global $ilUser;
         $ilUser->setId($user_id);
-        try {
-            $ilUser->read();
-        } catch (\Exception $e) {
-            return false;
-        }
+        $ilUser->read(); // Throws Exception on failure, catch in route!
         Libs\RESTLib::initAccessHandling();
 
         $this->initParticipants();
         $this->initWaitingList();
         if ($this->checkSubscribeConditions() == true) {
             $this->add();
-        } else {
-            //  'user on waiting list!';
         }
         return true;
     }
@@ -77,7 +69,7 @@ class CoursesRegistrationModel
         $ilUser->setId($user_id);
         $ilUser->read();
         Libs\RESTLib::initAccessHandling();
-        if ($this->checkUnsubscribeConditions() == false) 
+        if ($this->checkUnsubscribeConditions() == false)
             throw new \Exception('User cannot leave the course, because he is the last course admin.');
         else
             $this->performUnsubscribeObject();

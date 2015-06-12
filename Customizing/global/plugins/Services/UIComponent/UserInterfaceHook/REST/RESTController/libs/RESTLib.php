@@ -7,6 +7,8 @@
  */
 namespace RESTController\libs;
 
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\core\auth as Auth;
 
 // Include ILIAS init, ILIAS user, ILIAS role management code
 require_once('./Services/Init/classes/class.ilInitialisation.php');
@@ -58,6 +60,49 @@ class RESTLib {
      */
     public static function initAccessHandling() {
         return ilInitialisation_Public::initAccessHandling_Public();
+    }
+
+
+    /**
+     * Sets ILIAS user-context to given user.
+     * Will load user from token, if userId isn't provided
+     * and token is available.
+     *
+     * Throws exception when using on route without auth-middleware!
+     */
+    public static function setupUserContext($userId = null) {
+        if ($userId == null)
+          $userId = self::getUserId();
+
+        self::loadIlUser();
+        $ilUser = $GLOBALS['ilUser'];
+        $ilUser->setId($userId);
+        $ilUser->read();
+        self::initAccessHandling();
+    }
+
+
+    /**
+     * Fetch current ILIAS-UserName from provided (OAuth2-)token.
+     *
+     * Throws exception when using on route without auth-middleware!
+     */
+    public static function getUserName() {
+        $auth = new Auth\Util();
+        $accessToken = $auth->getAccessToken();
+        return $accessToken->getUserName();
+    }
+
+
+    /**
+     * Fetch current ILIAS-UserId from provided (OAuth2-)token.
+     *
+     * Throws exception when using on route without auth-middleware!
+     */
+    public static function getUserId() {
+        $auth = new Auth\Util();
+        $accessToken = $auth->getAccessToken();
+        return $accessToken->getUserId();
     }
 
 

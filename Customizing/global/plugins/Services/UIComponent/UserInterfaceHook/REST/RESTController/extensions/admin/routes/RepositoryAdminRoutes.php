@@ -60,6 +60,7 @@ $app->group('/admin', function () use ($app) {
         $description = $request->params("description");
         $new_ref_id = $repModel->createNewCategoryAsUser($parent_ref_id, $title, $description);
 
-        $app->success($data);
+        $result = array('ref_id' => $new_ref_id);
+        $app->success($result);
     });
 });

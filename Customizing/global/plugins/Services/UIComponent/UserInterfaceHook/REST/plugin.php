@@ -5,10 +5,10 @@
  * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
- 
- 
+
+
 $id = "rest";
-$version = "0.7.5";
+$version = "0.8";
 
 $ilias_min_version = "4.0.0";
 $ilias_max_version = "5.2.0";
