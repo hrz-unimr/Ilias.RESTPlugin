@@ -2,8 +2,8 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
 namespace RESTController\extensions\mobile_v1;
 
@@ -19,7 +19,7 @@ use \RESTController\libs as Libs;
  */
 class MobileFeedbackModel extends Libs\RESTModel {
 
-    const TABLE = 'aamobile_feedback';
+    const TABLE = 'mobile_feedback';
 
     /**
      * Creates a new feedback item.
@@ -30,10 +30,6 @@ class MobileFeedbackModel extends Libs\RESTModel {
      */
     function createFeedbackItem($user_id, $message, $environment)
     {
-        //$sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_perm WHERE api_id = %d', $id);
-        //self::$sqlDB->manipulate($sql);
-
-        global $ilDB;
         $a_columns = array(
             "userid" => array("text", $user_id),
             "message" => array("text", $message),
@@ -102,7 +98,7 @@ class MobileFeedbackModel extends Libs\RESTModel {
 
     /**
      * This method creates a new mobile-feedback database table.
-     * (Should only be invoked by an administrator).
+     * (Should be invoked by an administrator only).
      */
     function createMobileFeedbackDatabaseTable()
     {
