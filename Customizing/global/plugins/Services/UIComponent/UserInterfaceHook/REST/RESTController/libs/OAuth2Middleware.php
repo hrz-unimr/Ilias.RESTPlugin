@@ -2,8 +2,8 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D. Schaefer and T. Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
 namespace RESTController\libs;
 
@@ -13,15 +13,14 @@ use RESTController\core\auth\Exceptions as TokenExceptions;
 // Requires RESTController
 // Requires RESTLib
 
-
 /*
  * OAuth2 Authentification Middleware Functions
  *
  *  This middleware can be included in a route signature as follows:
  *  $app->get('/users', function () use ($app) { ... })
- *  $app->get('/users', \RESTController\libs\OAuth2Middleware::TokenRouteAuth, function () use ($app) { ... })
- *  $app->get('/users', \RESTController\libs\OAuth2Middleware::TokenRouteAuthTokenOnly, function () use ($app) { ... })
- *  $app->get('/users', \RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminRole, function () use ($app) { ... })
+ *  $app->get('/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { ... })
+ *  $app->get('/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthTokenOnly', function () use ($app) { ... })
+ *  $app->get('/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminRole', function () use ($app) { ... })
  */
 class OAuth2Middleware {
     /**
@@ -91,7 +90,7 @@ class OAuth2Middleware {
 
     /**
      * This authorization middleware only checks if the access token (bearer) is valid,
-     * but does not check if the user is allowed to acces this route.
+     * but does not check if the user is allowed to access this route.
      *
      * @param \Slim\Route $route
      */
