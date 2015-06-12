@@ -9,13 +9,8 @@ namespace RESTController\extensions\mobile_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
-use \RESTController\extensions\admin as Admin;
-use \RESTController\extensions\users_v1 as Users;
-use \RESTController\extensions\courses_v1 as Courses;
-use \RESTController\extensions\desktop_v1 as Desktop;
-use \RESTController\extensions\groups_v1 as Groups;
-use \RESTController\extensions\contacts_v1 as Contacts;
-use \RESTController\extensions\calendar_v1 as Calendar;
+use \RESTController\core\auth as Auth;
+
 
 /**
  * The feedback endpoints allow for sending information regarding a mobile application.
@@ -26,12 +21,14 @@ $app->group('/v1/m', function () use ($app) {
     /**
      * Allows for submission of a new feedback entry via GET.
      */
-    $app->get('/feedbackdrop/', '\RESTController\libs\OAuth2Middleware::TokenAuth',  function () use ($app) {
+    $app->get('/feedbackdrop/', '\RESTController\libs\OAuth2Middleware::TokenAuth' ,  function () use ($app) {
         $request = $app->request();
         try {
             $s_msg = $request->params('message','',true);
             $s_env = $request->params('env','',true);
-            $s_uid = $request->params('token','',true);
+            $auth = new Auth\Util();
+            $accessToken = $auth->getAccessToken();
+            $s_uid = $accessToken->getTokenString();
 
             $model = new MobileFeedbackModel();
             $model->createFeedbackItem($s_uid, $s_msg, $s_env);
@@ -49,7 +46,9 @@ $app->group('/v1/m', function () use ($app) {
          try {
              $s_msg = $request->params('message','',true);
              $s_env = $request->params('env','',true);
-             $s_uid = $request->params('token','',true);
+             $auth = new Auth\Util();
+             $accessToken = $auth->getAccessToken();
+             $s_uid = $accessToken->getTokenString();
 
              $model = new MobileFeedbackModel();
              $model->createFeedbackItem($s_uid, $s_msg, $s_env);
