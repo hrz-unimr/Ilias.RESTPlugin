@@ -1,3 +1,3 @@
 import ishell
-il = ishell.IShell()
-il.printIntro()
+i = ishell.IShell()
+i.printIntro()
