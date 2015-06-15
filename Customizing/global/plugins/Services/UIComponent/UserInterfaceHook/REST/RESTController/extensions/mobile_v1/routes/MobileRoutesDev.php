@@ -2,7 +2,7 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
+ * Authors: D. Schaefer and T. Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * 2014-2015
  */
 namespace RESTController\extensions\mobile_v1;
@@ -18,7 +18,7 @@ use \RESTController\extensions\contacts_v1 as Contacts;
 use \RESTController\extensions\calendar_v1 as Calendar;
 
 
-$app->group('/v1/m', function () use ($app) {
+$app->group('/v1/m/dev', function () use ($app) {
 
     $app->get('/courses/:id', function ($id) use ($app) {
         $id_type = $app->request()->params("id_type");

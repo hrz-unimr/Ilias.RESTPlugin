@@ -2,13 +2,14 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D. Schaefer and T. Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
 namespace RESTController\extensions\mobile_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
+use \RESTController\core\auth as Auth;
 use \RESTController\extensions\admin as Admin;
 use \RESTController\extensions\users_v1 as Users;
 use \RESTController\extensions\courses_v1 as Courses;
@@ -17,46 +18,29 @@ use \RESTController\extensions\groups_v1 as Groups;
 use \RESTController\extensions\contacts_v1 as Contacts;
 use \RESTController\extensions\calendar_v1 as Calendar;
 
-$app->group('/v1/m/dev', function () use ($app) {
-
-    $app->get('/courses/:id', function ($id) use ($app) {
-        $id_type = $app->request()->params("id_type");
-        $id_type = $id_type = null ? 'ref_id' : $id_type;
-        $obj_id = -1;
-        if ($id_type == 'obj_id')
-            $obj_id = $id;
-        else
-            $obj_id = Libs\RESTLib::getObjIdFromRef($id);
-
-        $model = new Admin\DescribrModel();
-        $a_descr = $model->describeIliasObject($obj_id);
-
-        $result = array(
-            'object_description' => $a_descr
-        );
-
-        $app->success($result);
-    });
+$app->group('/v1/m', function () use ($app) {
 
     /**
-     *  Loads the following data:
-     * - User / system information
+     * Starting point for mobile apps: loads a user's desktop
+     * and the meta-data of its associated items.
+     *
+     * Loads the following data:
+     * - User
+     * - System information
      * - Personal courses, which are flagged "online"
      * - Meta-information about the courses
      * - Lists of contents of the personal courses // see of contacts > my courses, my groups
-     * - People participating the courses
-     * - Dates (Note: System Caldendar must be activated)
-     *  - List
-     *  - ICAL (ics) Feed Url
-     *  In contrast to version 1, the json is structured in a better and more concise way.
+     * - Personal contacts
+     * - Personal Calendar (Note: The ILIAS system calendar must be activated) with ICAL url
+     *
+     *  Version 15.6.15
      */
-    $app->get('/deskdev', function () use ($app) {
+    $app->get('/origin', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $t_start = microtime();
         $result = array();
 
-        // TODO: extract user_id from valid token
-        $user_id = 6;//225;//6;//361; // testuser
-        //$user = Libs\RESTLib::getUserNameFromId($user_id);
+        $auth = new Auth\Util();
+        $user_id = $auth->getAccessToken()->getUserId();
 
         Libs\RESTLib::initAccessHandling();
 
@@ -81,7 +65,7 @@ $app->group('/v1/m/dev', function () use ($app) {
             $course_item['children_ref_ids'] = $children_ref_ids;
             $repository_items[$course_refid] = $course_item;
         }
-        $result['ritems'] = $repository_items;
+        $result['items'] = $repository_items;
 
         $desktopModel = new Desktop\DesktopModel();
         $pditems = $desktopModel->getPersonalDesktopItems($user_id);
