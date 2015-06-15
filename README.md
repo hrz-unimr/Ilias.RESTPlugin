@@ -15,7 +15,7 @@ This is an extensible REST interface that allows developers to create RESTful AP
 * Easy integration of new REST endpoints possible
 * Based on the PHP SLIM Framework
 
-Note: Please check the Wiki pages for further information.
+Note: Please refer to the Wiki pages for further information.
 
 #### Example 
 **Retrieve available routes**
