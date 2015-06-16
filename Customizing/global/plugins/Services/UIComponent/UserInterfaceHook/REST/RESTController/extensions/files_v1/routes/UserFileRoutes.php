@@ -2,8 +2,8 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
 namespace RESTController\extensions\files_v1;
 
@@ -16,18 +16,19 @@ $app->group('/v1', function () use ($app) {
     /**
      * Retrieves a user file provided its ref_id or obj_id.
      * @param meta_data - if this field exists, the endpoints returns only a description of the file.
-     * @param id_type - (optional) "ref_id" or "obj_id", if ommited the type ref_id is assumed.
+     * @param id_type - (optional) "ref_id" or "obj_id", if omitted the type ref_id is assumed.
      * @param id - the ref or obj_id of the file.
      */
     $app->get('/files/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($id) use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
-        $user = $accessToken->getUserName();
+        //$user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
+
 
         $request = $app->request();
         try {
-            $meta_data = $request->params('meta_data');
+            $meta_data = $request->params('meta_data',true, true);
             if (isset($meta_data)) {
                 $meta_data = true;
             }
@@ -36,7 +37,7 @@ $app->group('/v1', function () use ($app) {
         }
 
         try {
-            $id_type = $request->params('$id_type');
+            $id_type = $request->params('id_type', 'ref_id', true);
         } catch (\Exception $e) {
             $id_type = "ref_id";
         }
@@ -47,6 +48,7 @@ $app->group('/v1', function () use ($app) {
         } else {
             $obj_id = $id;
         }
+
 
 
         if ($meta_data == true) {
