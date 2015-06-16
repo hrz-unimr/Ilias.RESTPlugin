@@ -6,8 +6,8 @@ import urllib2
 class IShell:
     """  
     ILIAS-Shell
-    Enables personalized and administrative operations on the ILIAS LMS.
-    v.1.3
+    For personalized and administrative operations on your ILIAS LMS.
+    v.1.4
     """
 
     def __init__(self):
@@ -74,54 +74,62 @@ class IShell:
     def post(self, routeStr, data):
         if routeStr[0]=='/':
                 routeStr = routeStr[1:]
-	request = urllib2.Request(self.rest_endpoint+'/'+routeStr)
-        request.add_header('Authorization', ' Bearer '+ self.token)
-        enc_data = urllib.urlencode(data)
-        response = urllib2.urlopen(url=request, data=enc_data).read()
-        data = json.loads(response)
-        self.response = data
-        return data
+	try:
+		request = urllib2.Request(self.rest_endpoint+'/'+routeStr)
+        	request.add_header('Authorization', ' Bearer '+ self.token)
+        	enc_data = urllib.urlencode(data)
+        	response = urllib2.urlopen(url=request, data=enc_data).read()
+        	data = json.loads(response)
+        	self.response = data
+		self.show()
+	except urllib2.HTTPError as e:
+		print '> ' + str(e.code) + ' - ' + e.reason
+		print e.read()
 
     def get(self, routeStr):
 	if routeStr[0]=='/':
 		routeStr = routeStr[1:]
-        request = urllib2.Request(self.rest_endpoint+'/'+routeStr)
-        request.add_header('Authorization', ' Bearer '+ self.token)
-        response = urllib2.urlopen(request).read()
-	#print response
-        data = json.loads(response)
-	#print data
-        # todo: should be "msg"
-	#if data['status'] == 'Token expired.' and firstAttempt:
-        #    self.getToken()
-        #    return self.get(routeStr, False)
-        #else: 
-        self.response = data
-	self.show()
+        try:
+		request = urllib2.Request(self.rest_endpoint+'/'+routeStr)
+        	request.add_header('Authorization', ' Bearer '+ self.token)
+        	response = urllib2.urlopen(request).read()
+        	data = json.loads(response)
+        	self.response = data
+		self.show()
+	except urllib2.HTTPError as e:
+		print '> ' + str(e.code) + ' - ' + e.reason
+		print e.read()
 
     def delete(self, routeStr):
 	if routeStr[0]=='/':
                 routeStr = routeStr[1:]
-        request = urllib2.Request(self.rest_endpoint+'/'+routeStr)
-        request.add_header('Authorization', ' Bearer '+ self.token)
-        request.get_method = lambda: 'DELETE'
-	response = urllib2.urlopen(url=request).read()
-        #opener = urllib2.build_opener(urllib2.HTTPHandler)
-	data = json.loads(response)
-        self.response = data
-	self.show()
+        try:
+		request = urllib2.Request(self.rest_endpoint+'/'+routeStr)
+        	request.add_header('Authorization', ' Bearer '+ self.token)
+        	request.get_method = lambda: 'DELETE'
+		response = urllib2.urlopen(url=request).read()
+		data = json.loads(response)
+        	self.response = data
+		self.show()
+	except urllib2.HTTPError as e:
+		print '> ' + str(e.code) + ' - ' + e.reason
+		print e.read()
 
     def put(self, routeStr, data):
         if routeStr[0]=='/':
                 routeStr = routeStr[1:]
-        request = urllib2.Request(self.rest_endpoint+'/'+routeStr)
-        request.add_header('Authorization', ' Bearer '+ self.token)
-        request.get_method = lambda: 'PUT'
-	enc_data = urllib.urlencode(data)
-        response = urllib2.urlopen(url=request, data=enc_data).read()
-        data = json.loads(response)
-        self.response = data
-	self.show()
+	try:
+        	request = urllib2.Request(self.rest_endpoint+'/'+routeStr)
+        	request.add_header('Authorization', ' Bearer '+ self.token)
+        	request.get_method = lambda: 'PUT'
+		enc_data = urllib.urlencode(data)
+        	response = urllib2.urlopen(url=request, data=enc_data).read()
+        	data = json.loads(response)
+        	self.response = data
+		self.show()
+	except urllib2.HTTPError as e:
+		print '> ' + str(e.code) + ' - ' + e.reason
+		print e.read()
 
     def users(self):
         self.get('/v1/users');
