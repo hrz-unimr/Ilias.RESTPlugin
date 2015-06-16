@@ -2,6 +2,7 @@ import ConfigParser
 import json
 import urllib
 import urllib2
+import shutil
 
 class IShell:
     """  
@@ -99,6 +100,20 @@ class IShell:
 	except urllib2.HTTPError as e:
 		print '> ' + str(e.code) + ' - ' + e.reason
 		print e.read()
+	except ValueError as e:
+		print e
+    
+    def retFile(self, routeStr, file):
+	if routeStr[0]=='/':
+		routeStr = routeStr[1:]
+	try:
+		request = urllib2.Request(self.rest_endpoint+'/'+routeStr)
+        	request.add_header('Authorization', ' Bearer '+ self.token)
+        	req = urllib2.urlopen(request)
+		with open(file, 'wb') as fp:
+			shutil.copyfileobj(req,fp)
+	except Exception as e:
+		print e
 
     def delete(self, routeStr):
 	if routeStr[0]=='/':
