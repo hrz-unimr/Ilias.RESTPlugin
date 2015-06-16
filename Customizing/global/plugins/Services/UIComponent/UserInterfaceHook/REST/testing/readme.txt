@@ -8,7 +8,9 @@ wget http://codeception.com/codecept.phar
 php codecept.phar bootstrap
 apt-get install php5-curl
 
-Note: In order to test the REST endpoints, you have to edit tests/api.suite.yml and adapt the urls.
+Notes: In order to test the REST endpoints, you have to edit tests/api.suite.yml and adapt the urls.
+Furthermore it is assumed that you test with user "root:homer". Otherwise the file commons/TestCommons.php
+has to be adapted accordingly.
 
 A test run can be done with
 php codecept.phar run api

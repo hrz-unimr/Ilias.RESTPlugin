@@ -16,6 +16,5 @@ class TestCommons
             'api_key' => TestCommons::$api_key);
         $I->sendPOST('v1/oauth2/token',$aPost);
         TestCommons::$token = $I->grabDataFromResponseByJsonPath('$.access_token')[0];
-
     }
 }
