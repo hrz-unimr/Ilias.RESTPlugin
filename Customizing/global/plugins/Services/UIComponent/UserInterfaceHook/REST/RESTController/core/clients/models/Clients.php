@@ -207,6 +207,7 @@ class Clients extends Libs\RESTModel {
      * @param $fieldname
      * @param $newval
      * @return mixed
+     * @throws Exceptions\UpdateFailed
      */
     public function updateClient($id, $fieldname, $newval) {
         // Update permissions? (Separate table)
@@ -224,11 +225,13 @@ class Clients extends Libs\RESTModel {
                 $this->fillApikeyUserMap($id);
         }
         // Update any other field...
+        // Note: for now, we take it for granted that this update is prone to sql-injections. Only admins should be able to use this method / corresponding route.
         else {
-            if (is_numeric($newval))
-                $sql = Libs\RESTLib::safeSQL('UPDATE ui_uihk_rest_keys SET %s = %d WHERE id = %d', $fieldname, $newval, $id);
-            else
-                $sql = Libs\RESTLib::safeSQL('UPDATE ui_uihk_rest_keys SET %s = %s WHERE id = %d', $fieldname, $newval, $id);
+            if (is_numeric($newval)) {
+                $sql = Libs\RESTLib::safeSQL("UPDATE ui_uihk_rest_keys SET $fieldname = %d WHERE id = %d", $newval, $id);
+            } else {
+                $sql = Libs\RESTLib::safeSQL("UPDATE ui_uihk_rest_keys SET $fieldname = %s WHERE id = %d", $newval, $id);
+            }
             $numAffRows = self::$sqlDB->manipulate($sql);
 
             if ($numAffRows === false)
@@ -242,6 +245,7 @@ class Clients extends Libs\RESTModel {
      *
      * @param $id
      * @return mixed
+     * @throws Exceptions\DeleteFailed
      */
     public function deleteClient($id) {
         // Delete acutal client
@@ -435,7 +439,10 @@ class Clients extends Libs\RESTModel {
 
 
     /**
-     *
+     * Returns the id given an api_key string.
+     * @param $api_key
+     * @return int
+     * @throws Exceptions\MissingApiKey
      */
     public function getApiIdFromKey($api_key) {
         $sql = Libs\RESTLib::safeSQL('SELECT id FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
@@ -449,7 +456,10 @@ class Clients extends Libs\RESTModel {
 
 
     /**
-     *
+     * Returns a api_key string given an internal api id.
+     * @param $api_id
+     * @return string
+     * @throws Exceptions\MissingApiKey
      */
     public function getApiKeyFromId($api_id) {
         $sql = Libs\RESTLib::safeSQL('SELECT api_key FROM ui_uihk_rest_keys WHERE id = %d', $api_id);

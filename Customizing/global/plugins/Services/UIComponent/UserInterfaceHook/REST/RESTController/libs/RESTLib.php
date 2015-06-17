@@ -115,8 +115,6 @@ class RESTLib {
         $params = array_slice($params, 1);
         $params = self::quoteParams($params);
 
-        $app = \RESTController\RESTController::getInstance();
-
         return vsprintf($sql, $params);
     }
     protected static function quoteParams($params) {
