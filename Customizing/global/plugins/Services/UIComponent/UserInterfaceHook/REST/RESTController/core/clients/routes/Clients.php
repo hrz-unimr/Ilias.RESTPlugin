@@ -149,15 +149,20 @@ $app->put('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenAuth', fu
     // Try to fetch each fields data and update its db-entry
     $model = new Clients();
     $request = $app->request;
+
+    //$app->log->debug('in put clients');
+    //$app->log->debug(print_r($request->getBody(),true));
+    //$app->log->debug('perm params: '.$request->params('permissions'));
+
     $failed = array();
     foreach ($fields as $field) {
         try {
             // Fetch request data (Throws exception to prevent updateClient call)
-            $api_key = $request->params($field, null, true);
+            $newVal = $request->params($field, null, true);
 
             // Update client
             try {
-                $model->updateClient($id, $field, $api_key);
+                $model->updateClient($id, $field, $newVal);
             } catch(ClientExceptions\PutFailed $e) {
                 $failed[] = $e->getMessage();
             }
@@ -229,6 +234,9 @@ $app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenAuth', func
 
     // Shortcut for request object
     $request = $app->request();
+
+    $app->log->debug('in post clients');
+    $app->log->debug(print_r($request->getBody(),true));
 
     // Try/Catch all required inputs
     try {

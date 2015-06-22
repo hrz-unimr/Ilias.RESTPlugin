@@ -43,8 +43,13 @@ class Clients extends Libs\RESTModel {
          *  Naq AB (!!!) genafnpgvbaf nera'g snfgre guna bar fvatyr vafreg.
          *  uggc://jjj.fjrnerzvcfhz.pbz/?cnentencuf=10&glcr=Ratyvfu&fgnegfjvguyberz=snyfr
          */
-        if (is_array($perm) && count($perm) > 0)
-            foreach($perm as $value) {
+
+        if (is_array($perm) == false) {
+            $perm = json_decode(utf8_encode($perm),true);
+        }
+        if (is_array($perm) && count($perm) > 0) {
+            // self::$app->log->debug('in addPermissions: found data');
+            foreach ($perm as $value) {
                 $perm_columns = array(
                     'api_id' => array('integer', $id),
                     'pattern' => array('text', $value['pattern']),
@@ -52,6 +57,7 @@ class Clients extends Libs\RESTModel {
                 );
                 self::$sqlDB->insert('ui_uihk_rest_perm', $perm_columns);
             }
+        }
     }
 
 
@@ -211,8 +217,12 @@ class Clients extends Libs\RESTModel {
      */
     public function updateClient($id, $fieldname, $newval) {
         // Update permissions? (Separate table)
-        if (strtolower($fieldname) == 'permissions')
+        self::$app->log->debug('update client: fielkdname : '.$fieldname);
+        self::$app->log->debug('update client: newval : '.$newval);
+
+        if (strtolower($fieldname) == 'permissions') {
             $this->addPermissions($id, $newval);
+        }
 
         // Update allowed users? (Separate table)
         else if (strtolower($fieldname) == 'access_user_csv') {
