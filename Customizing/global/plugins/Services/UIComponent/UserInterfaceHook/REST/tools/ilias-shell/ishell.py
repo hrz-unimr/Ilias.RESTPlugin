@@ -8,7 +8,7 @@ class IShell:
     """  
     ILIAS-Shell
     For personalized and administrative operations on your ILIAS LMS.
-    v.1.4
+    v.1.5
     """
 
     def __init__(self):
@@ -45,9 +45,9 @@ class IShell:
 
     def connect(self):
         self.getToken()
-#f = open('token', 'w')
-#f.write('header="Authorization: Bearer ' + tokenstr + '"')
-#f.close()
+	#f = open('token', 'w')
+	#f.write('header="Authorization: Bearer ' + tokenstr + '"')
+	#f.close()
         print 'Welcome to the ILIAS-Shell'
 	print '> Connected with host: ' + self.rest_endpoint
 	print '> Retrieved OAuth2 token: ' + self.token[1:15] + '...'
@@ -59,12 +59,14 @@ class IShell:
         print 'Example: i.getRoutes(), see variable i.response afterwards'
    
     def getRoutes(self):
+	"""Lists all available routes on the system."""
         response = urllib2.urlopen(self.rest_endpoint+'/routes').read()
         data = json.loads(response)
         self.response = data
         self.show()
 
     def show(self):
+	"""Pretty printing of a json response."""
         print(json.dumps(self.response, indent=2))
      
     def dump(self, jsondata):
@@ -73,6 +75,10 @@ class IShell:
         f.close
   
     def post(self, routeStr, data):
+	"""Sends a POST request to the specified route and with the data.
+            Example call:
+		i.post('clients',{'api_key':'testing','api_secret':'1234','oauth2_gt_resourceowner_active':'1'})
+	"""
         if routeStr[0]=='/':
                 routeStr = routeStr[1:]
 	try:
@@ -88,6 +94,10 @@ class IShell:
 		print e.read()
 
     def get(self, routeStr):
+	"""Sends a GET request to the specified route.
+	   Note: in this version, optional data can be send by appending them to the route,
+	   e.g. ?key1=val1&key2=val2&...
+	"""
 	if routeStr[0]=='/':
 		routeStr = routeStr[1:]
         try:
@@ -104,6 +114,10 @@ class IShell:
 		print e
     
     def retFile(self, routeStr, file):
+	"""Retrieves a binary file from ILIAS and stores it to the current folder.
+		The requested file will be stored under the filename provided by 
+		the argument "file".
+	"""
 	if routeStr[0]=='/':
 		routeStr = routeStr[1:]
 	try:
@@ -116,6 +130,10 @@ class IShell:
 		print e
 
     def delete(self, routeStr):
+	""" Sends a DELETE request.
+	    Example call:
+		i.delete('clients/5');
+	"""
 	if routeStr[0]=='/':
                 routeStr = routeStr[1:]
         try:
@@ -130,15 +148,47 @@ class IShell:
 		print '> ' + str(e.code) + ' - ' + e.reason
 		print e.read()
 
-    def put(self, routeStr, data):
+    def put(self, routeStr, dict):
+	""" Sends a PUT request with JSON data which is specified by a python dict.
+	    Example call:
+		i.put('clients/5',{"permissions":[{"pattern":"/routes","verb":"GET"}]});
+	"""
         if routeStr[0]=='/':
                 routeStr = routeStr[1:]
 	try:
         	request = urllib2.Request(self.rest_endpoint+'/'+routeStr)
-        	request.add_header('Authorization', ' Bearer '+ self.token)
+        	request.add_header('Content-Type','application/json');
+		request.add_header('Authorization', ' Bearer '+ self.token)
         	request.get_method = lambda: 'PUT'
-		enc_data = urllib.urlencode(data)
-        	response = urllib2.urlopen(url=request, data=enc_data).read()
+		#enc_data = urllib.quote_plus(data)
+        	jsondata = json.dumps(dict)
+		post_data = jsondata.encode('utf-8')
+	
+		response = urllib2.urlopen(url=request, data=jsondata).read()
+        	data = json.loads(response)
+        	self.response = data
+		self.show()
+	except urllib2.HTTPError as e:
+		print '> ' + str(e.code) + ' - ' + e.reason
+		print e.read()
+    
+    def putJSONs(self, routeStr, jsonstring):
+	""" Sends a PUT request with JSON data which is specified as string.
+	    Example call:
+		i.putJSONs('clients/5','{"permissions":[{"pattern":"/routa","verb":"GET"}]}');
+	"""
+        if routeStr[0]=='/':
+                routeStr = routeStr[1:]
+	try:
+        	request = urllib2.Request(self.rest_endpoint+'/'+routeStr)
+        	request.add_header('Content-Type','application/json');
+		request.add_header('Authorization', ' Bearer '+ self.token)
+        	request.get_method = lambda: 'PUT'
+		#enc_data = urllib.quote_plus(data)
+        	jsondata = json.dumps(json.loads(jsonstring))
+		post_data = jsondata.encode('utf-8')
+	
+		response = urllib2.urlopen(url=request, data=jsondata).read()
         	data = json.loads(response)
         	self.response = data
 		self.show()
@@ -147,6 +197,7 @@ class IShell:
 		print e.read()
 
     def users(self):
+	""" Lists all users of the system """
         self.get('/v1/users');
         self.show();
 
