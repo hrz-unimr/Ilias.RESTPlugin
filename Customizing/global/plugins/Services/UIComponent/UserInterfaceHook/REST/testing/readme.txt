@@ -12,8 +12,11 @@ Notes: In order to test the REST endpoints, you have to edit tests/api.suite.yml
 Furthermore it is assumed that you test with user "root:homer". Otherwise the file commons/TestCommons.php
 has to be adapted accordingly.
 
-A test run can be done with
+A test run involving all API tests can be done with
 php codecept.phar run api
+
+A test run with a particular subset can be done via path notation, e.g.
+php codecept.phar run tests/api/core
 
 Further information on running or creating test cases can be found via
 php codecept.phar help run
