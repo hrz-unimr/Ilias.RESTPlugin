@@ -43,12 +43,12 @@ use \RESTController\core\auth as Auth;
  *          ...
  *        ], <Allowed ILIAS users for this client>
  *        oauth2_gt_client_active: "<OAuth2 use client-credentials of client>",
- *        oauth2_gt_authcode_active: "<OAuth2 use authentification-code of client>",
- *        oauth2_gt_implicit_active: "<OAuth2 use implicit-grant ofclient>",
+ *        oauth2_gt_authcode_active: "<OAuth2 use authentication-code of client>",
+ *        oauth2_gt_implicit_active: "<OAuth2 use implicit-grant of client>",
  *        oauth2_gt_resourceowner_active: "<OAuth2 use resource-owner of client>",
  *        oauth2_user_restriction_active: "<OAuth2 restrict to certain user of client>",
  *        oauth2_consent_message_active: "<OAuth2 Consent-Message of client>",
- *        oauth2_authcode_refresh_active: "<OAuth2 enable refresh-token for authentification-code of client>",
+ *        oauth2_authcode_refresh_active: "<OAuth2 enable refresh-token for authentication-code of client>",
  *        oauth2_resource_refresh_active: "<OAuth2 enable refresh-token for resource-owner of client>"
  *      },
  *      ...
@@ -104,12 +104,12 @@ use \RESTController\core\auth as Auth;
  *      ...
  *    ], <OPTIONAL>
  *    oauth2_gt_client_active: "<OAuth2 use client-credentials for new client>", <OPTIONAL>
- *    oauth2_gt_authcode_active: "<OAuth2 use authentification-code for new client>", <OPTIONAL>
+ *    oauth2_gt_authcode_active: "<OAuth2 use authentication-code for new client>", <OPTIONAL>
  *    oauth2_gt_implicit_active: "<OAuth2 use implicit-grant for new client>", <OPTIONAL>
  *    oauth2_gt_resourceowner_active: "<OAuth2 use resource-owner for new client>", <OPTIONAL>
  *    oauth2_user_restriction_active: "<OAuth2 restrict to certain user for new client>", <OPTIONAL>
  *    oauth2_consent_message_active: "<OAuth2 Consent-Message for new client>", <OPTIONAL>
- *    oauth2_authcode_refresh_active: "<OAuth2 enable refresh-token for authentification-code for new client>", <OPTIONAL>
+ *    oauth2_authcode_refresh_active: "<OAuth2 enable refresh-token for authentication-code for new client>", <OPTIONAL>
  *    oauth2_resource_refresh_active: "<OAuth2 enable refresh-token for resource-owner for new client>" <OPTIONAL>
  *  }
  * Response:
@@ -209,12 +209,12 @@ $app->put('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenAuth', fu
  *      ...
  *    ], <OPTIONAL>
  *    oauth2_gt_client_active: "<OAuth2 use client-credentials for new client>", <OPTIONAL>
- *    oauth2_gt_authcode_active: "<OAuth2 use authentification-code for new client>", <OPTIONAL>
+ *    oauth2_gt_authcode_active: "<OAuth2 use authentication-code for new client>", <OPTIONAL>
  *    oauth2_gt_implicit_active: "<OAuth2 use implicit-grant for new client>", <OPTIONAL>
  *    oauth2_gt_resourceowner_active: "<OAuth2 use resource-owner for new client>", <OPTIONAL>
  *    oauth2_user_restriction_active: "<OAuth2 restrict to certain user for new client>", <OPTIONAL>
  *    oauth2_consent_message_active: "<OAuth2 Consent-Message for new client>", <OPTIONAL>
- *    oauth2_authcode_refresh_active: "<OAuth2 enable refresh-token for authentification-code for new client>", <OPTIONAL>
+ *    oauth2_authcode_refresh_active: "<OAuth2 enable refresh-token for authentication-code for new client>", <OPTIONAL>
  *    oauth2_resource_refresh_active: "<OAuth2 enable refresh-token for resource-owner for new client>" <OPTIONAL>
  *  }
  * Response:
