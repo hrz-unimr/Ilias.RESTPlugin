@@ -2,8 +2,8 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
 ?>
  
@@ -300,6 +300,11 @@
     global $ilDB;
         
     $fields = array(
+        'id' => array(
+            'type' => 'integer',
+            'length' => 4,
+            'notnull' => true
+        ),
         'api_id' => array(
             'type' => 'integer',
             'length' => 4,
@@ -318,7 +323,10 @@
             'notnull' => false
         )
     );
+
     $ilDB->createTable("ui_uihk_rest_perm", $fields, true);
+    $ilDB->addPrimaryKey("ui_uihk_rest_perm", array("id"));
+    $ilDB->manipulate('ALTER TABLE ui_uihk_rest_perm CHANGE id id INT NOT NULL AUTO_INCREMENT');
     
     $ilDB->insert("ui_uihk_rest_perm", array(
         "api_id" => array("integer", 1),

@@ -2,12 +2,12 @@
 use \ApiTester;
 
 /**
- * Class ClientroutesCest
- * @group clients
+ * Class UsersV1RoutesCest
+ * @group users
  */
-class ClientroutesCest
+class UsersV1RoutesCest
 {
-    public $client_id="-1";
+    public $user_id="-1";
 
     public function _before(ApiTester $I)
     {
@@ -18,11 +18,11 @@ class ClientroutesCest
     {
     }
 
-    public function addNewClient(ApiTester $I)
+    public function addNewUser(ApiTester $I)
     {
         TestCommons::logMeIn($I);
         $I->amBearerAuthenticated(TestCommons::$token);
-        $I->wantTo('create a new rest client');
+        $I->wantTo('create a new user');
         $a_post_data = array("api_key" => "testing", "api_secret" => 1234, "oauth2_gt_resourceowner_active" => "1");
         $I->sendPOST('clients',$a_post_data);
         $this->client_id = $I->grabDataFromResponseByJsonPath('$.id')[0];
@@ -32,7 +32,7 @@ class ClientroutesCest
     /**
      *  @depends addNewClient
      */
-    public function setPermissionTest(ApiTester $I)
+   /* public function setPermissionTest(ApiTester $I)
     {
         $I->wantTo('put route permission on new client '.$this->client_id);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -42,12 +42,12 @@ class ClientroutesCest
         $I->sendPUT('clients/'.$this->client_id,$aPost);
 
         $I->seeResponseContainsJson(array('status' => 'success'));
-    }
+    }*/
 
     /**
      *  @depends addNewClient
      */
-    public function listAllClients(ApiTester $I)
+    /*public function listAllClients(ApiTester $I)
     {
         $I->wantTo('list all clients');
         $I->amBearerAuthenticated(TestCommons::$token);
@@ -55,17 +55,17 @@ class ClientroutesCest
         //$success =  array_search($this->client_id,$I->grabDataFromResponseByJsonPath('$.clients[*].id'));
         //\PHPUnit_Framework_Assert::assertTrue($success);
         $I->seeResponseContainsJson(array('status' => 'success'));
-    }
+    }*/
 
     /**
      *  @depends setPermissionTest
      */
-    public function deleteClient(ApiTester $I)
+    /*public function deleteClient(ApiTester $I)
     {
         $I->wantTo('delete client '.$this->client_id);
         $I->amBearerAuthenticated(TestCommons::$token);
         $I->sendDELETE('clients/'.$this->client_id);
         $I->seeResponseContainsJson(array('status' => 'success'));
-    }
+    }*/
 
 }

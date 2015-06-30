@@ -1,0 +1,22 @@
+﻿Update Client Model
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch testing
+# Your branch is up-to-date with 'origin/testing'.
+#
+# Changes to be committed:
+#	new file:   Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/testing/commons/TestScenarios.php
+#	new file:   Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/testing/tests/api/extensions/mobile_v1/MobileRoutesCest.php
+#	new file:   Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/testing/tests/api/extensions/users_v1/UsersV1RoutesCest.php
+#
+# Changes not staged for commit:
+#	modified:   Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/RESTController/core/auth/routes/OAuth2.php
+#	modified:   Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/RESTController/core/clients/models/Clients.php
+#	modified:   Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/RESTController/core/clients/routes/Clients.php
+#	modified:   Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/plugin.php
+#	modified:   Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/sql/dbupdate.php
+#	modified:   Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/testing/commons/TestScenarios.php
+#	modified:   Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/testing/tests/api/extensions/mobile_v1/MobileRoutesCest.php
+#	modified:   Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/testing/tests/api/extensions/users_v1/UsersV1RoutesCest.php
+#
+

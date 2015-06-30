@@ -27,7 +27,7 @@ class Clients extends Libs\RESTModel {
      *
      *  @return NULL
      */
-    protected function addPermissions($id, $perm) {
+    protected function setPermissions($id, $perm) {
         // Remove old entries
         $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_perm WHERE api_id = %d', $id);
         self::$sqlDB->manipulate($sql);
@@ -191,7 +191,7 @@ class Clients extends Libs\RESTModel {
         $insertId = intval(self::$sqlDB->getLastInsertId());
 
         // Add permissions to separate table
-        $this->addPermissions($insertId, $permissions);
+        $this->setPermissions($insertId, $permissions);
 
         // Updated list of allowed users
         if (is_string($access_user_csv) && strlen($access_user_csv) > 0) {
@@ -209,7 +209,7 @@ class Clients extends Libs\RESTModel {
     /**
      * Updates an item
      *
-     * @param $id
+     * @param $id - API-Key
      * @param $fieldname
      * @param $newval
      * @return mixed
@@ -221,7 +221,7 @@ class Clients extends Libs\RESTModel {
         self::$app->log->debug('update client: newval : '.$newval);
 
         if (strtolower($fieldname) == 'permissions') {
-            $this->addPermissions($id, $newval);
+            $this->setPermissions($id, $newval);
         }
 
         // Update allowed users? (Separate table)

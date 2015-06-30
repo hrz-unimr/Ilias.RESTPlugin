@@ -2,8 +2,8 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
 namespace RESTController\core\auth;
 
@@ -288,7 +288,7 @@ $app->group('/v1', function () use ($app) {
         });
 
 
-    // Enf-Of /oauth2-group
+    // End-Of /oauth2-group
     });
 
 
@@ -328,5 +328,5 @@ $app->group('/v1', function () use ($app) {
     });
 
 
-// Enf-Of /v1-group
+// End-Of /v1-group
 });
