@@ -10,15 +10,23 @@ class TestScenarios
     public static $test_user_token = "";
     public static $test_user_id = "-1";
 
+    public static $isAdminLoggedIn = false;
 
-    public static function adminLogin($I)
+    /**
+     * Logs as admin/apollon.
+     * @param $I
+     */
+    protected static function adminLogin($I)
     {
-        TestCommons::logMeIn($I);
+        if (TestScenarios::$isAdminLoggedIn == false) {
+            TestCommons::logMeIn($I);
+            TestScenarios::$isAdminLoggedIn = true;
+        }
     }
 
     /**
      * This function enables a login using a new client and new user.
-     * Therefore this method depends on createTestApiClient and createTestUser.
+     * Therefore this method depends on admCreateTestApiClient and createTestUser.
      *
      * @param $I
      */
@@ -39,8 +47,9 @@ class TestScenarios
      * @param $I
      * @param $permissionsJSON ,e.g. '[{"pattern":"/routes","verb":"GET"}]'
      */
-    public static function createTestApiClient($I, $permissionsJSON)
+    public static function admCreateTestApiClient($I, $permissionsJSON)
     {
+        TestScenarios::adminLogin($I);
         $I->amBearerAuthenticated(TestCommons::$token);
         $I->wantTo('create a new api_key');
         $a_post_data = array("api_key" => TestScenarios::$test_api_key, "api_secret" => TestScenarios::$test_api_secret, "oauth2_gt_resourceowner_active" => "1");
@@ -54,6 +63,22 @@ class TestScenarios
         $aPost = array('permissions' => $permissionsJSON);
         $I->sendPUT('clients/'.TestScenarios::$test_client_id, $aPost);
 
+        $I->seeResponseContainsJson(array('status' => 'success'));
+    }
+
+    /**
+     * Allows to add a permission statement, i.e. (route,verb) -  pair, to the test rest client.
+     * @param $I
+     * @param $pattern
+     * @param $verb
+     */
+    public static function admAddPermissionToTestApiClient($I, $pattern, $verb)
+    {
+        TestScenarios::adminLogin($I);
+        $I->amBearerAuthenticated(TestCommons::$token);
+        $I->wantTo('add permission to test client');
+        $postData = array("api_key" => TestScenarios::$test_api_key, 'pattern' => $pattern, 'verb' => $verb);
+        $I->sendPOST('clientpermissions',$postData);
         $I->seeResponseContainsJson(array('status' => 'success'));
     }
 
