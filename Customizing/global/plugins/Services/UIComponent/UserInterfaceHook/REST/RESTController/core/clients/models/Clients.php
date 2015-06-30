@@ -27,7 +27,8 @@ class Clients extends Libs\RESTModel {
      *
      *  @return NULL
      */
-    protected function setPermissions($id, $perm) {
+    protected function setPermissions($id, $perm)
+    {
         // Remove old entries
         $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_perm WHERE api_id = %d', $id);
         self::$sqlDB->manipulate($sql);
@@ -60,6 +61,62 @@ class Clients extends Libs\RESTModel {
         }
     }
 
+    /**
+     * Adds a route permission for a rest client specified by its api-key.
+     *
+     * @param $api_key
+     * @param $route_pattern
+     * @param $verb
+     * @return int
+     * @throws Exceptions\MissingApiKey
+     */
+    public function addPermission($api_key, $route_pattern, $verb)
+    {
+        // Sanity check, prevent double entries
+        $api_key_id = $this->getApiIdFromKey($api_key);
+        $sql = Libs\RESTLib::safeSQL("SELECT * FROM ui_uihk_rest_perm WHERE api_id = %d AND pattern = %s AND verb = %s", $api_key_id, $route_pattern, $verb);
+        $query = self::$sqlDB->query($sql);
+        if (self::$sqlDB->numRows($query) > 0) {
+            return -1;
+        }
+
+        // Add permission
+        $perm_columns = array(
+            'api_id' => array('integer', $api_key_id),
+            'pattern' => array('text', $route_pattern),
+            'verb' => array('text', $verb)
+        );
+        self::$sqlDB->insert('ui_uihk_rest_perm', $perm_columns);
+        return intval(self::$sqlDB->getLastInsertId());
+    }
+
+    /**
+     * Removes permission given by the unique permission id.
+     * @param $perm_id
+     * @return mixed
+     */
+    public function removePermission($perm_id)
+    {
+        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_perm WHERE id = %d', $perm_id);
+        $numAffRows = self::$sqlDB->manipulate($sql);
+        return $numAffRows;
+    }
+
+    /**
+     * Returns a permission (route-pattern + verb) given a unique permission id.
+     * @param $perm_id
+     * @return array
+     */
+    public function getPermissionByPermId($perm_id)
+    {
+        $sql = Libs\RESTLib::safeSQL("SELECT * FROM ui_uihk_rest_perm WHERE id = %d", $perm_id);
+        $query = self::$sqlDB->query($sql);
+        if (self::$sqlDB->numRows($query) > 0) {
+            $row = self::$sqlDB->fetchAssoc($query);
+            return $row;
+        }
+        return array();
+    }
 
     /**
      * Given a api_key ID and an array of user id numbers, this function writes the mapping to the table 'ui_uihk_rest_keymap'.
@@ -209,7 +266,7 @@ class Clients extends Libs\RESTModel {
     /**
      * Updates an item
      *
-     * @param $id - API-Key
+     * @param $id - API-Key-ID
      * @param $fieldname
      * @param $newval
      * @return mixed
