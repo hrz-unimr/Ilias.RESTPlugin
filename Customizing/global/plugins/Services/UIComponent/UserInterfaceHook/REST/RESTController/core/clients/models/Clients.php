@@ -2,8 +2,8 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
 namespace RESTController\core\clients;
 
@@ -22,10 +22,10 @@ class Clients extends Libs\RESTModel {
     /**
      * Will add all permissions given by $perm_json to the ui_uihk_rest_perm table for the api_key with $id.
      *
-     *  @params $id - The unique id of the api_key those permissions are for (see. ui_uihk_rest_keys.id)
-     *  @params $perm_json - JSON Array of "pattern" (route), "verb" (HTTP header) pairs of all permission
+     * @params $id - The unique id of the api_key those permissions are for (see. ui_uihk_rest_keys.id)
+     * @params $perm_json - JSON Array of "pattern" (route), "verb" (HTTP header) pairs of all permission
      *
-     *  @return NULL
+     * @return NULL
      */
     protected function setPermissions($id, $perm)
     {
@@ -92,6 +92,7 @@ class Clients extends Libs\RESTModel {
 
     /**
      * Removes permission given by the unique permission id.
+     *
      * @param $perm_id
      * @return mixed
      */
@@ -104,6 +105,7 @@ class Clients extends Libs\RESTModel {
 
     /**
      * Returns a permission statement (i.e. route-pattern + verb) given a unique permission id.
+     *
      * @param $perm_id
      * @return array
      */
@@ -120,6 +122,7 @@ class Clients extends Libs\RESTModel {
 
     /**
      * Returns all permissions for a rest client specified by its api-key.
+     *
      * @param $api_key
      * @return array
      * @throws Exceptions\MissingApiKey
