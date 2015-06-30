@@ -2,8 +2,8 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D.Schaefer and T. Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
 namespace RESTController\extensions\users_v1;
 
@@ -114,7 +114,7 @@ $app->delete('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::Token
         if ($status)
             $app->success();
         else
-            $app->halt(500, "Coulld not delete user ".$user_id.".");
+            $app->halt(500, "Could not delete user ".$user_id.".");
     } catch (\Exception $e) {
         $app->halt(400, $e->getMessage());
     }
