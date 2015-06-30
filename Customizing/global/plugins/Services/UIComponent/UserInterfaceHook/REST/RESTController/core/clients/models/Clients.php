@@ -95,7 +95,7 @@ class Clients extends Libs\RESTModel {
      * @param $perm_id
      * @return mixed
      */
-    public function removePermission($perm_id)
+    public function deletePermission($perm_id)
     {
         $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_perm WHERE id = %d', $perm_id);
         $numAffRows = self::$sqlDB->manipulate($sql);
@@ -103,7 +103,7 @@ class Clients extends Libs\RESTModel {
     }
 
     /**
-     * Returns a permission (route-pattern + verb) given a unique permission id.
+     * Returns a permission statement (i.e. route-pattern + verb) given a unique permission id.
      * @param $perm_id
      * @return array
      */
@@ -116,6 +116,24 @@ class Clients extends Libs\RESTModel {
             return $row;
         }
         return array();
+    }
+
+    /**
+     * Returns all permissions for a rest client specified by its api-key.
+     * @param $api_key
+     * @return array
+     * @throws Exceptions\MissingApiKey
+     */
+    public function getPermissionsForApiKey($api_key)
+    {
+        $api_key_id = $this->getApiIdFromKey($api_key);
+        $sql = Libs\RESTLib::safeSQL("SELECT * FROM ui_uihk_rest_perm WHERE api_id = %d", $api_key_id);
+        $query = self::$sqlDB->query($sql);
+        $aPermissions = array();
+        while($row = self::$sqlDB->fetchAssoc($query)) {
+            $aPermissions[] = $row;
+        }
+        return $aPermissions;
     }
 
     /**
@@ -198,8 +216,9 @@ class Clients extends Libs\RESTModel {
             // fetch allowd users for api-key
             $sqlCSV = Libs\RESTLib::safeSQL('SELECT user_id FROM ui_uihk_rest_keymap WHERE api_id = %d', $id);
             $queryCSV = self::$sqlDB->query($sqlCSV);
-            while($rowCSV = self::$sqlDB->fetchAssoc($queryCSV))
+            while($rowCSV = self::$sqlDB->fetchAssoc($queryCSV)) {
                 $csv[] = $rowCSV['user_id'];
+            }
             $rowKeys['access_user_csv'] = $csv;
 
             // Add entry to result

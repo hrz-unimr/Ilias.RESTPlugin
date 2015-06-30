@@ -353,6 +353,21 @@
         "pattern" => array("text", '/routes'),
         "verb" => array("text", 'GET')
     ));
+    $ilDB->insert("ui_uihk_rest_perm", array(
+        "api_id" => array("integer", 1),
+        "pattern" => array("text", '/clientpermissions'),
+        "verb" => array("text", 'GET')
+    ));
+    $ilDB->insert("ui_uihk_rest_perm", array(
+        "api_id" => array("integer", 1),
+        "pattern" => array("text", '/clientpermissions/:id'),
+        "verb" => array("text", 'DELETE')
+    ));
+    $ilDB->insert("ui_uihk_rest_perm", array(
+        "api_id" => array("integer", 1),
+        "pattern" => array("text", '/clientpermissions/'),
+        "verb" => array("text", 'POST')
+    ));
 
     $ilLog->write('Plugin REST -> Database updated to #9');
 ?>
