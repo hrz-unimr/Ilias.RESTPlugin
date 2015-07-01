@@ -11,7 +11,7 @@ namespace RESTController\libs\Exceptions;
 /**
  * This class provides a REST specific exception for missing parameter.
  */
-class IliasApplicatoin extends \Exception {
+class IliasApplication extends \Exception {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.
