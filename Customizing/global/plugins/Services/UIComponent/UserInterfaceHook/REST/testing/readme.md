@@ -18,8 +18,10 @@ A test run that involves all defined API tests can be done with
 A test run with a particular subset can be done via path notation, e.g.
 `php codecept.phar run tests/api/core`
 
+
 If you interested in other kinds of tests but need a certain scenario/setup, e.g.
 a bunch of system users, some courses and tests, you might want to use one of the predefined scenarios:
+
 `php codecept.phar --debug run tests/api/scenarios/peristerion/PeristerionUpCest.php`
 Here the infix "Up" denotes the construction of a scenario and "Down" the destruction.
 
