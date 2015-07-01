@@ -27,6 +27,11 @@ class PeristerionUpCest
     public function createTestClient(ApiTester $I)
     {
         TestScenarios::admCreateTestApiClient($I);
+        TestScenarios::admAddPermissionToTestApiClient($I, TestScenarios::$test_api_key, '/v1/testing', 'GET');
+    }
+
+    public function createSystemTestUsers($I)
+    {
         TestScenarios::admCreateTestUsers($I);
     }
 

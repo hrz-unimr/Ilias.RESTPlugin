@@ -18,6 +18,8 @@ class TestScenarios
     /* System users */
     public static $system_user_1_id = -1;
     public static $system_user_2_id = -1;
+    public static $system_user_1_login = 'hero';
+    public static $system_user_2_login = 'leander';
 
     /**
      * Log in as admin/apollon.
@@ -101,10 +103,10 @@ class TestScenarios
         TestScenarios::admAddPermissionToTestApiClient($I,TestCommons::$api_key,'/v1/users','POST');
         TestScenarios::admAddPermissionToTestApiClient($I,TestCommons::$api_key,'/v1/users/:user_id','DELETE');
 
-        $postData = array('login'=>'hero', 'passwd' => 'stormy', 'firstname' => 'Hero', 'lastname' => 'Sestos','email'=> 'myth@localhost', 'gender' => 'f');
+        $postData = array('login'=>TestScenarios::$system_user_1_login, 'passwd' => 'stormy', 'firstname' => 'Hero', 'lastname' => 'Sestos','email'=> 'myth@localhost', 'gender' => 'f');
         $I->sendPOST('v1/users',$postData);
         TestScenarios::$system_user_1_id = $I->grabDataFromResponseByJsonPath('$.id')[0];
-        $postData = array('login'=>'leander', 'passwd' => 'stormy', 'firstname' => 'Leander', 'lastname' => ' Abydos','email'=> 'myth@localhost', 'gender' => 'm');
+        $postData = array('login'=>TestScenarios::$system_user_2_login, 'passwd' => 'stormy', 'firstname' => 'Leander', 'lastname' => ' Abydos','email'=> 'myth@localhost', 'gender' => 'm');
         $I->sendPOST('v1/users',$postData);
         TestScenarios::$system_user_2_id = $I->grabDataFromResponseByJsonPath('$.id')[0];
 
@@ -133,10 +135,10 @@ class TestScenarios
         //\Codeception\Util\Debug::debug(print_r($data,true));die();
 
         for ($i = 0; $i < count($data); $i++) {
-            if ($data[$i]['login']=='hero') {
+            if ($data[$i]['login'] == TestScenarios::$system_user_1_login) {
                 TestScenarios::$system_user_1_id = $data[$i]['usr_id'];
             }
-            if ($data[$i]['login']=='leander') {
+            if ($data[$i]['login']== TestScenarios::$system_user_2_login) {
                 TestScenarios::$system_user_2_id = $data[$i]['usr_id'];
             }
         }
@@ -168,11 +170,14 @@ class TestScenarios
         // Step 1: get client id
         $I->sendGET('clients');
         $data = $I->grabDataFromResponseByJsonPath('$.clients[*]');
+
+        //\Codeception\Util\Debug::debug(print_r($data,true));//die();
         for ($i = 0; $i < count($data); $i++) {
             if ($data[$i]['api_key']==TestScenarios::$test_api_key) {
-                TestScenarios::$test_client_id = $data['id'];
+                TestScenarios::$test_client_id = $data[$i]['id'];
             }
          }
+        \Codeception\Util\Debug::debug("Testclient found : ".TestScenarios::$test_client_id);//die();
 
         // Step 2: delete client
         $I->sendDELETE('clients/'.TestScenarios::$test_client_id);

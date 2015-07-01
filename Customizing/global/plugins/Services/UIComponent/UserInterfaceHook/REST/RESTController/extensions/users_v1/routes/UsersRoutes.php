@@ -9,6 +9,7 @@ namespace RESTController\extensions\users_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\core\auth as Auth;
+use \RESTController\libs as Libs;
 
 
 $app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
@@ -108,14 +109,15 @@ $app->put('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRou
 $app->delete('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($user_id) use ($app) {
     try {
         $result = array();
+        Libs\RestLib::setupUserContext();
         $usr_model = new UsersModel();
         $status = $usr_model->deleteUser($user_id);
 
         if ($status)
-            $app->success();
+            $app->success("User with id $user_id deleted.");
         else
             $app->halt(500, "Could not delete user ".$user_id.".");
-    } catch (\Exception $e) {
+    } catch (Libs\Exceptions\IliasApplication $e) {
         $app->halt(400, $e->getMessage());
     }
 });

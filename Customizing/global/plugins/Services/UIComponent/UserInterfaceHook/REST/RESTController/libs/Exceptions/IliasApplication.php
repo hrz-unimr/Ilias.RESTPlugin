@@ -11,13 +11,13 @@ namespace RESTController\libs\Exceptions;
 /**
  * This class provides a REST specific exception for missing parameter.
  */
-class MissingParameter extends \Exception {
+class IliasApplicatoin extends \Exception {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.
      *  Using a unique string seems to be an easier solution than assigning unique numbers.
      */
-    const ID = 'RESTController\\libs\\Exceptions\\MissingParameter';
+    const ID = 'RESTController\\libs\\Exceptions\\IliasApplication';
 
 
     /**

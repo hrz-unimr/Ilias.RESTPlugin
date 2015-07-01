@@ -2,8 +2,8 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D.Schaefer and T. Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
 namespace RESTController\extensions\users_v1;
 
@@ -57,6 +57,7 @@ class UsersModel
      */
     public function deleteUser($id)
     {
+        Libs\RESTLib::initAccessHandling();
         $usrObj = \ilObjectFactory::getInstanceByObjId($id);
         $success = $usrObj->delete();
         return $success;

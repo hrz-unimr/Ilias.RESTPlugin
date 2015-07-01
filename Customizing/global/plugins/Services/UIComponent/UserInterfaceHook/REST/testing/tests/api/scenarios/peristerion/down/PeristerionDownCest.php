@@ -29,10 +29,10 @@ class PeristerionDownCest
         TestScenarios::admRemoveTestUsers($I);
     }
 
-    /*public function removeTestClient(ApiTester $I)
+    public function removeTestClient(ApiTester $I)
     {
         TestScenarios::admRemoveTestApiClient($I);
-    }*/
+    }
 
 
 }
