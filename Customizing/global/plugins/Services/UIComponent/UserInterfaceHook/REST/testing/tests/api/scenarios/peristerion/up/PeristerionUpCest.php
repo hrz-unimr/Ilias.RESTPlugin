@@ -3,7 +3,7 @@ use \ApiTester;
 
 /**
  * Class PeristerionUpCest
- * Peristerion is the a name of greek city and that of a test scenario.
+ * Peristerion is the a name of a greek city and that of a test scenario.
  *
  * Invocation of this test class causes a build up of a specific test scenario described below.
  * This includes the creation of additional ilias test users, courses etc.
@@ -30,9 +30,12 @@ class PeristerionUpCest
         TestScenarios::admAddPermissionToTestApiClient($I, TestScenarios::$test_api_key, '/v1/testing', 'GET');
     }
 
+    /**
+     * @depends createTestClient
+     */
     public function createSystemTestUsers($I)
     {
-        TestScenarios::admCreateTestUsers($I);
+        TestScenarios::createTestUsers($I);
     }
 
 

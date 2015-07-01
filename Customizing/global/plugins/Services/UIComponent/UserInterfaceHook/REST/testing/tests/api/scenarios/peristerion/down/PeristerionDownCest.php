@@ -3,7 +3,7 @@ use \ApiTester;
 
 /**
  * Class PeristerionDownCest
- * Peristerion is the a name of greek city and that of a test scenario.
+ * Peristerion is the a name of a greek city and that of a test scenario.
  *
  * Invocation of this test class causes the deconstruction of a specific test scenario described below.
  * This includes the destruction of specific ilias test users, courses etc. which have been constructed in Peristerion.
@@ -29,6 +29,9 @@ class PeristerionDownCest
         TestScenarios::admRemoveTestUsers($I);
     }
 
+    /**
+     * @depends removeTestUsers
+     */
     public function removeTestClient(ApiTester $I)
     {
         TestScenarios::admRemoveTestApiClient($I);

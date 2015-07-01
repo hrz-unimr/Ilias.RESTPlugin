@@ -6,14 +6,12 @@ class TestScenarios
     public static $test_api_key = 'testing';
     public static $test_api_secret = 'testing';
 
-    /* A system user that performs API requests with the above specified api key*/
-    public static $test_username = "zeus";
-    public static $test_user_password = "athen";
-    public static $test_user_token = "";
-    public static $test_user_id = "-1";
+    /* (Test) API-Key User */
+    public static $test_token = "";
 
     /* State variables */
     public static $isAdminLoggedIn = false;
+    public static $isAdminLoggedInViaTestClient = false;
 
     /* System users */
     public static $system_user_1_id = -1;
@@ -34,21 +32,24 @@ class TestScenarios
     }
 
     /**
-     * This function enables a login using a new client and new user.
-     * Therefore this method depends on admCreateTestApiClient and createTestUser.
+     * This function enables a login using a new client and the admin user.
+     * Therefore this method depends on admCreateTestApiClient (and createTestUser).
      *
      * @param $I
      */
     public static function testerLogin($I)
     {
-        $I->wantTo('authenticate via oauth2 user credentials');
-        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $aPost = array('grant_type' => 'password',
-            'username' => TestScenarios::$test_username,
-            'password' => TestScenarios::$test_user_password,
-            'api_key' => TestScenarios::$test_api_key);
-        $I->sendPOST('v1/oauth2/token',$aPost);
-        TestScenarios::$test_user_token = $I->grabDataFromResponseByJsonPath('$.access_token')[0];
+        if (TestScenarios::$isAdminLoggedInViaTestClient == false) {
+            $I->wantTo('authenticate via oauth2 user credentials');
+            $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+            $aPost = array('grant_type' => 'password',
+                'username' => TestCommons::$username,
+                'password' => TestCommons::$password,
+                'api_key' => TestScenarios::$test_api_key);
+            $I->sendPOST('v1/oauth2/token',$aPost);
+            TestScenarios::$test_token = $I->grabDataFromResponseByJsonPath('$.access_token')[0];
+            TestScenarios::$isAdminLoggedInViaTestClient = true;
+        }
     }
 
     /**
@@ -115,6 +116,28 @@ class TestScenarios
     }
 
     /**
+     * Creates some ILIAS test users using the newly created API-Key.
+     * Requirement: The test api_key needs the permissions to create (and delete) an ilias user.
+     * @param $I
+     */
+    public static function createTestUsers($I)
+    {
+        TestScenarios::testerLogin($I);
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users','POST');
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users/:user_id','DELETE');
+
+        $I->amBearerAuthenticated(TestScenarios::$test_token);
+        $I->wantTo('create a new test user');
+
+        $postData = array('login'=>TestScenarios::$system_user_1_login, 'passwd' => 'stormy', 'firstname' => 'Hero', 'lastname' => 'Sestos','email'=> 'myth@localhost', 'gender' => 'f');
+        $I->sendPOST('v1/users',$postData);
+        TestScenarios::$system_user_1_id = $I->grabDataFromResponseByJsonPath('$.id')[0];
+        $postData = array('login'=>TestScenarios::$system_user_2_login, 'passwd' => 'stormy', 'firstname' => 'Leander', 'lastname' => ' Abydos','email'=> 'myth@localhost', 'gender' => 'm');
+        $I->sendPOST('v1/users',$postData);
+        TestScenarios::$system_user_2_id = $I->grabDataFromResponseByJsonPath('$.id')[0];
+    }
+
+    /**
      * Removes some ILIAS test users.
      * Requirement: The test api_key needs the permissions to create (and delete) an ilias user.
      * @param $I
@@ -126,6 +149,47 @@ class TestScenarios
         TestScenarios::admAddPermissionToTestApiClient($I,TestCommons::$api_key,'/v1/users/:user_id','DELETE');
 
         $I->amBearerAuthenticated(TestCommons::$token);
+        $I->wantTo('remove test users');
+
+        // Step 1: get user ids (this is necessary in case when this method is invoked in a different process
+        // than admCreateTestUsers
+        $I->sendGET('v1/users');
+        $data = $I->grabDataFromResponseByJsonPath('$.users[*].user');
+        //\Codeception\Util\Debug::debug(print_r($data,true));die();
+
+        for ($i = 0; $i < count($data); $i++) {
+            if ($data[$i]['login'] == TestScenarios::$system_user_1_login) {
+                TestScenarios::$system_user_1_id = $data[$i]['usr_id'];
+            }
+            if ($data[$i]['login']== TestScenarios::$system_user_2_login) {
+                TestScenarios::$system_user_2_id = $data[$i]['usr_id'];
+            }
+        }
+
+        // Step 2: delete users
+        if (TestScenarios::$system_user_1_id > -1) {
+            $I->sendDELETE('v1/users/'.TestScenarios::$system_user_1_id);
+            $I->seeResponseContainsJson(array('status' => 'success'));
+        }
+
+        if (TestScenarios::$system_user_2_id > -1) {
+            $I->sendDELETE('v1/users/'.TestScenarios::$system_user_2_id);
+            $I->seeResponseContainsJson(array('status' => 'success'));
+        }
+    }
+
+    /**
+     * Removes some ILIAS test users with the newly created test API-Key.
+     * Requirement: The test api_key needs the permissions to create (and delete) an ilias user.
+     * @param $I
+     */
+    public static function removeTestUsers($I)
+    {
+        TestScenarios::testerLogin($I);
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users','POST');
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users/:user_id','DELETE');
+
+        $I->amBearerAuthenticated(TestScenarios::$test_token);
         $I->wantTo('remove test users');
 
         // Step 1: get user ids (this is necessary in case when this method is invoked in a different process
