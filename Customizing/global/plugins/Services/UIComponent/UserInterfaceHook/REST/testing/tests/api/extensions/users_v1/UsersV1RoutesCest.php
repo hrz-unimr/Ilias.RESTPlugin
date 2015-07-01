@@ -11,15 +11,19 @@ class UsersV1RoutesCest
 
     public function _before(ApiTester $I)
     {
-        //TestCommons::logMeIn($I);
-        require('tests/api/scenarios/irakleion/up/IrakleionUpCest.php');
+        require('tests/api/scenarios/irakleion/IrakleionUpCest.php');
         $scenario = new IrakleionUpCest();
         $scenario->createTestClient($I);
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users/','POST');
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users/','GET');
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users/:user_id','GET');
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users/:user_id','PUT');
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users/:user_id','DELETE');
     }
 
     public function _after(ApiTester $I)
     {
-        require('tests/api/scenarios/irakleion/down/IrakleionDownCest.php');
+        require('tests/api/scenarios/irakleion/IrakleionDownCest.php');
         $scenario = new IrakleionDownCest();
         $scenario->removeTestClient($I);
     }
