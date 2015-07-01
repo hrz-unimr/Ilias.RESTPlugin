@@ -12,21 +12,27 @@ class UsersV1RoutesCest
     public function _before(ApiTester $I)
     {
         //TestCommons::logMeIn($I);
+        require('tests/api/scenarios/irakleion/up/IrakleionUpCest.php');
+        $scenario = new IrakleionUpCest();
+        $scenario->createTestClient($I);
     }
 
     public function _after(ApiTester $I)
     {
+        require('tests/api/scenarios/irakleion/down/IrakleionDownCest.php');
+        $scenario = new IrakleionDownCest();
+        $scenario->removeTestClient($I);
     }
 
     public function addNewUser(ApiTester $I)
     {
-        TestCommons::logMeIn($I);
+       /* TestCommons::logMeIn($I);
         $I->amBearerAuthenticated(TestCommons::$token);
         $I->wantTo('create a new user');
         $a_post_data = array("api_key" => "testing", "api_secret" => 1234, "oauth2_gt_resourceowner_active" => "1");
         $I->sendPOST('clients',$a_post_data);
         $this->client_id = $I->grabDataFromResponseByJsonPath('$.id')[0];
-        $I->seeResponseContainsJson(array('status' => 'success'));
+        $I->seeResponseContainsJson(array('status' => 'success'));*/
     }
 
     /**
