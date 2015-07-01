@@ -26,5 +26,5 @@ Here the infix "Up" denotes the construction of a scenario and "Down" the destru
 
 Further information on running or creating API test cases can be found via console
 `php codecept.phar help run`
-or at the codeception website [http://codeception.com/docs/10-WebServices]{http://codeception.com/docs/10-WebServices}
+or at the codeception website http://codeception.com/docs/10-WebServices
 
