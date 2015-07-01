@@ -14,7 +14,7 @@ has to be adapted accordingly.
 
 A test run that involves all defined API tests can be done with
 
-php codecept.phar run api
+`php codecept.phar run api`
 
 A test run with a particular subset can be done via path notation, e.g.
     php codecept.phar run tests/api/core
