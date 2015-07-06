@@ -8,12 +8,8 @@ Just configure the file ishell.py and start by tying run.sh on the command line.
 
 Alternatively: start by typing ipython on the command line as described below.
 
-Example:
-$ ipython
-$ import ishell
-$ i = ishell.IShell()
-
-From there on you can invoke further commands.
+Examples:
 $ routes=i.getRoutes()
 $ i.get('/admin/describe/64');
+$ i.post('v1/users',{'login':'isabell','passwd':'top_secret','firstname':'isa','lastname':'bell','email':'testing@localhost','gender','f'})
 

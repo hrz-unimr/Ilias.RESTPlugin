@@ -121,7 +121,9 @@ $app->group('/v1', function () use ($app) {
             $app->success("Enrolled user with id $user_id to course with id $crs_ref_id");
     });
 
-
+    /**
+     * Assigns the authenticated user to a course specified by the GET parameter ref_id.
+     */
     $app->get('/courses/join', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
@@ -150,7 +152,9 @@ $app->group('/v1', function () use ($app) {
         }
     });
 
-
+    /**
+     * Removes the authenticated user from a course speicifed by the GET parameter "ref_id".
+     */
     $app->get('/courses/leave', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();

@@ -44,7 +44,7 @@ class RESTLib {
     /* <REMOVE THIS COMMENT>
      * Todo:
      *  Remaining 'artifact' of code-refactoring. This is really only used to load the following classes:
-     *   ilObjDataCache, objDefinition, ilSetting, ilAppEventHandler, rbacreview, rbacadmin
+     *   ilObjDataCache, objDefinition, ilSetting, ilAppEventHandler, rbacreview, rbacadmin, rbacsystem
      *  Some of of which seems to be used for debugging/development only.
      * Suggestion:
      *  Replace initGlobal(...) with methods similar to loadIlUser().
