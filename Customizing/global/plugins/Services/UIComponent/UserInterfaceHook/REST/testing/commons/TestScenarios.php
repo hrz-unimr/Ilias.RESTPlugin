@@ -55,7 +55,6 @@ class TestScenarios
     /**
      * Creates a test REST client for the test scenarios.
      * @param $I
-     *
      */
     public static function admCreateTestApiClient($I)
     {
@@ -223,7 +222,6 @@ class TestScenarios
     /**
      * Removes a test REST client for the test scenarios.
      * @param $I
-     *
      */
     public static function admRemoveTestApiClient($I)
     {

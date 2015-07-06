@@ -11,11 +11,11 @@ class UsersV1RoutesCest
 
     public function _before(ApiTester $I)
     {
-        require('tests/api/scenarios/irakleion/IrakleionUpCest.php');
+        require_once('tests/api/scenarios/irakleion/IrakleionUpCest.php');
         $scenario = new IrakleionUpCest();
         $scenario->createTestClient($I);
-        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users/','POST');
-        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users/','GET');
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users','POST');
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users','GET');
         TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users/:user_id','GET');
         TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users/:user_id','PUT');
         TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users/:user_id','DELETE');
@@ -23,59 +23,69 @@ class UsersV1RoutesCest
 
     public function _after(ApiTester $I)
     {
-        require('tests/api/scenarios/irakleion/IrakleionDownCest.php');
+        require_once('tests/api/scenarios/irakleion/IrakleionDownCest.php');
         $scenario = new IrakleionDownCest();
         $scenario->removeTestClient($I);
     }
 
-    public function addNewUser(ApiTester $I)
+    public function addUser(ApiTester $I)
     {
-       /* TestCommons::logMeIn($I);
-        $I->amBearerAuthenticated(TestCommons::$token);
+        TestScenarios::testerLogin($I);
+        $I->amBearerAuthenticated(TestScenarios::$test_token);
         $I->wantTo('create a new user');
-        $a_post_data = array("api_key" => "testing", "api_secret" => 1234, "oauth2_gt_resourceowner_active" => "1");
-        $I->sendPOST('clients',$a_post_data);
-        $this->client_id = $I->grabDataFromResponseByJsonPath('$.id')[0];
-        $I->seeResponseContainsJson(array('status' => 'success'));*/
+        $postData = array('login'=>'api_test_users_v1', 'passwd' => 'api_check', 'firstname' => 'user_v1_firstname', 'lastname' => 'user_v1_lastname','email'=> 'api-testing@localhost', 'gender' => 'f');
+        $I->sendPOST('v1/users',$postData);
+        $this->user_id = $I->grabDataFromResponseByJsonPath('$.id')[0];
+        $I->seeResponseContainsJson(array('status' => 'success'));
     }
 
     /**
-     *  @depends addNewClient
+     * @depends addUser
      */
-   /* public function setPermissionTest(ApiTester $I)
+    public function modifyUser(ApiTester $I)
     {
-        $I->wantTo('put route permission on new client '.$this->client_id);
-        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->amBearerAuthenticated(TestCommons::$token);
-
-        $aPost = array('permissions' => '[{"pattern":"/routes","verb":"GET"}]');
-        $I->sendPUT('clients/'.$this->client_id,$aPost);
-
+        TestScenarios::testerLogin($I);
+        $I->amBearerAuthenticated(TestScenarios::$test_token);
+        $I->wantTo('modify a new user');
+        $data = array('firstname' => 'user_v1_mod');
+        $I->sendPUT('v1/users/'.$this->user_id,$data);
+        //$this->user_id = $I->grabDataFromResponseByJsonPath('$.id')[0];
         $I->seeResponseContainsJson(array('status' => 'success'));
-    }*/
+    }
 
     /**
-     *  @depends addNewClient
+     * @depends modifyUser
      */
-    /*public function listAllClients(ApiTester $I)
+    public function getSingleUser(ApiTester $I)
     {
-        $I->wantTo('list all clients');
-        $I->amBearerAuthenticated(TestCommons::$token);
-        $I->sendGET('clients');
-        //$success =  array_search($this->client_id,$I->grabDataFromResponseByJsonPath('$.clients[*].id'));
-        //\PHPUnit_Framework_Assert::assertTrue($success);
+        TestScenarios::testerLogin($I);
+        $I->amBearerAuthenticated(TestScenarios::$test_token);
+        $I->wantTo('retrieve information about a single user');
+        $I->sendGET('v1/users/'.$this->user_id);
         $I->seeResponseContainsJson(array('status' => 'success'));
-    }*/
+    }
 
     /**
-     *  @depends setPermissionTest
+     * @depends getSingleUser
      */
-    /*public function deleteClient(ApiTester $I)
+    public function getAllUsers(ApiTester $I)
     {
-        $I->wantTo('delete client '.$this->client_id);
-        $I->amBearerAuthenticated(TestCommons::$token);
-        $I->sendDELETE('clients/'.$this->client_id);
+        TestScenarios::testerLogin($I);
+        $I->amBearerAuthenticated(TestScenarios::$test_token);
+        $I->wantTo('list all users');
+        $I->sendGET('v1/users');
         $I->seeResponseContainsJson(array('status' => 'success'));
-    }*/
+    }
 
+    /**
+     * @depends getAllUsers
+     */
+    public function deleteUser(ApiTester $I)
+    {
+        TestScenarios::testerLogin($I);
+        $I->amBearerAuthenticated(TestScenarios::$test_token);
+        $I->wantTo('delete a user');
+        $I->sendDELETE('v1/users/'.$this->user_id);
+        $I->seeResponseContainsJson(array('status' => 'success'));
+    }
 }

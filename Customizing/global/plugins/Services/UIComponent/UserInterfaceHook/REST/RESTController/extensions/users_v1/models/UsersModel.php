@@ -137,6 +137,7 @@ class UsersModel
     public function updateUser($usr_id, $fieldname, $newval)
     {
         $usrObj = \ilObjectFactory::getInstanceByObjId($usr_id);
+
         switch ($fieldname) {
             case 'firstname':
             case 'lastname':

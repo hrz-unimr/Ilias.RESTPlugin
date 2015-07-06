@@ -72,6 +72,7 @@ class Clients extends Libs\RESTModel {
      */
     public function addPermission($api_key, $route_pattern, $verb)
     {
+        $route_pattern = rtrim($route_pattern, '/');
         // Sanity check, prevent double entries
         $api_key_id = $this->getApiIdFromKey($api_key);
         $sql = Libs\RESTLib::safeSQL("SELECT * FROM ui_uihk_rest_perm WHERE api_id = %d AND pattern = %s AND verb = %s", $api_key_id, $route_pattern, $verb);

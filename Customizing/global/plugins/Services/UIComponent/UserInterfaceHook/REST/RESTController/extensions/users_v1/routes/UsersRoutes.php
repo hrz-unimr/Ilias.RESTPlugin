@@ -10,8 +10,11 @@ namespace RESTController\extensions\users_v1;
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\core\auth as Auth;
 use \RESTController\libs as Libs;
+use \RESTController\libs\Exceptions as LibExceptions;
 
-
+/**
+ * Retrieves all available users.
+ */
 $app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
         $limit = 10;
         $offset = 0;
@@ -48,7 +51,9 @@ $app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', 
 
 });
 
-
+/**
+ * Retrieves data of a user specified by its id.
+ */
 $app->get('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenAuth', function ($user_id) use ($app) {
         $id = $user_id;
         if ($user_id == "mine") {
@@ -65,7 +70,9 @@ $app->get('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenAut
 
 });
 
-
+/**
+ * Creates a user entry.
+ */
 $app->post('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { // create
 
         $request = $app->request();
@@ -86,12 +93,17 @@ $app->post('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',
 
 });
 
-
+/**
+ * Modifies an existing user entry.
+ * Note: it is important to provide all fields not just those which need to be changed. Otherwise
+ * all fields except the login field will be overwritten with default values.
+ */
 $app->put('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($user_id) use ($app){ // update
     try {
         $request = $app->request();
         $attribs = array("login", "passwd", "firstname", "lastname", "email", "gender", "auth_mode");
         $user_data = array();
+        $usr_model = new UsersModel();
         foreach($attribs as $key) {
             $value = $request->params($key);
             $usr_model->updateUser($user_id, $key, $value);
@@ -100,12 +112,14 @@ $app->put('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRou
 
         $app->success($usr_basic_info);
 
-    } catch (\Exception $e) {
+    } catch (LibExceptions\UpdateFailed $e) {
         $app->halt(400, $e->getMessage());
     }
 });
 
-
+/**
+ * Deletes a user entry.
+ */
 $app->delete('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($user_id) use ($app) {
     try {
         $result = array();

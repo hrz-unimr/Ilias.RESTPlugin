@@ -2,14 +2,13 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, T. Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Authors: D.Schaefer, T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * Since 2014
  */
-namespace RESTController\core\clients\Exceptions;
-
+namespace RESTController\libs\Exceptions;
 
 /**
- *
+ * This class provides generic exception handling for UPDATE /PUT events.
  */
 class UpdateFailed extends \Exception {
     /**
