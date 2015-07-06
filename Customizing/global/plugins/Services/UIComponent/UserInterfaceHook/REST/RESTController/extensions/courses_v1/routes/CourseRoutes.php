@@ -63,14 +63,31 @@ $app->group('/v1', function () use ($app) {
     });
 
 
-    $app->delete('/courses/:id',  function ($id) use ($app) {
+    $app->delete('/courses/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($id) use ($app) {
         $request = $app->request();
-        // todo: check permissions
-        $result = array();
-        $crs_model = new CoursesModel();
-        $soap_result = $crs_model->deleteCourse($id);
 
-        $app->success($soap_result);
+        $auth = new Auth\Util();
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $user_id = $accessToken->getUserId();
+        global $ilUser;
+        Libs\RestLib::loadIlUser();
+        $ilUser->setId((int)$user_id);
+        $ilUser->read();
+        Libs\RestLib::initAccessHandling();
+
+        global $rbacsystem;
+
+        if ($rbacsystem->checkAccess('delete',$id)) {
+            $result = array();
+            $crs_model = new CoursesModel();
+            $soap_result = $crs_model->deleteCourse($id);
+
+            $app->success($soap_result);
+        } else {
+            $app->success("No Permission.");
+        }
+
     });
 
 
