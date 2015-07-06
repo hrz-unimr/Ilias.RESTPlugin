@@ -14,11 +14,14 @@ class CoursesV1RoutesCest
         require_once('tests/api/scenarios/peristerion/PeristerionUpCest.php');
         $scenario = new PeristerionUpCest();
         $scenario->createTestClient($I);
-        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users','POST');
-        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users','GET');
-        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users/:user_id','GET');
-        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users/:user_id','PUT');
-        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/users/:user_id','DELETE');
+
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/courses','POST');
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/courses/:ref_id','GET');
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/courses/:ref_id','DELETE');
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/courses/enroll','GET');
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/courses/join','GET');
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/courses/leave','GET');
+
         $scenario->createSystemTestUsers($I);
     }
 
@@ -35,9 +38,10 @@ class CoursesV1RoutesCest
         TestScenarios::testerLogin($I);
         $I->amBearerAuthenticated(TestScenarios::$test_token);
         $I->wantTo('create a new course');
-        //$postData = array('login'=>'api_test_users_v1', 'passwd' => 'api_check', 'firstname' => 'user_v1_firstname', 'lastname' => 'user_v1_lastname','email'=> 'api-testing@localhost', 'gender' => 'f');
-       // $I->sendPOST('v1/courses',$postData);
-        $this->user_id = $I->grabDataFromResponseByJsonPath('$.id')[0];
+        $postData = array('ref_id'=>'1', 'title' => 'API Testing Course', 'description' => 'Created by Codeception');
+        $I->sendPOST('v1/courses',$postData);
+
+        $this->course_id = $I->grabDataFromResponseByJsonPath('$.refId')[0];
         $I->seeResponseContainsJson(array('status' => 'success'));
     }
 

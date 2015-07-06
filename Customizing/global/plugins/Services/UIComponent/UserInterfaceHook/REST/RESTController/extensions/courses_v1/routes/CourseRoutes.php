@@ -63,7 +63,7 @@ $app->group('/v1', function () use ($app) {
     });
 
 
-    $app->delete('/courses/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($id) use ($app) {
+    $app->delete('/courses/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
         $request = $app->request();
 
         $auth = new Auth\Util();
@@ -78,10 +78,10 @@ $app->group('/v1', function () use ($app) {
 
         global $rbacsystem;
 
-        if ($rbacsystem->checkAccess('delete',$id)) {
+        if ($rbacsystem->checkAccess('delete',$ref_id)) {
             $result = array();
             $crs_model = new CoursesModel();
-            $soap_result = $crs_model->deleteCourse($id);
+            $soap_result = $crs_model->deleteCourse($ref_id);
 
             $app->success($soap_result);
         } else {
