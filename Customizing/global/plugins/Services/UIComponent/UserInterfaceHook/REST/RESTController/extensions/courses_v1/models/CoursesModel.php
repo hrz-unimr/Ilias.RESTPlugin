@@ -2,8 +2,8 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D.Schaefer, T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
 namespace RESTController\extensions\courses_v1;
 
@@ -40,6 +40,20 @@ class CoursesModel
        // $list = ilUtil::getDataDir();
         $list = \ilUtil::_getObjectsByOperations('crs','visible,read',$usr_id); // returns ref_ids
         return $list;
+    }
+
+    public function getAllCourses($usr_id)
+    {
+        Libs\RESTLib::loadIlUser();
+        global    $ilUser;
+        $ilUser->setId($usr_id);
+        $ilUser->read();
+        Libs\RESTLib::initAccessHandling();
+        $list = \ilUtil::_getObjectsByOperations('crs','visible,read'); // returns ref_ids
+        foreach ($list as $id) {
+            $result[] = array($this->getCourseInfo($id));
+        }
+        return $result;
     }
 
     /**

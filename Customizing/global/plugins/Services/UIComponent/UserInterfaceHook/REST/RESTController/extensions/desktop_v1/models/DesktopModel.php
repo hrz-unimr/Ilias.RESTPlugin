@@ -2,8 +2,8 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D.Schaefer, T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
 namespace RESTController\extensions\desktop_v1;
 
@@ -21,6 +21,7 @@ class DesktopModel
     /**
      * Retrieves all future appointments for a given user.
      * @param $user_id
+     * @return array
      */
     function getPersonalDesktopItems($user_id)
     {
@@ -35,6 +36,11 @@ class DesktopModel
         return $items;
     }
 
+    /**
+     * Removes an item from the user's desktop.
+     * @param $user_id
+     * @param $ref_id
+     */
     function removeItemFromDesktop($user_id, $ref_id)
     {
         $obj = \ilObjectFactory::getInstanceByRefId($ref_id,false);
@@ -42,7 +48,13 @@ class DesktopModel
         $this->removeItemFromDesktopWithType($user_id, $ref_id, $item_type);
     }
 
-    function removeItemFromDesktopWithType($user_id, $ref_id, $item_type)
+    /**
+     * Internal: Removes an item of a certain type from the user's desktop.
+     * @param $user_id
+     * @param $ref_id
+     * @param $item_type
+     */
+    private function removeItemFromDesktopWithType($user_id, $ref_id, $item_type)
     {
 
         Libs\RESTLib::loadIlUser();
@@ -54,6 +66,12 @@ class DesktopModel
         $ilUser->dropDesktopItem($ref_id, $item_type);
     }
 
+    /**
+     * Adds a new item to the user's desktop.
+     * @param $user_id
+     * @param $ref_id
+     * @return bool
+     */
     function addItemToDesktop($user_id, $ref_id)
     {
         $obj = \ilObjectFactory::getInstanceByRefId($ref_id,false);
@@ -62,8 +80,14 @@ class DesktopModel
         return true;
     }
 
-
-    function addItemToDesktopWithType($user_id, $ref_id, $item_type)
+    /**
+     * Internal: Adds a new item of a certain type to the user's desktop.
+     * @param $user_id
+     * @param $ref_id
+     * @param $item_type
+     * @return bool
+     */
+    private function addItemToDesktopWithType($user_id, $ref_id, $item_type)
     {
 
         Libs\RESTLib::loadIlUser();
@@ -75,8 +99,14 @@ class DesktopModel
         return true;
     }
 
-
-    function isDesktopItem($user_id, $ref_id)
+    /**
+     * Checks if the item specified by $ref_id is located at the user's desktop.
+     * TODO: implementation
+     * @param $user_id
+     * @param $ref_id
+     * @return bool
+     */
+    /*function isDesktopItem($user_id, $ref_id)
     {
 
         Libs\RESTLib::loadIlUser();
@@ -87,7 +117,7 @@ class DesktopModel
         }
         Libs\RESTLib::initAccessHandling();
         return $ilUser->isDesktopItem($a_item_id, $a_type);
-    }
+    }*/
 
 
 }

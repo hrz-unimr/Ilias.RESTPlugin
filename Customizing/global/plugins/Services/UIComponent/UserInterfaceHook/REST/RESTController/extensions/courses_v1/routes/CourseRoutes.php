@@ -2,8 +2,8 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D.Schaefer, T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
 namespace RESTController\extensions\courses_v1;
 
@@ -11,9 +11,31 @@ namespace RESTController\extensions\courses_v1;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 use \RESTController\extensions\users_v1 as Users;
-use \RESTController\extensions\courses_v1\Exceptions as CourseExceptions;
+use \RESTController\extensions\courses_v1 as Courses;
 
 $app->group('/v1', function () use ($app) {
+
+    /**
+     * Retrieves a list of all courses of the authenticated user and meta-information about them (no content).
+     */
+   $app->get('/courses', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+        $auth = new Auth\Util();
+        $accessToken = $auth->getAccessToken();
+        $user_id = $accessToken->getUserId();
+        try {
+        $crs_model = new CoursesModel();
+        $data1 =  $crs_model->getAllCourses($user_id);
+        //$data2 =  $crs_model->getCourseInfo($ref_id);
+
+        $result = array(
+            'courses' => $data1
+        );
+        $app->success($result);
+        } catch (Libs\Exceptions\ReadFailed $e) {
+            $app->halt(500, $e->getMessage());
+        }
+    });
+
     /**
      * Retrieves the content and a description of a course specified by ref_id.
      */
@@ -23,7 +45,7 @@ $app->group('/v1', function () use ($app) {
         $user = $accessToken->getUserName();
         $id = $accessToken->getUserId();
         $app->log->debug('in course get ref_id= '.$ref_id);
-        //try {
+        try {
             $crs_model = new CoursesModel();
             $data1 =  $crs_model->getCourseContent($ref_id);
             $data2 =  $crs_model->getCourseInfo($ref_id);
@@ -33,10 +55,9 @@ $app->group('/v1', function () use ($app) {
                 'courseinfo' => $data2
             );
             $app->success($result);
-        /*} catch (\Exception $e) {
-            // TODO: Replace message with const-class-variable and error-code with unique string
-            $app->halt(500, 'Error: Could not retrieve data for user '.$id.".", -15);
-        }*/
+        } catch (Libs\Exceptions\ReadFailed $e) {
+            $app->halt(500, $e->getMessage());
+        }
     });
 
 
@@ -57,12 +78,14 @@ $app->group('/v1', function () use ($app) {
             $result = array('refId' => $new_ref_id);
             $app->success($result);
         }
-        catch (LibExceptions\MissingParameter $e) {
+        catch (Libs\Exceptions\MissingParameter $e) {
             $app->halt(422, $e->getFormatedMessage(), $e::ID);
         }
     });
 
-
+    /**
+     * Deletes the course specified by ref_id.
+     */
     $app->delete('/courses/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
         $request = $app->request();
 
@@ -127,7 +150,7 @@ $app->group('/v1', function () use ($app) {
         try {
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->joinCourse($user_id, $crs_ref_id);
-        } catch (\Exception $e) {
+        } catch (Libs\Exceptions\CreateFailed $e) {
             // TODO: Replace message with const-class-variable and error-code with unique string
             $app->halt(400, "Error: Subscribing user ".$user_id." to course with ref_id = ".$crs_ref_id." failed. Exception:".$e->getMessage());
         }
@@ -163,7 +186,7 @@ $app->group('/v1', function () use ($app) {
                 'msg' => "User ".$authorizedUserId." subscribed to course with ref_id = " . $ref_id . " successfully.",
             );
             $app->success($result);
-        } catch (CourseExceptions\SubscriptionFailed $e) {
+        } catch (Courses\SubscriptionFailed $e) {
             $app->halt(400, "Error: Subscribing user ".$authorizedUserId." to course with ref_id = ".$ref_id." failed. Exception:".$e->getMessage(), -15);
         }
     });
@@ -184,7 +207,7 @@ $app->group('/v1', function () use ($app) {
             $crsreg_model->leaveCourse($authorizedUserId, $ref_id);
 
             $app->success("User ".$authorizedUserId." has left course with ref_id = " . $ref_id . ".");
-        } catch (CourseExceptions\CancelationFailed $e) {
+        } catch (Courses\CancelationFailed $e) {
             $app->halt(400, 'Error: Could not perform action for user '.$authorizedUserId.". ".$e->getMessage(), -15);
         }
     });

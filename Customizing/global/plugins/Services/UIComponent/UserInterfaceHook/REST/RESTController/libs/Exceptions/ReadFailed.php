@@ -8,19 +8,19 @@
 namespace RESTController\libs\Exceptions;
 
 /**
- * This class provides generic exception handling for UPDATE /PUT events.
+ * This class provides generic exception handling for READ / GET events.
  */
-class UpdateFailed extends \Exception {
+class ReadFailed extends \Exception {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.
      *  Using a unique string seems to be an easier solution than assigning unique numbers.
      */
-    const ID = 'RESTController\\libs\\Exceptions\\UpdateFailed';
+    const ID = 'RESTController\\libs\\Exceptions\\ReadFailed';
 
 
     /**
-     * Stores api-id and fieldname of client causing DELETE issue
+     * Stores api-id and fieldname of client causing GET issue
      */
     protected $id;
     protected $fieldName;

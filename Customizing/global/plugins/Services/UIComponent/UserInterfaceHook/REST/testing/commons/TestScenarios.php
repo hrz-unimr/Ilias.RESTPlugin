@@ -19,6 +19,11 @@ class TestScenarios
     public static $system_user_1_login = 'hero';
     public static $system_user_2_login = 'leander';
 
+    /* Courses */
+    public static $course1_id = "-1";
+    public static $course1_title = "API-Testing";
+    public static $course1_description = "Created by Codeception.";
+
     /**
      * Log in as admin/apollon.
      * @param $I
@@ -218,7 +223,6 @@ class TestScenarios
         }
     }
 
-
     /**
      * Removes a test REST client for the test scenarios.
      * @param $I
@@ -243,6 +247,36 @@ class TestScenarios
 
         // Step 2: delete client
         $I->sendDELETE('clients/'.TestScenarios::$test_client_id);
+        $I->seeResponseContainsJson(array('status' => 'success'));
+    }
+
+    /**
+     * Creates a test course.
+     * Prerequisites: test client must exist and must have the appropriate permissions.
+     * @param ApiTester $I
+     */
+    public static function createTestCourse1(ApiTester $I)
+    {
+        TestScenarios::testerLogin($I);
+        $I->amBearerAuthenticated(TestScenarios::$test_token);
+        $I->wantTo('create a new course');
+        $postData = array('ref_id'=>'1', 'title' => TestScenarios::$course1_title, 'description' => TestScenarios::$course1_description);
+        $I->sendPOST('v1/courses',$postData);
+        TestScenarios::$course1_id = $I->grabDataFromResponseByJsonPath('$.refId')[0];
+        $I->seeResponseContainsJson(array('status' => 'success'));
+    }
+
+    /**
+     * Creates a test course.
+     * Prerequisites: test client must exist and must have the appropriate permissions.
+     * @param ApiTester $I
+     */
+    public static function deleteCourse1(ApiTester $I)
+    {
+        TestScenarios::testerLogin($I);
+        $I->amBearerAuthenticated(TestScenarios::$test_token);
+        $I->wantTo('delete a course');
+        $I->sendDELETE('v1/courses/'.TestScenarios::$course1_id);
         $I->seeResponseContainsJson(array('status' => 'success'));
     }
 }
