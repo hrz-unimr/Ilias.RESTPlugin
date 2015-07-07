@@ -11,7 +11,7 @@ namespace RESTController\extensions\courses_v1;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 use \RESTController\extensions\users_v1 as Users;
-
+use \RESTController\extensions\courses_v1\Exceptions as CourseExceptions;
 
 $app->group('/v1', function () use ($app) {
     /**
@@ -22,7 +22,7 @@ $app->group('/v1', function () use ($app) {
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
         $id = $accessToken->getUserId();
-
+        $app->log->debug('in course get ref_id= '.$ref_id);
         //try {
             $crs_model = new CoursesModel();
             $data1 =  $crs_model->getCourseContent($ref_id);
@@ -141,7 +141,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Assigns the authenticated user to a course specified by the GET parameter ref_id.
      */
-    $app->get('/courses/join', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+    $app->get('/courses/join/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
@@ -149,7 +149,7 @@ $app->group('/v1', function () use ($app) {
 
         $request = $app->request();
         try {
-            $ref_id = $request->params("ref_id");
+            //$ref_id = $request->params("ref_id");
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->joinCourse($authorizedUserId, $ref_id);
 
@@ -163,16 +163,15 @@ $app->group('/v1', function () use ($app) {
                 'msg' => "User ".$authorizedUserId." subscribed to course with ref_id = " . $ref_id . " successfully.",
             );
             $app->success($result);
-        } catch (\Exception $e) {
-            // TODO: Replace message with const-class-variable and error-code with unique string
-            $app->halt(400, "Error: Subscribing user ".$authorziedUserid." to course with ref_id = ".$ref_id." failed. Exception:".$e->getMessage(), -15);
+        } catch (CourseExceptions\SubscriptionFailed $e) {
+            $app->halt(400, "Error: Subscribing user ".$authorizedUserId." to course with ref_id = ".$ref_id." failed. Exception:".$e->getMessage(), -15);
         }
     });
 
     /**
      * Removes the authenticated user from a course speicifed by the GET parameter "ref_id".
      */
-    $app->get('/courses/leave', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+    $app->get('/courses/leave/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
@@ -180,13 +179,12 @@ $app->group('/v1', function () use ($app) {
 
         $request = $app->request();
         try {
-            $ref_id = $request->params("ref_id", null, true);
+            //$ref_id = $request->params("ref_id", null, true);
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->leaveCourse($authorizedUserId, $ref_id);
 
             $app->success("User ".$authorizedUserId." has left course with ref_id = " . $ref_id . ".");
-        } catch (\Exception $e) {
-            // TODO: Replace message with const-class-variable and error-code with unique string
+        } catch (CourseExceptions\CancelationFailed $e) {
             $app->halt(400, 'Error: Could not perform action for user '.$authorizedUserId.". ".$e->getMessage(), -15);
         }
     });
