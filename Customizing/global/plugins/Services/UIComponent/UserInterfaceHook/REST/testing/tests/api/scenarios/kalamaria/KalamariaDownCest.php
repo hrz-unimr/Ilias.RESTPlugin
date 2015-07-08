@@ -21,7 +21,7 @@ class KalamariaDownCest
         TestScenarios::admRemoveTestUsers($I);
     }
 
-    public function removeCourse(ApiTester $I)
+    public function removeTestingCourse(ApiTester $I)
     {
         TestScenarios::deleteCourse1($I);
     }
