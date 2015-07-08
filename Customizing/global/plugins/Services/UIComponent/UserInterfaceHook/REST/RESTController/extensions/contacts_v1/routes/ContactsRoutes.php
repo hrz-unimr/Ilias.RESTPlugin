@@ -10,13 +10,14 @@ namespace RESTController\extensions\contacts_v1;
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
+use \RESTController\libs\Exceptions as LibExceptions;
 
 
 $app->group('/v1', function () use ($app) {
     /**
      * Returns the personal ILIAS contacts for a user specified by id.
      */
-    $app->get('/contacts/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($id) use ($app) {
+    $app->get('/contacts/:id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($id) use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
@@ -28,8 +29,8 @@ $app->group('/v1', function () use ($app) {
                 $data = $model->getMyContacts($id);
 
                 $app->success($data);
-            } catch (\Exception $e) {
-                $app->halt(500, 'Error: Could not retrieve data for user '.$id.".", -15);
+            } catch (Libs\ReadFailed $e) {
+                $app->halt(404, 'Error: Could not retrieve data for user '.$id.".", -15);
             }
         }
         else
@@ -55,7 +56,8 @@ $app->group('/v1', function () use ($app) {
                 $app->success($data);
 
         }
-        else
+        else {
             $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
+        }
     });
 });
