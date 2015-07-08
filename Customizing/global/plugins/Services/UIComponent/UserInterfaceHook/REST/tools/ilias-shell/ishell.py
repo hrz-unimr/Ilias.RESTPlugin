@@ -8,7 +8,7 @@ class IShell:
     """  
     ILIAS-Shell
     For personalized and administrative operations on your ILIAS LMS.
-    v.1.5
+    v.1.6
     """
 
     def __init__(self):
@@ -68,7 +68,11 @@ class IShell:
     def show(self):
 	"""Pretty printing of a json response."""
         print(json.dumps(self.response, indent=2))
-     
+  
+    def showError(self):
+	"""Pretty printing the error responses."""
+	print(json.dumps(json.loads(self.error), indent=2))	
+   
     def dump(self, jsondata):
         f = open('dump.json','w')
         f.write(json.dumps(jsondata, indent=2))
@@ -91,7 +95,9 @@ class IShell:
 		self.show()
 	except urllib2.HTTPError as e:
 		print '> ' + str(e.code) + ' - ' + e.reason
-		print e.read()
+		self.error = e.read();
+		self.showError();
+		#print e.read()
 
     def get(self, routeStr):
 	"""Sends a GET request to the specified route.
@@ -109,7 +115,9 @@ class IShell:
 		self.show()
 	except urllib2.HTTPError as e:
 		print '> ' + str(e.code) + ' - ' + e.reason
-		print e.read()
+		self.error = e.read();
+		self.showError();
+		#print e.read()
 	except ValueError as e:
 		print e
     
@@ -142,6 +150,30 @@ class IShell:
         	request.get_method = lambda: 'DELETE'
 		response = urllib2.urlopen(url=request).read()
 		data = json.loads(response)
+        	self.response = data
+		self.show()
+	except urllib2.HTTPError as e:
+		print '> ' + str(e.code) + ' - ' + e.reason
+		print e.read()
+
+    def delete(self, routeStr, dict):
+	""" Sends a DELETE request with additional data.
+	    Example call:
+		i.delete('v1/desktop/overview',{"ref_id":61})
+	"""	
+        if routeStr[0]=='/':
+                routeStr = routeStr[1:]
+	try:
+        	request = urllib2.Request(self.rest_endpoint+'/'+routeStr)
+        	request.add_header('Content-Type','application/json');
+		request.add_header('Authorization', ' Bearer '+ self.token)
+        	request.get_method = lambda: 'DELETE'
+		#enc_data = urllib.quote_plus(data)
+        	jsondata = json.dumps(dict)
+		post_data = jsondata.encode('utf-8')
+	
+		response = urllib2.urlopen(url=request, data=jsondata).read()
+        	data = json.loads(response)
         	self.response = data
 		self.show()
 	except urllib2.HTTPError as e:
