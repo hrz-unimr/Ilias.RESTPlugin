@@ -276,7 +276,24 @@ class TestScenarios
         TestScenarios::testerLogin($I);
         $I->amBearerAuthenticated(TestScenarios::$test_token);
         $I->wantTo('delete a course');
+
+        // Step 1: get client id
+        $I->sendGET('v1/courses');
+        $data = $I->grabDataFromResponseByJsonPath('$.courses.*');
+
+        //\Codeception\Util\Debug::debug(print_r($data,true));//die();
+        for ($i = 0; $i < count($data); $i++) {
+            if ($data[$i][0]['title']==TestScenarios::$course1_title) {
+                TestScenarios::$course1_id = $data[$i][0]['ref_id'];
+            }
+        }
+        \Codeception\Util\Debug::debug("Testcourse found : ".TestScenarios::$course1_id);//die();
+
+        // Step 2: delete course
         $I->sendDELETE('v1/courses/'.TestScenarios::$course1_id);
         $I->seeResponseContainsJson(array('status' => 'success'));
+
+        // todo
+        // $.courses.*
     }
 }

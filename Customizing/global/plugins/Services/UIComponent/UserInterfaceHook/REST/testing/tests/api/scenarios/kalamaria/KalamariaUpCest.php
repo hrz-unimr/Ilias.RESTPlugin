@@ -20,6 +20,7 @@ class KalamariaUpCest
     {
         TestScenarios::admCreateTestApiClient($I);
 
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/courses','GET');
         TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/courses','POST');
         TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/courses/:ref_id','GET');
         TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/courses/:ref_id','DELETE');

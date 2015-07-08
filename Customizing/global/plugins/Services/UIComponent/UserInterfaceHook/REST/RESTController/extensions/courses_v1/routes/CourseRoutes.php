@@ -25,7 +25,6 @@ $app->group('/v1', function () use ($app) {
         try {
         $crs_model = new CoursesModel();
         $data1 =  $crs_model->getAllCourses($user_id);
-        //$data2 =  $crs_model->getCourseInfo($ref_id);
 
         $result = array(
             'courses' => $data1
@@ -41,9 +40,9 @@ $app->group('/v1', function () use ($app) {
      */
     $app->get('/courses/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
         $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
-        $user = $accessToken->getUserName();
-        $id = $accessToken->getUserId();
+        //$accessToken = $auth->getAccessToken();
+        //$user = $accessToken->getUserName();
+        //$id = $accessToken->getUserId();
         $app->log->debug('in course get ref_id= '.$ref_id);
         try {
             $crs_model = new CoursesModel();
@@ -176,13 +175,7 @@ $app->group('/v1', function () use ($app) {
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->joinCourse($authorizedUserId, $ref_id);
 
-            /*
-            $data1 =  $crs_model->getCourseContent($ref_id);
-            $data2 =  $crs_model->getCourseInfo($ref_id);
-            */
             $result = array(
-                //'coursecontents' => $data1,
-                //'courseinfo' => $data2,
                 'msg' => "User ".$authorizedUserId." subscribed to course with ref_id = " . $ref_id . " successfully.",
             );
             $app->success($result);
@@ -197,16 +190,13 @@ $app->group('/v1', function () use ($app) {
     $app->get('/courses/leave/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
-        $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 
-        $request = $app->request();
         try {
-            //$ref_id = $request->params("ref_id", null, true);
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->leaveCourse($authorizedUserId, $ref_id);
-
             $app->success("User ".$authorizedUserId." has left course with ref_id = " . $ref_id . ".");
+
         } catch (Courses\CancelationFailed $e) {
             $app->halt(400, 'Error: Could not perform action for user '.$authorizedUserId.". ".$e->getMessage(), -15);
         }
