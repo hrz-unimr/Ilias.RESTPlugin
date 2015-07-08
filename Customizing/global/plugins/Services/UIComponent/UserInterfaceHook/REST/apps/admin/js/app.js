@@ -17,6 +17,7 @@ var app = angular.module('myApp', [
     'xeditable',
     'pascalprecht.translate',
     'dialogs.main',
+    'timer',
     'myApp.translate.en-US',
     'myApp.translate.de-DE',
     'myApp.filters',

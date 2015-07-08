@@ -13,7 +13,7 @@ var ctrl = angular.module('myApp.controllers', []);
  * navigation (breadcrumbs) and login-information.
  * In addition, all other controllers inherit from this one.
  */
-ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, authentication, restEndpoint) {
+ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, authentication, restEndpoint, $route) {
     /*
      * Called during (every) instantiation of this controller.
      *
@@ -49,6 +49,12 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
         return $location.path().toLowerCase() == '/login';
     };
 
+    $scope.reload = function() {
+         $route.reload();
+         //$location.url("/login");
+         //$location.url("/clientlist");
+         //$location.url($location.url());
+    }
 
     // Do the initialisation
     $scope.init();
@@ -74,6 +80,7 @@ ctrl.controller("ClientListCtrl", function($scope, $location, $filter, dialogs, 
         // Load clients into AngularJS via REST
         $scope.loadClients();
     };
+
 
 
     /*
