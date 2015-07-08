@@ -94,9 +94,9 @@ $app->group('/v1/m', function () use ($app) {
         $result['calendar']['events'] = $data;
 
         $t_end = microtime();
-        $result['status']['duration'] = abs($t_end-$t_start);
-        $result['status']['tstamp'] = time();
-
+        $result['meta']['duration'] = abs($t_end-$t_start);
+        $result['meta']['tstamp'] = time();
+        $resp = array("mdeskinit" => $result);
         $app->success($result);
     });
 

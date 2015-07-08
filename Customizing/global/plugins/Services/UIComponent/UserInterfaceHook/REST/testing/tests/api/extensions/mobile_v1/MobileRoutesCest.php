@@ -10,21 +10,29 @@ class MobileRoutesCest
 {
     public function _before(ApiTester $I)
     {
-        //TestCommons::logMeIn($I);
+        require_once('tests/api/scenarios/kalamaria/KalamariaUpCest.php');
+        $scenario = new KalamariaUpCest();
+        $scenario->createTestClient($I);
+        $scenario->createSystemTestUsers($I);
+        $scenario->createTestingCourse($I);
+        TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/v1/m/origin','GET');
     }
 
     public function _after(ApiTester $I)
     {
+        require_once('tests/api/scenarios/kalamaria/KalamariaDownCest.php');
+        $scenario = new KalamariaDownCest();
+        $scenario->removeTestUsers($I);
+        $scenario->removeTestingCourse($I);
+        $scenario->removeTestClient($I);
     }
 
-   /* public function getMobileProfile(ApiTester $I)
+    public function getInitialMobileDesktop(ApiTester $I)
     {
         $I->wantTo('get mobile profile of test user');
         $I->amBearerAuthenticated(TestCommons::$token);
-        //$I->sendGET('clients');
-        //$success =  array_search($this->client_id,$I->grabDataFromResponseByJsonPath('$.clients[*].id'));
-        //\PHPUnit_Framework_Assert::assertTrue($success);
+        $I->sendGET('v1/m/origin');
         $I->seeResponseContainsJson(array('status' => 'success'));
     }
-   */
+
 }
