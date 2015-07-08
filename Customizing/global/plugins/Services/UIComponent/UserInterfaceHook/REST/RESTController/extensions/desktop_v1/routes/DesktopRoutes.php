@@ -24,8 +24,8 @@ $app->group('/v1', function () use ($app) {
 
         $model = new DesktopModel();
         $data = $model->getPersonalDesktopItems($authorizedUserId);
-
-        $app->success($data);
+        $resp = array('desktop'=>$data);
+        $app->success($resp);
     });
 
 
