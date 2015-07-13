@@ -7,7 +7,6 @@
  */
 var services = angular.module('myApp.services', []);
 
-
 /*
  * This service handles and stores user authentication,
  * which mainly includes username, bearer-token, error-handling
@@ -75,6 +74,7 @@ services.provider('authentication', function() {
             data.isAuthenticated = false;
             data.autoLogin = false;
 
+
             // Redirect to login
             $location.url("/login");
         };
@@ -106,6 +106,7 @@ services.provider('authentication', function() {
     this.getToken = function() {
         return data.token;
     }
+
 });
 
 

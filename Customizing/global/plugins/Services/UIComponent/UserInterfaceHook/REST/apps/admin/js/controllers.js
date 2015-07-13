@@ -38,6 +38,7 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
         $scope.translationData = {
             authentication: authentication
         };
+
     };
 
 
@@ -49,12 +50,23 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
         return $location.path().toLowerCase() == '/login';
     };
 
+    /*
+     *  Reload current view
+     */
     $scope.reload = function() {
          $route.reload();
-         //$location.url("/login");
-         //$location.url("/clientlist");
-         //$location.url($location.url());
     }
+
+
+    $scope.resetTimer = function() {
+        $scope.$broadcast('timer-reset');
+        $scope.$broadcast('timer-start');
+    }
+
+
+    $scope.$on('loginPerformed', function (event) {
+        $scope.resetTimer();
+    });
 
     // Do the initialisation
     $scope.init();
@@ -423,6 +435,7 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
                     $scope.postVars = {};
                     $scope.authentication.login(response.user, response.token.access_token);
                     $location.url("/clientlist");
+                    $scope.$emit('loginPerformed');
                 // Login didn't return an OK (Logout internally and redirdct)
                 } else {
                     $scope.authentication.logout();
@@ -459,6 +472,7 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
                 if (response.token_type == "bearer") {
                     $scope.authentication.login($scope.formData.userName, response.access_token);
                     $location.url("/clientlist");
+                    $scope.$emit('loginPerformed');
                 // Authorisation failed  (Logout internally and redirdct)
                 } else {
                     $scope.authentication.logout();
@@ -482,7 +496,6 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
             }
         );
     };
-
 
     // Do the initialisation
     $scope.init();

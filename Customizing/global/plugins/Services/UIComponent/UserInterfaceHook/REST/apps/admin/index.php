@@ -73,8 +73,8 @@
                 
                 <ul class="nav navbar-nav navbar-right addRightPadding" data-ng-show="authentication.isAuthenticated()" data-ng-cloak>
                     <li><button class="btn btn-default navbar-btn" type="button" data-ng-click="reload()"><span class="glyphicon glyphicon-repeat"></span></button></li>
-
-                    <li><span class="navbar-text">{{'INDEX_LOGGED_IN' | translate:translationData}} [<timer end-time="1451628000000">{{minutes}}:{{seconds}}</timer>]</span></li>
+                    <!-- end-=time"10000" 1451628000000 -->
+                    <li><span class="navbar-text">{{'INDEX_LOGGED_IN' | translate:translationData}} [<timer countdown="1800" max-time-unit="'minute'" interval="1000" finish-callback="authentication.logout()">{{mminutes}}:{{sseconds}}</timer>]</span></li>
                     <li><button class="btn btn-default navbar-btn" type="button" data-ng-click="authentication.logout()">{{'INDEX_LOGOUT' | translate}}</button></li>
                 </ul>
             </div>
