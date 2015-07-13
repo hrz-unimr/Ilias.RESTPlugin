@@ -2,8 +2,8 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D.Schaefer, T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
  
  
@@ -68,6 +68,7 @@ class ilRESTConfigGUI extends ilPluginConfigGUI {
         $configHTML .= '
             <form action="' . $pl->getDirectory() . '/apps/admin/index.php" method="post" target="_blank" id="redirectForm">
                 <input type="hidden" name="userId" value="'.$ilUser->getId().'" />
+                <input type="hidden" name="userName" value="'.$ilUser->getLogin().'" />
                 <input type="hidden" name="sessionId" value="'.session_id().'" />
                 <input type="hidden" name="rtoken" value="'.$ilCtrl->rtoken.'" />
                 <input type="hidden" name="restEndpoint" value="'.$inst_folder.'" />

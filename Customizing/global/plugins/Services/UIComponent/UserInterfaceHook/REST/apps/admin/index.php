@@ -28,7 +28,8 @@
     <script type="text/javascript" src="libs/js/modernizr.js"></script>
     <script>
         <?php
-        // Fetch POST data
+        // Fetch POST data userName
+        $userName = isset($_POST['userName']) ? $_POST['userName'] : '';
         $apiKey = isset($_POST['apiKey']) ? $_POST['apiKey'] : '';
         $userId =  isset($_POST['userId']) ? $_POST['userId'] : '';
         $sessionId = isset($_POST['sessionId']) ? $_POST['sessionId'] : '';
@@ -36,6 +37,7 @@
         $restEndpoint = isset($_POST['restEndpoint']) ? $_POST['restEndpoint'] : '';
         
         // Make it save
+        $userName = addslashes (htmlspecialchars($userName, ENT_COMPAT | ENT_HTML5));
         $apiKey = addslashes (htmlspecialchars($apiKey, ENT_COMPAT | ENT_HTML5));
         $userId = addslashes (htmlspecialchars($userId, ENT_COMPAT | ENT_HTML5));
         $sessionId = addslashes (htmlspecialchars($sessionId, ENT_COMPAT | ENT_HTML5)); 
@@ -45,6 +47,7 @@
     
         var postVars = {
             userId: "<?php echo $userId; ?>",
+            userName: "<?php echo $userName; ?>",
             sessionId: "<?php echo $sessionId; ?>",
             rtoken: "<?php echo $rtoken;  ?>",
             restEndpoint: "<?php echo $restEndpoint; ?>",
@@ -76,7 +79,6 @@
                 
                 <ul class="nav navbar-nav navbar-right addRightPadding" data-ng-show="authentication.isAuthenticated()" data-ng-cloak>
                     <li><button class="btn btn-default navbar-btn" type="button" data-ng-click="reload()"><span class="glyphicon glyphicon-repeat"></span></button></li>
-                    <!-- end-=time"10000" 1451628000000 -->
                     <li><span class="navbar-text">{{'INDEX_LOGGED_IN' | translate:translationData}} [<timer countdown="1800" max-time-unit="'minute'" interval="1000" finish-callback="authentication.logout()">{{mminutes}}:{{sseconds}}</timer>]</span></li>
                     <li><button class="btn btn-default navbar-btn" type="button" data-ng-click="authentication.logout()">{{'INDEX_LOGOUT' | translate}}</button></li>
                 </ul>

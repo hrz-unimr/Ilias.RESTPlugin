@@ -426,14 +426,16 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
                 api_key: $scope.postVars.apiKey,
                 user_id: $scope.postVars.userId,
                 session_id: $scope.postVars.sessionId,
-                rtoken: $scope.postVars.rtoken
+                rtoken: $scope.postVars.rtoken,
+                userName: $scope.postVars.userName,
             },
             // Success
             function (response) {
                 // Login return OK (Login internally and redirect)
                 if (response.status == "success") {
+                    //console.log(JSON.stringify(response));
+                    $scope.authentication.login($scope.postVars.userName, response.access_token);
                     $scope.postVars = {};
-                    $scope.authentication.login(response.user, response.access_token);
                     $location.url("/clientlist");
                     $scope.$emit('loginPerformed');
                 // Login didn't return an OK (Logout internally and redirdct)
