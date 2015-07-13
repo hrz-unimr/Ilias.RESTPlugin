@@ -2,8 +2,8 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D.Schaefer and T. Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
 namespace RESTController\core\auth;
 
@@ -49,13 +49,26 @@ class MiscEndpoint extends EndpointBase {
      * @param $app
      */
     public function rToken2Bearer($api_key, $user_id, $rtoken, $session_id) {
+        $utils = new Util();
         // Check login-data
-        if (!$this->checkSession($user_id, $rtoken, $session_id))
+        if (!$utils->checkSession($user_id, $rtoken, $session_id)) {
             throw new Exceptions\TokenInvalid(self::MSG_RTOKEN_AUTH_FAILED);
+        }
 
         // Generate token for user (via given api-key)
         $user = Libs\RESTLib::getUserNameFromId($user_id);
         $bearerToken = Token\Bearer::fromFields(self::tokenSettings(), $user, $api_key);
-        return $bearerToken->getTokenArray();
+
+        $accessToken = $bearerToken->getEntry('access_token');
+
+        //
+        return array(
+            'access_token' => $accessToken->getTokenString(),
+            'expires_in' => $bearerToken->getEntry('expires_in'),
+            'token_type' => $bearerToken->getEntry('token_type'),
+            'scope' => $bearerToken->getEntry('scope')
+        );
+
+        //return $bearerToken->getTokenArray();
     }
 }

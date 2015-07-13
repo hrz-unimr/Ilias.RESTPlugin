@@ -29,12 +29,14 @@
     <script>
         <?php
         // Fetch POST data
+        $apiKey = isset($_POST['apiKey']) ? $_POST['apiKey'] : '';
         $userId =  isset($_POST['userId']) ? $_POST['userId'] : '';
         $sessionId = isset($_POST['sessionId']) ? $_POST['sessionId'] : '';
         $rtoken = isset($_POST['rtoken']) ? $_POST['rtoken'] : '';
         $restEndpoint = isset($_POST['restEndpoint']) ? $_POST['restEndpoint'] : '';
         
         // Make it save
+        $apiKey = addslashes (htmlspecialchars($apiKey, ENT_COMPAT | ENT_HTML5));
         $userId = addslashes (htmlspecialchars($userId, ENT_COMPAT | ENT_HTML5));
         $sessionId = addslashes (htmlspecialchars($sessionId, ENT_COMPAT | ENT_HTML5)); 
         $rtoken = addslashes (htmlspecialchars($rtoken, ENT_COMPAT | ENT_HTML5));
@@ -46,6 +48,7 @@
             sessionId: "<?php echo $sessionId; ?>",
             rtoken: "<?php echo $rtoken;  ?>",
             restEndpoint: "<?php echo $restEndpoint; ?>",
+            apiKey: "<?php echo $apiKey; ?>"
         };
     </script>
 </head>
