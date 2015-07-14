@@ -3,6 +3,7 @@ import json
 import urllib
 import urllib2
 import shutil
+import poster
 
 class IShell:
     """  
@@ -77,7 +78,33 @@ class IShell:
         f = open('dump.json','w')
         f.write(json.dumps(jsondata, indent=2))
         f.close
-  
+   
+    def upload(self, filename, parent_ref_id, title='default', description='default'):
+	""" Uploads a file to an ILIAS container specified by its ref_id.
+	    Note: this operation can only be performed by admin users.
+        """
+	routeStr = 'admin/files'
+	try:
+		if title == "default":
+			title = filename
+		if description == "default":
+			description = ""
+		
+		opener = poster.streaminghttp.register_openers()
+		datagen, headers = poster.encode.multipart_encode({"uploadfile": open(filename, "rb"), 'ref_id':parent_ref_id, 'title':title, 'description':description})	
+
+		request = urllib2.Request(self.rest_endpoint+'/'+routeStr, datagen, headers)
+        	request.add_header('Authorization', ' Bearer '+ self.token)
+        	response = urllib2.urlopen(url=request).read()
+        	data = json.loads(response)
+        	self.response = data
+		self.show()
+	except urllib2.HTTPError as e:
+		print '> ' + str(e.code) + ' - ' + e.reason
+		self.error = e.read();
+		self.showError();
+		#print e.read()
+
     def post(self, routeStr, data):
 	"""Sends a POST request to the specified route and with the data.
             Example call:
