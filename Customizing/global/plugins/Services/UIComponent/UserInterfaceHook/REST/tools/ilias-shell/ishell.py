@@ -8,7 +8,7 @@ class IShell:
     """  
     ILIAS-Shell
     For personalized and administrative operations on your ILIAS LMS.
-    v.1.6
+    v.1.7
     """
 
     def __init__(self):
@@ -121,18 +121,24 @@ class IShell:
 	except ValueError as e:
 		print e
     
-    def retFile(self, routeStr, file):
-	"""Retrieves a binary file from ILIAS and stores it to the current folder.
-		The requested file will be stored under the filename provided by 
-		the argument "file".
+    def download(self, refID, fileName="default"):
+	"""Retrieves a binary file from ILIAS (i.e. an object of type file) 
+	   and stores it to the current folder.
+	   The requested file will be stored under the filename provided by 
+	   the argument "fileName".
 	"""
-	if routeStr[0]=='/':
-		routeStr = routeStr[1:]
+	if fileName=="default":
+		print "No filename provided. Try to fetch meta-data..."
+		self.get('v1/files/' + str(refID)+ '?meta_data=1');
+		fileName = self.response['name'];
+		print "Saving object as ... "+ fileName
+
+	routeStr = 'v1/files/' + str(refID)
 	try:
 		request = urllib2.Request(self.rest_endpoint+'/'+routeStr)
         	request.add_header('Authorization', ' Bearer '+ self.token)
         	req = urllib2.urlopen(request)
-		with open(file, 'wb') as fp:
+		with open(fileName, 'wb') as fp:
 			shutil.copyfileobj(req,fp)
 	except Exception as e:
 		print e

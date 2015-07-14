@@ -27,20 +27,11 @@ $app->group('/v1', function () use ($app) {
 
 
         $request = $app->request();
-        try {
-            $meta_data = $request->params('meta_data',true, true);
-            if (isset($meta_data)) {
-                $meta_data = true;
-            }
-        } catch (\Exception $e) {
-            $meta_data = false;
-        }
 
-        try {
-            $id_type = $request->params('id_type', 'ref_id', true);
-        } catch (\Exception $e) {
-            $id_type = "ref_id";
-        }
+        $meta_data = $request->params('meta_data',false, false);
+
+        $id_type = $request->params('id_type', 'ref_id', false);
+
 
 
         if ($id_type == "ref_id") {
