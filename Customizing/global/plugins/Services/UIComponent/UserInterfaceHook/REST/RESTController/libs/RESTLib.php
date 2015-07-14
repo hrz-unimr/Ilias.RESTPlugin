@@ -2,8 +2,8 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D.Schaefer, T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
 namespace RESTController\libs;
 
@@ -254,12 +254,16 @@ class RESTLib {
      *
      * @param $ref_id
      * @return mixed
+     * @throws \Exception
      */
     static public function getObjIdFromRef($ref_id) {
         global $ilDB;
 
         $sql = self::safeSQL('SELECT obj_id FROM object_reference WHERE object_reference.ref_id = %d', intval($ref_id));
         $query = $ilDB->query($sql);
+        $ilDB->numRows($query);
+
+        if ($ilDB->numRows($query) == 0)  throw new \Exception('Entry with ref_id '.$ref_id.' does not exist.');
         $row = $ilDB->fetchAssoc($query);
 
         return $row['obj_id'];
@@ -272,12 +276,14 @@ class RESTLib {
      *
      * @param $obj_id
      * @return mixed
+     * @throws \Exception
      */
     static public function getRefIdFromObj($obj_id) {
         global $ilDB;
 
         $sql = self::safeSQL('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', intval($obj_id));
         $query = $ilDB->query($sql);
+        if ($ilDB->numRows($query) == 0)  throw new \Exception('Entry with obj_id '.$obj_id.' does not exist.');
         $row = $ilDB->fetchAssoc($query);
 
         return $row['ref_id'];

@@ -11,7 +11,6 @@ namespace RESTController\extensions\admin;
 use \RESTController\libs as Libs;
 use \RESTController\extensions\files_v1 as Files;
 
-
 $app->group('/admin', function () use ($app) {
     /*
      * File Download
@@ -72,13 +71,18 @@ $app->group('/admin', function () use ($app) {
             $file_upload = $_FILES['uploadfile'];
             $file_upload['title']= $title==null ? "" : $title;
             $file_upload['description'] = $description == null ? "" : $description;
-
+            try {
+                Libs\RESTLib::getObjIdFromRef($repository_ref_id); // sanity check
+            } catch (\Exception $e) {
+                $app->halt(404, $e->getMessage());
+            }
             $model = new Files\FileModel();
             $uploadresult = $model->handleFileUpload($file_upload, $repository_ref_id);
             $result['msg'] = sprintf("Uploaded = [%s] [%d]", $_FILES['uploadfile']['name'], $_FILES['uploadfile']['size']);
             $result['target_in_repository'] = $repository_ref_id;
 
             $app->success($result);
+
         }
         else
             $app->halt(400, 'Upload failed');
