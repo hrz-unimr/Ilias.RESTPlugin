@@ -6,7 +6,7 @@ use \ApiTester;
  * Class MobileRoutesCest
  * @group mobile
  */
-class MobileRoutesCest
+class MobileMainRoutesCest
 {
     public function _before(ApiTester $I)
     {

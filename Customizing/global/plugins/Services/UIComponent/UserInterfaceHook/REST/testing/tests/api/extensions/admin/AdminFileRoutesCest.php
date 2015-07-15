@@ -20,14 +20,14 @@ class AdminFileRoutesCest
         TestScenarios::admAddPermissionToTestApiClient($I,TestScenarios::$test_api_key,'/admin/files','POST');
     }
 
-    /*public function _after(ApiTester $I)
+    public function _after(ApiTester $I)
     {
         require_once('tests/api/scenarios/kalamaria/KalamariaDownCest.php');
         $scenario = new KalamariaDownCest();
         $scenario->removeTestUsers($I);
         $scenario->removeTestingCourse($I);
         $scenario->removeTestClient($I);
-    }*/
+    }
 
     /**
      * List all groups of the authenticated user.

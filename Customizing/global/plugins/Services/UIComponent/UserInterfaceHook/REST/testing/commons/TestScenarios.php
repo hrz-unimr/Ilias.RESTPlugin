@@ -358,4 +358,23 @@ class TestScenarios
         $I->sendPOST('/admin/files', ['ref_id' => TestScenarios::$course1_id], ['uploadfile' => codecept_data_dir('logo.png')]);
         $I->seeResponseContainsJson(array('status' => 'success'));
     }
+
+    /**
+     * Uploads a file (_data/logo.png) to the personal file space of the authenticated user.
+     * Requirements:
+     *  - client has permissions to access route v1/m/myfilespaceupload
+     * @param ApiTester $I
+     */
+    public static function admUploadFileToPersonalFileSpace(ApiTester $I)
+    {
+        TestScenarios::testerLogin($I);
+        $I->amBearerAuthenticated(TestCommons::$token);
+        $I->wantTo('upload a file to MyFileSpace');
+
+        // Step 2: upload file
+        $I->sendPOST('/v1/m/myfilespaceupload', [], ['uploadfile' => codecept_data_dir('logo.png')]);
+        $I->seeResponseContainsJson(array('status' => 'success'));
+        return $I->grabDataFromResponseByJsonPath('$.id')[0];
+    }
+
 }

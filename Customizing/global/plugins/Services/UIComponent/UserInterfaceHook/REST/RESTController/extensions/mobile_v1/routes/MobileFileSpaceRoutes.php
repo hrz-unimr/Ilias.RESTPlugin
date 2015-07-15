@@ -35,7 +35,6 @@ $app->group('/v1/m', function () use ($app) {
         ));
     });
 
-
     /**
      * This route enables the user to add a file object from her/his personal file space to a location within the the repository.
      * The user needs write permission to copy the specified file to a chosen destination. The following parameters are required:
@@ -127,9 +126,10 @@ $app->group('/v1/m', function () use ($app) {
         // Try to upload file
         Libs\RESTLib::initAccessHandling();
         $model = new Files\PersonalFileSpaceModel();
-        $model->handleFileUploadIntoMyFileSpace($_FILES['uploadfile'],$user_id,$user_id);
+        $resp = $model->handleFileUploadIntoMyFileSpace($_FILES['uploadfile'],$user_id,$user_id);
 
-        $app->success("File uploaded to the personal file space.");
+        $result = array('id' => $resp->id, 'msg' => "File uploaded to the personal file space.");
+        $app->success($result);
     });
 
 

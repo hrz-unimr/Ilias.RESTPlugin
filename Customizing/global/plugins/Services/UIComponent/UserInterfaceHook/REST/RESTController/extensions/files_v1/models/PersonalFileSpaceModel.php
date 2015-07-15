@@ -139,6 +139,8 @@ class PersonalFileSpaceModel {
             $fileObj->createDirectory();
             $fileObj->raiseUploadError(false);
             $fileObj->getUploadFile($temp_name, $filename, false);
+
+            $response->id = $fileObj->getId();
         }
 
         return $response;
