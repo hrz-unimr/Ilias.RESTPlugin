@@ -128,7 +128,7 @@ $app->group('/v1/m', function () use ($app) {
         $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
 
-        $errorCode = $_FILES['mupload']['error'];
+        $errorCode = $_FILES['uploadfile']['error'];
         if ($errorCode > UPLOAD_ERR_OK) {
             $error = array(
                 'msg' => 'Error during file upload',
@@ -141,11 +141,11 @@ $app->group('/v1/m', function () use ($app) {
         // Try to upload file
         Libs\RESTLib::initAccessHandling();
         $model = new Files\PersonalFileSpaceModel();
-        $model->handleFileUploadIntoMyFileSpace($_FILES['mupload'],$user_id);
+        $model->handleFileUploadIntoMyFileSpace($_FILES['uploadfile'],$user_id);
         $t_end = microtime();
 
         $result = array(
-            'farraydump' => print_r($_FILES['mupload'],true)
+            'farraydump' => print_r($_FILES['uploadfile'],true)
         );
         $app->success($result);
     });

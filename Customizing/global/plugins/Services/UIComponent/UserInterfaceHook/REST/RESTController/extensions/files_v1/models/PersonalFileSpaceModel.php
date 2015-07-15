@@ -2,8 +2,8 @@
 /**
 * ILIAS REST Plugin for the ILIAS LMS
 *
-* Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
-* 2014-2015
+* Authors: D.Schaefer, T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+* Since 2014
 */
 namespace RESTController\extensions\files_v1;
 
@@ -145,13 +145,13 @@ class PersonalFileSpaceModel {
     }
 
     /**
-     * Add (file) object to tuser's 'MyFileSpace'.
+     * Add (file) object to user's 'MyFileSpace'.
      * In this method the 'MyFileSpace' is modeled as the workspace of a user.
      *
      * @param ilObject $a_obj
      * @param int $user_id
      */
-    protected function putObjectInMyFileSpaceTree(ilObject $a_obj, $user_id)
+    protected function putObjectInMyFileSpaceTree($a_obj, $user_id)
     {
         Libs\RESTLib::initGlobal('rbacreview', 'ilRbacReview', './Services/AccessControl/classes/class.ilRbacReview.php');
         Libs\RESTLib::initGlobal('rbacadmin', 'ilRbacAdmin', './Services/AccessControl/classes/class.ilRbacAdmin.php');
