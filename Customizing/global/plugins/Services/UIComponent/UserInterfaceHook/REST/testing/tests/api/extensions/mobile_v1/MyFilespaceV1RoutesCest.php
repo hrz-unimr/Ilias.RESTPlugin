@@ -3,7 +3,7 @@ use \ApiTester;
 
 /**
  * Class MyFilespaceV1RoutesCest
- * @group groups
+ * @group mobile
  */
 class MyFilespaceV1RoutesCest
 {

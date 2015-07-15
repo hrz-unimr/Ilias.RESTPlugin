@@ -102,33 +102,36 @@ class MobileFeedbackModel extends Libs\RESTModel {
      */
     function createMobileFeedbackDatabaseTable()
     {
-        $fields = array(
-            'id' => array(
-                'type' => 'integer',
-                'length' => 4,
-                'notnull' => true
-            ),
-            'userid' => array(
-                'type' => 'text',
-                'length' => 512,
-                'fixed' => false,
-                'notnull' => false
-            ),
-            'message' => array(
-                'type' => 'text',
-                'length' => 1024,
-                'fixed' => false,
-                'notnull' => false
-            ),
-            'environment' => array(
-                'type' => 'text',
-                'length' =>  1024,
-                'notnull' => true
-            )
-        );
-        self::$sqlDB->createTable(self::TABLE, $fields, true);
-        self::$sqlDB->addPrimaryKey(self::TABLE, array("id"));
-        self::$sqlDB->manipulate('ALTER TABLE '.self::TABLE.' CHANGE id id INT NOT NULL AUTO_INCREMENT');
+        if (self::$sqlDB->tableExists(self::TABLE) == false) { // TODO better throw special exception here
+
+            $fields = array(
+                'id' => array(
+                    'type' => 'integer',
+                    'length' => 4,
+                    'notnull' => true
+                ),
+                'userid' => array(
+                    'type' => 'text',
+                    'length' => 512,
+                    'fixed' => false,
+                    'notnull' => false
+                ),
+                'message' => array(
+                    'type' => 'text',
+                    'length' => 1024,
+                    'fixed' => false,
+                    'notnull' => false
+                ),
+                'environment' => array(
+                    'type' => 'text',
+                    'length' => 1024,
+                    'notnull' => true
+                )
+            );
+            self::$sqlDB->createTable(self::TABLE, $fields, false);
+            self::$sqlDB->addPrimaryKey(self::TABLE, array("id"));
+            self::$sqlDB->manipulate('ALTER TABLE ' . self::TABLE . ' CHANGE id id INT NOT NULL AUTO_INCREMENT');
+        }
     }
 
 }

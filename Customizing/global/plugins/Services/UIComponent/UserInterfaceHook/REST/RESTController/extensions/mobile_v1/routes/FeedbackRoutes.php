@@ -31,11 +31,11 @@ $app->group('/v1/m', function () use ($app) {
             $s_uid = $accessToken->getTokenString();
 
             $model = new MobileFeedbackModel();
-            $model->createFeedbackItem($s_uid, $s_msg, $s_env);
+            $id = $model->createFeedbackItem($s_uid, $s_msg, $s_env);
+            $app->success(array("msg"=>"Created new feedback entry.", "id"=>$id));
         } catch (Libs\Exceptions\MissingParameter $e) {
             $app->halt(422, $e->getMessage(), $e::ID);
         }
-        $app->success("Created new feedback entry.");
     });
 
     /**
@@ -51,11 +51,12 @@ $app->group('/v1/m', function () use ($app) {
              $s_uid = $accessToken->getTokenString();
 
              $model = new MobileFeedbackModel();
-             $model->createFeedbackItem($s_uid, $s_msg, $s_env);
+             $id = $model->createFeedbackItem($s_uid, $s_msg, $s_env);
+             $app->success(array("msg"=>"Created new feedback entry.", "id"=>$id));
          } catch (Libs\Exceptions\MissingParameter $e) {
              $app->halt(422, $e->getMessage(), $e::ID);
          }
-         $app->success("Created new feedback entry.");
+
      });
 
 
@@ -74,7 +75,7 @@ $app->group('/v1/m', function () use ($app) {
     $app->delete('/feedbackdel/:id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth',  function ($id) use ($app) {
         $model = new MobileFeedbackModel();
         $model->deleteFeedbackItem($id);
-        $app->success("Sucessfully deleted item ".$id);
+        $app->success(array("msg"=>"Sucessfully deleted item ","id"=>$id));
     });
 
 
