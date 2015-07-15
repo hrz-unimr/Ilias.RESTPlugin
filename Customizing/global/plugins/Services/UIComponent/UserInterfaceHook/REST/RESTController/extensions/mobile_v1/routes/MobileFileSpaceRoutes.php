@@ -22,17 +22,13 @@ $app->group('/v1/m', function () use ($app) {
      * a special area within the global repository is used which is protected by role permissions. Therefore we use the placeholder 'myfilespace'.
      */
     $app->get('/myfilespace', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
-        $t_start = microtime();
-
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
-        $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
 
         Libs\RESTLib::initAccessHandling();
         $wa_model = new Admin\WorkspaceAdminModel();
         $ws_array = $wa_model->getUserWorkspaceItems($user_id);
-        $t_end = microtime();
 
         $app->success(array(
             'myfilespace' => $ws_array
@@ -46,14 +42,11 @@ $app->group('/v1/m', function () use ($app) {
      * file_id (as obtainable by the /myfilespace endpoint) and a ref_id of the target container.
      */
     $app->get('/myfilespacecopy','\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
-        $t_start = microtime();
-
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
-        $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
-
         $request = $app->request();
+
         try {
             $file_id = $request->params('file_id', null, false);
             $target_ref_id = $request->params('target_ref_id', null, false);
@@ -61,7 +54,6 @@ $app->group('/v1/m', function () use ($app) {
             Libs\RESTLib::initAccessHandling();
             $model = new Files\PersonalFileSpaceModel();
             $status = $model->clone_file_into_repository($user_id, $file_id, $target_ref_id);
-            $t_end = microtime();
 
             if ($status == false) {
                 $app->halt(500, 'File could not be copied!');
@@ -79,14 +71,11 @@ $app->group('/v1/m', function () use ($app) {
      * see GET /myfilespacecopy
      */
     $app->post('/myfilespacecopy','\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
-        $t_start = microtime();
-
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
-        $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
-
         $request = $app->request();
+
         try {
             $file_id = $request->params('file_id', null, false);
             $target_ref_id = $request->params('target_ref_id', null, false);
@@ -94,7 +83,6 @@ $app->group('/v1/m', function () use ($app) {
             Libs\RESTLib::initAccessHandling();
             $model = new Files\PersonalFileSpaceModel();
             $status = $model->clone_file_into_repository($user_id, $file_id, $target_ref_id);
-            $t_end = microtime();
 
             if ($status == false) {
                 $app->halt(500, 'File could not be copied!');
@@ -121,11 +109,9 @@ $app->group('/v1/m', function () use ($app) {
      */
     $app->post('/myfilespaceupload','\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $app->log->debug('Myfilespace upload via POST');
-        $t_start = microtime();
 
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
-        $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
 
         $errorCode = $_FILES['uploadfile']['error'];
@@ -142,11 +128,7 @@ $app->group('/v1/m', function () use ($app) {
         Libs\RESTLib::initAccessHandling();
         $model = new Files\PersonalFileSpaceModel();
         $model->handleFileUploadIntoMyFileSpace($_FILES['uploadfile'],$user_id,$user_id);
-        $t_end = microtime();
 
-        /*$result = array(
-            'farraydump' => print_r($_FILES['uploadfile'],true)
-        );*/
         $app->success("File uploaded to the personal file space.");
     });
 
@@ -156,7 +138,6 @@ $app->group('/v1/m', function () use ($app) {
      */
     $app->delete('/myfilespacedelete', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $app->log->debug('Myfilespace delete');
-        $t_start = microtime();
 
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
@@ -172,7 +153,6 @@ $app->group('/v1/m', function () use ($app) {
         } catch(Exceptions\MissingParameter $e) {
             $app->halt(422, $e->getFormatedMessage(), $e::ID);
         }
-        $t_end = microtime();
 
         $app->success("Deleted file from personal file space.");
     });
