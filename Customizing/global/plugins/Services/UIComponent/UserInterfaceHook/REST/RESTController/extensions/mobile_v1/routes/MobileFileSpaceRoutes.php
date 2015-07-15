@@ -2,8 +2,8 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D.Schaefer, T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
 namespace RESTController\extensions\mobile_v1;
 
@@ -34,9 +34,7 @@ $app->group('/v1/m', function () use ($app) {
         $ws_array = $wa_model->getUserWorkspaceItems($user_id);
         $t_end = microtime();
 
-        // TODO: Remove timing info, just send success();
         $app->success(array(
-            'time' => $t_end - $t_start,
             'myfilespace' => $ws_array
         ));
     });
@@ -65,13 +63,11 @@ $app->group('/v1/m', function () use ($app) {
             $status = $model->clone_file_into_repository($user_id, $file_id, $target_ref_id);
             $t_end = microtime();
 
-            if ($status == false)
+            if ($status == false) {
                 $app->halt(500, 'File could not be copied!');
-            else
-                // TODO: Remove timing info, just send success();
-                $app->success(array(
-                    'execution_time' => $t_end - $t_start
-                ));
+            } else {
+                $app->success("Moved item from personal file space to repository.");
+            }
 
         } catch(Exceptions\MissingParameter $e) {
             $app->halt(422, $e->getFormatedMessage(), $e::ID);
@@ -100,17 +96,14 @@ $app->group('/v1/m', function () use ($app) {
             $status = $model->clone_file_into_repository($user_id, $file_id, $target_ref_id);
             $t_end = microtime();
 
-            if ($status == false)
+            if ($status == false) {
                 $app->halt(500, 'File could not be copied!');
-            else
-                // TODO: Remove timing info, just send success();
-                $app->success(array(
-                    'execution_time' => $t_end - $t_start
-                ));
+            } else {
+                $app->success("Moved item from personal file space to repository.");
+            }
         } catch(Exceptions\MissingParameter $e) {
             $app->halt(422, $e->getFormatedMessage(), $e::ID);
         }
-        $response->send();
     });
 
 
@@ -151,10 +144,8 @@ $app->group('/v1/m', function () use ($app) {
         $model->handleFileUploadIntoMyFileSpace($_FILES['mupload'],$user_id);
         $t_end = microtime();
 
-        // TODO: Remove timing info, just send success();
         $result = array(
-            'farraydump' => print_r($_FILES['mupload'],true),
-            'execution_time' => $t_end - $t_start
+            'farraydump' => print_r($_FILES['mupload'],true)
         );
         $app->success($result);
     });
@@ -183,11 +174,7 @@ $app->group('/v1/m', function () use ($app) {
         }
         $t_end = microtime();
 
-        // TODO: Remove timing info, just send success();
-        $result = array(
-            'execution_time' => $t_end - $t_start
-        );
-        $app->success($result);
+        $app->success("Deleted file from personal file space.");
     });
 
 });
