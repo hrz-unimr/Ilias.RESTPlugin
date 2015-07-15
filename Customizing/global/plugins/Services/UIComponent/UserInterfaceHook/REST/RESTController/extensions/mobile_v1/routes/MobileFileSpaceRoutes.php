@@ -141,13 +141,13 @@ $app->group('/v1/m', function () use ($app) {
         // Try to upload file
         Libs\RESTLib::initAccessHandling();
         $model = new Files\PersonalFileSpaceModel();
-        $model->handleFileUploadIntoMyFileSpace($_FILES['uploadfile'],$user_id);
+        $model->handleFileUploadIntoMyFileSpace($_FILES['uploadfile'],$user_id,$user_id);
         $t_end = microtime();
 
-        $result = array(
+        /*$result = array(
             'farraydump' => print_r($_FILES['uploadfile'],true)
-        );
-        $app->success($result);
+        );*/
+        $app->success("File uploaded to the personal file space.");
     });
 
 
