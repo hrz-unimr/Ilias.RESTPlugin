@@ -24,6 +24,11 @@ class TestScenarios
     public static $course1_title = "API-Testing";
     public static $course1_description = "Created by Codeception.";
 
+    /* Files */
+    public static $test_file1_name = "logo.png";
+    public static $test_file1_id = "-1";
+
+
     /**
      * Log in as admin/apollon.
      * @param $I
@@ -267,33 +272,90 @@ class TestScenarios
     }
 
     /**
+     * Determines the ID of the test course 1.
+     * Invokation of this method is necessary, if a scenario is build and removed at different times.
+     *
+     * @param ApiTester $I
+     */
+    public static function determineIdOfTestCourse1(ApiTester $I)
+    {
+        TestScenarios::testerLogin($I);
+        $I->amBearerAuthenticated(TestScenarios::$test_token);
+        $I->wantTo('determine test course 1 ref_id');
+
+        // get courses
+        $I->sendGET('v1/courses');
+        $data = $I->grabDataFromResponseByJsonPath('$.courses.*');
+
+        for ($i = 0; $i < count($data); $i++) {
+            if ($data[$i][0]['title']==TestScenarios::$course1_title) {
+                TestScenarios::$course1_id = $data[$i][0]['ref_id'];
+            }
+        }
+    }
+
+    /**
+     * Determines the ID of the test file 1, which is contained in test course 1.
+     * Requirements:
+     * 1) testfile must exist in test course 1
+     * 2) test course 1 ID must be known / determined beforehand
+     * @param ApiTester $I
+     */
+    public static function determineTestFile1Id(ApiTester $I)
+    {
+        TestScenarios::testerLogin($I);
+        $I->amBearerAuthenticated(TestScenarios::$test_token);
+        $I->wantTo('determine ID of test file 1');
+
+        // get course contents
+        $I->sendGET('v1/courses/'.TestScenarios::$course1_id);
+        $data = $I->grabDataFromResponseByJsonPath('$.coursecontents.*');
+
+        for ($i = 0; $i < count($data); $i++) {
+            if ($data[$i]['title']==TestScenarios::$test_file1_name) {
+                TestScenarios::$test_file1_id = $data[$i]['ref_id'];
+            }
+        }
+    }
+
+    /**
      * Creates a test course.
      * Prerequisites: test client must exist and must have the appropriate permissions.
      * @param ApiTester $I
      */
     public static function deleteCourse1(ApiTester $I)
     {
+        TestScenarios::determineIdOfTestCourse1($I);
+
         TestScenarios::testerLogin($I);
         $I->amBearerAuthenticated(TestScenarios::$test_token);
         $I->wantTo('delete a course');
-
-        // Step 1: get client id
-        $I->sendGET('v1/courses');
-        $data = $I->grabDataFromResponseByJsonPath('$.courses.*');
-
-        //\Codeception\Util\Debug::debug(print_r($data,true));//die();
-        for ($i = 0; $i < count($data); $i++) {
-            if ($data[$i][0]['title']==TestScenarios::$course1_title) {
-                TestScenarios::$course1_id = $data[$i][0]['ref_id'];
-            }
-        }
-        \Codeception\Util\Debug::debug("Testcourse found : ".TestScenarios::$course1_id);//die();
 
         // Step 2: delete course
         $I->sendDELETE('v1/courses/'.TestScenarios::$course1_id);
         $I->seeResponseContainsJson(array('status' => 'success'));
 
-        // todo
-        // $.courses.*
+    }
+
+    /**
+     * Uploads a file (_data/logo.png) to test course1.
+     * Requirements:
+     *  1) test course 1 exists
+     *  2) test user exists and is able to verify the ref-id of test course 1
+     *  3) client has permissions to access route admin/file
+     * @param ApiTester $I
+     */
+    public static function admUploadFileToTestCourse1(ApiTester $I)
+    {
+        TestScenarios::testerLogin($I);
+        $I->amBearerAuthenticated(TestCommons::$token);
+        $I->wantTo('upload a file to test course 1');
+
+        // Step 1: update course id
+        TestScenarios::determineIdOfTestCourse1($I);
+
+        // Step 2: upload file
+        $I->sendPOST('/admin/files', ['ref_id' => TestScenarios::$course1_id], ['uploadfile' => codecept_data_dir('logo.png')]);
+        $I->seeResponseContainsJson(array('status' => 'success'));
     }
 }
