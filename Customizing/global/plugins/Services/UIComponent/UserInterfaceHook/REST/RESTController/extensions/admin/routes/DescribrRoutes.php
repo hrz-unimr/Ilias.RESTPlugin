@@ -2,7 +2,7 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer and T. Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * Since 2014
  */
 namespace RESTController\extensions\admin;
@@ -10,12 +10,17 @@ namespace RESTController\extensions\admin;
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
 
-
+/**
+ * This is a tool for developers / admins to get
+ * descriptions of objects or users specified by
+ * obj_id, ref_id, usr_id or file_id
+ *
+ * Supported types: obj_id, ref_id, usr_id and file_id
+ */
 $app->group('/admin', function () use ($app) {
     /**
-     * this is a tool for developers / admins to get
-     * fast descriptions of objects or users specified by
-     * obj_id, ref_id, usr_id or file_id
+     * Returns a description of an object or user specified by
+     * its obj_id, ref_id, usr_id or file_id
      *
      * Supported types: obj_id, ref_id, usr_id and file_id
      */

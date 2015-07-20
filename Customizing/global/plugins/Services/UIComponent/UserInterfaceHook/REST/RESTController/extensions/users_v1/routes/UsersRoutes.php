@@ -2,7 +2,7 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer and T. Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * Since 2014
  */
 namespace RESTController\extensions\users_v1;
@@ -49,6 +49,37 @@ $app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', 
 
         $app->success($result);
 
+});
+
+/**
+ * Search for users
+ * Supported search criteria:
+ *  - ldapext with extname: search for users that have authmode ldap and query (extname) matches with ext_account
+ */
+$app->get('/v1/search/user','\RESTController\libs\OAuth2Middleware::TokenAuth', function () use ($app) {
+    $result = array();
+    $request = $app->request();
+    if ($request->params('mode')) {
+        $mode = $request->params('mode');
+    }
+
+    if ($mode == "ldapext") {
+        if ($request->params('extname')) {
+            $extname = $request->params('extname');
+            try {
+                $usr_model = new UsersModel();
+                $app->log->debug('search user 2');
+                $userdata = $usr_model->findExtLdapUser($extname);
+
+                $app->log->debug('model response: '.print_r($userdata,true));
+                $result['user'] = $userdata;
+                $app->success($result);
+            } catch (Libs\ReadFailed $e) {
+                $app->halt(400, $e->getMessage());
+            }
+        }
+    }
+    $app->success('Empty result.');
 });
 
 /**

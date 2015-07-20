@@ -2,7 +2,7 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer and T. Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * Since 2014
  */
 namespace RESTController\extensions\users_v1;
@@ -15,7 +15,7 @@ require_once('./Services/User/classes/class.ilObjUser.php');
 require_once('./Services/AccessControl/classes/class.ilRbacReview.php');
 
 
-class UsersModel
+class UsersModel extends Libs\RESTModel
 {
     /**
      * This methods provides an array of all users and their properties specified by $fields.
@@ -223,5 +223,25 @@ class UsersModel
         $rbacreview = new \ilRbacReview();
         $is_admin = $rbacreview->isAssigned($usr_id,2);
         return $is_admin;
+    }
+
+    /**
+     * Searches for users with llap auth mode for which the query ($ext_name) matches with ext_account.
+     *
+     * @param $ext_name
+     * @return bool|object
+     */
+    public function findExtLdapUser($ext_name)
+    {
+
+        global $ilDB;
+        $sql = Libs\RESTLib::safeSQL('SELECT * FROM usr_data WHERE ext_account = %s AND auth_mode = \'ldap\'', $ext_name);
+        $query = $ilDB->query($sql);
+
+        if ($usr = $ilDB->fetchAssoc($query))
+        {
+            return $usr;
+        }
+        return false;
     }
 }
