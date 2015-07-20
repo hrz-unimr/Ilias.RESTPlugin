@@ -84,8 +84,13 @@ $app->group('/v1/m', function () use ($app) {
      */
     $app->get('/feedbackinit', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
         $model = new MobileFeedbackModel();
-        $model->createMobileFeedbackDatabaseTable();
-        $app->success("Created new feedback database.");
+        $hasCreated = $model->createMobileFeedbackDatabaseTable();
+        if ($hasCreated == true) {
+            $app->success("Created new feedback database.");
+        } else {
+            $app->success("Feedback database already exists. Nothing changed.");
+        }
+
     });
 
 });

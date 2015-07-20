@@ -131,7 +131,11 @@ class MobileFeedbackModel extends Libs\RESTModel {
             self::$sqlDB->createTable(self::TABLE, $fields, false);
             self::$sqlDB->addPrimaryKey(self::TABLE, array("id"));
             self::$sqlDB->manipulate('ALTER TABLE ' . self::TABLE . ' CHANGE id id INT NOT NULL AUTO_INCREMENT');
+            return true;
+        } else {
+            return false;
         }
+
     }
 
 }
