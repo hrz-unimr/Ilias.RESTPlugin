@@ -2,8 +2,8 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D.Schaefer, T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
 
 
@@ -35,21 +35,27 @@ if (isset($_GET['client_id']) || isset($_GET['ilias_client_id'])) {
 else if (isset($_POST['client_id'])) {
     $_POST['api_key'] = $_POST['client_id'];
     
-    if (isset($_POST['ilias_client_id']))
+    if (isset($_POST['ilias_client_id'])) {
         $_GET['client_id'] = $_POST['ilias_client_id'];
-    else {
+    } else {
         $_POST['client_id'] = "";
         $_GET['client_id'] = "";
     }
-}
-else 
+} else {
     $_GET['client_id'] = "";
+}
+
+// Set Cookie Path (necessary for RestLib\initSession)
+$cookie_path = dirname($_SERVER['SCRIPT_NAME']);
+$cookie_path = str_replace('\\', '/', $cookie_path);
+$cookie_path = ($cookie_path == '/' ? '' : $cookie_path);
+$GLOBALS['COOKIE_PATH'] = $cookie_path;
 
 // Initialise ILIAS
 ilInitialisation::initILIAS();
+header_remove('Set-Cookie');
 
-
-// Stops buffering output and ignores any output writen so far
+// Stops buffering output and ignores any output written so far
 ob_end_clean();
 
 

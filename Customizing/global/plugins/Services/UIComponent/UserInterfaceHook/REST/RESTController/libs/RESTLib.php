@@ -351,7 +351,7 @@ class RESTLib {
      * Provides object properties as stored in table object_data.
      *
      * @param $obj_id
-     * @param $aFields array of strings; to query all fields please specify 'array('*')'
+     * @param $fields array of strings; to query all fields please specify 'array('*')'
      * @return mixed
      */
     public static  function getObjectData($obj_id, $fields) {
@@ -367,7 +367,7 @@ class RESTLib {
 
 
     /**
-     * Reads top 1 read event which occured on the object.
+     * Reads top 1 read event which occurred on the object.
      *
      * @param $obj_id int the object id.
      * @return timestamp
@@ -390,7 +390,7 @@ class RESTLib {
 
 
     /**
-     * Reads top-k read events which occured on the object.
+     * Reads top-k read events which occurred on the object.
      *
      * Tries to deliver a list with max -k items
      * @param $obj_id int the object id.
@@ -417,6 +417,41 @@ class RESTLib {
      * Suggestion:
      *  Move this method there?
      */
+
+    /**
+     * Initiates an ILIAS Session for a user specified by $user_id.
+     *
+     * @param $user_id
+     */
+    public static function initSession($user_id)
+    {
+        global $ilLog;
+        $user_name = RESTLib::getUserNameFromId($user_id);
+
+        header_remove('Set-Cookie');
+        \ilUtil::setCookie("ilClientId", CLIENT_ID);
+
+        require_once('Auth/Auth.php');
+        require_once('Services/Authentication/classes/class.ilSession.php');
+        require_once('Services/Authentication/classes/class.ilSessionControl.php');
+        require_once('Services/AuthShibboleth/classes/class.ilShibboleth.php');
+        require_once('Services/Authentication/classes/class.ilAuthUtils.php');
+
+        \ilAuthUtils::_initAuth();
+
+        global $ilAuth;
+        $ilAuth->setAuth($user_name);
+        $ilAuth->start();
+        $checked_in = $ilAuth->getAuth();
+
+        $ilLog->write('Custom session via REST initiated. Check in value: '.$checked_in);
+
+        \ilSession::set("AccountId", $user_id);
+        \ilSession::set('orig_request_target', '');
+
+        ilInitialisation_Public::setSessionHandler(); // will put an entry in usr_session table
+
+    }
 }
 
 
@@ -448,4 +483,5 @@ class ilInitialisation_Public extends \ilInitialisation {
     public static function initAccessHandling_Public() {
         return self::initAccessHandling();
     }
+
 }
