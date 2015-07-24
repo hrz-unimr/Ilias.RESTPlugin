@@ -419,6 +419,17 @@ class RESTLib {
      */
 
     /**
+     * Returns the web directory, where e.g. learning modules are located.
+     * In contrast to ilUtil::getWebDir() this functions  returns the
+     * dir path without any prefix.
+     * @return string
+     */
+    public static function getWebDir()
+    {
+        return ILIAS_WEB_DIR."/".CLIENT_ID;
+    }
+
+    /**
      * Initiates an ILIAS Session for a user specified by $user_id.
      *
      * @param $user_id

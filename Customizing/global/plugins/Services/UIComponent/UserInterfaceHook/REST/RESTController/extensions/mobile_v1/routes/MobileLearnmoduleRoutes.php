@@ -21,83 +21,46 @@ use \RESTController\extensions\calendar_v1 as Calendar;
 $app->group('/v1/m', function () use ($app) {
 
     /**
-     * Starting point for mobile apps: loads a user's desktop
-     * and the meta-data of its associated items.
+     * Initiates a new ILIAS session using a valid token.
+     * Redirects to the HTML Learning Module url.
      *
-     * Loads the following data:
-     * - User
-     * - System information
-     * - Personal courses, which are flagged "online"
-     * - Meta-information about the courses
-     * - Lists of contents of the personal courses // see of contacts > my courses, my groups
-     * - Personal contacts
-     * - Personal Calendar (Note: The ILIAS system calendar must be activated) with ICAL url
+     * Note: it is important, that the url opens this endpoint in the browser component of the device, since
+     * cookies will be set and be required due to the access checker.
      *
-     *  Version 15.6.15
      */
-    $app->get('/origin', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
-        $t_start = microtime();
-        $result = array();
-
+    $app->get('/htlm/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($ref_id) use ($app) {
         $auth = new Auth\Util();
         $user_id = $auth->getAccessToken()->getUserId();
 
-        Libs\RESTLib::initAccessHandling();
+        if (isset($_SERVER['HTTPS']) &&
+            ($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1) ||
+            isset($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
+            $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+            $protocol = 'https://';
+        }
+        else {
+            $protocol = 'http://';
+        }
+        $domainName = $_SERVER['HTTP_HOST'];
+        $lmurl = $protocol.$domainName.$GLOBALS['COOKIE_PATH'].'/';
 
-        $userModel = new Users\UsersModel();
-        $userData = $userModel->getBasicUserData($user_id);
-        $result['user'] = $userData;
+        Libs\RESTLib::initSession($user_id);
 
-        $courseModel = new Courses\CoursesModel();
-        $my_courses = $courseModel->getCoursesOfUser($user_id);
-
-        $repository_items = array();
-        foreach ($my_courses as $course_refid)
+        // Mimics showLearningModule() of Modules/HTMLLearningModule/ilObjFileBasedLMGUI
+        // TODO: add ilLearningProgress::_tracProgress support
+        require_once("./Modules/HTMLLearningModule/classes/class.ilObjFileBasedLMAccess.php");
+        $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
+        \ilObjFileBasedLMAccess::_determineStartUrl($obj_id);
+        $startfile =  \ilObjFileBasedLMAccess::$startfile[(string)$obj_id];
+        if ($startfile != "")
         {
-            //$my_courses [] = $course_refid;
-            $courseContents = $courseModel->getCourseContent($course_refid);
-            $children_ref_ids = array();
-            foreach ($courseContents as $item) {
-                $children_ref_ids[] = $item['ref_id'];
-                $repository_items[$item['ref_id']] = $item;
-            }
-            $course_item = $courseModel->getCourseInfo($course_refid);
-            $course_item['children_ref_ids'] = $children_ref_ids;
-            $repository_items[$course_refid] = $course_item;
+            $lmurl.= Libs\RESTLib::getWebDir()."/lm_data"."/lm_".$obj_id;
+            $lmurl.='/'.$startfile;
+            $app->log->debug('redirect to : '.$lmurl);
+            header("Location: ".$lmurl);
+            exit();
         }
-        $result['items'] = $repository_items;
-
-        $desktopModel = new Desktop\DesktopModel();
-        $pditems = $desktopModel->getPersonalDesktopItems($user_id);
-        $pdrefids = array();
-        foreach ($pditems as $pditem) {
-            $pdrefids[] = $pditem['ref_id'];
-        }
-        $result['mypersonaldesktop'] = $pdrefids;
-        $result['mycourses'] = $my_courses;
-
-        $grpModel = new Groups\GroupsModel();
-        $my_groups = $grpModel->getGroupsOfUser($user_id);
-        $result['mygroups'] = $my_groups;
-
-        // Contacts
-        $contactModel = new Contacts\ContactsModel();
-        $data = $contactModel->getMyContacts($user_id);
-        $result['contacts']['my_contacts'] = $data;
-        // TODO: CourseContacts, GroupContacts
-
-        // Calendar
-        $calModel = new Calendar\CalendarModel();
-        $data = $calModel->getIcalAdress($user_id);
-        $result['calendar']['ical_url'] = $data;
-        $data = $calModel->getCalUpcomingEvents($user_id);
-        $result['calendar']['events'] = $data;
-
-        $t_end = microtime();
-        $result['meta']['duration'] = abs($t_end-$t_start);
-        $result['meta']['tstamp'] = time();
-        $resp = array("mdeskinit" => $result);
-        $app->success($result);
+        $app->success("Could not locate Learning Module.",404);
     });
 
 });
