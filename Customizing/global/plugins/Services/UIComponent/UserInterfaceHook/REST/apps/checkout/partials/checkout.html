@@ -1,0 +1,33 @@
+<form>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{'Checkout' | translate}}</h3>
+        </div>
+
+        <div class="panel-body">
+            <div class="form-group">
+                <label for="inputRestEndpoint">{{'REST_ENDPOINT_INPUT' | translate}}</label>
+                <input id="inputRestEndpoint" name="inputRestEndpoint" data-ng-model="current.inputRestEndpoint" class="form-control" type="text" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                e.g. /routes
+            </div>
+
+            <!--<div class="form-group">
+                <label for="inputDescription">{{'EDIT_CONSENT_MSG' | translate}}</label>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="oauth2_consent_msg_active" name="oauth2_consent_msg_active" data-ng-model="current.oauth2_consent_message_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                        {{'EDIT_CONSENT_SCOPE' | translate}}
+                    </label>
+                </div>
+                <textarea id="inputDescription" class="form-control" rows="3" data-ng-model="current.oauth2_consent_message"></textarea>
+            </div> -->
+        </div>
+    </div>
+
+    <div class="form-group">
+        <button class="btn btn-success" data-ng-click="restCall()">{{'GO' | translate}}</button>
+    </div>
+
+
+</form>

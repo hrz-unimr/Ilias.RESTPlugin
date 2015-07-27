@@ -1,0 +1,179 @@
+<form>
+    <div class="form-group">
+        <button class="btn btn-primary" data-ng-click="goBack()">{{'EDIT_BACK' | translate}}</button>
+        <button class="btn btn-success" data-ng-click="saveClient()">{{'EDIT_SAVE' | translate}}</button>
+    </div>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{'EDIT_BASIC_INFORMATION' | translate}}</h3>
+        </div>
+
+        <div class="panel-body">
+            <div class="form-group">
+                <label for="cid">{{'EDIT_ID' | translate}}</label>
+                <input class="form-control" id="cid" type="text" data-ng-model="current.id" class="ng-pristine data-ng-valid" data-ng-readonly="true">
+            </div>
+            <div class="form-group">
+                <label for="inputClientId">{{'EDIT_API_KEY' | translate}}</label>
+                <div class="input-group">
+                    <input id="inputClientId" name="inputClientId" data-ng-model="current.api_key" class="form-control" type="text">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" data-ng-click="createRandomApiKey()">{{'EDIT_GENERATE' | translate}}</button>
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="inputClientSecret">{{'EDIT_API_SECRET' | translate}}</label>
+                <div class="input-group">
+                    <input id="inputClientSecret" name="inputClientSecret" data-ng-model="current.api_secret" class="form-control" type="text">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" data-ng-click="createRandomApiSecret()">{{'EDIT_GENERATE' | translate}}</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <table class="table table-striped table-bordered" id="scopetable">
+            <thead>
+                <tr>
+                    <th>{{'EDIT_PERMISSIONS' | translate}}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-ng-repeat="permission in current.permissions track by $index">
+                    <td data-ng-bind-html="permission | formatEditPermission"></td>
+                    <td><button class="btn btn-danger btn-sm" data-ng-click="deletePermission($index)">{{'EDIT_DELETE' | translate}}</button></td>
+                </tr>
+                <tr>
+                    <td><select class="form-control" data-ng-model="newPermission"
+                        data-ng-options="formatPermissionOption(route.pattern, route.verb) group by route.pattern for route in routes">
+                            <option value="">{{'EDIT_SELECT_PROMPT' | translate}}</option>
+                    </select></td>
+                    <td><button class="btn btn-primary btn-sm" data-ng-click="addPermission(newPermission)">{{'EDIT_ADD_ROUTE' | translate}}</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{'EDIT_GRANT_TYPE' | translate}}</h3>
+        </div>
+
+        <div class="panel-body">
+            <div class="form-group">
+                <label for="inputGtClient">{{'EDIT_GRANT_CC' | translate}}</label>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="inputGtClient" name="inputGtClient" data-ng-model="current.oauth2_gt_client_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                        {{'EDIT_ENABLED' | translate}}
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label" for="inputGtClientUser">{{'EDIT_GRANT_CC_USER' | translate}}</label>
+                <input id="inputGtClientUser" name="inputGtClientUser" data-ng-model="current.oauth2_gt_client_user" class="form-control" type="text">
+                {{'EDIT_GRANT_CC_USER_TEXT' | translate}}
+            </div>
+
+            <div class="form-group">
+                <label for="inputGtAuth">{{'EDIT_GRANT_AC' | translate}}</label>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="inputGtAuth" name="inputGtAuth" data-ng-model="current.oauth2_gt_authcode_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                        {{'EDIT_ENABLED' | translate}}
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="inputGtAuthRefresh" name="inputGtAuthRefresh" data-ng-model="current.oauth2_authcode_refresh_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                        {{'EDIT_GRANT_AC_REFREH' | translate}}
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="inputGtImplicit">{{'EDIT_GRANT_I' | translate}}</label>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="inputGtImplicit" name="inputGtImplicit" data-ng-model="current.oauth2_gt_implicit_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                        {{'EDIT_ENABLED' | translate}}
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="inputGtUserpass">{{'EDIT_GRANT_R' | translate}}</label>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="inputGtUserpass" name="inputGtUserpass" data-ng-model="current.oauth2_gt_resourceowner_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                        {{'EDIT_ENABLED' | translate}}
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="inputGtUserpassRefresh" name="inputGtUserpassRefresh" data-ng-model="current.oauth2_resource_refresh_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                        {{'EDIT_GRANT_R_REFRESH' | translate}}
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{'EDIT_BIND_USER' | translate}}</h3>
+        </div>
+
+        <div class="panel-body">
+            <div class="form-group">
+                <label for="inputAllUserAccess">{{'EDIT_STATUS' | translate}}</label>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="inputAllUserAccess" name="inputAllUserAccess" data-ng-model="current.oauth2_user_restriction_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                        {{'EDIT_ALLOWED_USERS_TEXT' | translate}}
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="inputUserCSV">{{'EDIT_ALLOWED_USERS' | translate}}</label>
+                <textarea id="inputUserCSV" class="form-control" rows="3" data-ng-model="current.access_user_csv"></textarea>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{'EDIT_REDIRECT_MSG' | translate}}</h3>
+        </div>
+
+        <div class="panel-body">
+            <div class="form-group">
+                <label for="inputRedirectionURI">{{'EDIT_REDIRECT_URI' | translate}}</label>
+                <input id="inputRedirectionURI" name="inputRedirectionURI" data-ng-model="current.oauth2_redirection_uri" class="form-control" type="text" data-ng-true-value="'1'" data-ng-false-value="'0'">
+            </div>
+
+            <div class="form-group">
+                <label for="inputDescription">{{'EDIT_CONSENT_MSG' | translate}}</label>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="oauth2_consent_msg_active" name="oauth2_consent_msg_active" data-ng-model="current.oauth2_consent_message_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                        {{'EDIT_CONSENT_SCOPE' | translate}}
+                    </label>
+                </div>
+                <textarea id="inputDescription" class="form-control" rows="3" data-ng-model="current.oauth2_consent_message"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <button class="btn btn-primary" data-ng-click="goBack()">{{'EDIT_BACK' | translate}}</button>
+        <button class="btn btn-success" data-ng-click="saveClient()">{{'EDIT_SAVE' | translate}}</button>
+    </div>
+</form>
