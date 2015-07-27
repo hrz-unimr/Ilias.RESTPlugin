@@ -2,7 +2,7 @@
 
     <div class="panel panel-primary">
         <div class="panel-heading">
-            <h3 class="panel-title">{{'Checkout' | translate}}</h3>
+            <h3 class="panel-title">{{'Query' | translate}}</h3>
         </div>
 
         <div class="panel-body">
@@ -29,5 +29,20 @@
         <button class="btn btn-success" data-ng-click="restCall()">{{'GO' | translate}}</button>
     </div>
 
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{'Result' | translate}}</h3>
+        </div>
+
+
+        <div class="form-group">
+            <label for="resultDisplay">{{'Result Display' | translate}}</label>
+
+            <textarea id="resultDisplay" class="form-control" rows="5" data-ng-model="current.result"></textarea>
+        </div>
+
+
+    </div>
 
 </form>

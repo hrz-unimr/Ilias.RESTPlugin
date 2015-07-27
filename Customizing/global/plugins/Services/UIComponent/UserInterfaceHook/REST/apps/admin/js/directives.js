@@ -15,6 +15,7 @@ directives.directive('appVersion', function(version) {
         element.text(version);
     }
 });
+/*
 directives.directive('angularjsVersion', function() {
     return function setVersion(scope, element, attrs) {
         attrs.tooltip = "v"+angular.version.full;
@@ -55,7 +56,7 @@ directives.directive('animatecssVersion', function() {
         attrs.tooltip = "v3.2.5";
     }
 });
-
+*/
 
 /*
  * Alternative to ngBindHtml when the attribute-value (html-code)

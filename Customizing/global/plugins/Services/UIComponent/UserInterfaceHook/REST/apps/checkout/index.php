@@ -88,19 +88,19 @@
         <div data-ng-show="authentication.hasError()" class="alert alert-warning" role="alert" data-ng-cloak><div ng-bind-html-compile="authentication.getError()"></div></div>
         <div data-ng-show="!authentication.hasError() || isLoginRoute()" class="page-main" data-ng-view></div>
         
-        <nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
+        <!--<nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
             <span class="navbar-text navbar-text-center">
-                <strong>{{'INDEX_VERSION' | translate}}:</strong> <span data-app-version></span> {{'INDEX_POWERED' | translate}} 
-                <a href="https://angularjs.org/" data-tooltip="Version: Unknown" data-angularjs-version target="_blank">AngularJS</a>, 
-                <a href="https://jquery.com/" data-tooltip="Version: Unknown" data-jquery-version target="_blank">jQuery</a>, 
-                <a href="http://modernizr.com" data-tooltip="Version: Unknown" data-modernizr-version target="_blank">Modernizr</a>, 
-                <a href="http://lesscss.org" data-tooltip="Version: Unknown" data-less-version target="_blank">LESS</a>, 
-                <a href="http://getbootstrap.com/" data-tooltip="Version: Unknown" data-bootstrap-version target="_blank">Bootstrap</a>, 
-                <a href="https://html5boilerplate.com/" data-tooltip="Version: Unknown" data-boilerplate-version target="_blank">HTML5 Boilerplates</a>, 
-                <a href="http://necolas.github.io/normalize.css/" data-tooltip="Version: Unknown" data-normalize-version target="_blank">Normalize.css</a> &amp; 
+                <strong>{{'INDEX_VERSION' | translate}}:</strong> <span data-app-version></span> {{'INDEX_POWERED' | translate}}
+                <a href="https://angularjs.org/" data-tooltip="Version: Unknown" data-angularjs-version target="_blank">AngularJS</a>,
+                <a href="https://jquery.com/" data-tooltip="Version: Unknown" data-jquery-version target="_blank">jQuery</a>,
+                <a href="http://modernizr.com" data-tooltip="Version: Unknown" data-modernizr-version target="_blank">Modernizr</a>,
+                <a href="http://lesscss.org" data-tooltip="Version: Unknown" data-less-version target="_blank">LESS</a>,
+                <a href="http://getbootstrap.com/" data-tooltip="Version: Unknown" data-bootstrap-version target="_blank">Bootstrap</a>,
+                <a href="https://html5boilerplate.com/" data-tooltip="Version: Unknown" data-boilerplate-version target="_blank">HTML5 Boilerplates</a>,
+                <a href="http://necolas.github.io/normalize.css/" data-tooltip="Version: Unknown" data-normalize-version target="_blank">Normalize.css</a> &amp;
                 <a href="http://daneden.github.io/animate.css/" data-tooltip="Version: Unknown" data-animatecss-version target="_blank">Animate.css</a>
             </span>
-        </nav>
+        </nav>-->
     </div>
     
     <script src="libs/js/jquery.js"></script>
