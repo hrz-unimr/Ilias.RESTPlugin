@@ -192,7 +192,7 @@ ctrl.controller("ClientListCtrl", function($scope, $location, $filter, dialogs, 
     $scope.init();
 });
 
-ctrl.controller("CheckoutCtrl", function($scope, $location, $filter, dialogs, clientStorage, restClient, restClients, apiKey) {
+ctrl.controller("CheckoutCtrl", function($scope, $location, $filter, $resource, dialogs, clientStorage, restClient, restClients, apiKey, authentication, restEndpoint) {
     /*
      * Called during (every) instantiation of this controller.
      *
@@ -202,6 +202,27 @@ ctrl.controller("CheckoutCtrl", function($scope, $location, $filter, dialogs, cl
     $scope.init = function() {
 
     };
+
+    $scope.restCall = function() {
+        var route = $scope.current.inputRestEndpoint;
+        var Res = $resource(restEndpoint.getEndpoint() + route, {}, {
+            query: { method:  'GET',  params: {}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
+            create: { method: 'POST', params: {}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }}
+        });
+
+        Res.query(function (response) {
+            var jsonString = JSON.stringify(response);
+            $scope.current.result = jsonString;
+            console.log('result '+jsonString);
+        });
+        /*restRoutes.get(function(response) {
+            $scope.routes = response.routes;
+        });*/
+        console.log('Probe endpoint');
+    }
+
+   // $scope.oldKey = $scope.current.api_key;
+
 
     // Do the initialisation
     $scope.init();

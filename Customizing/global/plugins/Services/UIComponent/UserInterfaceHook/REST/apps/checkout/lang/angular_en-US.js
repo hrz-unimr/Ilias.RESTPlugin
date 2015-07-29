@@ -55,8 +55,8 @@ lang_en_us.config(function($translateProvider) {
         LOGIN_UNKNOWN: '<strong>Login failed:</strong> An unknown error occured while trying to contact the REST-Interface. %INFO%',
         
         // Index.php
-        INDEX_TITLE: 'ILIAS REST Plugin - Administration',
-        INDEX_BRAND: 'ILIAS REST',
+        INDEX_TITLE: 'Checkout',
+        INDEX_BRAND: 'ILIAS REST>Checkout',
         INDEX_LOGGED_IN: 'Logged in as {{authentication.getUserName()}}',
         INDEX_LOGOUT: 'Logout',
         INDEX_VERSION: 'Version',

@@ -111,7 +111,7 @@ services.provider('authentication', function() {
 
 
 /*
- * This service internally handles all client data recieved from
+ * This service internally handles all client data received from
  * and send to the REST Interface.
  * This includes adding, removing clients as well as setting the
  * current client (for editing) and providing default settings
