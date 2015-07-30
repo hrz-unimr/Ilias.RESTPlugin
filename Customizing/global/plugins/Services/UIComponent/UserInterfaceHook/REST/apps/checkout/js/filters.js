@@ -69,6 +69,13 @@ filters.filter('formatListPermissions', function($sce) {
         return "";
     };
 });
+
+filters.filter('formatHTML', function($sce) {
+    return function(value) {
+        return $sce.trustAsHtml(value);
+    }
+});
+
 filters.filter('formatEditPermission', function($sce) {
     return function(value) {
         if (typeof value != 'undefined') {

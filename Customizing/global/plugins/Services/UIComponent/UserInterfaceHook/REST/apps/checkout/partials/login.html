@@ -6,9 +6,12 @@
         
         <form class="form-signin" data-ng-submit="manualLogin()">
             <h2 class="form-signin-heading">{{'Login into "Checkout"' | translate}}</h2>
-            
+
+            <label for="inputApiKey" class="sr-only">{{'LOGIN_APIKEY' | translate}}</label>
+            <input data-ng-model="formData.apiKey" type="text" id="inputApiKey" class="form-control" placeholder="{{'LOGIN_APIKEY' | translate}}" required autofocus>
+
             <label for="inputUser" class="sr-only">{{'LOGIN_USERNAME' | translate}}</label>
-            <input data-ng-model="formData.userName" type="text" id="inputUser" class="form-control" placeholder="{{'LOGIN_USERNAME' | translate}}" required autofocus>
+            <input data-ng-model="formData.userName" type="text" id="inputUser" class="form-control" placeholder="{{'LOGIN_USERNAME' | translate}}" required>
             
             <label for="inputPassword" class="sr-only">{{'LOGIN_PASSWORD' | translate}}</label>
             <input data-ng-model="formData.password" type="password" id="inputPassword" class="form-control" placeholder="{{'LOGIN_PASSWORD' | translate}}" required>

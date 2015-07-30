@@ -23,6 +23,7 @@ services.provider('authentication', function() {
         token: null,
         autoLogin: (postVars.userId.length > 0 && postVars.sessionId.length > 0 && postVars.rtoken.length > 0),
         error: null,
+        apiKey: ""
     };
 
     // Return object containing login-related functions.
@@ -42,6 +43,10 @@ services.provider('authentication', function() {
             return data.userName;
         };
 
+        handler.getApiKey = function() {
+            return data.apiKey;
+        };
+
         // Function that returns the current login-state
         // of the user. If this returns true then getToken
         // and getUserName should return valid data.
@@ -53,11 +58,12 @@ services.provider('authentication', function() {
         // given by username (mostly for display purpose)
         // and the bearer-token, which is required to talk
         // to the REST interface.
-        handler.login = function(userName, token) {
+        handler.login = function(userName, token, apiKey) {
             // Store login data
             data.userName = userName;
             data.token = token;
             data.isAuthenticated = true;
+            data.apiKey = apiKey;
 
             // Reset any (login-related) error-messages
             handler.setError(null);

@@ -73,126 +73,7 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
 });
 
 
-/*
- * This controller handles all client-list related functionality,
- * such as displaying, adding and removing clients as well as
- * redirecting to client-edit route.
- */
-ctrl.controller("ClientListCtrl", function($scope, $location, $filter, dialogs, clientStorage, restClient, restClients, apiKey) {
-    /*
-     * Called during (every) instantiation of this controller.
-     *
-     * Note: Using a dedicated method is cleaner and more reusable than
-     * doing it directly inside the controller.
-     */
-    $scope.init = function() {
-        // Warning message (mostly for when REST calls fail)
-        $scope.warning = null;
-
-        // Load clients into AngularJS via REST
-        $scope.loadClients();
-    };
-
-
-
-    /*
-     * Fetch all clients via REST and inserts them into the $scope
-     * such that they will/may be $watch'ed by AngularJS.
-     */
-    $scope.loadClients = function() {
-        // Do an AJAJ REST call
-        restClients.query(
-            // Data
-            {},
-            // Success
-            function(response) {
-                // Enough access rights
-                if (response.status == "success") {
-                    clientStorage.setClients(response.clients);
-                    $scope.clients = clientStorage.getClients();
-                }
-                // Probably insufficient access rights
-                // Note: We could additionally check response.msg
-                else {
-                    $scope.authentication.logout();
-                    $scope.authentication.setError($filter('translate')('AUTH_PERM'));
-                }
-            },
-            // Failure
-            function(response) {
-                $scope.warning = $filter('restInfo')($filter('translate')('NO_CLIENTS'), response.status, response.data);
-            }
-        );
-    };
-
-
-    /*
-     * Creates a new client with default settings (locally only).
-     * Client will be commited via REST from inside the EditClientCtrl.
-     */
-    $scope.createNewClient = function() {
-        // Add a default client locally
-        var current = clientStorage.getDefault();
-        clientStorage.addClient(current);
-        clientStorage.setCurrent(current);
-
-        // Redirect
-        $location.path("/clientlist/clientedit");
-    };
-
-
-    /*
-     * Updates a client by forwarding all changes done via AngularJS forms
-     * via REST. ($scope is allready up-to-date)
-     */
-    $scope.editClient = function(client) {
-        // Update remotely
-        clientStorage.setCurrent(client);
-
-        // Redirect
-        $location.path("/clientlist/clientedit");
-    };
-
-
-    /*
-     * Deletes a client via REST and updates the $scope
-     * such that all views get updated as well.
-     */
-    $scope.deleteClient = function(index) {
-        // Open a warning when deleting a client
-        // Adds a special warning when trying to delete the Admin-Panel API-Key
-        var dialog;
-        if ($scope.clients[index].api_key != apiKey)
-            dialog = dialogs.confirm($filter('translate')('DIALOG_DELETE'), $filter('translate')('DIALOG_DELETE_MSG'));
-        else
-            dialog = dialogs.confirm($filter('translate')('DIALOG_DELETE_AP'), $filter('translate')('DIALOG_DELETE_AP_MSG'));
-
-        // Start remote deletion once confirmed
-        dialog.result.then(function(button){
-            // Remove client in AngularJS
-            var client = $scope.clients.splice(index, 1)[0];
-
-            // Remove client remotely
-            // Note: Use array-notation to pamper the syntax-validator (delete is a keyword)
-            restClient['delete'](
-                // Data
-                {id: client.id},
-                // Success
-                function (response) { },
-                // Failure
-                function (response) {
-                    $scope.warning = $filter('restInfo')($filter('translate')('DEL_FAILED_REMOTE'), response.status, response.data);
-                }
-            );
-        });
-    };
-
-
-    // Do the initialisation
-    $scope.init();
-});
-
-ctrl.controller("CheckoutCtrl", function($scope, $location, $filter, $resource, dialogs, clientStorage, restClient, restClients, apiKey, authentication, restEndpoint) {
+ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $resource, dialogs, clientStorage, restClient, restClients, authentication, restEndpoint) {
     /*
      * Called during (every) instantiation of this controller.
      *
@@ -215,9 +96,9 @@ ctrl.controller("CheckoutCtrl", function($scope, $location, $filter, $resource, 
                 r = r + (pVal[0] == '"' ? str : val) + pVal + '</span>';
             return r + (pEnd || '');
         },
-        toHtml: function(obj) {
+        prettyPrint: function(obj) {
             var jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
-            return JSON.stringify(obj, null, 3)
+            return JSON.stringify(obj, null, 2)
                 .replace(/&/g, '&amp;').replace(/\\"/g, '&quot;')
                 .replace(/</g, '&lt;').replace(/>/g, '&gt;')
                 .replace(jsonLine, jsonPrettyPrint.replacer);
@@ -233,9 +114,8 @@ ctrl.controller("CheckoutCtrl", function($scope, $location, $filter, $resource, 
 
         Res.query(function (response) {
             var jsonString = JSON.stringify(response);
-            //$scope.current.result = JSON.stringify(JSON.parse(jsonString),null,2);
-            $scope.current.result = jsonPrettyPrint.toHtml(response);
-            console.log('result '+jsonPrettyPrint.toHtml(jsonString));
+            $scope.current.result = jsonPrettyPrint.prettyPrint(response);
+            //console.log('result '+jsonPrettyPrint.prettyPrint(jsonString));
         });
         /*restRoutes.get(function(response) {
             $scope.routes = response.routes;
@@ -249,205 +129,6 @@ ctrl.controller("CheckoutCtrl", function($scope, $location, $filter, $resource, 
     // Do the initialisation
     $scope.init();
 });
-
-    /*
-     * This controller handles all functionality related to editing a client, such
-     * as loading and formating routes, permissions, remotely applying changes and
-     * generating random keys and secrets.
-     */
-ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStorage, restClient, restClients, $location, restRoutes, apiKey) {
-    /*
-     * Replaces an 'x' with another randomly permuated character.
-     * Used to generate random keys and secrets.
-     * (For internal use only)
-     */
-    var randomize = function(c) {
-        var r = Math.random() * 16 | 0;
-        var v = ((c == 'x') ? r : (r & 0x3 | 0x8));
-
-        return v.toString(16);
-    }
-
-
-    /*
-     * Called during (every) instantiation of this controller.
-     *
-     * Note: Using a dedicated method is cleaner and more reusable than
-     * doing it directly inside the controller.
-     */
-    $scope.init = function() {
-        // Set current client on $scope
-        $scope.current = clientStorage.getCurrent();
-
-        // Store old key [by value!] (to see if it changed)
-        $scope.oldKey = $scope.current.api_key;
-
-        // Fetch available routes
-        restRoutes.get(function(response) {
-            $scope.routes = response.routes;
-        });
-    };
-
-
-    /*
-     * Go back to list of clients. (Looks cleaned inside template)
-     */
-    $scope.goBack = function() {
-        $location.url("/clientlist");
-    };
-
-
-    /*
-     * Format permissions into easily readable format.
-     * Mainly used for <select> -> <option> formatting.
-     */
-    $scope.formatPermissionOption = function(route, verb) {
-        return '['+verb+"] "+route;
-    };
-
-
-    /*
-     * Adds a new permission to the $scope to eventually be
-     * saved remotely via REST once the clients changes are commited.
-     */
-    $scope.addPermission = function(permission) {
-        // Make sure no empty array is appended to
-        if (!angular.isDefined($scope.current.permissions) || $scope.current.permissions == null)
-            current.permissions = [];
-
-        // Strip auth-middleware and add permission
-        $scope.current.permissions.push({
-            pattern: permission.pattern,
-            verb: permission.verb,
-        });
-    };
-
-
-    /*
-     * Remove a permission from the $scope to eventually be
-     * saved remotely via REST once the clients changes are commited.
-     */
-    $scope.deletePermission = function(index) {
-        $scope.current.permissions.splice(index, 1);
-    };
-
-
-    /*
-     * Generate a random API-Key
-     */
-    $scope.createRandomApiKey = function() {
-        $scope.current.api_key = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, randomize);
-    };
-
-
-    /*
-     * Generate a random API-Secret
-     */
-    $scope.createRandomApiSecret = function() {
-        $scope.current.api_secret = 'xxxx.xxxx-xx'.replace(/[xy]/g, randomize);
-    };
-
-
-    /*
-     * Save all local ($scope) client changes or create the new client remotely by
-     * invoking the corresponding REST AJAJ call.
-     */
-    $scope.saveClient = function() {
-        // Create a new client with $scope data
-        if ($scope.current.id==-1) {
-            restClients.create({
-                // Data
-                    api_key: $scope.current.api_key,
-                    api_secret:$scope.current.api_secret,
-                    oauth2_redirection_uri : $scope.current.oauth2_redirection_uri,
-                    oauth2_consent_message : $scope.current.oauth2_consent_message,
-                    permissions: $scope.current.permissions,
-                    oauth2_gt_client_active: $scope.current.oauth2_gt_client_active,
-                    oauth2_gt_client_user: $scope.current.oauth2_gt_client_user,
-                    oauth2_gt_authcode_active: $scope.current.oauth2_gt_authcode_active,
-                    oauth2_gt_implicit_active: $scope.current.oauth2_gt_implicit_active,
-                    oauth2_gt_resourceowner_active: $scope.current.oauth2_gt_resourceowner_active,
-                    oauth2_user_restriction_active: $scope.current.oauth2_user_restriction_active,
-                    oauth2_consent_message_active: $scope.current.oauth2_consent_message_active,
-                    oauth2_authcode_refresh_active: $scope.current.oauth2_authcode_refresh_active,
-                    oauth2_resource_refresh_active: $scope.current.oauth2_resource_refresh_active,
-                    access_user_csv: $scope.current.access_user_csv
-                },
-                // Success
-                function (response) {
-                    if (response.status == "success") {
-                        $scope.current.id = response.id;
-                        clientStorage.addClient($scope.current);
-                    }
-                    else
-                        $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_UNKOWN'), response.status, response.data);
-
-                    $location.url("/clientlist");
-                },
-                // Failure
-                function (response) {
-                    $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_REMOTE'), response.status, response.data);
-                    $location.url("/clientlist");
-                }
-            );
-        }
-        // Save changes (for existing client)
-        else {
-            // Do the actuall remote update via REST.
-            // We will be reusing this code a bit below.
-            var doUpdate = function () {
-                restClient.update({
-                        id: $scope.current.id
-                    }, {
-                        api_key: $scope.current.api_key,
-                        api_secret:$scope.current.api_secret,
-                        oauth2_redirection_uri : $scope.current.oauth2_redirection_uri,
-                        oauth2_consent_message : $scope.current.oauth2_consent_message,
-                        permissions: $scope.current.permissions,
-                        oauth2_gt_client_active: $scope.current.oauth2_gt_client_active,
-                        oauth2_gt_client_user: $scope.current.oauth2_gt_client_user,
-                        oauth2_gt_authcode_active: $scope.current.oauth2_gt_authcode_active,
-                        oauth2_gt_implicit_active: $scope.current.oauth2_gt_implicit_active,
-                        oauth2_gt_resourceowner_active: $scope.current.oauth2_gt_resourceowner_active,
-                        oauth2_user_restriction_active: $scope.current.oauth2_user_restriction_active,
-                        oauth2_consent_message_active: $scope.current.oauth2_consent_message_active,
-                        oauth2_authcode_refresh_active: $scope.current.oauth2_authcode_refresh_active,
-                        oauth2_resource_refresh_active: $scope.current.oauth2_resource_refresh_active,
-                        access_user_csv: $scope.current.access_user_csv
-                    },
-                    // Success
-                    function (response) {
-                        if (response.status != "success")
-                            $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_UNKOWN'), response.status, response.data);
-                        $location.url("/clientlist");
-                    },
-                    // Failure
-                    function (response) {
-                        $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_REMOTE'), response.status, response.data);
-                        $location.url("/clientlist");
-                    }
-                );
-            };
-
-            // Check if the Admin-Panel key was changed and show a warning in this case
-            if ($scope.oldKey == apiKey && $scope.oldKey != $scope.current.api_key) {
-                var dialog = dialogs.confirm(
-                    $filter('translate')('DIALOG_UPDATE'),
-                    $filter('translate')('DIALOG_UPDATE_MSG')
-                );
-                dialog.result.then(doUpdate);
-            }
-            // Simply continue otherwise
-            else
-                doUpdate();
-        }
-    };
-
-
-    // Do the initialisation
-    $scope.init();
-});
-
 
 /*
  * This controller handles the login-page as well as all/most login related messages.
@@ -523,13 +204,13 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
                 grant_type: 'password',
                 username: $scope.formData.userName,
                 password: $scope.formData.password,
-                api_key: apiKey
+                api_key: $scope.formData.apiKey,
             },
             // Success
             function (response) {
                 // Authorisation success (Login internally and redirect)
                 if (response.token_type == "bearer") {
-                    $scope.authentication.login($scope.formData.userName, response.access_token);
+                    $scope.authentication.login($scope.formData.userName, response.access_token, $scope.formData.apiKey);
                     $location.url("/checkout");
                     $scope.$emit('loginPerformed');
                 // Authorisation failed  (Logout internally and redirdct)

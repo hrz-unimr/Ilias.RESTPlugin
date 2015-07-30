@@ -30,8 +30,8 @@ var app = angular.module('myApp', [
 /*
  * Some (important) global constants, all in one place
  */
-app.constant('version',             '0.1');                               // Application version
-app.constant('apiKey',              'apollon');                           // API-Key used to log into admin-panel (via username/password)
+app.constant('version',             '0.2');                               // Application version
+app.constant('apiKey',              'apollo5');                           // API-Key used to log into admin-panel (via username/password)
 app.constant('restIliasLoginURL',   '/v1/ilauth/rtoken2bearer');          // rToken to Bearer-Token Endpoint
 app.constant('restTokenURL',        '/v1/oauth2/token');                  // Bearer-Token from Username, Password, API-Key pair Endpoint
 app.constant('restClientsURL',      '/clients');                          // Client-list Endpoint

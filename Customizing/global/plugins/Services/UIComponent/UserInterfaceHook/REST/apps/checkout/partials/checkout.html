@@ -37,13 +37,7 @@
 
 
         <div class="form-group">
-            <label for="resultDisplay">{{'Result Display' | translate}}</label>
-
-            <!--<textarea id="resultDisplay" class="form-control" rows="55" data-ng-model="current.result"></textarea> -->
-            <div id="resultDisplay" ng-bind-html-unsafe="current.result"></div>
+            <pre><code data-ng-bind-html='current.result | formatHTML'></code></pre>
         </div>
-
-
     </div>
-
 </form>
