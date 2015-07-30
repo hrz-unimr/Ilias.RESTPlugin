@@ -68,6 +68,7 @@ lang_en_us.config(function($translateProvider) {
         LOGIN_USERNAME: 'Username',
         LOGIN_PASSWORD: 'Password',
         LOGIN_LOGIN: 'Login',
+        LOGIN_APIKEY: 'API Key',
         
         // partials/clientlist.html
         LIST_ID: 'ID',
@@ -123,6 +124,7 @@ lang_en_us.config(function($translateProvider) {
         EDIT_CONSENT_MSG: 'OAuth2 Consent Message',
         EDIT_CONSENT_SCOPE: 'Enable an additional page for the OAuth2 grant types "authcode" and "implicit grant" to inform the user about the scope of the application.',
 
+        CHECKOUT_INPUT: 'Please enter a route:'
     });
     
     // Ste default language
