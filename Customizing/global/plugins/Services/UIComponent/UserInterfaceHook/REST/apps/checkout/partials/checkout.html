@@ -12,6 +12,12 @@
                 e.g. /routes
             </div>
 
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" id="openNewWindow" name="openNewWindow" data-ng-model="current.openNewWindow" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                    {{'CHECKOUT_OPEN_NEW_WINDOW' | translate}}
+                </label>
+            </div>
             <!--<div class="form-group">
                 <label for="inputDescription">{{'EDIT_CONSENT_MSG' | translate}}</label>
                 <div class="checkbox">
@@ -26,7 +32,7 @@
     </div>
 
     <div class="form-group">
-        <button class="btn btn-success" data-ng-click="restCall()">{{'GO' | translate}}</button>
+        <button class="btn btn-success" data-ng-click="checkout()">{{'GO' | translate}}</button>
     </div>
 
 

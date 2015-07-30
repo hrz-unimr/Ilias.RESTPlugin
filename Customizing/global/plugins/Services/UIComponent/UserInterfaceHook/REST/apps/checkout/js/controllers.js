@@ -41,7 +41,6 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
 
     };
 
-
     /*
      * Used to check if currently on the login route.
      * Required to show/hide certain (warning) elements.
@@ -106,6 +105,13 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
     };
 
 
+    $scope.checkout = function() {
+        if ($scope.current.openNewWindow == 1) {
+            $scope.restCallInNewWindow();
+        } else {
+            $scope.restCall();
+        }
+    }
 
     $scope.restCall = function() {
         var route = $scope.current.inputRestEndpoint;
