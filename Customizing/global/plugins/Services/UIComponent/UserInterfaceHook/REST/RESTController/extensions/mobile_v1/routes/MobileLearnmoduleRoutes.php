@@ -26,6 +26,7 @@ $app->group('/v1/m', function () use ($app) {
      *
      * Note: it is important, that the url opens this endpoint in the browser component of the device, since
      * cookies will be set and be required due to the access checker.
+     * This can be done e.g. with "https://<hostname>/restplugin.php/v1/m/htlm/145?access_token=cm9v..."
      *
      */
     $app->get('/htlm/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($ref_id) use ($app) {
@@ -57,10 +58,20 @@ $app->group('/v1/m', function () use ($app) {
             $lmurl.= Libs\RESTLib::getWebDir()."/lm_data"."/lm_".$obj_id;
             $lmurl.='/'.$startfile;
             $app->log->debug('redirect to : '.$lmurl);
-            header("Location: ".$lmurl);
+            header("Location: ".$lmurl, true, 301);
             exit();
         }
         $app->success("Could not locate Learning Module.",404);
     });
+
+    /*$app->get('/proof/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($ref_id) use ($app) {
+        $auth = new Auth\Util();
+        $user_id = $auth->getAccessToken()->getUserId();
+
+        $app->log->debug('proof: '.$user_id);
+        $app->log->debug('token: '.$auth->getAccessToken()->getTokenString());
+
+        $app->success("Proof of concept.",200);
+    });*/
 
 });

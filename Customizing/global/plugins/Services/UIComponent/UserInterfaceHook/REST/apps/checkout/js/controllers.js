@@ -73,7 +73,7 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
 });
 
 
-ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $resource, dialogs, clientStorage, restClient, restClients, authentication, restEndpoint) {
+ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $resource, dialogs, clientStorage, restClient, restClients, authentication, restEndpoint, $window) {
     /*
      * Called during (every) instantiation of this controller.
      *
@@ -105,6 +105,8 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
         }
     };
 
+
+
     $scope.restCall = function() {
         var route = $scope.current.inputRestEndpoint;
         var Res = $resource(restEndpoint.getEndpoint() + route, {}, {
@@ -121,6 +123,15 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
             $scope.routes = response.routes;
         });*/
         console.log('Probe endpoint');
+    }
+
+    // This method needs to be invoked in case when the rest route requires
+    // to initiate a ilias session and to perform a redirect, e.g. calling an ilias learn module
+    // /v1/m/htlm/:ref_id
+    $scope.restCallInNewWindow = function() {
+        var route = $scope.current.inputRestEndpoint;
+        var url = restEndpoint.getEndpoint() + route + '?access_token='+authentication.getToken();
+        $window.open(url);
     }
 
    // $scope.oldKey = $scope.current.api_key;
