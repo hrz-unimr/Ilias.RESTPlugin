@@ -203,6 +203,27 @@ ctrl.controller("CheckoutCtrl", function($scope, $location, $filter, $resource, 
 
     };
 
+    var jsonPrettyPrint = {
+        replacer: function(match, pIndent, pKey, pVal, pEnd) {
+            var key = '<span class=json-key>';
+            var val = '<span class=json-value>';
+            var str = '<span class=json-string>';
+            var r = pIndent || '';
+            if (pKey)
+                r = r + key + pKey.replace(/[": ]/g, '') + '</span>: ';
+            if (pVal)
+                r = r + (pVal[0] == '"' ? str : val) + pVal + '</span>';
+            return r + (pEnd || '');
+        },
+        toHtml: function(obj) {
+            var jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
+            return JSON.stringify(obj, null, 3)
+                .replace(/&/g, '&amp;').replace(/\\"/g, '&quot;')
+                .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(jsonLine, jsonPrettyPrint.replacer);
+        }
+    };
+
     $scope.restCall = function() {
         var route = $scope.current.inputRestEndpoint;
         var Res = $resource(restEndpoint.getEndpoint() + route, {}, {
@@ -212,8 +233,9 @@ ctrl.controller("CheckoutCtrl", function($scope, $location, $filter, $resource, 
 
         Res.query(function (response) {
             var jsonString = JSON.stringify(response);
-            $scope.current.result = jsonString;
-            console.log('result '+jsonString);
+            //$scope.current.result = JSON.stringify(JSON.parse(jsonString),null,2);
+            $scope.current.result = jsonPrettyPrint.toHtml(response);
+            console.log('result '+jsonPrettyPrint.toHtml(jsonString));
         });
         /*restRoutes.get(function(response) {
             $scope.routes = response.routes;
