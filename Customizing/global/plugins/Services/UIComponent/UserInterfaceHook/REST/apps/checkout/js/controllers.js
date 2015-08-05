@@ -26,7 +26,8 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
             'LABEL_LOGIN': $filter('translate')('LABEL_LOGIN'),
             'LABEL_OFFLINE': $filter('translate')('LABEL_OFFLINE'),
             'LABEL_CLIENTS': $filter('translate')('LABEL_CLIENTS'),
-            'LABEL_EDIT': $filter('translate')('LABEL_EDIT')
+            'LABEL_EDIT': $filter('translate')('LABEL_EDIT'),
+            'LABEL_CHECKOUT': $filter('translate')('LABEL_CHECKOUT')
         };
         $scope.breadcrumbs = breadcrumbs;
 
