@@ -431,7 +431,7 @@ class RESTLib {
 
     /**
      * Initiates an ILIAS Session for a user specified by $user_id.
-     *
+     * (Requires ILIAS >5.0)
      * @param $user_id
      */
     public static function initSession($user_id)
