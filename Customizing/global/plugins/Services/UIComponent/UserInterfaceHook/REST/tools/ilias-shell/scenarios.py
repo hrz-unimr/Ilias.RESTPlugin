@@ -11,6 +11,13 @@ class Scenarios:
 	self.i = ishell.IShell(True,True)
 	self.api_key = 'thessaloniki'
 
+    def printIntro(self):
+	print 'Welcome to ILIAS Scenarios'
+	print '===================================================================='
+	print 'You can list the available scenarios by typing s. followed by <tab>.'
+	print 'Example: ?s.buildThessaloniki would describe what it does and '
+	print 's.buildThessaloniki() would actually create this scenario.'
+
     def buildThessaloniki(self):
 	"""
 	 Constructs the same scenario as described in testing/api/scenarios
