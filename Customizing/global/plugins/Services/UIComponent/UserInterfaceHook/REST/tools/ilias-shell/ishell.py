@@ -12,7 +12,7 @@ class IShell:
     v.1.8
     """
 
-    def __init__(self):
+    def __init__(self, quite=False, connect=True):
         settings = ConfigParser.ConfigParser();
         settings.read('ishell.ini')
         self.api_key = settings.get('Authentification','api_key')
@@ -21,7 +21,9 @@ class IShell:
         self.oauth2_endpoint = settings.get('Authentification','oauth2_endpoint')
         self.ilias_client_id = settings.get('System','ilias_client_id')
         self.rest_endpoint = settings.get('System','rest_endpoint')
-        self.connect()
+	self.quite = quite
+	if connect == True:
+        	self.connect()
 
     def getToken(self):
         #print '[Debug] In get Token'
@@ -53,10 +55,11 @@ class IShell:
 	#f = open('token', 'w')
 	#f.write('header="Authorization: Bearer ' + tokenstr + '"')
 	#f.close()
-        print 'Welcome to the ILIAS-Shell'
-	print '> Connected with host: ' + self.rest_endpoint
-	print '> Retrieved OAuth2 token: ' + self.token[1:15] + '...'
-	print '> Using api-key: ' + self.api_key   
+	if self.quite==False:
+        	print 'Welcome to the ILIAS-Shell'
+		print '> Connected with host: ' + self.rest_endpoint
+		print '> Retrieved OAuth2 token: ' + self.token[1:15] + '...'
+		print '> Using api-key: ' + self.api_key   
 
     def printIntro(self):
         print '--'
