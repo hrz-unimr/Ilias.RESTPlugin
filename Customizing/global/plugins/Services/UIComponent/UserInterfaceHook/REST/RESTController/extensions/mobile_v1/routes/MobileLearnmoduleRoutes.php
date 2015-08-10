@@ -43,7 +43,12 @@ $app->group('/v1/m', function () use ($app) {
             $protocol = 'http://';
         }
         $domainName = $_SERVER['HTTP_HOST'];
-        $lmurl = $protocol.$domainName.$GLOBALS['COOKIE_PATH'].'/';
+        if ($GLOBALS['COOKIE_PATH']=='/') {
+            $lmurl = $protocol.$domainName.'/';
+        } else {
+            $lmurl = $protocol.$domainName.$GLOBALS['COOKIE_PATH'].'/';
+        }
+
 
         Libs\RESTLib::initSession($user_id);
 
