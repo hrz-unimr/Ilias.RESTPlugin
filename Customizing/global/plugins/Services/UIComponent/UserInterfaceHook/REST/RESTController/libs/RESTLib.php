@@ -323,6 +323,31 @@ class RESTLib {
 
 
     /**
+     * Returns the URL of the current ILIAS installation.
+     * @return string
+     */
+    static public function getBaseUrl() {
+        if (isset($_SERVER['HTTPS']) &&
+            ($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1) ||
+            isset($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
+            $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+            $protocol = 'https://';
+        }
+        else {
+            $protocol = 'http://';
+        }
+        $domainName = $_SERVER['HTTP_HOST'];
+        if ($GLOBALS['COOKIE_PATH']=='/') {
+            $baseUrl = $protocol.$domainName.'/';
+        } else {
+            $baseUrl = $protocol.$domainName.$GLOBALS['COOKIE_PATH'].'/';
+        }
+        return $baseUrl;
+    }
+
+
+
+    /**
      * Given a user id, this function returns the ilias login name of a user.
      *
      * @param $user_id

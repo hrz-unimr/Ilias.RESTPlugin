@@ -191,6 +191,7 @@ $app->group('/dev', function () use ($app) {
         $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
         $type = Libs\RESTLib::getTypeOfObject($obj_id);
         $result['type'] = $type;
+        $result['baseURL'] = Libs\RESTLib::getBaseUrl();
         $app->success($result);
     });
 
