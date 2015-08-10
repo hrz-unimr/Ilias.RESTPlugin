@@ -345,6 +345,19 @@ class RESTLib {
         return $baseUrl;
     }
 
+    /**
+     * Returns the perma link of a repository object specified by its ref_id.
+     * @param $ref_id
+     * @return string
+     * @throws \Exception
+     */
+    static public function getPermanentLink($ref_id) {
+        $obj_id = self::getObjIdFromRef($ref_id);
+        $type = self::getTypeOfObject($obj_id);
+        // mimics Services/Link/../class.ilLink.php::_getStaticLink
+        $permaLink = self::getBaseUrl().'goto.php'.'?target='.$type.'_'.$ref_id.'&client_id='.CLIENT_ID;
+        return $permaLink;
+    }
 
 
     /**
