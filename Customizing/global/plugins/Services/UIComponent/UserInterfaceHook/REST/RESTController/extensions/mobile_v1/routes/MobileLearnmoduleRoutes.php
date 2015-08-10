@@ -69,14 +69,4 @@ $app->group('/v1/m', function () use ($app) {
         $app->success("Could not locate Learning Module.",404);
     });
 
-    /*$app->get('/proof/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($ref_id) use ($app) {
-        $auth = new Auth\Util();
-        $user_id = $auth->getAccessToken()->getUserId();
-
-        $app->log->debug('proof: '.$user_id);
-        $app->log->debug('token: '.$auth->getAccessToken()->getTokenString());
-
-        $app->success("Proof of concept.",200);
-    });*/
-
 });
