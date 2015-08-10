@@ -439,8 +439,8 @@ class RESTLib {
         global $ilLog;
         $user_name = RESTLib::getUserNameFromId($user_id);
 
-        header_remove('Set-Cookie');
-        \ilUtil::setCookie("ilClientId", CLIENT_ID);
+       // header_remove('Set-Cookie');
+       // \ilUtil::setCookie("ilClientId", CLIENT_ID);
 
         require_once('Auth/Auth.php');
         require_once('Services/Authentication/classes/class.ilSession.php');
@@ -459,6 +459,9 @@ class RESTLib {
 
         \ilSession::set("AccountId", $user_id);
         \ilSession::set('orig_request_target', '');
+
+        header_remove('Set-Cookie');
+        \ilUtil::setCookie("ilClientId", CLIENT_ID);
 
         ilInitialisation_Public::setSessionHandler(); // will put an entry in usr_session table
 

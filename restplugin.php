@@ -48,7 +48,6 @@ else if (isset($_POST['client_id'])) {
 // Set Cookie Path (necessary for RestLib\initSession)
 $cookie_path = dirname($_SERVER['SCRIPT_NAME']);
 $cookie_path = str_replace('\\', '/', $cookie_path);
-//$cookie_path = ($cookie_path == '/' ? '' : $cookie_path);
 $GLOBALS['COOKIE_PATH'] = $cookie_path;
 
 // Initialise ILIAS
