@@ -173,4 +173,25 @@ $app->group('/dev', function () use ($app) {
         $app->halt(42, $result);
     });
 
+    // -------------------------------------------------------------------
+    $app->get('/getLink/:ref_id', function ($ref_id) use ($app) {
+        /*$result = array(
+            'time' => time(),
+            'host' => $_SERVER['HTTP_HOST'],
+            'referrer' => $_SERVER['HTTP_REFERER'],
+            'mynumbers' => array(0.5, 0.3, 0.2, 0.3, 0.5),
+            'time' => 0
+        );*/
+        $result = array();
+        //require_once("./Services/Link/classes/class.ilLink.php");
+        //$destination = \ilLink::_getStaticLink($ref_id);
+        //$result['link'] = $destination;
+
+        //ilRESTLib::getTypeOfObject
+        $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
+        $type = Libs\RESTLib::getTypeOfObject($obj_id);
+        $result['type'] = $type;
+        $app->success($result);
+    });
+
 });

@@ -310,6 +310,17 @@ class RESTLib {
         return $res;
     }
 
+    /**
+     * Determines the type of an ILIAS object.
+     * @param $obj_id
+     * @return string
+     */
+    static public function getTypeOfObject($obj_id) {
+        global $ilObjDataCache;
+        $a_type = $ilObjDataCache->lookupType($obj_id);
+        return $a_type;
+    }
+
 
     /**
      * Given a user id, this function returns the ilias login name of a user.
