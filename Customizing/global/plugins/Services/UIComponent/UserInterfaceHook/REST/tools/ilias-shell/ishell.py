@@ -9,7 +9,7 @@ class IShell:
     """  
     ILIAS-Shell
     For personalized and administrative operations on your ILIAS LMS.
-    v.1.7
+    v.1.8
     """
 
     def __init__(self):
@@ -38,11 +38,15 @@ class IShell:
         'client_id': self.api_key,
         'ilias_client_id' : self.ilias_client_id
         })
-        response = urllib2.urlopen(self.rest_endpoint+self.oauth2_endpoint, params).read()
-        #print response
-	data = json.loads(response)
-        self.token = data['access_token']
-
+        try:
+		response = urllib2.urlopen(self.rest_endpoint+self.oauth2_endpoint, params).read()
+		data = json.loads(response)
+		self.token = data['access_token']
+	except urllib2.HTTPError as e:
+		print '> ' + str(e.code) + ' - ' + e.reason
+		self.error = e.read();
+		self.showError();
+		self.token = ''
 
     def connect(self):
         self.getToken()
@@ -104,6 +108,33 @@ class IShell:
 		self.error = e.read();
 		self.showError();
 		#print e.read()
+
+
+    def uploadToMyFilespace(self, filename, title='default', description='default'):
+	""" Uploads a file to the personal file space of the authenticated user.
+        """
+	routeStr = 'v1/m/myfilespaceupload'
+	try:
+		if title == "default":
+			title = filename
+		if description == "default":
+			description = ""
+		
+		opener = poster.streaminghttp.register_openers()
+		datagen, headers = poster.encode.multipart_encode({"uploadfile": open(filename, "rb")})	
+
+		request = urllib2.Request(self.rest_endpoint+'/'+routeStr, datagen, headers)
+        	request.add_header('Authorization', ' Bearer '+ self.token)
+        	response = urllib2.urlopen(url=request).read()
+        	data = json.loads(response)
+        	self.response = data
+		self.show()
+	except urllib2.HTTPError as e:
+		print '> ' + str(e.code) + ' - ' + e.reason
+		self.error = e.read();
+		self.showError();
+		#print e.read()
+
 
     def post(self, routeStr, data):
 	"""Sends a POST request to the specified route and with the data.
