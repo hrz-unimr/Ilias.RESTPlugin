@@ -100,4 +100,10 @@ $app->group('/v1/m', function () use ($app) {
         $app->success($result);
     });
 
+    $app->get('/getPermaLink/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
+        $result = array();
+        $result['perma_link'] = Libs\RESTLib::getPermanentLink($ref_id);
+        $app->success($result);
+    });
+
 });
