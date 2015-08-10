@@ -116,8 +116,6 @@ class PersonalFileSpaceModel {
                 // END WebDAV: Ensure that object title ends with the filename extension
             }
 
-            //var_dump($file_upload);
-            //var_dump($title);
 
             // create and insert file in grp_tree
             include_once('./Modules/File/classes/class.ilObjFile.php');
@@ -131,8 +129,6 @@ class PersonalFileSpaceModel {
             $fileObj->setFileType(\ilMimeTypeUtil::getMimeType('', $filename, $type));
             $fileObj->setFileSize($size);
             $object_id = $fileObj->create();
-            //var_dump($fileObj);
-            //$GLOBALS['ilLog']->write(__METHOD__.' Parent ID='.$this->parent_id);
             $this->putObjectInMyFileSpaceTree($fileObj, $user_id);
 
             // upload file to filesystem
@@ -184,7 +180,11 @@ class PersonalFileSpaceModel {
         \ilRbacLog::add(\ilRbacLog::CREATE_OBJECT, $ref_id, $rbac_log);
     }
 
-
+    /**
+     * Deletes a file from a user's personal "myfilespace".
+     * @param $obj_id
+     * @param $user_id
+     */
     public function deleteFromMyFileSpace($obj_id, $user_id)
     {
         include_once 'Services/PersonalWorkspace/classes/class.ilWorkspaceTree.php';

@@ -12,6 +12,8 @@ use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 use \RESTController\core\clients as Clients;
 
+
+// NOTE: The routes here have usually no access restrictions. They're therefore disabled by default and should only be enabled for testing/development purposes.
 /*
 $app->group('/dev', function () use ($app) {
     $app->get('/clientcheck', function () use ($app) {

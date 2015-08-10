@@ -97,9 +97,6 @@ $app->post('/clientpermissions/', '\RESTController\libs\OAuth2Middleware::TokenA
     // Shortcut for request object
     $request = $app->request();
 
-    //$app->log->debug('in post clientpermissions');
-    //$app->log->debug(print_r($request->getBody(),true));
-
     // Try/Catch all required inputs
     try {
         $api_key = $request->params('api_key', null, true);

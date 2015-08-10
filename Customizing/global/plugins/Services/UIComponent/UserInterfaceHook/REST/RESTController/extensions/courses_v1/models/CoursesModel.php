@@ -42,6 +42,11 @@ class CoursesModel
         return $list;
     }
 
+    /**
+     * Retrieves all courses of a user.
+     * @param $usr_id
+     * @return array
+     */
     public function getAllCourses($usr_id)
     {
         Libs\RESTLib::loadIlUser();
@@ -201,7 +206,12 @@ class CoursesModel
         return $newObj->getRefId() ? $newObj->getRefId() : 0;
     }
 
-
+    /**
+     * Delete a course reference.
+     * @deprecated Note: this function uses SOAP, which might not be supported in the future.
+     * @param $ref_id
+     * @return array|mixed
+     */
     public function deleteCourse($ref_id)
     {
         $adapter = new Libs\RESTSoapAdapter();

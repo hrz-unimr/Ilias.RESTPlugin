@@ -12,6 +12,9 @@ use \RESTController\libs as Libs;
 
 
 $app->group('/admin', function () use ($app) {
+    /**
+     * Queries the content of a the workspaces from a limited amount of users.
+     */
     $app->get('/workspaces', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
         try {
             $request = $app->request;
@@ -36,7 +39,9 @@ $app->group('/admin', function () use ($app) {
         }
     });
 
-
+    /**
+     * Returns the content of the workspace from a user specified by her/his user id.
+     */
     $app->get('/workspaces/:user_id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($user_id) use ($app) {
         try {
             $t_start = microtime();

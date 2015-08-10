@@ -9,12 +9,18 @@ namespace RESTController\extensions\objects_v1;
 
 
 class ObjectsModel {
+    /**
+     * Returns a string representation of a object specified by its ref_id.
+     * @param $ref
+     * @return mixed - array of strings
+     * @throws \Exception
+     */
     public function getObject($ref) {
         $a_ref_id = $ref;
         if(!is_numeric($a_ref_id))
             throw new \Exception('ref_id needs to be numeric.');
 
-        $tmp_obj = \ilObjectFactory::getInstanceByRefId($a_ref_id,false)
+        $tmp_obj = \ilObjectFactory::getInstanceByRefId($a_ref_id,false);
         if(!$tmp_obj)
             throw new \Exception('Can\'t create Object');
 
@@ -34,5 +40,6 @@ class ObjectsModel {
             'lastUpdate' => $tmp_obj->getLastUpdateDate(),
             'importId' => $tmp_obj->getImportId()
         );
+        return $result;
     }
 }

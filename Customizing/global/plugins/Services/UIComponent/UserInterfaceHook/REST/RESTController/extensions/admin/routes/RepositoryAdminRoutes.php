@@ -40,7 +40,9 @@ $app->group('/admin', function () use ($app) {
         $app->success($data);
     });
 
-
+    /**
+     * Return the number of read events of an object given its reference id.
+     */
     $app->get('/repository/analytics/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($ref_id) use ($app) {
         $repModel = new RepositoryAdminModel();
         //  $data = $repModel->getSubTree($ref_id);

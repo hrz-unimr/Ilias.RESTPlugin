@@ -150,10 +150,6 @@ $app->put('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenAuth', fu
     $model = new Clients();
     $request = $app->request;
 
-    //$app->log->debug('in put clients');
-    //$app->log->debug(print_r($request->getBody(),true));
-    //$app->log->debug('perm params: '.$request->params('permissions'));
-
     $failed = array();
     foreach ($fields as $field) {
         try {

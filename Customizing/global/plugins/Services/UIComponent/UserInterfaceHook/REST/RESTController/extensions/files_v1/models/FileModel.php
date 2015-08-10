@@ -18,6 +18,12 @@ require_once('./Services/User/classes/class.ilObjUser.php');
 class FileModel extends Libs\RESTModel
 {
 
+    /**
+     * Returns the file object for a user. The function checks it the specified user has the appropriate access permissions.
+     * @param $file_obj_id
+     * @param $user_id
+     * @return array|object
+     */
     function getFileObjForUser($file_obj_id, $user_id)
     {
 
@@ -51,7 +57,11 @@ class FileModel extends Libs\RESTModel
         return $fileObj;
     }
 
-
+    /**
+     * Returns the file object associated with the obj_id (=file_id).
+     * @param $obj_id
+     * @return object
+     */
     function getFileObj($obj_id)
     {
         //        //global $ilDB;

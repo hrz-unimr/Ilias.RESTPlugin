@@ -13,7 +13,7 @@ use \RESTController\libs as Libs;
 use \RESTController\libs\Exceptions as LibExceptions;
 
 /**
- * Retrieves all available users.
+ * Retrieves user information on a limited number of users.
  */
 $app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
         $limit = 10;
