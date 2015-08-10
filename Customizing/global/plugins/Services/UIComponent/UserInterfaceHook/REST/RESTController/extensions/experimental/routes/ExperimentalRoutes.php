@@ -2,8 +2,8 @@
 /**
  * ILIAS REST Plugin for the ILIAS LMS
  *
- * Authors: D.Schaefer, S.Schneider and T. Hufschmidt <(schaefer|schneider|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
+ * Since 2014
  */
 namespace RESTController\extensions\experimental;
 
@@ -12,7 +12,7 @@ use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 use \RESTController\core\clients as Clients;
 
-
+/*
 $app->group('/dev', function () use ($app) {
     $app->get('/clientcheck', function () use ($app) {
         $model = new Clients\Clients();
@@ -25,61 +25,6 @@ $app->group('/dev', function () use ($app) {
         );
         $app->success($result);
     });
-
-
-    /**
-     * Refresh-Token Part 1: extended token-endpoint: hier kann durch ein gültiges refresh-token ein bearer-token erzeugt werden. der code hier geht in jedem fall in den oauth2 token endpunkt ein.
-     * Status: DONE
-    */
-    $app->get('/reftoken', function () use ($app) {
-        $request = $app->request();
-        $refresh_token = $request->params('refresh_token');
-
-        Libs\RESTLib::initAccessHandling();
-
-        global $ilLog;
-        $ilLog->write('Hello from REST Plugin - Experimental');
-        $app->response()->header('Content-Type', 'application/json');
-
-        $model = new Auth\TokenEndpoint();
-        $refreshToken = Token\Refresh::fromMixed($model->tokenSettings(), $refresh_token);
-        $bearer_token = $model->refresh2Access($refreshToken);
-
-        $result = array('token' => $bearer_token->getEntry('access_token'));
-        $app->success($result);
-    });
-
-
-    /**
-     * Refresh-Token Part 2.1: new refresh end-point ; erzeugt ein NEUES refresh-token für ein valides bearer token. der
-     * zugang muss daher geschützt sein. teile des codes gehen entweder gemaess spec im oauth2 mechanismus ein oder die beantragung
-     * von REFRESH tokens bleibt eine eigene route und der zugriff wird über api-key geregelt.
-     * Status: DONE
-     */
-    $app->get('/refresh', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
-        $user = $accessToken->getUserName();
-        $uid = $accessToken->getUserId();
-
-        global $ilLog;
-        $ilLog->write('Requesting new refresh token for user '.$uid);
-        //RESTLib::initAccessHandling();
-
-        // Create new refresh token
-        $model = new Auth\RefreshEndpoint();
-        $refreshToken = $model->getToken($accessToken);
-
-        $result = array(
-            'refresh-token' => $refreshToken->getTokenString(),
-            'maxint' => PHP_INT_MAX,
-            'beareruser' => $accessToken->getUserName(),
-            'api-key' => $accessToken->getApiKey(),
-            'ilias client' => $app->environment()['client_id']
-        );
-        $app->success($result);
-    });
-
 
     // -------------------------------------------------------------------
     $app->get('/hello', '\RESTController\libs\OAuth2Middleware::TokenAuth', function () use ($app) {
@@ -101,10 +46,10 @@ $app->group('/dev', function () use ($app) {
         $destiny_url = 'http://localhost/restplugin.php/experimental/hello';
 
         $curl = curl_init($destiny_url);
-        /*$curl_post_data = array(
-            'user_id' => 42,
-            'emailaddress' => 'lorna@example.com',
-        );*/
+        //$curl_post_data = array(
+        //    'user_id' => 42,
+        //    'emailaddress' => 'lorna@example.com',
+        //);
 
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         //curl_setopt($curl, CURLOPT_POST, true);
@@ -181,3 +126,4 @@ $app->group('/dev', function () use ($app) {
     });
 
 });
+*/

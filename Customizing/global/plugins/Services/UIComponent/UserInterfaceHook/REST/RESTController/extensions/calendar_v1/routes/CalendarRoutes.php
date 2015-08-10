@@ -3,7 +3,7 @@
  * ILIAS REST Plugin for the ILIAS LMS
  *
  * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
- * 2014-2015
+ * Since 2014
  */
 namespace RESTController\extensions\calendar_v1;
 
