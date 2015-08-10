@@ -35,7 +35,7 @@ $app->group('/v1/m', function () use ($app) {
      *
      *  Version 15.6.15
      */
-    $app->get('/origin', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+    $app->get('/desktop', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $t_start = microtime();
         $result = array();
 
