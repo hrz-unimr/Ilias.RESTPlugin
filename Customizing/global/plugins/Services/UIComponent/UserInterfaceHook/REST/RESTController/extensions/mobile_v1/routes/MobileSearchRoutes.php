@@ -8,7 +8,7 @@
 namespace RESTController\extensions\mobile_v1;
 
 
-$app->group('v1/m', function () use ($app) {
+$app->group('v1/m','\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
     $app->get('/search/',  function () use ($app) {
         $response = $app->request();
 
@@ -24,7 +24,7 @@ $app->group('v1/m', function () use ($app) {
         $app->success($searchResults);
     });
 
-    $app->post('/search/',  function () use ($app) {
+    $app->post('/search/', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
         $response = $app->request();
 
         try {
