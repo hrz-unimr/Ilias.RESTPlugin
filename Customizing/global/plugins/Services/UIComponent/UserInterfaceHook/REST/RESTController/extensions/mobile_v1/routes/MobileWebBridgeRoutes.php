@@ -24,8 +24,8 @@ $app->group('/v1/m', function () use ($app) {
      * Initiates a new ILIAS session using a valid token.
      * Redirects to the HTML Learning Module url.
      *
-     * Note: it is important, that the url opens this endpoint in the browser component of the device, since
-     * cookies will be set and be required due to the access checker.
+     * Note: it is important, that this endpoint (as url) is directly used in the browser component of the device, since
+     * cookies will be set and be required due to the access checker. The bearer token has to be submitted via a GET payload.
      * This can be done e.g. with "https://<hostname>/restplugin.php/v1/m/htlm/145?access_token=cm9v..."
      *
      */
@@ -67,6 +67,31 @@ $app->group('/v1/m', function () use ($app) {
             exit();
         }
         $app->success("Could not locate Learning Module.",404);
+    });
+
+    /**
+     * This route initiates a new ILIAS session and redirects to the permalink URL of the object specified by its ref_id.
+     * The route can be used to get a web view of the repository module (not necessarily its contents).
+     * To accomplish the latter you have to invoke, e.g. v1/m/htlm/:ref_id.
+     *
+     * Note: it is important, that this endpoint (as url) is directly used in the browser component of the device, since
+     * cookies will be set and be required due to the access checker. The bearer token has to be submitted via a GET payload.
+     * This can be done e.g. with "https://<hostname>/restplugin.php/v1/m/permabridge/145?access_token=cm9v..."
+     */
+    $app->get('/permabridge/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
+        $auth = new Auth\Util();
+        $user_id = $auth->getAccessToken()->getUserId();
+
+        $permaLink = Libs\RESTLib::getPermanentLink($ref_id);;
+        Libs\RESTLib::initSession($user_id);
+
+
+        if ($permaLink!="") {
+            $app->log->debug('redirect to : '.$permaLink);
+            header("Location: ".$permaLink, true, 301);
+            exit();
+        }
+        $app->success("Target not found.",404);
     });
 
 });

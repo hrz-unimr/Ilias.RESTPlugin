@@ -65,4 +65,13 @@ $app->group('/admin', function () use ($app) {
         $result = array('ref_id' => $new_ref_id);
         $app->success($result);
     });
+
+    /**
+     * Returns the permalink url for an object specified by its ref_id.
+     */
+    $app->get('/getPermaLink/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($ref_id) use ($app) {
+        $result = array();
+        $result['perma_link'] = Libs\RESTLib::getPermanentLink($ref_id);
+        $app->success($result);
+    });
 });
