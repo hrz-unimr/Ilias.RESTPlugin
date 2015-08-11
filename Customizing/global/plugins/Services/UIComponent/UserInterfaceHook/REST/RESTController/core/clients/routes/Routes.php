@@ -53,10 +53,13 @@ $app->get('/routes', function () use ($app) {
 $app->get('/apiroutes', '\RESTController\libs\OAuth2Middleware::TokenAuth', function () use ($app) {
     $auth = new Auth\Util();
     $api_key = $auth->getAccessToken()->getApiKey();
-    $model = new Clients();
-    $data = $model->getPermissionsForApiKey($api_key);
+    $clientModel = new Clients();
+    $aClientRoutes = $clientModel->getPermissionsForApiKey($api_key);
+    // Fetch all available routes
+   // $routes = $app->router()->getRoutes();
+
     $result = array();
-    $result['permissions'] = $data;
+    $result['permissions'] = $aClientRoutes;
     // Send data
     $app->success($result);
 });

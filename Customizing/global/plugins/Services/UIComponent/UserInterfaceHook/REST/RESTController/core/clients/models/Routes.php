@@ -12,7 +12,7 @@ use \RESTController\libs as Libs;
 
 
 /**
- * This model handels all data that is required
+ * This model handles all data that is required
  * by the Routes-Routes.
  *
  * Constructor requires nothing.

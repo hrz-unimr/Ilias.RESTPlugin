@@ -97,7 +97,7 @@ $app->group('/v1/m', function () use ($app) {
     /**
      * see POST /myfilespaceupload
      */
-    $app->get('/myfilespaceupload', function() use ($app) {
+    $app->get('/myfilespaceupload', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
         $app->log->debug('Myfilespace upload via GET');
         $app->halt(422, 'Pls use the POST method', 'RESTController\\extensions\\mobile_v1\\MyFileSpaceRoutes::ID_USE_GET');
     });
