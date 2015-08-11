@@ -46,6 +46,63 @@ class Routes extends Libs\RESTModel {
         return $resultRoutes;
     }
 
+    /**
+     * This method combines information from $clientModel->getPermissionsForApiKey
+     * and from the SLIM router $app->router()->getRoutes().
+     *
+     * @param $apiRoutes
+     * @param $allRoutes
+     * @param $isAdmin
+     * @return mixed
+     */
+    public function filterApiRoutes($apiRoutes, $allRoutes, $isAdmin)
+    {
+        $resultRoutes = array();
+        $apiPatterns = array();
+        foreach ($apiRoutes as $entry) {
+            $apiPatterns[] = $entry['pattern'];
+        }
+        foreach($allRoutes as $route) {
+
+            //$resultRoutes[] = array('debug'=>$apiPatterns);
+            $inApiRoute = in_array ( $route->getPattern() , $apiPatterns);
+            if ($inApiRoute == true) {
+                // Format/Get data
+                $multiVerbs = $route->getHttpMethods();
+                $verb = $multiVerbs[0];
+                $middle = $route->getMiddleware();
+
+                $auth_type = "none";
+                $access_level = "none";
+                $has_access = true;
+                if (isset($middle[0]) == true) {
+                    $parts1 = explode('\\', $middle[0]);
+                    $parts2 = explode('::', $parts1[3]);
+                    if ($parts2[0] == 'OAuth2Middleware') {
+                        $auth_type = 'OAuth2';
+                    }
+                    $access_level = $parts2[1];
+                    if ($access_level == "TokenAdminAuth") {
+                        if ($isAdmin == false) {
+                            $has_access = false;
+                        }
+                    }
+                }
+
+                // Pack data
+                $resultRoutes[] = array(
+                    'pattern' => $route->getPattern(),
+                    'verb' => $verb,
+                    'auth_type' => $auth_type,
+                    'access_level' => $access_level,
+                    'has_access' => $has_access
+                    //'middleware' => (isset($middle[0]) ? $middle[0] : "none")
+                );
+            }
+        }
+
+        return $resultRoutes;
+    }
 
     /**
      * Generate URL to config-gui given the RESTControllers

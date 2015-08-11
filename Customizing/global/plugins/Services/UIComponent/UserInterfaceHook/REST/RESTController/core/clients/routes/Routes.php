@@ -8,6 +8,7 @@
 namespace RESTController\core\clients;
 
 use \RESTController\core\auth as Auth;
+use \RESTController\libs as Libs;
 // Requires <$app = \RESTController\RESTController::getInstance()>
 
 
@@ -54,12 +55,16 @@ $app->get('/apiroutes', '\RESTController\libs\OAuth2Middleware::TokenAuth', func
     $auth = new Auth\Util();
     $api_key = $auth->getAccessToken()->getApiKey();
     $clientModel = new Clients();
-    $aClientRoutes = $clientModel->getPermissionsForApiKey($api_key);
-    // Fetch all available routes
-   // $routes = $app->router()->getRoutes();
+    $apiRoutes = $clientModel->getPermissionsForApiKey($api_key);
+    $allRoutes = $app->router()->getRoutes();      // Fetch all available routes
+
+    $routeModel = new Routes();
+
+    $isAdmin =  Libs\RESTLib::isAdminByUserId($auth->getAccessToken()->getUserId());
+    $filteredRoutes = $routeModel->filterApiRoutes($apiRoutes, $allRoutes, $isAdmin);
 
     $result = array();
-    $result['permissions'] = $aClientRoutes;
+    $result['permissions'] = $filteredRoutes;
     // Send data
     $app->success($result);
 });
