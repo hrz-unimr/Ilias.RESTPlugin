@@ -4,6 +4,5 @@
  
 <!-- language file start -->
 welcome_config#:#Welcome to the the REST Plugin configuration panel
-welcome_redirect#:#In the next 3 seconds you will be automatically redirected to the Administration Panel...
-welcome_fail#:#Alternatively you can also enter the Administration Panel by clicking on the button below.
-button_redirect#:#Start Administration Panel
+welcome_adminpanel#:#You can enter the Administration Panel by clicking on the button below.
+button_adminpanel#:#Start Administration Panel

@@ -7,7 +7,7 @@
  */
 namespace RESTController\core\clients;
 
-
+use \RESTController\core\auth as Auth;
 // Requires <$app = \RESTController\RESTController::getInstance()>
 
 
@@ -45,6 +45,22 @@ $app->get('/routes', function () use ($app) {
     // Send data
     $app->success($result);
 });
+
+/**
+ * Returns the routes that can be accessed with the API-Key provided by the current token.
+ * The result furthermore indicates if the user has capabilities to access admin routes.
+ */
+$app->get('/apiroutes', '\RESTController\libs\OAuth2Middleware::TokenAuth', function () use ($app) {
+    $auth = new Auth\Util();
+    $api_key = $auth->getAccessToken()->getApiKey();
+    $model = new Clients();
+    $data = $model->getPermissionsForApiKey($api_key);
+    $result = array();
+    $result['permissions'] = $data;
+    // Send data
+    $app->success($result);
+});
+
 
 
 /**

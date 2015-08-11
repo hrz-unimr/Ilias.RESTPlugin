@@ -62,9 +62,8 @@ class ilRESTConfigGUI extends ilPluginConfigGUI {
         
         // Create HTML layout
         $configHTML  = '<h3>'.$pl->txt("welcome_config").'</h3>';
-        $configHTML .= '<p>'.$pl->txt("welcome_redirect").'</p>';
         $configHTML .= '<hr/>';
-        $configHTML .= '<p>'.$pl->txt("welcome_fail").'</p>';
+        $configHTML .= '<p>'.$pl->txt("welcome_adminpanel").'</p>';
         $configHTML .= '
             <form action="' . $pl->getDirectory() . '/apps/admin/index.php" method="post" target="_blank" id="redirectForm">
                 <input type="hidden" name="userId" value="'.$ilUser->getId().'" />
@@ -73,11 +72,11 @@ class ilRESTConfigGUI extends ilPluginConfigGUI {
                 <input type="hidden" name="rtoken" value="'.$ilCtrl->rtoken.'" />
                 <input type="hidden" name="restEndpoint" value="'.$inst_folder.'" />
                 <input type="hidden" name="apiKey" value="apollon" />
-                <input type="submit" class="btn btn-default" value="'.$pl->txt("button_redirect").'" />
+                <input type="submit" class="btn btn-default" value="'.$pl->txt("button_adminpanel").'" />
             </form>
         ';
         $configHTML  .= '<hr/>';
-        $configHTML  .= '
+       /* $configHTML  .= '
             <script type="text/javascript">
                 // Get form element
                 var form = document.getElementById("redirectForm");
@@ -88,7 +87,7 @@ class ilRESTConfigGUI extends ilPluginConfigGUI {
                     form.submit();
                 }, 3000);
             </script>
-        ';
+        ';*/
 
         // Render content in ILIAS
         $tpl->setContent($configHTML);

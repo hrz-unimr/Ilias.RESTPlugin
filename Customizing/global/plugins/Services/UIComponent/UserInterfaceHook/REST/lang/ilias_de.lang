@@ -4,6 +4,5 @@
  
 <!-- language file start -->
 welcome_config#:#Willkommen in der Konfigurationsumgebung des REST Plugins
-welcome_redirect#:#Innerhalb der nächsten 3 Sekunden werden sie automatisch zur Administrationsumgebung weitergeleitet...
-welcome_fail#:#Alternativ k&ouml;nnen sie die Administrationsumgebung auch durch einen Mausklick auf die untere Schaltfäche aufrufen.
-button_redirect#:#Administration Panel starten
+welcome_adminpanel#:#Sie k&ouml;nnen die REST Client Verwaltung durch einen Mausklick auf die untere Schaltfäche aufrufen.
+button_adminpanel#:#Start Administration Panel
