@@ -1,12 +1,16 @@
 ILIAS-Shell
 -----------
 The ILIAS-Shell is useful for performing personalized and administrative operations based on IPython.
-D.Schaefer <schaefer@hrz.uni-marburg>, 2015, v.1.5
+D.Schaefer <schaefer@hrz.uni-marburg>, 2015
+
+Requirements:
+IPython and Python Poster Lib
+apt-get install ipython
+apt-get install python-poster
 
 Install:
-Just configure the file ishell.py and start by tying run.sh on the command line.
-
-Alternatively: start by typing ipython on the command line as described below.
+Just configure the file ishell.ini (cp ishell.ini.default ishell.ini and edit ishell.ini).
+Start by tying run.sh on the command line (tested with bash).
 
 Examples:
 $ routes=i.getRoutes()
