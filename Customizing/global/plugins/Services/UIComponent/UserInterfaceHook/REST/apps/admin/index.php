@@ -37,12 +37,12 @@
         $restEndpoint = isset($_POST['restEndpoint']) ? $_POST['restEndpoint'] : '';
         
         // Make it save
-        $userName = addslashes (htmlspecialchars($userName, ENT_COMPAT | ENT_HTML5));
-        $apiKey = addslashes (htmlspecialchars($apiKey, ENT_COMPAT | ENT_HTML5));
-        $userId = addslashes (htmlspecialchars($userId, ENT_COMPAT | ENT_HTML5));
-        $sessionId = addslashes (htmlspecialchars($sessionId, ENT_COMPAT | ENT_HTML5)); 
-        $rtoken = addslashes (htmlspecialchars($rtoken, ENT_COMPAT | ENT_HTML5));
-        $restEndpoint = addslashes (htmlspecialchars($restEndpoint, ENT_COMPAT | ENT_HTML5));
+        $userName = addslashes (htmlspecialchars($userName, ENT_COMPAT));
+        $apiKey = addslashes (htmlspecialchars($apiKey, ENT_COMPAT));
+        $userId = addslashes (htmlspecialchars($userId, ENT_COMPAT));
+        $sessionId = addslashes (htmlspecialchars($sessionId, ENT_COMPAT)); 
+        $rtoken = addslashes (htmlspecialchars($rtoken, ENT_COMPAT));
+        $restEndpoint = addslashes (htmlspecialchars($restEndpoint, ENT_COMPAT));
         ?>
     
         var postVars = {
