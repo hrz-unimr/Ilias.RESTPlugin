@@ -58,7 +58,10 @@ class UsersModel extends Libs\RESTModel
     public function deleteUser($id)
     {
         Libs\RESTLib::initAccessHandling();
-        $usrObj = \ilObjectFactory::getInstanceByObjId($id);
+        $usrObj = \ilObjectFactory::getInstanceByObjId($id, false);
+        if ($usrObj == false) {
+            return false;
+        }
         $success = $usrObj->delete();
         return $success;
     }
