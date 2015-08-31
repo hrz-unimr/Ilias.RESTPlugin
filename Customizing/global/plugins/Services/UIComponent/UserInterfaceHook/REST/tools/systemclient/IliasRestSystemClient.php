@@ -1,5 +1,5 @@
 <?php
-include('./httpful.phar');
+include('httpful.phar');
 
 /**
  * ILIAS Rest System Client
