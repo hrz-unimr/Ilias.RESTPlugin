@@ -71,7 +71,7 @@ $app->get('/v1/search/user','\RESTController\libs\OAuth2Middleware::TokenAuth', 
                 $app->log->debug('search user 2');
                 $userdata = $usr_model->findExtLdapUser($extname);
 
-                $app->log->debug('model response: '.print_r($userdata,true));
+                //$app->log->debug('model response: '.print_r($userdata,true));
                 $result['user'] = $userdata;
                 $app->success($result);
             } catch (Libs\ReadFailed $e) {
