@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="180.14285"
+   height="180.14285"
+   id="svg3004"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="logo.svg_v3.svg"
+   inkscape:export-filename="D:\SparkleShare\unimarburg-hrz-cp-mobile-learning.mobi\Dokumentation\RestPlugin\artwork\icon_v3.png"
+   inkscape:export-xdpi="18.736052"
+   inkscape:export-ydpi="18.736052">
+  <sodipodi:namedview
+     inkscape:document-units="mm"
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.9899495"
+     inkscape:cx="91.525691"
+     inkscape:cy="105.44844"
+     inkscape:current-layer="layer5"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1138"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     units="mm"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <defs
+     id="defs3">
+    <clipPath
+       id="SVGID_2_-1">
+      <rect
+         height="14"
+         width="21"
+         y="9"
+         x="6"
+         id="use3015-7" />
+    </clipPath>
+  </defs>
+  <metadata
+     id="metadata4">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     style="display:inline"
+     inkscape:label="Background"
+     id="layer5"
+     inkscape:groupmode="layer">
+    <rect
+       ry="50.899971"
+       rx="0"
+       y="-4.8571472"
+       x="-7.1428566"
+       height="192.14293"
+       width="196.42859"
+       id="rect3800"
+       style="fill:#337ab7;fill-opacity:1;stroke:none" />
+  </g>
+  <g
+     style="display:inline"
+     transform="translate(-211.35715,-332.29074)"
+     inkscape:label="berg"
+     id="layer2"
+     inkscape:groupmode="layer"
+     sodipodi:insensitive="true">
+    <path
+       sodipodi:nodetypes="ccccccc"
+       inkscape:connector-curvature="0"
+       id="path3781"
+       d="m 222.73864,458.89756 25.25381,-38.3858 12.12183,21.71828 41.92133,-80.30712 26.76905,62.12438 23.73858,-29.7995 27.27412,63.63961"
+       style="fill:none;stroke:#ffffff;stroke-width:12.33779526;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+  </g>
+  <g
+     style="display:inline"
+     transform="translate(-211.35715,-332.29074)"
+     inkscape:label="Schrift"
+     id="layer3"
+     inkscape:groupmode="layer">
+    <text
+       sodipodi:linespacing="125%"
+       id="text3784"
+       y="500.07651"
+       x="237.14287"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:10.16999722px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         y="500.07651"
+         x="237.14287"
+         id="tspan3786"
+         sodipodi:role="line">REST</tspan></text>
+  </g>
+  <g
+     style="display:inline"
+     inkscape:label="PluginLogo"
+     id="layer4"
+     inkscape:groupmode="layer"
+     sodipodi:insensitive="true">
+    <g
+       id="g3948"
+       transform="translate(6.3709533,-12.225981)">
+      <defs
+         id="defs3950">
+        <rect
+           height="14"
+           width="21"
+           y="9"
+           x="6"
+           id="SVGID_1_" />
+      </defs>
+      <clipPath
+         id="SVGID_2_">
+        <use
+           id="use3954"
+           overflow="visible"
+           xlink:href="#SVGID_1_"
+           style="overflow:visible"
+           x="0"
+           y="0"
+           width="1"
+           height="1" />
+      </clipPath>
+      <path
+         id="path3956"
+         d="m 12,9 v 3 H 7.5 C 6.671,12 6,12.672 6,13.5 6,14.329 6.671,15 7.5,15 H 12 v 2 H 7.5 C 6.671,17 6,17.671 6,18.5 6,19.329 6.671,20 7.5,20 H 12 v 3 h 3 V 9 c -1.673,0 -3,0 -3,0 m 15,7 C 27,14.923 26.568,14.059 25.834,14.016 25.383,11.123 23.948,9.001 21.738,9.001 21.691,9.001 18.666,9 16,9 v 14 h 5.738 c 2.21,0 3.645,-2.123 4.096,-5.016 C 26.568,17.941 27,17.077 27,16"
+         clip-path="url(#SVGID_2_)"
+         inkscape:connector-curvature="0"
+         style="fill:#ffffff;fill-opacity:1"
+         transform="matrix(1.9620501,0,0,1.9620501,-11.528639,6.615669)" />
+    </g>
+  </g>
+</svg>
