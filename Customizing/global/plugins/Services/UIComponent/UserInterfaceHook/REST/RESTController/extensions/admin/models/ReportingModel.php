@@ -15,7 +15,6 @@ require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
 
 class ReportingModel extends Libs\RESTModel {
 
-
     /**
      * Returns a list of active user session sorted by its create date.
      * By this, those user sessions are listed that have the longest lifespan (possible power users).
@@ -71,6 +70,10 @@ class ReportingModel extends Libs\RESTModel {
         return $result;
     }
 
+    /**
+     * SQL query for "logged-in-users".
+     * @return array
+     */
     private function get_logged_in_users()
     {
         global $ilDB;
@@ -85,6 +88,10 @@ class ReportingModel extends Libs\RESTModel {
         return $a_data;
     }
 
+    /**
+     * SQL query for "NOT logged-in-users"
+     * @return array
+     */
     private function get_not_loggedin_users()
     {
         global $ilDB;
@@ -99,6 +106,10 @@ class ReportingModel extends Libs\RESTModel {
         return $a_data;
     }
 
+    /**
+     * SQL query for "expired sessions".
+     * @return array
+     */
     private function get_obsolete_sessions()
     {
         global $ilDB;
