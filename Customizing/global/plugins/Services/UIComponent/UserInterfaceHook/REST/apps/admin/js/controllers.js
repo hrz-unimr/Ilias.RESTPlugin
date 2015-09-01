@@ -143,7 +143,7 @@ ctrl.controller("ClientListCtrl", function($scope, $location, $filter, dialogs, 
 
     /*
      * Updates a client by forwarding all changes done via AngularJS forms
-     * via REST. ($scope is allready up-to-date)
+     * via REST. ($scope is already up-to-date)
      */
     $scope.editClient = function(client) {
         // Update remotely
