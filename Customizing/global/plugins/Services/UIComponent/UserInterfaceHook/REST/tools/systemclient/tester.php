@@ -9,10 +9,10 @@ print_r(json_decode($resp,true));  // <- print associative array of json respons
 
 
 // Create a test course
-$resp = $client->post('/v1/courses',array("ref_id"=>"1", "title"=>"Course Sys client", "description" => "Created by RestSystemClient"));
-echo $resp ."\n";
-$a_resp = json_decode($resp,true);
+//$resp = $client->post('/v1/courses',array("ref_id"=>"1", "title"=>"Course Sys client", "description" => "Created by RestSystemClient"));
+//echo $resp ."\n";
+//$a_resp = json_decode($resp,true);
 
 // Delete the test course again
-$resp = $client->delete('/v1/courses/'.$a_resp['refId'], array());
-print_r(json_decode($resp,true));
+//$resp = $client->delete('/v1/courses/'.$a_resp['refId'], array());
+//print_r(json_decode($resp,true));
