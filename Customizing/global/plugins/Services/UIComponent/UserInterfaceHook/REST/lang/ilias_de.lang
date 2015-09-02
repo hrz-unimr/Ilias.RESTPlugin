@@ -4,5 +4,7 @@
  
 <!-- language file start -->
 welcome_config#:#Willkommen in der Konfigurationsumgebung des REST Plugins
-welcome_adminpanel#:#Sie k&ouml;nnen die REST Client Verwaltung durch einen Mausklick auf die untere Schaltfäche aufrufen.
-button_adminpanel#:#Start Administration Panel
+welcome_adminpanel#:#Die REST API-Keys Verwaltung kann durch einen Mausklick auf die untere Schaltfäche aufgerufen werden.
+button_adminpanel#:#Administration Panel Starten
+welcome_checkout_app#:#Die (konfigurierte) REST API kann mit dem folgenden Tool getestet werden.
+button_checkout_app#:#Checkout-App Starten

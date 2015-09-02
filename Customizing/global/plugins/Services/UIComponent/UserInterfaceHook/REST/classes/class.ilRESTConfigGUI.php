@@ -88,7 +88,15 @@ class ilRESTConfigGUI extends ilPluginConfigGUI {
                 }, 3000);
             </script>
         ';*/
-
+        $configHTML .= '<p>'.$pl->txt("welcome_checkout_app").'</p>';
+        $configHTML .= '
+            <form action="' . $pl->getDirectory() . '/apps/checkout/index.php" method="post" target="_blank" id="redirectForm">
+                <input type="hidden" name="userName" value="'.$ilUser->getLogin().'" />
+                <input type="hidden" name="apiKey" value="apollon" />
+                <input type="submit" class="btn btn-default" value="'.$pl->txt("button_checkout_app").'" />
+            </form>
+        ';
+        $configHTML  .= '<hr/>';
         // Render content in ILIAS
         $tpl->setContent($configHTML);
     }

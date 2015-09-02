@@ -223,7 +223,8 @@ class Clients extends Libs\RESTModel {
             while($rowCSV = self::$sqlDB->fetchAssoc($queryCSV)) {
                 $csv[] = $rowCSV['user_id'];
             }
-            $rowKeys['access_user_csv'] = $csv;
+            $csv_string = implode(',',$csv);
+            $rowKeys['access_user_csv'] = $csv_string;
 
             // Add entry to result
             $res[] = $rowKeys;

@@ -4,5 +4,7 @@
  
 <!-- language file start -->
 welcome_config#:#Welcome to the the REST Plugin configuration panel
-welcome_adminpanel#:#You can enter the Administration Panel by clicking on the button below.
+welcome_adminpanel#:#You can manage your REST API-Keys below.
 button_adminpanel#:#Start Administration Panel
+welcome_checkout_app#:#Here you can check your configured API. It is possible to try different API Keys with different ILIAS users.
+button_checkout_app#:#Enter Checkout-App
