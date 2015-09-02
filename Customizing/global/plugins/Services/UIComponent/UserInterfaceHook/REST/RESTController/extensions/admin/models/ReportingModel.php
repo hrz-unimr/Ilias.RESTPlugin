@@ -58,6 +58,11 @@ class ReportingModel extends Libs\RESTModel {
         $nRows = $ilDB->numRows($set);
         $result['active'] = $nRows;
 
+        $sql = "SELECT session_id, user_id, createtime, ctime, expires FROM usr_session WHERE FROM_UNIXTIME(expires)>NOW() AND user_id=13 ORDER BY createtime";
+        $set = $ilDB->query($sql);
+        $nRows = $ilDB->numRows($set);
+        $result['public_area'] = $nRows;
+
         $sql="SELECT session_id, user_id, createtime, ctime, expires FROM usr_session WHERE FROM_UNIXTIME(expires)>NOW() AND user_id=0 ORDER BY createtime";
         $set = $ilDB->query($sql);
         $nRows = $ilDB->numRows($set);
