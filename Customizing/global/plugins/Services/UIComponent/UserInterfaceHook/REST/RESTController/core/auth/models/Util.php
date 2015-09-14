@@ -90,6 +90,10 @@ class Util extends EndpointBase {
         return false;
     }
 
+    public function checkIPAccess($api_key, $request_ip) {
+
+    }
+
     /**
      * Checks if an ILIAS session is valid and belongs to a particular user.
      * And furthermore if rToken is valid.

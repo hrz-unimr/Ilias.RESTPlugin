@@ -155,8 +155,8 @@
             'notnull' => true
         )
     );
-    $ilDB->createTable("ui_uihk_rest_keymap", $fields, true);
-    $ilDB->addPrimaryKey("ui_uihk_rest_keymap", array("id"));
+    $ilDB->createTable("ui_uihk_rest_keyusermap", $fields, true);
+    $ilDB->addPrimaryKey("ui_uihk_rest_keyusermap", array("id"));
     
     $ilLog->write('Plugin REST -> Database updated to #3');
 ?>
@@ -383,4 +383,31 @@
     $ilDB->insert("ui_uihk_rest_config", $fields);
     
     $ilLog->write('Plugin REST -> Database updated to #10');
+?>
+
+<#11>
+<?php
+global $ilLog;
+
+$fields = array(
+    'id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    ),
+    'api_id' => array(
+        'type' => 'integer',
+        'length' => 4,
+        'notnull' => true
+    ),
+    'ip' => array(
+        'type' => 'text',
+        'length' => 45,
+        'notnull' => true
+    )
+);
+$ilDB->createTable("ui_uihk_rest_keyipmap", $fields, true);
+$ilDB->addPrimaryKey("ui_uihk_rest_keyipmap", array("id"));
+
+$ilLog->write('Plugin REST -> Database updated to #11');
 ?>

@@ -141,7 +141,7 @@ class Clients extends Libs\RESTModel {
     }
 
     /**
-     * Given a api_key ID and an array of user id numbers, this function writes the mapping to the table 'ui_uihk_rest_keymap'.
+     * Given a api_key ID and an array of user id numbers, this function writes the mapping to the table 'ui_uihk_rest_keyusermap'.
      * Note: Old entries will be deleted.
      *
      * @param $api_key_id
@@ -150,7 +150,7 @@ class Clients extends Libs\RESTModel {
     protected function fillApikeyUserMap($api_key_id, $a_user_csv = NULL)
     {
         // Remove old entries
-        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_keymap WHERE api_id = %d', $api_key_id);
+        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_keyusermap WHERE api_id = %d', $api_key_id);
         self::$sqlDB->manipulate($sql);
 
         // Add new entries
@@ -160,7 +160,31 @@ class Clients extends Libs\RESTModel {
                     'api_id' => array('integer', $api_key_id),
                     'user_id' => array('integer', $user_id)
                 );
-                self::$sqlDB->insert('ui_uihk_rest_keymap', $a_columns);
+                self::$sqlDB->insert('ui_uihk_rest_keyusermap', $a_columns);
+            }
+    }
+
+    /**
+     * Given a api_key ID and an array of ip address strings, this function writes the mapping to the table 'ui_uihk_rest_keyipmap'.
+     * Note: Old entries will be deleted.
+     *
+     * @param $api_key_id
+     * @param $a_ip_csv
+     */
+    protected function fillApikeyIpMap($api_key_id, $a_ip_csv = NULL)
+    {
+        // Remove old entries
+        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_keyipmap WHERE api_id = %d', $api_key_id);
+        self::$sqlDB->manipulate($sql);
+
+        // Add new entries
+        if (is_array($a_ip_csv) && count($a_ip_csv) > 0)
+            foreach ($a_ip_csv as $ip_addr_str) {
+                $a_columns = array(
+                    'api_id' => array('integer', $api_key_id),
+                    'ip' => array('text', $ip_addr_str)
+                );
+                self::$sqlDB->insert('ui_uihk_rest_keyipmap', $a_columns);
             }
     }
 
@@ -252,6 +276,7 @@ class Clients extends Libs\RESTModel {
         $oauth2_user_restriction_active,
         $oauth2_gt_client_user,
         $access_user_csv,
+        $access_ip_csv,
         $oauth2_authcode_refresh_active,
         $oauth2_resource_refresh_active
     )
@@ -282,9 +307,18 @@ class Clients extends Libs\RESTModel {
         if (is_string($access_user_csv) && strlen($access_user_csv) > 0) {
             $csvArray = explode(',', $access_user_csv);
             $this->fillApikeyUserMap($insertId, $csvArray);
-        }
-        else
+        } else {
             $this->fillApikeyUserMap($insertId);
+        }
+
+        // Updated list of allowed users
+        if (is_string($access_ip_csv) && strlen($access_ip_csv) > 0) {
+            $csvArray = explode(',', $access_ip_csv);
+            $this->fillApikeyIpMap($insertId, $csvArray);
+        } else {
+            $this->fillApikeyIpMap($insertId);
+        }
+
 
         // Return new api_id
         return $insertId;
@@ -316,9 +350,20 @@ class Clients extends Libs\RESTModel {
             if (is_string($newval) && strlen($newval) > 0) {
                 $csvArray = explode(',', $newval);
                 $this->fillApikeyUserMap($id, $csvArray);
-            }
-            else
+            } else {
                 $this->fillApikeyUserMap($id);
+            }
+        }
+
+        // Update allowed users? (Separate table)
+        else if (strtolower($fieldname) == 'access_ip_csv') {
+            // Updated list of allowed users
+            if (is_string($newval) && strlen($newval) > 0) {
+                $csvArray = explode(',', $newval);
+                $this->fillApikeyIpMap($id, $csvArray);
+            } else {
+                $this->fillApikeyIpMap($id);
+            }
         }
         // Update any other field...
         // Note: for now, we take it for granted that this update is prone to sql-injections. Only admins should be able to use this method / corresponding route.
@@ -403,7 +448,7 @@ class Clients extends Libs\RESTModel {
             $a_user_ids = array();
 
             // Fetch allowed users
-            $sql2 = Libs\RESTLib::safeSQL('SELECT user_id FROM ui_uihk_rest_keymap WHERE api_id = %s', $id);
+            $sql2 = Libs\RESTLib::safeSQL('SELECT user_id FROM ui_uihk_rest_keyusermap WHERE api_id = %s', $id);
             $query2 = self::$sqlDB->query($sql2);
             while($row2 = self::$sqlDB->fetchAssoc($query2))
                 $a_user_ids[] = (int)$row2['user_id'];

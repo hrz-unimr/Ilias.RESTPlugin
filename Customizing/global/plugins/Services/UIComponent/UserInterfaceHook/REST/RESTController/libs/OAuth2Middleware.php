@@ -116,16 +116,23 @@ class OAuth2Middleware {
      */
     protected static function checkAccessToken($app, $accessToken) {
         // Check token for common problems: Non given or invalid format
-        if (!$accessToken)
+        if (!$accessToken) {
             $app->halt(401, Token\Base::MSG_NO_TOKEN, Token\Base::ID_NO_TOKEN);
+        }
 
         // Check token for common problems: Invalid format
-        if (!$accessToken->isValid($accessToken))
+        if (!$accessToken->isValid($accessToken)) {
             $app->halt(401, Token\Generic::MSG_INVALID, Token\Generic::ID_INVALID);
+        }
 
         // Check token for common problems: Invalid format
-        if ($accessToken->isExpired($accessToken))
+        if ($accessToken->isExpired($accessToken)) {
             $app->halt(401, Token\Generic::MSG_EXPIRED, Token\Generic::ID_EXPIRED);
+        }
+
+        // Check IP
+        $api_key = $accessToken->getApiKey();
+
     }
 
 

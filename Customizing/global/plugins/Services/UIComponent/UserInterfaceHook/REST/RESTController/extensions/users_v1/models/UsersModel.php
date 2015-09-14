@@ -236,7 +236,6 @@ class UsersModel extends Libs\RESTModel
      */
     public function findExtLdapUser($ext_name)
     {
-
         global $ilDB;
         $sql = Libs\RESTLib::safeSQL('SELECT * FROM usr_data WHERE ext_account = %s AND auth_mode = \'ldap\'', $ext_name);
         $query = $ilDB->query($sql);

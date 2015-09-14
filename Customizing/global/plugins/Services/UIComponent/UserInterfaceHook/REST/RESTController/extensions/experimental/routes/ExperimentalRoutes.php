@@ -14,8 +14,24 @@ use \RESTController\core\clients as Clients;
 
 
 // NOTE: The routes here have usually no access restrictions. They're therefore disabled by default and should only be enabled for testing/development purposes.
-/*
-$app->group('/dev', function () use ($app) {
+/*$app->group('/dev', function () use ($app) {
+
+    $app->get('/checkip', function () use ($app) {
+
+        if(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
+            $ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
+        }
+        else{
+            $ip=$_SERVER['REMOTE_ADDR'];
+        }
+
+        $result = array(
+            'server' => print_r($_SERVER,true),
+            'ip' => $ip
+        );
+        $app->success($result);
+    });
+
     $app->get('/clientcheck', function () use ($app) {
         $model = new Clients\Clients();
         $data1 = $model->getAllowedUsersForApiKey('9065710a-16b9-4b4c-9230-f76dc72d2a2d');
@@ -127,5 +143,5 @@ $app->group('/dev', function () use ($app) {
         $app->success($result);
     });
 
-});
-*/
+});*/
+

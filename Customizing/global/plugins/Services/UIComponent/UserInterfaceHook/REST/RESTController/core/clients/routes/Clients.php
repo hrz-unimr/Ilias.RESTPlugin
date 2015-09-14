@@ -248,6 +248,7 @@ $app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenAuth', func
     $client_oauth2_redirect_url = $request->params('oauth2_redirection_uri', '');
     $oauth2_gt_client_user = $request->params('oauth2_gt_client_user', '');
     $access_user_csv = $request->params('access_user_csv', '');
+    $access_ip_csv = $request->params('access_ip_csv', '');
     $oauth2_gt_client_active = $request->params('oauth2_gt_client_active', 0);
     $oauth2_gt_authcode_active = $request->params('oauth2_gt_authcode_active', 0);
     $oauth2_gt_implicit_active = $request->params('oauth2_gt_implicit_active', 0);
@@ -273,6 +274,7 @@ $app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenAuth', func
         $oauth2_user_restriction_active,
         $oauth2_gt_client_user,
         $access_user_csv,
+        $access_ip_csv,
         $oauth2_authcode_refresh_active,
         $oauth2_resource_refresh_active
     );
