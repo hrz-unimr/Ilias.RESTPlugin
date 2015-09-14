@@ -33,6 +33,12 @@
                     </span>
                 </div>
             </div>
+
+            <div class="form-group">
+                <label for="inputIpCSV">{{'EDIT_ALLOWED_IPS' | translate}}</label>
+                {{'EDIT_IP_ACCESS_TEXT' | translate}}
+                <textarea id="inputIpCSV" class="form-control" rows="3" data-ng-model="current.access_ip_csv"></textarea>
+            </div>
         </div>
 
         <table class="table table-striped table-bordered" id="scopetable">

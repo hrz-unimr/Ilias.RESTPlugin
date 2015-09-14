@@ -122,6 +122,8 @@ lang_en_us.config(function($translateProvider) {
         EDIT_REDIRECT_URI: 'Redirection URI',
         EDIT_CONSENT_MSG: 'OAuth2 Consent Message',
         EDIT_CONSENT_SCOPE: 'Enable an additional page for the OAuth2 grant types "authcode" and "implicit grant" to inform the user about the scope of the application.',
+        EDIT_ALLOWED_IPS: 'IP Restriction',
+        EDIT_IP_ACCESS_TEXT: 'Specify a comma separated list of ip addresses here. If none is provided, then there will be no restriction.',
 
     });
     

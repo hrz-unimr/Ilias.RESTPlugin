@@ -182,7 +182,7 @@ class Clients extends Libs\RESTModel {
             foreach ($a_ip_csv as $ip_addr_str) {
                 $a_columns = array(
                     'api_id' => array('integer', $api_key_id),
-                    'ip' => array('text', $ip_addr_str)
+                    'ip' => array('text', trim($ip_addr_str))
                 );
                 self::$sqlDB->insert('ui_uihk_rest_keyipmap', $a_columns);
             }
@@ -242,7 +242,7 @@ class Clients extends Libs\RESTModel {
             $csv = array();
 
             // fetch allowd users for api-key
-            $sqlCSV = Libs\RESTLib::safeSQL('SELECT user_id FROM ui_uihk_rest_keymap WHERE api_id = %d', $id);
+            $sqlCSV = Libs\RESTLib::safeSQL('SELECT user_id FROM ui_uihk_rest_keyusermap WHERE api_id = %d', $id);
             $queryCSV = self::$sqlDB->query($sqlCSV);
             while($rowCSV = self::$sqlDB->fetchAssoc($queryCSV)) {
                 $csv[] = $rowCSV['user_id'];
@@ -399,7 +399,7 @@ class Clients extends Libs\RESTModel {
         self::$sqlDB->manipulate($sql);
 
         // Delete list of allowed users
-        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_keymap WHERE api_id = %d', $id);
+        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_keyusermap WHERE api_id = %d', $id);
         self::$sqlDB->manipulate($sql);
 
         // Delete oauth tokens

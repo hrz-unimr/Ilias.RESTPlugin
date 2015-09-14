@@ -314,7 +314,8 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
                     oauth2_consent_message_active: $scope.current.oauth2_consent_message_active,
                     oauth2_authcode_refresh_active: $scope.current.oauth2_authcode_refresh_active,
                     oauth2_resource_refresh_active: $scope.current.oauth2_resource_refresh_active,
-                    access_user_csv: $scope.current.access_user_csv
+                    access_user_csv: $scope.current.access_user_csv,
+                    access_ip_csv: $scope.current.access_ip_csv
                 },
                 // Success
                 function (response) {
@@ -356,7 +357,8 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
                         oauth2_consent_message_active: $scope.current.oauth2_consent_message_active,
                         oauth2_authcode_refresh_active: $scope.current.oauth2_authcode_refresh_active,
                         oauth2_resource_refresh_active: $scope.current.oauth2_resource_refresh_active,
-                        access_user_csv: $scope.current.access_user_csv
+                        access_user_csv: $scope.current.access_user_csv,
+                        access_ip_csv: $scope.current.access_ip_csv
                     },
                     // Success
                     function (response) {
