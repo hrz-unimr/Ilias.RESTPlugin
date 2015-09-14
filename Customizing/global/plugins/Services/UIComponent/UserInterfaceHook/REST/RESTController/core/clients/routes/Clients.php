@@ -142,7 +142,7 @@ $app->put('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenAuth', fu
         'oauth2_authcode_refresh_active',
         'oauth2_resource_refresh_active',
         'access_user_csv',
-        //'access_ip_csv',
+        'access_ip_csv',
         'api_secret',
         'api_key'
     );

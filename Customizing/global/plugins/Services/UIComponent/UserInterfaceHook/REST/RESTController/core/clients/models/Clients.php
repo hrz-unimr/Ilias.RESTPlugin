@@ -241,7 +241,7 @@ class Clients extends Libs\RESTModel {
             // Will store allowd users
             $csv = array();
 
-            // fetch allowd users for api-key
+            // fetch allowed users for api-key
             $sqlCSV = Libs\RESTLib::safeSQL('SELECT user_id FROM ui_uihk_rest_keyusermap WHERE api_id = %d', $id);
             $queryCSV = self::$sqlDB->query($sqlCSV);
             while($rowCSV = self::$sqlDB->fetchAssoc($queryCSV)) {
@@ -249,6 +249,15 @@ class Clients extends Libs\RESTModel {
             }
             $csv_string = implode(',',$csv);
             $rowKeys['access_user_csv'] = $csv_string;
+
+            // fetch allowed users for api-key
+            $sqlCSV = Libs\RESTLib::safeSQL('SELECT ip FROM ui_uihk_rest_keyipmap WHERE api_id = %d', $id);
+            $queryCSV = self::$sqlDB->query($sqlCSV);
+            while($rowCSV = self::$sqlDB->fetchAssoc($queryCSV)) {
+                $csv[] = $rowCSV['ip'];
+            }
+            $csv_string = implode(',',$csv);
+            $rowKeys['access_ip_csv'] = $csv_string;
 
             // Add entry to result
             $res[] = $rowKeys;
