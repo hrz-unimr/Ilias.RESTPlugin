@@ -36,7 +36,7 @@ $app->group('/admin/reporting', function () use ($app) {
     });
 
     /**
-     * Returns a list of active user sessions.
+     * Returns statistics about user sessions.
      */
     $app->get('/session_stats', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
 
