@@ -34,6 +34,8 @@ class RESTLib {
     // Allow to re-use status-strings
     const MSG_NO_ADMIN = 'Access denied. Administrator permissions required.';
 
+    const MSG_IP_NOT_ALLOWED = 'Access denied for client IP address.';
+    const ID_IP_NOT_ALLOWED = 'RESTController\libs\RESTLib::ID_IP_NOT_ALLOWED';
 
     /**
      * @see ilInitialisation::initGlobal($a_name, $a_class, $a_source_file)

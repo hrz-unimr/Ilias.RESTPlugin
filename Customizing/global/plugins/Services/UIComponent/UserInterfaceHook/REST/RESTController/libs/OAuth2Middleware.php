@@ -133,7 +133,10 @@ class OAuth2Middleware {
         // Check IP
         $api_key = $accessToken->getApiKey();
         $util = new Auth\Util();
-        $accessToken = $util->getAccessToken();
+        $allowed = $util->checkIPAccess($api_key);
+        if (!$allowed) {
+            $app->halt(401, RESTLib::MSG_IP_NOT_ALLOWED, RESTLib::ID_IP_NOT_ALLOWED);
+        }
     }
 
 

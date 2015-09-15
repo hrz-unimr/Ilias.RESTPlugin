@@ -116,7 +116,6 @@ class RESTClient extends Libs\RESTModel {
      */
     function getAllowedUsers() {
         if (!$this->allowedUsers) {
-            oauth2_user_restriction_active
             $sql = Libs\RESTLib::safeSQL("SELECT * FROM ui_uihk_rest_keyusermap WHERE api_id = %d", $this->client_fields['id']);
             $query = self::$sqlDB->query($sql);
             if (self::$sqlDB->numRows($query) > 0) {
@@ -131,5 +130,43 @@ class RESTClient extends Libs\RESTModel {
         }
     }
 
+    /**
+     * Checks if the client is allowed to process a particular (route,operation) pair.
+     * E.g. route = /v1/users, operation = POST
+     * @param $route
+     * @param $operation
+     * @return bool
+     */
+    public function checkScope($route, $operation) {
+        $operation = strtoupper($operation);
+        $sql = Libs\RESTLib::safeSQL('
+            SELECT pattern, verb
+            FROM ui_uihk_rest_perm
+            JOIN ui_uihk_rest_keys
+            ON ui_uihk_rest_keys.api_key = %s
+            AND ui_uihk_rest_keys.id = ui_uihk_rest_perm.api_id
+            AND ui_uihk_rest_perm.pattern = %s
+            AND ui_uihk_rest_perm.verb = %s',
+            $this->client_fields['api_key'],
+            $route,
+            $operation
+        );
+        $query = self::$sqlDB->query($sql);
+        if (self::$sqlDB->fetchAssoc($query))
+            return true;
+        return false;
+    }
 
+    /**
+     * Checks if a given IP address is allowed to use this client in case the IP addr restriction option is active.
+     * @param $request_ip
+     * @return bool
+     */
+    public function checkIPAccess($request_ip) {
+        if (!$this->hasIpRestrictions() == true) {
+            return true;
+        } else {
+            return in_array($this->allowedIPs, $request_ip);
+        }
+    }
 }

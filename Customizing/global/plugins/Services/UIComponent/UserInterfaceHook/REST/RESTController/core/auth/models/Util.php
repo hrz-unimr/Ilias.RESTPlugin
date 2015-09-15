@@ -10,7 +10,7 @@ namespace RESTController\core\auth;
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
 use \RESTController\core\auth\Token as Token;
-use \RESTController\core\clients\Client as Client;
+use \RESTController\core\clients\RESTClient as RESTClient;
 
 /**
  *
@@ -73,45 +73,36 @@ class Util extends EndpointBase {
      * @return bool
      */
     public function checkScope($route, $operation, $api_key) {
-        $operation = strtoupper($operation);
-        $sql = Libs\RESTLib::safeSQL('
-            SELECT pattern, verb
-            FROM ui_uihk_rest_perm
-            JOIN ui_uihk_rest_keys
-            ON ui_uihk_rest_keys.api_key = %s
-            AND ui_uihk_rest_keys.id = ui_uihk_rest_perm.api_id
-            AND ui_uihk_rest_perm.pattern = %s
-            AND ui_uihk_rest_perm.verb = %s',
-            $api_key,
-            $route,
-            $operation
-        );
-        $query = self::$sqlDB->query($sql);
-        if (self::$sqlDB->fetchAssoc($query))
-            return true;
+        if (!$this->client) {
+            $this->client = new RESTClient($api_key);
+        }
+        if ($this->client->hasAPIKey($api_key) == true) {
+            return $this->client->checkScope($route, $operation);
+        }
         return false;
     }
 
     /**
      * Checks if the requesting client is allowed to make this request by IP address.
      * @param $api_key
-     * @param $request_ip
      * @return bool
      */
-    public function checkIPAccess($api_key, $request_ip) {
+    public function checkIPAccess($api_key) {
         if (!$this->client) {
             $this->client = new RESTClient($api_key);
         }
 
         if ($this->client->hasAPIKey($api_key) == true) {
-
+            if(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
+                $request_ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
+            }
+            else{
+                $request_ip=$_SERVER['REMOTE_ADDR'];
+            }
+            self::$app->log->debug('Checking IP address: '.$request_ip);
+            return $this->client->checkIPAccess($request_ip);
         }
         return false;
-        /*$sql = Libs\RESTLib::safeSQL('SELECT id FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
-        $query = self::$sqlDB->query($sql);
-        if (self::$sqlDB->numRows($query) > 0)
-            return true;
-        return false;*/
     }
 
     /**
