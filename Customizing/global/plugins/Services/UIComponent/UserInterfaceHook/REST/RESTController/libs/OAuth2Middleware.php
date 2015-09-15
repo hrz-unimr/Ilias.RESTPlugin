@@ -132,7 +132,8 @@ class OAuth2Middleware {
 
         // Check IP
         $api_key = $accessToken->getApiKey();
-
+        $util = new Auth\Util();
+        $accessToken = $util->getAccessToken();
     }
 
 

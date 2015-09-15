@@ -10,7 +10,7 @@ namespace RESTController\core\auth;
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
 use \RESTController\core\auth\Token as Token;
-
+use \RESTController\core\clients\Client as Client;
 
 /**
  *
@@ -24,9 +24,11 @@ class Util extends EndpointBase {
     const MSG_I_DISABLED = 'Implicit grant-type is disabled for this client.';
 
 
-    // Store token and fetch it only onc eper execution
+    // Store token and fetch it only once per execution
     protected $accessToken;
 
+    // Store requesting client model and fetch it only once per execution
+    protected $client;
 
     /**
      * Checks if provided OAuth2 - client (aka api_key) does exist.
@@ -44,7 +46,7 @@ class Util extends EndpointBase {
     }
 
 
-    /*
+    /**
      * Checks if provided OAuth2 client credentials are valid.
      * Compare with http://tools.ietf.org/html/rfc6749#section-4.4 (client credentials grant type).
      *
@@ -97,11 +99,19 @@ class Util extends EndpointBase {
      * @return bool
      */
     public function checkIPAccess($api_key, $request_ip) {
-        $sql = Libs\RESTLib::safeSQL('SELECT id FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
+        if (!$this->client) {
+            $this->client = new RESTClient($api_key);
+        }
+
+        if ($this->client->hasAPIKey($api_key) == true) {
+
+        }
+        return false;
+        /*$sql = Libs\RESTLib::safeSQL('SELECT id FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
         $query = self::$sqlDB->query($sql);
         if (self::$sqlDB->numRows($query) > 0)
             return true;
-        return false;
+        return false;*/
     }
 
     /**
