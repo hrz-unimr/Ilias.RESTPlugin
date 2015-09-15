@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="libs/css/html5-boilerplate.css">
     <link rel="stylesheet" href="libs/css/angular-loading-bar.css">
     <link rel="stylesheet" href="libs/css/angular-xeditable.css">
+    <link rel="stylesheet" href="libs/css/font-awesome.css">
     
     <link rel="stylesheet" href="css/app.css" />
         

@@ -141,6 +141,7 @@ $app->put('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenAuth', fu
         'oauth2_consent_message_active',
         'oauth2_authcode_refresh_active',
         'oauth2_resource_refresh_active',
+        'ip_restriction_active',
         'access_user_csv',
         'access_ip_csv',
         'api_secret',
@@ -253,6 +254,7 @@ $app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenAuth', func
     $oauth2_gt_client_active = $request->params('oauth2_gt_client_active', 0);
     $oauth2_gt_authcode_active = $request->params('oauth2_gt_authcode_active', 0);
     $oauth2_gt_implicit_active = $request->params('oauth2_gt_implicit_active', 0);
+    $ip_restriction_active = $request->params('ip_restriction_active', 0);
     $oauth2_gt_resourceowner_active = $request->params('oauth2_gt_resourceowner_active', 0);
     $oauth2_user_restriction_active = $request->params('oauth2_user_restriction_active', 0);
     $oauth2_consent_message_active = $request->params('oauth2_consent_message_active', 0);
@@ -274,6 +276,7 @@ $app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenAuth', func
         $oauth2_gt_resourceowner_active,
         $oauth2_user_restriction_active,
         $oauth2_gt_client_user,
+        $ip_restriction_active,
         $access_user_csv,
         $access_ip_csv,
         $oauth2_authcode_refresh_active,

@@ -9,6 +9,7 @@
                 <th style="vertical-align: middle;"><div class="text-center">{{'LIST_API_SECRET' | translate}}</div></th>
                 <th style="vertical-align: middle; width:1px;"><div class="text-center">{{'LIST_GRANT_TYPES' | translate}}</div></th>
                 <th style="vertical-align: middle;"><div class="text-center">{{'LIST_PERMISSION' | translate}}</div></th>
+                <th style="vertical-align: middle;"><div class="text-center">{{'LIST_IP_RESTRICTION' | translate}}</div></th>
                 <th style="vertical-align: middle; width:1px;"><div class="text-center">{{'LIST_MODIFY' | translate}}</div></th>
                 <th style="vertical-align: middle; width:1px;"><div class="text-center">{{'LIST_DELETE' | translate}}</div></th>
             </tr>
@@ -25,6 +26,7 @@
                     <div data-ng-show="{{client.oauth2_gt_client_active}}"><span class="label label-granttype">{{'LIST_GRANT_CC' | translate}}</span><br/></div>
                 </td>
                 <td data-ng-bind-html='client.permissions | formatListPermissions'></td>
+                <td data-ng-bind-html='client.ip_restriction_active | formatIpRestriction'></td>
                 <td style="vertical-align: middle;">
                     <div class="text-center"><button class="btn btn-primary btn-xs" data-ng-click="editClient(client)">{{'LIST_MODIFY' | translate}}</button></div>
                 </td>

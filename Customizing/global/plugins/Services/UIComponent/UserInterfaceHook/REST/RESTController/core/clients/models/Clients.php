@@ -285,6 +285,7 @@ class Clients extends Libs\RESTModel {
         $oauth2_user_restriction_active,
         $oauth2_gt_client_user,
         $access_user_csv,
+        $ip_restriction_active,
         $access_ip_csv,
         $oauth2_authcode_refresh_active,
         $oauth2_resource_refresh_active
@@ -304,7 +305,8 @@ class Clients extends Libs\RESTModel {
             'oauth2_user_restriction_active' => array('integer', $oauth2_user_restriction_active),
             'oauth2_consent_message_active' => array('integer', $oauth2_consent_message_active),
             'oauth2_authcode_refresh_active' => array('integer', $oauth2_authcode_refresh_active),
-            'oauth2_resource_refresh_active' => array('integer', $oauth2_resource_refresh_active)
+            'oauth2_resource_refresh_active' => array('integer', $oauth2_resource_refresh_active),
+            'ip_restriction_active' => array('integer', $ip_restriction_active)
         );
         self::$sqlDB->insert('ui_uihk_rest_keys', $a_columns);
         $insertId = intval(self::$sqlDB->getLastInsertId());
@@ -327,7 +329,6 @@ class Clients extends Libs\RESTModel {
         } else {
             $this->fillApikeyIpMap($insertId);
         }
-
 
         // Return new api_id
         return $insertId;

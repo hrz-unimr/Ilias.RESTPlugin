@@ -90,8 +90,18 @@ class Util extends EndpointBase {
         return false;
     }
 
+    /**
+     * Checks if the requesting client is allowed to make this request by IP address.
+     * @param $api_key
+     * @param $request_ip
+     * @return bool
+     */
     public function checkIPAccess($api_key, $request_ip) {
-
+        $sql = Libs\RESTLib::safeSQL('SELECT id FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
+        $query = self::$sqlDB->query($sql);
+        if (self::$sqlDB->numRows($query) > 0)
+            return true;
+        return false;
     }
 
     /**

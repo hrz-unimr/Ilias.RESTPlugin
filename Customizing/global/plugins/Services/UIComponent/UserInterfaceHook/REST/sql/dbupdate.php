@@ -127,6 +127,12 @@
             'notnull' => true,
             'default' => 0
         ),
+        'ip_restriction_active' => array(
+            'type' => 'integer',
+            'length' => 1,
+            'notnull' => true,
+            'default' => 0
+        ),
     );
     $ilDB->createTable("ui_uihk_rest_keys", $fields, true);
     $ilDB->addPrimaryKey("ui_uihk_rest_keys", array("id"));

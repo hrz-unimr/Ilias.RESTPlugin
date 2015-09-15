@@ -37,6 +37,12 @@
             <div class="form-group">
                 <label for="inputIpCSV">{{'EDIT_ALLOWED_IPS' | translate}}</label>
                 {{'EDIT_IP_ACCESS_TEXT' | translate}}
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="inputIpActive" name="inputIpActive" data-ng-model="current.ip_restriction_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                        {{'EDIT_ENABLED' | translate}}
+                    </label>
+                </div>
                 <textarea id="inputIpCSV" class="form-control" rows="3" data-ng-model="current.access_ip_csv"></textarea>
             </div>
         </div>

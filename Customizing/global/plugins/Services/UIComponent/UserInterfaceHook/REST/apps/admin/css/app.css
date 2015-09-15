@@ -104,3 +104,11 @@ body {
     max-width: 400px;
     width: 400px; 
 }
+
+.green {
+    color: #4cae4c;
+}
+
+.red {
+    color: #c9302c;
+}

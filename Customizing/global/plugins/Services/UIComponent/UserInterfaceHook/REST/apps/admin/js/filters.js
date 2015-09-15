@@ -69,6 +69,25 @@ filters.filter('formatListPermissions', function($sce) {
         return "";
     };
 });
+filters.filter('formatIpRestriction', function($sce) {
+    return function(value) {
+        if (typeof value != 'undefined') {
+            var jsonValue = angular.fromJson(value);
+            console.log(jsonValue);
+            var resultHtml = '<div class="text-center">';
+            if (jsonValue == 1) {
+                resultHtml += '<span class="fa fa-lock red"></span>';
+            } else {
+                resultHtml += '<span class="fa fa-unlock green"></span>';
+            }
+            resultHtml += '</div>';
+
+            return $sce.trustAsHtml(resultHtml);
+        }
+        return "";
+    };
+});
+
 filters.filter('formatEditPermission', function($sce) {
     return function(value) {
         if (typeof value != 'undefined') {
