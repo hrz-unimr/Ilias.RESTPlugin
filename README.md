@@ -1,6 +1,6 @@
 ILIAS REST Plugin
 =====================
-This is a plugin for the [ILIAS Learning Management System](http://www.ilias.de). It provides a customizable REST API. 
+This is a plugin for the [ILIAS Learning Management System](http://www.ilias.de), which provides a customizable REST API. 
 
 #### Features:
 * Permission management for resources depending on REST clients using API-Keys
