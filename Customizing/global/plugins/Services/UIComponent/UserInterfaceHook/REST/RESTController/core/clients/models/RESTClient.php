@@ -168,7 +168,8 @@ class RESTClient extends Libs\RESTModel {
         if (!$this->hasIpRestrictions() == true) {
             return true;
         } else {
-            return in_array($this->allowedIPs, $request_ip);
+            $a = $this->getAllowedIPAddresses();
+            return in_array($request_ip,$a);
         }
     }
 }
