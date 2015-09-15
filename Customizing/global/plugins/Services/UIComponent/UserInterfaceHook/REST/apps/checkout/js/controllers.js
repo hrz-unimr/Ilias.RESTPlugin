@@ -40,6 +40,7 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
             authentication: authentication
         };
 
+
     };
 
     /*

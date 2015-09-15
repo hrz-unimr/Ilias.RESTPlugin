@@ -23,7 +23,8 @@ services.provider('authentication', function() {
         token: null,
         autoLogin: (postVars.userId.length > 0 && postVars.sessionId.length > 0 && postVars.rtoken.length > 0),
         error: null,
-        apiKey: ""
+        apiKey: "",
+        ip: postVars.ip
     };
 
     // Return object containing login-related functions.
@@ -46,6 +47,10 @@ services.provider('authentication', function() {
         handler.getApiKey = function() {
             return data.apiKey;
         };
+
+        handler.getIp = function() {
+            return data.ip;
+        }
 
         // Function that returns the current login-state
         // of the user. If this returns true then getToken

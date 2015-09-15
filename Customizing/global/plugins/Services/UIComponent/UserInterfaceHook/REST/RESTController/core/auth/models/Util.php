@@ -91,7 +91,7 @@ class Util extends EndpointBase {
         if (!$this->client) {
             $this->client = new RESTClient($api_key);
         }
-
+        self::$app->log->debug('IP Check 1');
         if ($this->client->hasAPIKey($api_key) == true) {
             if(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
                 $request_ip=$_SERVER['HTTP_X_FORWARDED_FOR'];

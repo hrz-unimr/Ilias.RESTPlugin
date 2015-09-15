@@ -58,7 +58,7 @@ lang_en_us.config(function($translateProvider) {
         // Index.php
         INDEX_TITLE: 'Checkout',
         INDEX_BRAND: 'ILIAS REST',
-        INDEX_LOGGED_IN: 'Logged in as {{authentication.getUserName()}}@{{authentication.getApiKey()}}',
+        INDEX_LOGGED_IN: 'Logged in as {{authentication.getUserName()}}@{{authentication.getApiKey()}} ({{authentication.getIp()}})',
         INDEX_LOGOUT: 'Logout',
         INDEX_VERSION: 'Version',
         INDEX_POWERED: 'Powered by',

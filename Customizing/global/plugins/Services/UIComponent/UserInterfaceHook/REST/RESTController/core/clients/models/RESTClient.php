@@ -31,9 +31,11 @@ class RESTClient extends Libs\RESTModel {
      * Constructor
      * @param $api_key
      */
-    function RESTClient($api_key) {
+    function __construct($api_key) {
+        Libs\RESTModel::__construct();
         $sql = Libs\RESTLib::safeSQL("SELECT * FROM ui_uihk_rest_keys WHERE api_key = %s", $api_key);
         $query = self::$sqlDB->query($sql);
+
         if (self::$sqlDB->numRows($query) > 0) {
             $this->client_fields = self::$sqlDB->fetchAssoc($query);
         } else {

@@ -43,6 +43,13 @@
         $sessionId = addslashes (htmlspecialchars($sessionId, ENT_COMPAT | ENT_HTML5)); 
         $rtoken = addslashes (htmlspecialchars($rtoken, ENT_COMPAT | ENT_HTML5));
         $restEndpoint = addslashes (htmlspecialchars($restEndpoint, ENT_COMPAT | ENT_HTML5));
+
+         if(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
+                $request_ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
+            }
+            else{
+                $request_ip=$_SERVER['REMOTE_ADDR'];
+            }
         ?>
     
         var postVars = {
@@ -51,8 +58,10 @@
             sessionId: "<?php echo $sessionId; ?>",
             rtoken: "<?php echo $rtoken;  ?>",
             restEndpoint: "<?php echo $restEndpoint; ?>",
-            apiKey: "<?php echo $apiKey; ?>"
+            apiKey: "<?php echo $apiKey; ?>",
+            ip : "<?php echo $request_ip; ?>"
         };
+
     </script>
 </head>
 <body>
