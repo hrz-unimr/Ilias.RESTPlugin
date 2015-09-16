@@ -276,8 +276,8 @@ $app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenAuth', func
         $oauth2_gt_resourceowner_active,
         $oauth2_user_restriction_active,
         $oauth2_gt_client_user,
-        $ip_restriction_active,
         $access_user_csv,
+        $ip_restriction_active,
         $access_ip_csv,
         $oauth2_authcode_refresh_active,
         $oauth2_resource_refresh_active

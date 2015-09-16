@@ -98,7 +98,7 @@ class RESTClient extends Libs\RESTModel {
      */
     function getAllowedIPAddresses() {
         if (!$this->allowedIPs) {
-            $sql = Libs\RESTLib::safeSQL("SELECT * FROM ui_uihk_rest_keyipmap WHERE api_id = %d", $this->client_fields['id']);
+            $sql = Libs\RESTLib::safeSQL("SELECT * FROM ui_uihk_rest_key2ip WHERE api_id = %d", $this->client_fields['id']);
             $query = self::$sqlDB->query($sql);
             if (self::$sqlDB->numRows($query) > 0) {
                 $this->allowedIPs = array();
@@ -118,7 +118,7 @@ class RESTClient extends Libs\RESTModel {
      */
     function getAllowedUsers() {
         if (!$this->allowedUsers) {
-            $sql = Libs\RESTLib::safeSQL("SELECT * FROM ui_uihk_rest_keyusermap WHERE api_id = %d", $this->client_fields['id']);
+            $sql = Libs\RESTLib::safeSQL("SELECT * FROM ui_uihk_rest_key2user WHERE api_id = %d", $this->client_fields['id']);
             $query = self::$sqlDB->query($sql);
             if (self::$sqlDB->numRows($query) > 0) {
                 $this->allowedUsers = array();

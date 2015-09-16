@@ -141,7 +141,7 @@ class Clients extends Libs\RESTModel {
     }
 
     /**
-     * Given a api_key ID and an array of user id numbers, this function writes the mapping to the table 'ui_uihk_rest_keyusermap'.
+     * Given a api_key ID and an array of user id numbers, this function writes the mapping to the table 'ui_uihk_rest_key2user'.
      * Note: Old entries will be deleted.
      *
      * @param $api_key_id
@@ -150,7 +150,7 @@ class Clients extends Libs\RESTModel {
     protected function fillApikeyUserMap($api_key_id, $a_user_csv = NULL)
     {
         // Remove old entries
-        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_keyusermap WHERE api_id = %d', $api_key_id);
+        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_key2user WHERE api_id = %d', $api_key_id);
         self::$sqlDB->manipulate($sql);
 
         // Add new entries
@@ -160,12 +160,12 @@ class Clients extends Libs\RESTModel {
                     'api_id' => array('integer', $api_key_id),
                     'user_id' => array('integer', $user_id)
                 );
-                self::$sqlDB->insert('ui_uihk_rest_keyusermap', $a_columns);
+                self::$sqlDB->insert('ui_uihk_rest_key2user', $a_columns);
             }
     }
 
     /**
-     * Given a api_key ID and an array of ip address strings, this function writes the mapping to the table 'ui_uihk_rest_keyipmap'.
+     * Given a api_key ID and an array of ip address strings, this function writes the mapping to the table 'ui_uihk_rest_key2ip'.
      * Note: Old entries will be deleted.
      *
      * @param $api_key_id
@@ -174,7 +174,7 @@ class Clients extends Libs\RESTModel {
     protected function fillApikeyIpMap($api_key_id, $a_ip_csv = NULL)
     {
         // Remove old entries
-        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_keyipmap WHERE api_id = %d', $api_key_id);
+        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_key2ip WHERE api_id = %d', $api_key_id);
         self::$sqlDB->manipulate($sql);
 
         // Add new entries
@@ -184,7 +184,7 @@ class Clients extends Libs\RESTModel {
                     'api_id' => array('integer', $api_key_id),
                     'ip' => array('text', trim($ip_addr_str))
                 );
-                self::$sqlDB->insert('ui_uihk_rest_keyipmap', $a_columns);
+                self::$sqlDB->insert('ui_uihk_rest_key2ip', $a_columns);
             }
     }
 
@@ -242,7 +242,7 @@ class Clients extends Libs\RESTModel {
             $csv = array();
 
             // fetch allowed users for api-key
-            $sqlCSV = Libs\RESTLib::safeSQL('SELECT user_id FROM ui_uihk_rest_keyusermap WHERE api_id = %d', $id);
+            $sqlCSV = Libs\RESTLib::safeSQL('SELECT user_id FROM ui_uihk_rest_key2user WHERE api_id = %d', $id);
             $queryCSV = self::$sqlDB->query($sqlCSV);
             while($rowCSV = self::$sqlDB->fetchAssoc($queryCSV)) {
                 $csv[] = $rowCSV['user_id'];
@@ -250,8 +250,9 @@ class Clients extends Libs\RESTModel {
             $csv_string = implode(',',$csv);
             $rowKeys['access_user_csv'] = $csv_string;
 
+            $csv = array();
             // fetch allowed users for api-key
-            $sqlCSV = Libs\RESTLib::safeSQL('SELECT ip FROM ui_uihk_rest_keyipmap WHERE api_id = %d', $id);
+            $sqlCSV = Libs\RESTLib::safeSQL('SELECT ip FROM ui_uihk_rest_key2ip WHERE api_id = %d', $id);
             $queryCSV = self::$sqlDB->query($sqlCSV);
             while($rowCSV = self::$sqlDB->fetchAssoc($queryCSV)) {
                 $csv[] = $rowCSV['ip'];
@@ -409,7 +410,7 @@ class Clients extends Libs\RESTModel {
         self::$sqlDB->manipulate($sql);
 
         // Delete list of allowed users
-        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_keyusermap WHERE api_id = %d', $id);
+        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_key2user WHERE api_id = %d', $id);
         self::$sqlDB->manipulate($sql);
 
         // Delete oauth tokens
@@ -458,7 +459,7 @@ class Clients extends Libs\RESTModel {
             $a_user_ids = array();
 
             // Fetch allowed users
-            $sql2 = Libs\RESTLib::safeSQL('SELECT user_id FROM ui_uihk_rest_keyusermap WHERE api_id = %s', $id);
+            $sql2 = Libs\RESTLib::safeSQL('SELECT user_id FROM ui_uihk_rest_key2user WHERE api_id = %s', $id);
             $query2 = self::$sqlDB->query($sql2);
             while($row2 = self::$sqlDB->fetchAssoc($query2))
                 $a_user_ids[] = (int)$row2['user_id'];

@@ -161,8 +161,8 @@
             'notnull' => true
         )
     );
-    $ilDB->createTable("ui_uihk_rest_keyusermap", $fields, true);
-    $ilDB->addPrimaryKey("ui_uihk_rest_keyusermap", array("id"));
+    $ilDB->createTable("ui_uihk_rest_key2user", $fields, true);
+    $ilDB->addPrimaryKey("ui_uihk_rest_key2user", array("id"));
     
     $ilLog->write('Plugin REST -> Database updated to #3');
 ?>
@@ -173,7 +173,7 @@
     
     $ilDB->manipulate('ALTER TABLE ui_uihk_rest_config CHANGE id id INT NOT NULL AUTO_INCREMENT');
     $ilDB->manipulate('ALTER TABLE ui_uihk_rest_keys CHANGE id id INT NOT NULL AUTO_INCREMENT');
-    $ilDB->manipulate('ALTER TABLE ui_uihk_rest_keyusermap CHANGE id id INT NOT NULL AUTO_INCREMENT');
+    $ilDB->manipulate('ALTER TABLE ui_uihk_rest_key2user CHANGE id id INT NOT NULL AUTO_INCREMENT');
     
     $ilLog->write('Plugin REST -> Database updated to #4');
 ?>
@@ -412,9 +412,9 @@ $fields = array(
         'notnull' => true
     )
 );
-$ilDB->createTable("ui_uihk_rest_keyipmap", $fields, true);
-$ilDB->addPrimaryKey("ui_uihk_rest_keyipmap", array("id"));
-$ilDB->manipulate('ALTER TABLE ui_uihk_rest_keyipmap CHANGE id id INT NOT NULL AUTO_INCREMENT');
+$ilDB->createTable("ui_uihk_rest_key2ip", $fields, true);
+$ilDB->addPrimaryKey("ui_uihk_rest_key2ip", array("id"));
+$ilDB->manipulate('ALTER TABLE ui_uihk_rest_key2ip CHANGE id id INT NOT NULL AUTO_INCREMENT');
 
 $ilLog->write('Plugin REST -> Database updated to #11');
 ?>
