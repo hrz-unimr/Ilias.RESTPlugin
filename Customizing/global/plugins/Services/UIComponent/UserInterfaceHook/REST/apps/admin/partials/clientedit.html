@@ -10,7 +10,7 @@
         </div>
 
         <div class="panel-body">
-            <div class="form-group">
+            <div class="form-group" data-ng-show="current.id > -1">
                 <label for="cid">{{'EDIT_ID' | translate}}</label>
                 <input class="form-control" id="cid" type="text" data-ng-model="current.id" class="ng-pristine data-ng-valid" data-ng-readonly="true">
             </div>
