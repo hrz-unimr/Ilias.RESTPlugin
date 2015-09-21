@@ -79,8 +79,12 @@ class OAuth2Middleware {
 
             // Check if given user has admin-role
             $user = $accessToken->getUserName();
-            if (!RESTLib::isAdminByUserName($user))
+            if (!RESTLib::isAdminByUserName($user)) {
                 $app->halt(401, RESTLib::MSG_NO_ADMIN, RESTLib::ID_NO_ADMIN);
+            }
+
+            // Check route permissions
+            self::checkRoutePermissions($app, $route, $accessToken);
         }
         catch (TokenExceptions\TokenInvalid $e) {
             $app->halt(401, $e->getMessage(), $e::ID);
@@ -130,7 +134,7 @@ class OAuth2Middleware {
             $app->halt(401, Token\Generic::MSG_EXPIRED, Token\Generic::ID_EXPIRED);
         }
 
-        // Check IP
+        // Check IP (if option is enabled)
         $api_key = $accessToken->getApiKey();
         $util = new Auth\Util();
         $allowed = $util->checkIPAccess($api_key);
@@ -150,7 +154,8 @@ class OAuth2Middleware {
         $verb = $app->request->getMethod();
 
         // Check route access rights given route, method and api-key
-        if (!Auth\Util::checkScope($pattern, $verb, $api_key))
+        if (!Auth\Util::checkScope($pattern, $verb, $api_key)) {
             $app->halt(401, self::MSG_NO_PERMISSION, self::ID_NO_PERMISSION);
+        }
     }
  }

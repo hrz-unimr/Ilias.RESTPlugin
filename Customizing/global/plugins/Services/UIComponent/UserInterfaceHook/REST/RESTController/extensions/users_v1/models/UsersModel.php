@@ -246,4 +246,23 @@ class UsersModel extends Libs\RESTModel
         }
         return false;
     }
+
+    /**
+     * Searches for users with llap auth mode for which the query ($ext_name) matches with ext_account.
+     *
+     * @param $ext_name
+     * @return bool|object
+     */
+    public function findExtLdapUsers()
+    {
+        global $ilDB;
+        $sql = Libs\RESTLib::safeSQL('SELECT * FROM usr_data WHERE auth_mode = \'ldap\'');
+        $query = $ilDB->query($sql);
+
+        if ($usr = $ilDB->fetchAssoc($query))
+        {
+            return $usr;
+        }
+        return false;
+    }
 }

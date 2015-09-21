@@ -36,7 +36,7 @@ $app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', 
         }
         $result['limit'] = $limit;
         $result['offset'] = $offset;
-        $all_users = $usr_model->getAllUsers($fields);
+        $all_users = $usr_model->getAllUsers($fields); // TODO improve this!
         $totalCount = count($all_users);
         $result['totalCount'] = $totalCount;
         // TODO: Sanity check on $offset parameter
@@ -48,7 +48,6 @@ $app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', 
         }
 
         $app->success($result);
-
 });
 
 /**
@@ -56,7 +55,7 @@ $app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', 
  * Supported search criteria:
  *  - ldapext with extname: search for users that have authmode ldap and query (extname) matches with ext_account
  */
-$app->get('/v1/search/user','\RESTController\libs\OAuth2Middleware::TokenAuth', function () use ($app) {
+$app->get('/v1/search/user','\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
     $result = array();
     $request = $app->request();
     if ($request->params('mode')) {
@@ -68,12 +67,21 @@ $app->get('/v1/search/user','\RESTController\libs\OAuth2Middleware::TokenAuth', 
             $extname = $request->params('extname');
             try {
                 $usr_model = new UsersModel();
-                $app->log->debug('search user 2');
+                $app->log->debug('Searching for user '.$extname.' with auth_mode ldap.');
                 $userdata = $usr_model->findExtLdapUser($extname);
-
                 //$app->log->debug('model response: '.print_r($userdata,true));
                 $result['user'] = $userdata;
                 $app->success($result);
+            } catch (Libs\ReadFailed $e) {
+                $app->halt(400, $e->getMessage());
+            }
+        } else {
+            // no extname specified: retrieve ALL users with auth_mode 'ldap'
+            try {
+                $usr_model = new UsersModel();
+                $app->log->debug('Searching for ALL users with  auth_mode ldap.');
+                $userdata = $usr_model->findExtLdapUsers();
+                $result['user'] = $userdata;
             } catch (Libs\ReadFailed $e) {
                 $app->halt(400, $e->getMessage());
             }
