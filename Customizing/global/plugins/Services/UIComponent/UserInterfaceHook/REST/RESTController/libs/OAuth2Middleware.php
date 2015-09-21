@@ -152,9 +152,9 @@ class OAuth2Middleware {
         $api_key = $accessToken->getApiKey();
         $pattern = $route->getPattern();
         $verb = $app->request->getMethod();
-
+        $util = new Auth\Util();
         // Check route access rights given route, method and api-key
-        if (!Auth\Util::checkScope($pattern, $verb, $api_key)) {
+        if (!$util->checkScope($pattern, $verb, $api_key)) {
             $app->halt(401, self::MSG_NO_PERMISSION, self::ID_NO_PERMISSION);
         }
     }
