@@ -48,24 +48,69 @@ class Routes extends Libs\RESTModel {
 
     /**
      * This method combines information from $clientModel->getPermissionsForApiKey
-     * and from the SLIM router $app->router()->getRoutes().
+     * and from the SLIM router $app->router()->getRoutes(),
+     * i.e. auth_type (e.g. OAuth2) and access_level
      *
      * @param $apiRoutes
      * @param $allRoutes
-     * @param $isAdmin
+     * @param $includeUnrestrictedRoutes
      * @return mixed
      */
-    public function filterApiRoutes($apiRoutes, $allRoutes, $isAdmin)
+    public function filterApiRoutes($apiRoutes, $allRoutes, $includeUnrestrictedRoutes)
     {
         $resultRoutes = array();
-        $apiPatterns = array();
+        /*$apiPatterns = array();
         foreach ($apiRoutes as $entry) {
             $apiPatterns[] = $entry['pattern'];
-        }
+        }*/
         foreach($allRoutes as $route) {
+            $ct_pattern = $route->getPattern();
+            $tmp = $route->getHttpMethods();
+            $ct_verb = $tmp[0];
 
-            //$resultRoutes[] = array('debug'=>$apiPatterns);
-            $inApiRoute = in_array ( $route->getPattern() , $apiPatterns);
+            $middle = $route->getMiddleware();
+            if (isset($middle[0]) == true) {
+                $parts1 = explode('\\', $middle[0]);
+                $parts2 = explode('::', $parts1[3]);
+                if ($parts2[0] == 'OAuth2Middleware') {
+                    $auth_type = 'OAuth2';
+                }
+                $access_level = $parts2[1];
+                if ($access_level == "TokenAuth") {
+                }
+            } else {
+                // open route found: no restrictions at all
+                $auth_type = "";
+                $access_level = ""; // "Open"
+            }
+
+            $includeCurrentRoute = false;
+
+            if ($includeUnrestrictedRoutes == false) {
+                $search_result = $this->int_assoc_search($apiRoutes, 'pattern', $ct_pattern, 'verb', $ct_verb);
+                if (count($search_result) > 0) {
+                    $includeCurrentRoute = true;
+                }
+            } else {
+                if ($access_level == 'TokenAuth' || $access_level== '') {
+                    $includeCurrentRoute = true;
+                }
+            }
+
+            if ($includeCurrentRoute == true) {
+                // Pack data
+                $resultRoutes[] = array(
+                    'pattern' => $route->getPattern(),
+                    'verb' => $ct_verb,
+                    'auth_type' => $auth_type,
+                    'access_level' => $access_level,
+                );
+            }
+
+
+
+
+          /*  $inApiRoute = in_array ( $route->getPattern() , $apiPatterns);
             if ($inApiRoute == true) {
                 // Format/Get data
                 $multiVerbs = $route->getHttpMethods();
@@ -88,20 +133,52 @@ class Routes extends Libs\RESTModel {
                         }
                     }
                 }
+*/
 
-                // Pack data
-                $resultRoutes[] = array(
-                    'pattern' => $route->getPattern(),
-                    'verb' => $verb,
-                    'auth_type' => $auth_type,
-                    'access_level' => $access_level,
-                    'has_access' => $has_access
-                    //'middleware' => (isset($middle[0]) ? $middle[0] : "none")
-                );
-            }
+
         }
 
         return $resultRoutes;
+    }
+
+    /**
+     * Searches an associative array for an entry that matches two criteria.
+     * @param $array
+     * @param $key1
+     * @param $value1
+     * @param $key2
+     * @param $value2
+     * @return array
+     */
+    private function int_assoc_search($array, $key1, $value1,$key2, $value2)
+    {
+        $results = array();
+        $this->int_assoc_search_r($array, $key1, $value1, $key2, $value2, $results);
+        return $results;
+    }
+
+    /**
+     * Helper function for int_assoc_search.
+     * @param $array
+     * @param $key1
+     * @param $value1
+     * @param $key2
+     * @param $value2
+     * @param $results
+     */
+    private function int_assoc_search_r($array, $key1, $value1, $key2, $value2, &$results)
+    {
+        if (!is_array($array)) {
+            return;
+        }
+
+        if (isset($array[$key1]) && $array[$key1] == $value1 && isset($array[$key2]) && $array[$key2] == $value2) {
+            $results[] = $array;
+        }
+
+        foreach ($array as $subarray) {
+            $this->int_assoc_search_r($subarray, $key1, $value1, $key2, $value2, $results);
+        }
     }
 
     /**

@@ -93,7 +93,7 @@ $app->get('/v1/search/user','\RESTController\libs\OAuth2Middleware::TokenAdminAu
 /**
  * Retrieves data of a user specified by its id.
  */
-$app->get('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenAuth', function ($user_id) use ($app) {
+$app->get('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($user_id) use ($app) {
         $id = $user_id;
         if ($user_id == "mine") {
             $auth = new Auth\Util();

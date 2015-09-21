@@ -53,18 +53,29 @@ $app->get('/routes', function () use ($app) {
  */
 $app->get('/apiroutes', '\RESTController\libs\OAuth2Middleware::TokenAuth', function () use ($app) {
     $auth = new Auth\Util();
+
+    $includeUnrestrictedRoutes = false;
+    $request = $app->request();
+    if ($request->params('view')) {
+        //$view_status = $request->params('view');
+        //if ($view_status == 'all') ...
+        $includeUnrestrictedRoutes = true;
+    }
     $api_key = $auth->getAccessToken()->getApiKey();
     $clientModel = new Clients();
     $apiRoutes = $clientModel->getPermissionsForApiKey($api_key);
+
+
+
     $allRoutes = $app->router()->getRoutes();      // Fetch all available routes
-
     $routeModel = new Routes();
+    //$isAdmin =  Libs\RESTLib::isAdminByUserId($auth->getAccessToken()->getUserId());
 
-    $isAdmin =  Libs\RESTLib::isAdminByUserId($auth->getAccessToken()->getUserId());
-    $filteredRoutes = $routeModel->filterApiRoutes($apiRoutes, $allRoutes, $isAdmin);
+    $filteredRoutes = $routeModel->filterApiRoutes($apiRoutes, $allRoutes, $includeUnrestrictedRoutes);
 
     $result = array();
     $result['permissions'] = $filteredRoutes;
+//    $result['permissions'] = $apiRoutes;
     // Send data
     $app->success($result);
 });

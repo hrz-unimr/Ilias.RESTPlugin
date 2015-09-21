@@ -20,7 +20,7 @@ $app->group('/v1/news', function () use ($app) {
     /**
      * Gets the personal desktop (pd) news items of the authenticated user.
      */
-    $app->get('/pdnews', '\RESTController\libs\OAuth2Middleware::TokenAuth' ,  function () use ($app) {
+    $app->get('/pdnews', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth' ,  function () use ($app) {
         //$request = $app->request();
 
         $auth = new Auth\Util();

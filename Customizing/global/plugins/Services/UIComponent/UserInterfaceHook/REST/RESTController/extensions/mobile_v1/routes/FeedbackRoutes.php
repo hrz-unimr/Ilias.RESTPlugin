@@ -21,7 +21,7 @@ $app->group('/v1/m', function () use ($app) {
     /**
      * Allows for submission of a new feedback entry via GET.
      */
-    $app->get('/feedbackdrop/', '\RESTController\libs\OAuth2Middleware::TokenAuth' ,  function () use ($app) {
+    $app->get('/feedbackdrop/', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth' ,  function () use ($app) {
         $request = $app->request();
         try {
             $s_msg = $request->params('message','',true);
@@ -41,7 +41,7 @@ $app->group('/v1/m', function () use ($app) {
     /**
      * Allows for submission of a new feedback entry via POST.
      */
-     $app->post('/feedbackdrop/', '\RESTController\libs\OAuth2Middleware::TokenAuth',  function () use ($app) {
+     $app->post('/feedbackdrop/', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function () use ($app) {
          $request = $app->request();
          try {
              $s_msg = $request->params('message','',true);

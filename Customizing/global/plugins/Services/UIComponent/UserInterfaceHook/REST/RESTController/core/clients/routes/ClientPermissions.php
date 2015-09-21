@@ -32,7 +32,7 @@ use \RESTController\core\auth as Auth;
  *    status: "<Success or Failure>"
  *  }
  */
- $app->get('/clientpermissions', '\RESTController\libs\OAuth2Middleware::TokenAuth', function () use ($app) {
+ $app->get('/clientpermissions', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
     // Fetch authorized user
     $auth = new Auth\Util();
     $user = $auth->getAccessToken()->getUserName();
@@ -83,7 +83,7 @@ use \RESTController\core\auth as Auth;
  *    status: "<Success or Failure>"
  *  }
  */
-$app->post('/clientpermissions/', '\RESTController\libs\OAuth2Middleware::TokenAuth', function () use ($app) {
+$app->post('/clientpermissions/', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
     // Fetch authorized user
     $auth = new Auth\Util();
     $user = $auth->getAccessToken()->getUserName();
@@ -133,7 +133,7 @@ $app->post('/clientpermissions/', '\RESTController\libs\OAuth2Middleware::TokenA
  *    status: "<Success or Failure>"
  *  }
  */
-$app->delete('/clientpermissions/:id', '\RESTController\libs\OAuth2Middleware::TokenAuth',  function ($id) use ($app) {
+$app->delete('/clientpermissions/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($id) use ($app) {
     // Fetch authorized user
     $auth = new Auth\Util();
     $user = $auth->getAccessToken()->getUserName();
