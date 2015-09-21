@@ -86,12 +86,11 @@ class Routes extends Libs\RESTModel {
 
             $includeCurrentRoute = false;
 
-            if ($includeUnrestrictedRoutes == false) {
-                $search_result = $this->int_assoc_search($apiRoutes, 'pattern', $ct_pattern, 'verb', $ct_verb);
-                if (count($search_result) > 0) {
-                    $includeCurrentRoute = true;
-                }
-            } else {
+            $search_result = $this->int_assoc_search($apiRoutes, 'pattern', $ct_pattern, 'verb', $ct_verb);
+            if (count($search_result) > 0) {
+                $includeCurrentRoute = true;
+            }
+            if ($includeUnrestrictedRoutes == true) {
                 if ($access_level == 'TokenAuth' || $access_level== '') {
                     $includeCurrentRoute = true;
                 }
@@ -106,35 +105,6 @@ class Routes extends Libs\RESTModel {
                     'access_level' => $access_level,
                 );
             }
-
-
-
-
-          /*  $inApiRoute = in_array ( $route->getPattern() , $apiPatterns);
-            if ($inApiRoute == true) {
-                // Format/Get data
-                $multiVerbs = $route->getHttpMethods();
-                $verb = $multiVerbs[0];
-                $middle = $route->getMiddleware();
-
-                $auth_type = "none";
-                $access_level = "none";
-                $has_access = true;
-                if (isset($middle[0]) == true) {
-                    $parts1 = explode('\\', $middle[0]);
-                    $parts2 = explode('::', $parts1[3]);
-                    if ($parts2[0] == 'OAuth2Middleware') {
-                        $auth_type = 'OAuth2';
-                    }
-                    $access_level = $parts2[1];
-                    if ($access_level == "TokenAdminAuth") {
-                        if ($isAdmin == false) {
-                            $has_access = false;
-                        }
-                    }
-                }
-*/
-
 
         }
 
