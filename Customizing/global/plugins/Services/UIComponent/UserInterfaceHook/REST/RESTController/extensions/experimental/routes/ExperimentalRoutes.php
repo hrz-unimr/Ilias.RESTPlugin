@@ -14,7 +14,7 @@ use \RESTController\core\clients as Clients;
 
 
 // NOTE: The routes here have usually no access restrictions. They're therefore disabled by default and should only be enabled for testing/development purposes.
-/*$app->group('/dev', function () use ($app) {
+$app->group('/dev', function () use ($app) {
 
     $app->get('/checkip', function () use ($app) {
 
@@ -24,6 +24,7 @@ use \RESTController\core\clients as Clients;
         else{
             $ip=$_SERVER['REMOTE_ADDR'];
         }
+
 
         $result = array(
             'server' => print_r($_SERVER,true),
@@ -36,6 +37,39 @@ use \RESTController\core\clients as Clients;
         $model = new Clients\Clients();
         $data1 = $model->getAllowedUsersForApiKey('9065710a-16b9-4b4c-9230-f76dc72d2a2d');
         $data2 = $model->getClientCredentialsUser('9065710a-16b9-4b4c-9230-f76dc72d2a2d');
+
+        global $ilLog;
+        $ilLog->write('Hello from REST Plugin - Experimental');
+        $app->response()->header('Content-Type', 'application/json');
+
+        $model = new Auth\TokenEndpoint();
+        $refreshToken = Token\Refresh::fromMixed($model->tokenSettings('refresh'), $refresh_token);
+        $bearer_token = $model->refresh2Access($refreshToken);
+
+        $result = array('token' => $bearer_token->getEntry('access_token'));
+        $app->success($result);
+    });
+
+
+    /**
+     * Refresh-Token Part 2.1: new refresh end-point ; erzeugt ein NEUES refresh-token für ein valides bearer token. der
+     * zugang muss daher geschützt sein. teile des codes gehen entweder gemaess spec im oauth2 mechanismus ein oder die beantragung
+     * von REFRESH tokens bleibt eine eigene route und der zugriff wird über api-key geregelt.
+     * Status: DONE
+     */
+    $app->get('/refresh', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+        $auth = new Auth\Util();
+        $accessToken = $auth->getAccessToken();
+        $user = $accessToken->getUserName();
+        $uid = $accessToken->getUserId();
+
+        global $ilLog;
+        $ilLog->write('Requesting new refresh token for user '.$uid);
+        //RESTLib::initAccessHandling();
+
+        // Create new refresh token
+        $model = new Auth\RefreshEndpoint();
+        $refreshToken = $model->getRefreshToken($accessToken);
 
         $result = array(
             'allowed_users' => $data1,
@@ -143,5 +177,4 @@ use \RESTController\core\clients as Clients;
         $app->success($result);
     });
 
-});*/
-
+});

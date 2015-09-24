@@ -31,12 +31,12 @@ class TokenEndpoint extends EndpointBase {
     const MSG_RESTRICTED_USERS = 'Given user is not allowed to use this api-key.';
     const MSG_AUTH_FAILED = 'Failed to authenticate via ILIAS username/password.';
     const MSG_TOKEN_MISMATCH = 'Token information does not match other request data.';
-    const MSG_NO_REFRESH_LEFT = 'No renewals remaing for refresh-token.';
+    const MSG_NOT_ACTIVE = 'This token does not match any active refresh-token, try requesting a new one.';
 
     /**
      *
      */
-    public function userCredentials($api_key, $username, $password) {
+    public function userCredentials($api_key, $username, $password, $new_refresh = null) {
         // Client-Model required
         $clients = new Clients();
 
@@ -60,11 +60,11 @@ class TokenEndpoint extends EndpointBase {
             throw new Exceptions\LoginFailed(self::MSG_AUTH_FAILED);
 
         // [All] Generate bearer & refresh-token (if enabled)
-        $bearerToken = Token\Bearer::fromFields(self::tokenSettings(), $username, $api_key);
+        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('access'), $username, $api_key);
         $accessToken = $bearerToken->getEntry('access_token');
         if ($clients->is_resourceowner_refreshtoken_enabled($api_key)) {
             $refreshModel = new RefreshEndpoint();
-            $refreshToken = $refreshModel->getToken($accessToken);
+            $refreshToken = $refreshModel->getRefreshToken($accessToken, $new_refresh);
         }
 
         // [All] Return generated tokens
@@ -100,7 +100,7 @@ class TokenEndpoint extends EndpointBase {
         $username = Libs\RESTLib::getUserNameFromId($uid);
 
         // [All] Generate bearer & refresh-token (if enabled)
-        $bearerToken = Token\Bearer::fromFields(self::tokenSettings(), $username, $api_key);
+        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('access'), $username, $api_key);
         $accessToken = $bearerToken->getEntry('access_token');
         // -- [no] Refresh-token --
 
@@ -118,7 +118,7 @@ class TokenEndpoint extends EndpointBase {
     /**
      *
      */
-    public function authorizationCode($api_key, $api_secret, $authCodeToken, $redirect_uri) {
+    public function authorizationCode($api_key, $api_secret, $authCodeToken, $redirect_uri, $new_refresh = null) {
         // Client-Model required
         $clients = new Clients();
 
@@ -148,11 +148,11 @@ class TokenEndpoint extends EndpointBase {
             throw new Exceptions\LoginFailed(self::MSG_RESTRICTED_USERS);
 
         // [All] Generate bearer & refresh-token (if enabled)
-        $bearerToken = Token\Bearer::fromFields(self::tokenSettings(), $userName, $api_key);
+        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('access'), $userName, $api_key);
         $accessToken = $bearerToken->getEntry('access_token');
         if ($clients->is_authcode_refreshtoken_enabled($api_key)) {
             $refreshModel = new RefreshEndpoint();
-            $refreshToken = $refreshModel->getToken($accessToken);
+            $refreshToken = $refreshModel->getRefreshToken($accessToken, $new_refresh);
         }
 
         // [All] Return generated tokens
@@ -169,39 +169,45 @@ class TokenEndpoint extends EndpointBase {
     /**
      *
      */
-    public function refresh2Access($refreshToken) {
+    public function refresh2Access($refreshToken, $new_refresh = null) {
         // Check token
         if (!$refreshToken->isValid())
             throw new Exceptions\TokenInvalid(Token\Generic::MSG_INVALID);
         if ($refreshToken->isExpired())
             throw new Exceptions\TokenInvalid(Token\Generic::MSG_EXPIRED);
 
-        //
-        $modelRefresh = new RefreshEndpoint();
-        $remainingRefreshs = $modelRefresh->getRemainingRefreshs($refreshToken);
+        // Check if present in DB
+        $model = new RefreshEndpoint();
+        if (!$model->isTokenActive($refreshToken))
+            throw new Exceptions\TokenInvalid(self::MSG_NOT_ACTIVE);
 
         //
-        if ($remainingRefreshs > 0) {
-            //
-            $user = $refreshToken->getUserName();
-            $api_key = $refreshToken->GetApiKey();
-            $modelRefresh->renewToken($user, $api_key, $refreshToken);
+        $user = $refreshToken->getUserName();
+        $user_id = $refreshToken->getUserId();
+        $api_key = $refreshToken->GetApiKey();
 
-            //
-            $bearerToken = Token\Bearer::fromFields(self::tokenSettings(), $user, $api_key);
-            $accessToken = $bearerToken->getEntry('access_token');
-
-            //
-            return array(
-                'access_token' => $accessToken->getTokenString(),
-                'expires_in' => $bearerToken->getEntry('expires_in'),
-                'token_type' => $bearerToken->getEntry('token_type'),
-                'scope' => $bearerToken->getEntry('scope'),
-                'refresh_token' => $refreshToken->getTokenString()
-            );
-        }
         //
-        elseif ($remainingRefreshs)
-            $modelRefresh->deleteToken($refreshToken);
+        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('bearer'), $user, $api_key);
+        $accessToken = $bearerToken->getEntry('access_token');
+
+
+        // TODO: Checken ob refresh-token in DB ist!
+
+
+        // Generate new token or refresh old token
+
+        if ($new_refresh)
+            $refreshToken = $model->getNewRefreshToken($accessToken);
+        else
+            $model->updateTimestamp($user_id, $api_key);
+
+        //
+        return array(
+            'access_token' => $accessToken->getTokenString(),
+            'expires_in' => $bearerToken->getEntry('expires_in'),
+            'token_type' => $bearerToken->getEntry('token_type'),
+            'scope' => $bearerToken->getEntry('scope'),
+            'refresh_token' => $refreshToken->getTokenString()
+        );
     }
 }

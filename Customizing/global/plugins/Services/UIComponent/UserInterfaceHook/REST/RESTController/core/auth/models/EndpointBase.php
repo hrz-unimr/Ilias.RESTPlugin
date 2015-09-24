@@ -19,17 +19,30 @@ class EndpointBase extends Libs\RESTModel {
     /*
      *
      */
-    protected static $tokenSettings;
+    protected static $accessSettings;
+    protected static $refreshSettings;
 
 
     /**
      *
      */
-    public static function tokenSettings() {
-        if (!self::$tokenSettings)
-            self::$tokenSettings = self::loadTokenSettings();
+    public static function tokenSettings($type) {
+        if ($type == 'access' || $type == 'bearer') {
+          if (!self::$accessSettings)
+              self::$accessSettings = self::loadTokenSettings();
 
-        return self::$tokenSettings;
+          return self::$accessSettings;
+        }
+        elseif ($type == 'refresh') {
+          if (!self::$refreshSettings) {
+              if (!self::$accessSettings)
+                  self::$accessSettings = self::loadTokenSettings();
+
+              self::$refreshSettings = new Token\Settings(self::$accessSettings->getSalt(), 5256000);
+          }
+
+          return self::$refreshSettings;
+        }
     }
 
 

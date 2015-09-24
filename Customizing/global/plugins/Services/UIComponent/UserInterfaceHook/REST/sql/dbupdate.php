@@ -6,7 +6,7 @@
  * Since 2014
  */
 ?>
- 
+
 <#1>
 <?php
     global $ilLog;
@@ -40,7 +40,7 @@
 <#2>
 <?php
     global $ilLog;
-    
+
     $fields = array(
         'id' => array(
             'type' => 'integer',
@@ -143,7 +143,7 @@
 <#3>
 <?php
     global $ilLog;
-    
+
     $fields = array(
         'id' => array(
             'type' => 'integer',
@@ -161,20 +161,20 @@
             'notnull' => true
         )
     );
-    $ilDB->createTable("ui_uihk_rest_key2user", $fields, true);
-    $ilDB->addPrimaryKey("ui_uihk_rest_key2user", array("id"));
-    
+    $ilDB->createTable("ui_uihk_rest_keymap", $fields, true);
+    $ilDB->addPrimaryKey("ui_uihk_rest_keymap", array("id"));
+
     $ilLog->write('Plugin REST -> Database updated to #3');
 ?>
 
 <#4>
 <?php
     global $ilLog;
-    
+
     $ilDB->manipulate('ALTER TABLE ui_uihk_rest_config CHANGE id id INT NOT NULL AUTO_INCREMENT');
     $ilDB->manipulate('ALTER TABLE ui_uihk_rest_keys CHANGE id id INT NOT NULL AUTO_INCREMENT');
-    $ilDB->manipulate('ALTER TABLE ui_uihk_rest_key2user CHANGE id id INT NOT NULL AUTO_INCREMENT');
-    
+    $ilDB->manipulate('ALTER TABLE ui_uihk_rest_keymap CHANGE id id INT NOT NULL AUTO_INCREMENT');
+
     $ilLog->write('Plugin REST -> Database updated to #4');
 ?>
 
@@ -182,12 +182,12 @@
 <?php
     global $ilLog;
     $ilLog->write('Plugin REST ->Include Primary REST Client');
-    
+
     $api_key = "apollon";
     $api_secret = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',5)),0,10);
     $redirection_uri = "";
     $oauth_consent_message = "";
-    
+
     $fields = array(
         "api_key" => array("text", $api_key),
         "api_secret" => array("text", $api_secret),
@@ -195,14 +195,14 @@
         "oauth2_consent_message" => array("text", $oauth_consent_message)
     );
     $ilDB->insert("ui_uihk_rest_keys", $fields);
-    
+
     $ilLog->write('Plugin REST -> Database updated to #5');
 ?>
 
 <#6>
 <?php
     global $ilLog;
-    
+
     function gen_uuid() {
         return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
             // 32 bits for "time_low"
@@ -226,32 +226,32 @@
     }
     $salt = gen_uuid();
     $fields = array(
-        "setting_name" => array("text", "token_salt"), 
+        "setting_name" => array("text", "token_salt"),
         "setting_value" => array("text", $salt)
     );
     $ilDB->insert("ui_uihk_rest_config", $fields);
-    
+
     $ilLog->write('Plugin REST -> Database updated to #6');
 ?>
 
 <#7>
 <?php
     global $ilLog;
-    
+
     $rest_soap_user = "rest_sys_user";
     $fields = array(
-        "setting_name" => array("text", "rest_soap_user"), 
+        "setting_name" => array("text", "rest_soap_user"),
         "setting_value" => array("text", $rest_soap_user)
     );
     $ilDB->insert("ui_uihk_rest_config", $fields);
-    
+
     $rest_soap_pass = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',5)),0,10);
     $fields = array(
-        "setting_name" => array("text", "rest_soap_pass"), 
+        "setting_name" => array("text", "rest_soap_pass"),
         "setting_value" => array("text", $rest_soap_pass)
     );
     $ilDB->insert("ui_uihk_rest_config", $fields);
-    
+
     $ilLog->write('Plugin REST -> Database updated to #7');
 ?>
 
@@ -284,11 +284,6 @@
             'fixed' => false,
             'notnull' => false
         ),
-        'num_refresh_left' => array(
-            'type' => 'integer',
-            'length' => 4,
-            'notnull' => true
-        ),
         'last_refresh_timestamp' => array('type' => 'timestamp'),
         'init_timestamp' => array('type' => 'timestamp'),
         'num_resets' => array('type' => 'integer', 'length' => 4, 'notnull' => true)
@@ -304,7 +299,7 @@
 <?php
     global $ilLog;
     global $ilDB;
-        
+
     $fields = array(
         'id' => array(
             'type' => 'integer',
@@ -333,7 +328,7 @@
     $ilDB->createTable("ui_uihk_rest_perm", $fields, true);
     $ilDB->addPrimaryKey("ui_uihk_rest_perm", array("id"));
     $ilDB->manipulate('ALTER TABLE ui_uihk_rest_perm CHANGE id id INT NOT NULL AUTO_INCREMENT');
-    
+
     $ilDB->insert("ui_uihk_rest_perm", array(
         "api_id" => array("integer", 1),
         "pattern" => array("text", '/clients'),
@@ -381,13 +376,13 @@
 <#10>
 <?php
     global $ilLog;
-    
+
     $fields = array(
-        "setting_name" => array("text", "token_ttl"), 
+        "setting_name" => array("text", "token_ttl"),
         "setting_value" => array("text", 30)
     );
     $ilDB->insert("ui_uihk_rest_config", $fields);
-    
+
     $ilLog->write('Plugin REST -> Database updated to #10');
 ?>
 
