@@ -36,7 +36,7 @@ class TokenEndpoint extends EndpointBase {
     /**
      *
      */
-    public function userCredentials($api_key, $username, $password) {
+    public function userCredentials($api_key, $username, $password, $new_refresh = null) {
         // Client-Model required
         $clients = new Clients();
 
@@ -64,7 +64,7 @@ class TokenEndpoint extends EndpointBase {
         $accessToken = $bearerToken->getEntry('access_token');
         if ($clients->is_resourceowner_refreshtoken_enabled($api_key)) {
             $refreshModel = new RefreshEndpoint();
-            $refreshToken = $refreshModel->getToken($accessToken);
+            $refreshToken = $refreshModel->getRefreshToken($accessToken, $new_refresh);
         }
 
         // [All] Return generated tokens
@@ -118,7 +118,7 @@ class TokenEndpoint extends EndpointBase {
     /**
      *
      */
-    public function authorizationCode($api_key, $api_secret, $authCodeToken, $redirect_uri) {
+    public function authorizationCode($api_key, $api_secret, $authCodeToken, $redirect_uri, $new_refresh = null) {
         // Client-Model required
         $clients = new Clients();
 
@@ -152,7 +152,7 @@ class TokenEndpoint extends EndpointBase {
         $accessToken = $bearerToken->getEntry('access_token');
         if ($clients->is_authcode_refreshtoken_enabled($api_key)) {
             $refreshModel = new RefreshEndpoint();
-            $refreshToken = $refreshModel->getToken($accessToken);
+            $refreshToken = $refreshModel->getRefreshToken($accessToken, $new_refresh);
         }
 
         // [All] Return generated tokens
@@ -169,7 +169,7 @@ class TokenEndpoint extends EndpointBase {
     /**
      *
      */
-    public function refresh2Access($refreshToken) {
+    public function refresh2Access($refreshToken, $new_refresh = null) {
         // Check token
         if (!$refreshToken->isValid())
             throw new Exceptions\TokenInvalid(Token\Generic::MSG_INVALID);
@@ -177,31 +177,28 @@ class TokenEndpoint extends EndpointBase {
             throw new Exceptions\TokenInvalid(Token\Generic::MSG_EXPIRED);
 
         //
-        $modelRefresh = new RefreshEndpoint();
-        $remainingRefreshs = $modelRefresh->getRemainingRefreshs($refreshToken);
+        $user = $refreshToken->getUserName();
+        $user_id = $refreshToken->getUserId();
+        $api_key = $refreshToken->GetApiKey();
 
         //
-        if ($remainingRefreshs > 0) {
-            //
-            $user = $refreshToken->getUserName();
-            $api_key = $refreshToken->GetApiKey();
-            $modelRefresh->renewToken($user, $api_key, $refreshToken);
+        $bearerToken = Token\Bearer::fromFields(self::tokenSettings(), $user, $api_key);
+        $accessToken = $bearerToken->getEntry('access_token');
 
-            //
-            $bearerToken = Token\Bearer::fromFields(self::tokenSettings(), $user, $api_key);
-            $accessToken = $bearerToken->getEntry('access_token');
+        // Generate new token or refresh old token
+        $model = new RefreshEndpoint();
+        if ($new_refresh)
+            $refreshToken = $model->getNewRefreshToken($accessToken);
+        else
+            $model->updateTimestamp($user_id, $api_key);
 
-            //
-            return array(
-                'access_token' => $accessToken->getTokenString(),
-                'expires_in' => $bearerToken->getEntry('expires_in'),
-                'token_type' => $bearerToken->getEntry('token_type'),
-                'scope' => $bearerToken->getEntry('scope'),
-                'refresh_token' => $refreshToken->getTokenString()
-            );
-        }
         //
-        elseif ($remainingRefreshs)
-            $modelRefresh->deleteToken($refreshToken);
+        return array(
+            'access_token' => $accessToken->getTokenString(),
+            'expires_in' => $bearerToken->getEntry('expires_in'),
+            'token_type' => $bearerToken->getEntry('token_type'),
+            'scope' => $bearerToken->getEntry('scope'),
+            'refresh_token' => $refreshToken->getTokenString()
+        );
     }
 }

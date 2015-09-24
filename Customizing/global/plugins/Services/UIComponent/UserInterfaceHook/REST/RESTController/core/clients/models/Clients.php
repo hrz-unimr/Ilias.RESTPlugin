@@ -49,7 +49,6 @@ class Clients extends Libs\RESTModel {
             $perm = json_decode(utf8_encode($perm),true);
         }
         if (is_array($perm) && count($perm) > 0) {
-            // self::$app->log->debug('in addPermissions: found data');
             foreach ($perm as $value) {
                 $perm_columns = array(
                     'api_id' => array('integer', $id),
@@ -298,11 +297,7 @@ class Clients extends Libs\RESTModel {
      * @return mixed
      * @throws Exceptions\UpdateFailed
      */
-    public function updateClient($id, $fieldname, $newval)
-    {
-        // Update permissions? (Separate table)
-        self::$app->log->debug('update client: fielkdname : '.$fieldname);
-        self::$app->log->debug('update client: newval : '.$newval);
+    public function updateClient($id, $fieldname, $newval)  {
 
         if (strtolower($fieldname) == 'permissions') {
             $this->setPermissions($id, $newval);

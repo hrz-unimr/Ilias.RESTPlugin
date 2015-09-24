@@ -26,10 +26,7 @@ class DescribrModel extends Libs\RESTModel {
      * @param $obj_id
      * @return array
      */
-    public function describeIliasObject($obj_id)
-    {
-        self::$app->log->debug('describe '.$obj_id);
-
+    public function describeIliasObject($obj_id) {
         $a_objdata = $this->getObjectData($obj_id);
         $owner_id = $a_objdata['owner'];
 

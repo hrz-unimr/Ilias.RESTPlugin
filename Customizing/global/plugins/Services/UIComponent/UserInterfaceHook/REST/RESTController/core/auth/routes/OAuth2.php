@@ -158,9 +158,12 @@ $app->group('/v1', function () use ($app) {
                     $api_key = $request->params('api_key', null, true);
                     $user = $request->params('username', null, true);
                     $password = $request->params('password', null, true);
+                    $new_refresh = $request->params('new_refresh');
 
                     // Invoke OAuth2-Model with data
-                    $result = $model->userCredentials($api_key, $user, $password);
+                    $result = $model->userCredentials($api_key, $user, $password, $new_refresh);
+
+                    // Send result
                     $app->response()->disableCache();
                     $app->success($result);
                 }
@@ -184,10 +187,13 @@ $app->group('/v1', function () use ($app) {
                     $code = $request->params('code', null, true);
                     $api_secret = $request->params('api_secret', null, true);
                     $redirect_uri = $request->params('redirect_uri');
+                    $new_refresh = $request->params('new_refresh');
 
                     // Invoke OAuth2-Model with data
                     $authCodeToken = Token\Generic::fromMixed($model->tokenSettings(), $code);
-                    $result = $model->authorizationCode($api_key, $api_secret, $authCodeToken, $redirect_uri);
+                    $result = $model->authorizationCode($api_key, $api_secret, $authCodeToken, $redirect_uri, $new_refresh);
+
+                    // Send result
                     $app->response()->disableCache();
                     $app->success($result);
                 }
@@ -195,10 +201,11 @@ $app->group('/v1', function () use ($app) {
                 elseif ($grant_type == 'refresh_token') {
                     // Fetch request data
                     $refresh_token = $request->params('refresh_token', null, true);
+                    $new_refresh = $request->params('new_refresh');
 
                     // Invoke OAuth2-Model with data
                     $refreshToken = Token\Refresh::fromMixed($model->tokenSettings(), $refresh_token);
-                    $result = $model->refresh2Access($refreshToken);
+                    $result = $model->refresh2Access($refreshToken, $new_refresh);
 
                     // Send result to client
                     if ($result) {
@@ -228,32 +235,44 @@ $app->group('/v1', function () use ($app) {
 
 
         /**
-         * Route: /v1/oauth2/refresh
+         * Route: /v1/oauth2/token
          * Description:
-         *  Refresh Endpoint, This endpoint allows for exchanging a bearer
-         *  token with a long-lasting refresh token.
-         *  Note: A client needs the appropriate permission to use this endpoint.
-         * Method:
+         *  This endpoint allows a user to invalidate his refresh-token.
+         * Method: DELETE
          * Auth:
          * Parameters:
          * Response:
          */
-        $app->get('/refresh', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+        $app->delete('/token', function () use ($app) {
             try {
-                // Fetch token
-                $util = new Util();
-                $accessToken = $util->getAccessToken();
-
-                // Create new refresh token
+                // Get Request & OAuth-Model objects
+                $request = $app->request();
                 $model = new RefreshEndpoint();
-                $refreshToken = $model->getToken($accessToken);
 
-                // Return token
-                $app->response()->disableCache();
-                $app->success($refreshToken->getTokenString());
+                // Fetch request data
+                $refresh_token = $request->params('refresh_token', null, true);
+
+                // Extract data
+                $user_id = $refresh_token->getUserId();
+                $api_key = $refresh_token->getApiKey();
+
+                // Invoke OAuth2-Model with data
+                $result = $model->deleteToken($user_id, $api_key);
+
+                // Send response
+                if ($result > 0)
+                    $app->success();
+                else
+                    $app->halt(500, 'Refresh-Token could not be deleted, no match in Database.');
             }
-            catch (Exceptions\TokenInvalid $e) {
+            catch (AuthExceptions\LoginFailed $e) {
+                $app->halt(401, $e->getMessage(), $e::ID);
+            }
+            catch (AuthExceptions\TokenInvalid $e) {
                 $app->halt(422, $e->getMessage(), $e::ID);
+            }
+            catch (LibExceptions\MissingParameter $e) {
+                $app->halt(422, $e->getFormatedMessage(), $e::ID);
             }
         });
 

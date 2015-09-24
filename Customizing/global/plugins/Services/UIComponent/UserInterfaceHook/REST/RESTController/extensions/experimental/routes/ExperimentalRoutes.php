@@ -68,7 +68,7 @@ $app->group('/dev', function () use ($app) {
 
         // Create new refresh token
         $model = new Auth\RefreshEndpoint();
-        $refreshToken = $model->getToken($accessToken);
+        $refreshToken = $model->getRefreshToken($accessToken);
 
         $result = array(
             'refresh-token' => $refreshToken->getTokenString(),

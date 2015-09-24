@@ -93,12 +93,8 @@ $app->post('/clientpermissions/', '\RESTController\libs\OAuth2Middleware::TokenA
         $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
     }
 
-
     // Shortcut for request object
     $request = $app->request();
-
-    $app->log->debug('in post clientpermissions');
-    $app->log->debug(print_r($request->getBody(),true));
 
     // Try/Catch all required inputs
     try {
@@ -110,7 +106,6 @@ $app->post('/clientpermissions/', '\RESTController\libs\OAuth2Middleware::TokenA
     // Get optional inputs
     $pattern = $request->params('pattern', '');
     $verb = $request->params('verb', '');
-
 
     // Supply data to model which processes it further
     $model = new Clients();
