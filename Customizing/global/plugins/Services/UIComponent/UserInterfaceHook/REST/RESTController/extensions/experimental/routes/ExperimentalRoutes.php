@@ -42,7 +42,7 @@ $app->group('/dev', function () use ($app) {
         $app->response()->header('Content-Type', 'application/json');
 
         $model = new Auth\TokenEndpoint();
-        $refreshToken = Token\Refresh::fromMixed($model->tokenSettings(), $refresh_token);
+        $refreshToken = Token\Refresh::fromMixed($model->tokenSettings('refresh'), $refresh_token);
         $bearer_token = $model->refresh2Access($refreshToken);
 
         $result = array('token' => $bearer_token->getEntry('access_token'));

@@ -24,6 +24,23 @@ class RefreshEndpoint extends EndpointBase {
     /**
      *
      */
+    public function isTokenActive($refreshToken) {
+        //
+        $sql = Libs\RESTLib::safeSQL('
+            SELECT id
+            FROM ui_uihk_rest_oauth2
+            WHERE refresh_token=%s',
+            $refreshToken->getTokenString()
+        );
+        $numAffRows = self::$sqlDB->manipulate($sql);
+
+        return ($numAffRows > 0);
+    }
+
+
+    /**
+     *
+     */
     public function hasRefreshKey($refreshToken) {
         //
         $user_id = $refreshToken->getUserId();
@@ -78,7 +95,7 @@ class RefreshEndpoint extends EndpointBase {
             if ($query != null && $entry = self::$sqlDB->fetchAssoc($query)) {
                 // Convert refresh-token string to object
                 $refresh_token = $entry['refresh_token'];
-                $refreshToken = Token\Refresh::fromMixed(self::tokenSettings(), $refresh_token);
+                $refreshToken = Token\Refresh::fromMixed(self::tokenSettings('refresh'), $refresh_token);
 
                 // Update timestamp
                 $this->updateTimestamp($user_id, $api_key);
@@ -99,7 +116,7 @@ class RefreshEndpoint extends EndpointBase {
         $user_name = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
         $api_key = $accessToken->getApiKey();
-        $refreshToken = Token\Refresh::fromFields(self::tokenSettings(), $user_name, $api_key);
+        $refreshToken = Token\Refresh::fromFields(self::tokenSettings('refresh'), $user_name, $api_key);
 
         // Reset key if existing
         if ($this->hasRefreshKey($accessToken))

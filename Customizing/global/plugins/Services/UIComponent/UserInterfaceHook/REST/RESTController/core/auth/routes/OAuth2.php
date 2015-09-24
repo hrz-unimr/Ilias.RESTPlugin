@@ -52,7 +52,7 @@ $app->group('/v1', function () use ($app) {
                 // Proccess with OAuth2-Model
                 $model = new AuthEndpoint();
                 if ($authenticity_token)
-                    $authenticityToken = Token\Generic::fromMixed($model->tokenSettings(), $authenticity_token);
+                    $authenticityToken = Token\Generic::fromMixed($model->tokenSettings('access'), $authenticity_token);
                 $result = $model->allGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticityToken);
 
                 // Process results (send response)
@@ -190,7 +190,7 @@ $app->group('/v1', function () use ($app) {
                     $new_refresh = $request->params('new_refresh');
 
                     // Invoke OAuth2-Model with data
-                    $authCodeToken = Token\Generic::fromMixed($model->tokenSettings(), $code);
+                    $authCodeToken = Token\Generic::fromMixed($model->tokenSettings('access'), $code);
                     $result = $model->authorizationCode($api_key, $api_secret, $authCodeToken, $redirect_uri, $new_refresh);
 
                     // Send result
@@ -204,7 +204,7 @@ $app->group('/v1', function () use ($app) {
                     $new_refresh = $request->params('new_refresh');
 
                     // Invoke OAuth2-Model with data
-                    $refreshToken = Token\Refresh::fromMixed($model->tokenSettings(), $refresh_token);
+                    $refreshToken = Token\Refresh::fromMixed($model->tokenSettings('refresh'), $refresh_token);
                     $result = $model->refresh2Access($refreshToken, $new_refresh);
 
                     // Send result to client
@@ -253,17 +253,18 @@ $app->group('/v1', function () use ($app) {
                 $refresh_token = $request->params('refresh_token', null, true);
 
                 // Extract data
-                $user_id = $refresh_token->getUserId();
-                $api_key = $refresh_token->getApiKey();
+                $refreshToken = Token\Refresh::fromMixed($model->tokenSettings('refresh'), $refresh_token);
+                $user_id = $refreshToken->getUserId();
+                $api_key = $refreshToken->getApiKey();
 
                 // Invoke OAuth2-Model with data
                 $result = $model->deleteToken($user_id, $api_key);
 
                 // Send response
                 if ($result > 0)
-                    $app->success();
+                    $app->success('Refresh-Token deleted.');
                 else
-                    $app->halt(500, 'Refresh-Token could not be deleted, no match in Database.');
+                    $app->halt(500, 'Refresh-Token could not be deleted, try requesting a new one instead.');
             }
             catch (AuthExceptions\LoginFailed $e) {
                 $app->halt(401, $e->getMessage(), $e::ID);
