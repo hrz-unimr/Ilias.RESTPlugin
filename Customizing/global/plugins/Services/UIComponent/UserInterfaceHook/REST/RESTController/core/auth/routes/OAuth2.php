@@ -226,7 +226,7 @@ $app->group('/v1', function () use ($app) {
                 $app->halt(401, $e->getMessage(), $e::ID);
             }
             catch (AuthExceptions\TokenInvalid $e) {
-                $app->halt(422, $e->getMessage(), $e::ID);
+                $app->halt(401, $e->getMessage(), $e::ID);
             }
             catch (LibExceptions\MissingParameter $e) {
                 $app->halt(422, $e->getFormatedMessage(), $e::ID);
@@ -270,7 +270,7 @@ $app->group('/v1', function () use ($app) {
                 $app->halt(401, $e->getMessage(), $e::ID);
             }
             catch (AuthExceptions\TokenInvalid $e) {
-                $app->halt(422, $e->getMessage(), $e::ID);
+                $app->halt(401, $e->getMessage(), $e::ID);
             }
             catch (LibExceptions\MissingParameter $e) {
                 $app->halt(422, $e->getFormatedMessage(), $e::ID);
@@ -303,7 +303,7 @@ $app->group('/v1', function () use ($app) {
                 $app->success($result);
             }
             catch (Exceptions\TokenInvalid $e) {
-                $app->halt(422, $e->getMessage(), $e::ID);
+                $app->halt(401, $e->getMessage(), $e::ID);
             }
         });
 
