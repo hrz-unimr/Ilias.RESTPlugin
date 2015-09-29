@@ -4,12 +4,13 @@ import urllib
 import urllib2
 import shutil
 import poster
+import datetime
 
 class IShell:
     """  
     ILIAS-Shell
     For personalized and administrative operations on your ILIAS LMS.
-    v.1.8
+    v.1.9
     """
 
     def __init__(self, quite=False, connect=True):
@@ -300,3 +301,8 @@ class IShell:
         self.get('/v1/users');
         self.show();
 
+	def toDate(self, timestamp):
+    """ Converts a timestamp string into date format """
+        print(
+            datetime.datetime.fromtimestamp(int(timestamp)).strftime('%Y-%m-%d %H:%M:%S')
+        )

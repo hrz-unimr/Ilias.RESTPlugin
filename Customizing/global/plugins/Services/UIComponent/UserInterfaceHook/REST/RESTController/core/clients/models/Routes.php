@@ -25,8 +25,11 @@ class Routes extends Libs\RESTModel {
      *  - VERB
      *  - Auth-Middleware
      * for each route.
+     * @param $routes: routes field as acquired by app->router()->getRoutes()
+     * @param $includeAllRoutes: display all routes or only those that are protected by an auth middleware
+     * @return array
      */
-    public function parseRoutes($routes) {
+    public function parseRoutes($routes, $includeAllRoutes) {
         // Build up response data
         $resultRoutes = array();
         foreach($routes as $route) {
@@ -35,12 +38,24 @@ class Routes extends Libs\RESTModel {
             $verb = $multiVerbs[0];
             $middle = $route->getMiddleware();
 
-            // Pack data
-            $resultRoutes[] = array(
-                'pattern' => $route->getPattern(),
-                'verb' => $verb,
-                'middleware' => (isset($middle[0]) ? $middle[0] : "none")
-            );
+            $includeEntry = false;
+            if ($includeAllRoutes==true) {
+                $includeEntry = true;
+            } else {
+                if (isset($middle[0]) == true ) {
+                    if (strpos($middle[0],'TokenRouteAuth') || strpos($middle[0],'TokenAdminAuth')) {
+                        $includeEntry = true;
+                    }
+                }
+            }
+
+            if ($includeEntry == true) {
+                $resultRoutes[] = array(
+                    'pattern' => $route->getPattern(),
+                    'verb' => $verb,
+                    'middleware' => (isset($middle[0]) ? $middle[0] : "none")
+                );
+            }
         }
 
         return $resultRoutes;

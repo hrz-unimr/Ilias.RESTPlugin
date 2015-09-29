@@ -12,7 +12,6 @@
     background-color: #6a8c8a;
 }
 
-
 /* REST-Logos */
 .login-img {
     width: 150px;
@@ -111,4 +110,8 @@ body {
 
 .red {
     color: #c9302c;
+}
+
+.black {
+    color: #000000;
 }

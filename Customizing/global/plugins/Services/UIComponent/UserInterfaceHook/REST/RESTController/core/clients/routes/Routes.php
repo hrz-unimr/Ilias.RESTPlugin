@@ -36,12 +36,20 @@ $app->get('/routes', function () use ($app) {
     // Create model and inject $app
     $model = new Routes();
 
+    $includeAllRoutes = true;
+    $request = $app->request();
+    if ($request->params('middleware')) {
+        // Include only those routes that are protected by an auth middleware.
+        //$view_status = $request->params('middleware');
+        //if ($view_status == 'all') ...
+        $includeAllRoutes = false;
+    }
     // Fetch all available routes
     $routes = $app->router()->getRoutes();
 
     // Wrap routes into array
     $result = array();
-    $result['routes'] = $model->parseRoutes($routes);
+    $result['routes'] = $model->parseRoutes($routes,$includeAllRoutes);
 
     // Send data
     $app->success($result);

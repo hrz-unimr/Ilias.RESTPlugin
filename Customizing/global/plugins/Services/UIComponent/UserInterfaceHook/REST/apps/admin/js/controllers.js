@@ -244,7 +244,10 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
      * Format permissions into easily readable format.
      * Mainly used for <select> -> <option> formatting.
      */
-    $scope.formatPermissionOption = function(route, verb) {
+    $scope.formatPermissionOption = function(route, verb, middleware) {
+        if ( middleware.indexOf("TokenAdminAuth") > -1) {
+          return '['+verb+"] "+route+" (Admin)";
+        }
         return '['+verb+"] "+route;
     };
 
@@ -261,18 +264,34 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
         // Strip auth-middleware and add permission
         $scope.current.permissions.push({
             pattern: permission.pattern,
-            verb: permission.verb,
+            verb: permission.verb
         });
     };
 
 
     /*
      * Remove a permission from the $scope to eventually be
-     * saved remotely via REST once the clients changes are commited.
+     * saved remotely via REST once the clients changes are committed.
      */
     $scope.deletePermission = function(index) {
         $scope.current.permissions.splice(index, 1);
     };
+
+    /*
+     * Removes all selected permissions (i.e. http verb - route pairs)
+     */
+    $scope.removeAllSelectedPermissions = function() {
+        $scope.current.permissions = [];
+    };
+
+    /*
+     * Assign all possible permissions to the current API-Key.
+     */
+    $scope.addAllPermissions = function() {
+        for (var i=0; i<$scope.routes.length;i++) {
+            $scope.addPermission($scope.routes[i]);
+        }
+    }
 
 
     /*

@@ -76,9 +76,9 @@ filters.filter('formatIpRestriction', function($sce) {
             console.log(jsonValue);
             var resultHtml = '<div class="text-center">';
             if (jsonValue == 1) {
-                resultHtml += '<span class="fa fa-lock red"></span>';
+                resultHtml += '<span class="fa fa-lock black"></span>';
             } else {
-                resultHtml += '<span class="fa fa-unlock green"></span>';
+                resultHtml += '<span class="fa fa-unlock black"></span>';
             }
             resultHtml += '</div>';
 
@@ -108,7 +108,9 @@ filters.filter('formatEditPermission', function($sce) {
                 resultHtml = '<span class="label label-danger">DELETE</span>';
                 break;
             }
+
             resultHtml += '<span class="label label-permission">' + jsonValue.pattern + '</span>';
+
 
             return $sce.trustAsHtml(resultHtml);
         }

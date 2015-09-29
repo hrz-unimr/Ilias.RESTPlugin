@@ -45,29 +45,41 @@
                 </div>
                 <textarea id="inputIpCSV" class="form-control" rows="3" data-ng-model="current.access_ip_csv"></textarea>
             </div>
-        </div>
 
-        <table class="table table-striped table-bordered" id="scopetable">
-            <thead>
-                <tr>
-                    <th>{{'EDIT_PERMISSIONS' | translate}}</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr data-ng-repeat="permission in current.permissions track by $index">
-                    <td data-ng-bind-html="permission | formatEditPermission"></td>
-                    <td><button class="btn btn-danger btn-sm" data-ng-click="deletePermission($index)">{{'EDIT_DELETE' | translate}}</button></td>
-                </tr>
-                <tr>
-                    <td><select class="form-control" data-ng-model="newPermission"
-                        data-ng-options="formatPermissionOption(route.pattern, route.verb) group by route.pattern for route in routes">
-                            <option value="">{{'EDIT_SELECT_PROMPT' | translate}}</option>
-                    </select></td>
-                    <td><button class="btn btn-primary btn-sm" data-ng-click="addPermission(newPermission)">{{'EDIT_ADD_ROUTE' | translate}}</button></td>
-                </tr>
-            </tbody>
-        </table>
+            <div class="form-group">
+                <label for="permissions">{{'EDIT_PERMISSIONS' | translate}}</label>
+                        <div class="checkbox" id="permissions">
+                            <button class="btn btn-default btn-sm" type="button" data-ng-click="addAllPermissions()">Add all available routes</button>
+                            <button class="btn btn-default btn-sm" type="button" data-ng-click="removeAllSelectedPermissions()">Remove all selected routes</button>
+                        </div>
+                </div>
+
+                <table class="table table-striped table-bordered" id="scopetable">
+                    <thead>
+                    <tr>
+                        <th>Selected HTTP Verb - Route Pairs</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr data-ng-repeat="permission in current.permissions track by $index">
+                        <td data-ng-bind-html="permission | formatEditPermission"></td>
+                        <td><button class="btn btn-danger btn-sm" data-ng-click="deletePermission($index)">{{'EDIT_DELETE' | translate}}</button></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select class="form-control" data-ng-model="newPermission"
+                                    data-ng-options="formatPermissionOption(route.pattern, route.verb, route.middleware) group by route.pattern for route in routes">
+                                <option value="">{{'EDIT_SELECT_PROMPT' | translate}}</option>
+                            </select>
+                        </td>
+                        <td><button class="btn btn-primary btn-sm" data-ng-click="addPermission(newPermission)">{{'EDIT_ADD_ROUTE' | translate}}</button></td>
+                    </tr>
+                    </tbody>
+                </table>
+             </div>
+        </div>
     </div>
 
     <div class="panel panel-primary">
