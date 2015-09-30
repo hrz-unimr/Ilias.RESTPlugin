@@ -10,10 +10,7 @@ namespace RESTController\extensions\umr_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires: $app to be \RESTController\RESTController::getInstance()
-use \RESTController\libs as Libs;
-use \RESTController\libs\Exceptions as LibExceptions;
 use \RESTController\core\auth as Auth;
-use \RESTController\core\auth\Exceptions as AuthExceptions;
 
 
 // Put implementation into own URI-Group
@@ -23,8 +20,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-   //'\RESTController\libs\OAuth2Middleware::TokenRouteAuth',
-  $app->get('/userinfo', function () use ($app) {
+  $app->get('/userinfo', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
     // Fetch userId & userName
     $auth         = new Auth\Util();
     $accessToken  = $auth->getAccessToken();
@@ -48,7 +44,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->post('/userinfo', function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->post('/userinfo', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
 
   /**
@@ -56,7 +52,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->put('/userinfo', function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->put('/userinfo', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
 // End of '/v1/umr/' URI-Group
 });
