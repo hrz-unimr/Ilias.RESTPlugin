@@ -20,7 +20,17 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/mycoursesandgroups', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->get('/mycoursesandgroups', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+    // Fetch userId & userName
+    $auth         = new Auth\Util();
+    $accessToken  = $auth->getAccessToken();
+
+    // Fetch user-information
+    $cags         = MyCoursesAndGroups::get($accessToken);
+
+    // Output result
+    $app->success($cags);
+  });
 
 // End of '/v1/umr/' URI-Group
 });

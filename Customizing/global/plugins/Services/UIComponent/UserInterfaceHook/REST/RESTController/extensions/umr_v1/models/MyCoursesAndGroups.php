@@ -15,22 +15,22 @@ use \RESTController\libs as Libs;
 /**
  *
  */
-class PersonalDesktop {
+class MyCoursesAndGroups {
   /**
    *
    */
-  public static function getPersonalDesktop($accessToken) {
-    // Extract user name & id
+  public static function get($accessToken) {
+    // Extract user name
     $userId       = $accessToken->getUserId();
 
     // Load ILIAS user
     $ilUser = Libs\RESTLib::loadIlUser($userId);
-    $items = $ilUser->getDesktopItems();
 
-    $result = array();
-    foreach ($items as $item)
-      $result[] = $item['ref_id'];
+    // Fetch groups of user
+    $grps = \ilUtil::_getObjectsByOperations('grp', 'visible,read', $userId);
+    $crss = \ilUtil::_getObjectsByOperations('crs', 'visible,read', $usr_id);
 
-    return $result;
+    // Return groups & courses
+    return array_merge($grps, $crss);
   }
 }
