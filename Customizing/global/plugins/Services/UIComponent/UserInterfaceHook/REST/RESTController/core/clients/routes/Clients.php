@@ -318,6 +318,6 @@ $app->delete('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteA
         $result = array();
         $app->success($result);
     } catch(ClientExceptions\DeleteFailed $e) {
-        $app->halt(500, $e->getMessage(), $e::ID);
+        $app->halt(500, $e->getFormatedMessage(), $e::ID);
     }
 });

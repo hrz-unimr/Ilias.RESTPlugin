@@ -8,12 +8,16 @@
 namespace RESTController\core\auth\Exceptions;
 
 
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\Exceptions as LibExceptions;
+
+
 /**
  * This exception should be thrown when
  * the client does not provide the correct response_type
  * value with his query.
  */
-class ResponseType extends \Exception {
+class ResponseType extends RESTException {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.
@@ -28,7 +32,7 @@ class ResponseType extends \Exception {
     /**
      * Constructor
      */
-    public function __construct ($message, $code = 0, $previous = NULL) {
-        parent::__construct ($message, $code, $previous);
+    public function __construct ($message, $restCode = 0, $previous = NULL) {
+        parent::__construct ($message, ($restCode == 0) ? self::ID : $restCode, $previous);
     }
 }

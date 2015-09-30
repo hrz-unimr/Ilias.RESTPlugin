@@ -5,7 +5,11 @@
  * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * Since 2014
  */
- namespace RESTController\core\clients\Exceptions;
+namespace RESTController\core\clients\Exceptions;
+
+
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\Exceptions as LibExceptions;
 
 
 /**
@@ -13,7 +17,7 @@
  * the client does not provide the correct response_type
  * value with his query.
  */
-class MissingApiKey extends \Exception {
+class MissingApiKey extends RESTException {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.
@@ -29,7 +33,7 @@ class MissingApiKey extends \Exception {
     /**
      * Constructor
      */
-    public function __construct ($message, $code = 0, $previous = NULL) {
-        parent::__construct ($message, $code, $previous);
+    public function __construct ($message, $restCode = 0, $previous = NULL) {
+        parent::__construct ($message, ($restCode == 0) ? self::ID : $restCode, $previous);
     }
 }

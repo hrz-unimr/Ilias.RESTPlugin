@@ -8,11 +8,15 @@
 namespace RESTController\core\auth\Exceptions;
 
 
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\Exceptions as LibExceptions;
+
+
 /**
  * This exception should be thrown, when
  * the subscription to a course cannot be accomplished.
  */
-class SubscriptionFailed extends \Exception {
+class SubscriptionFailed extends LibExceptions {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.
@@ -24,7 +28,7 @@ class SubscriptionFailed extends \Exception {
     /**
      * Constructor
      */
-    public function __construct ($message, $code = 0, $previous = NULL) {
-        parent::__construct ($message, $code, $previous);
+    public function __construct ($message, $restCode = 0, $previous = NULL) {
+        parent::__construct ($message, ($restCode == 0) ? self::ID : $restCode, $previous);
     }
 }
