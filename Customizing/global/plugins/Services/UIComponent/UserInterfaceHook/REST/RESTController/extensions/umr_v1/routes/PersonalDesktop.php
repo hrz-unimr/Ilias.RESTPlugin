@@ -20,7 +20,17 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/personaldesktop', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->get('/personaldesktop', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+    // Fetch userId & userName
+    $auth         = new Auth\Util();
+    $accessToken  = $auth->getAccessToken();
+
+    // Fetch user-information
+    $personelDesktop     = PersonalDesktop::getPersonalDesktop($accessToken);
+
+    // Output result
+    $app->success($personelDesktop);
+  });
 
 
   /**

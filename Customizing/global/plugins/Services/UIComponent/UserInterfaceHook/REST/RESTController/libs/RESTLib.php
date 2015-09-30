@@ -155,8 +155,18 @@ class RESTLib {
     /**
      * Shortcut for loading ilObjUser via initGlobal
      */
-    public static function loadIlUser() {
+    public static function loadIlUser($userId = null) {
         self::initGlobal('ilUser', 'ilObjUser', './Services/User/classes/class.ilObjUser.php');
+
+        // Create user-object if id is given
+        if ($userId != null) {
+          global $ilUser;
+          $ilUser->setId($userId);
+          $ilUser->read();
+          self::initAccessHandling();
+          
+          return $ilUser;
+        }
     }
 
 
