@@ -20,7 +20,23 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/contacts', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->get('/contacts', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+    // Fetch userId & userName
+    $auth         = new Auth\Util();
+    $accessToken  = $auth->getAccessToken();
+
+    try{
+      // Fetch user-information
+      $cags       = Contacts::getContacts($accessToken);
+
+      // Output result
+      $app->success($cags);
+    }
+    // Catch error thrown by getUserInfo(...)
+    catch (Exceptions\UserInfo $e) {
+      $app->halt(422, $e->getMessage(), $e->getRestCode());
+    }
+  });
 
 
   /**

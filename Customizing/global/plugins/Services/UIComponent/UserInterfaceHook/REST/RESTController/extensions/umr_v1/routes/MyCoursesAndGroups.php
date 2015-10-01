@@ -26,7 +26,7 @@ $app->group('/v1/umr', function () use ($app) {
     $accessToken  = $auth->getAccessToken();
 
     // Fetch user-information
-    $cags         = MyCoursesAndGroups::get($accessToken);
+    $cags         = MyCoursesAndGroups::getMyCoursesAndGroups($accessToken);
 
     // Output result
     $app->success($cags);

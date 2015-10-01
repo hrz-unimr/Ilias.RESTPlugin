@@ -24,55 +24,143 @@ class UserInfo {
   /**
    *
    */
-  public static function getUserInfo($accessToken) {
-    // Extract user name & id
-    $userName     = $accessToken->getUserName();
-    $userId       = $accessToken->getUserId();
+  protected static function allowedToView($usingToken, $ilObjUser, $prefName = null) {
+    global $ilSetting;
+
+    // User with his (own) token or values without profile-setting allowed by default
+    if ($usingToken || $prefName == null)
+      return true;
+
+    // Check if profile and value in profile is enabled
+    $valueEnabled   = $ilObjUser->getPref($prefName);
+    $profileEnabled = $ilObjUser->getPref("public_profile") == 'y' || ($ilObjUser->getPref("public_profile") == 'g' && $ilSetting->get('enable_global_profiles'));
+
+    return ($profileEnabled && $valueEnabled);
+  }
+
+
+  /**
+   *
+   */
+  protected static function getAvatar($ilObjUser) {
+    // Build path to uploaded file
+    $webspaceDir  = \ilUtil::getWebspaceDir('user');
+		$checkDir     = \ilUtil::getWebspaceDir();
+		$imageFile    = $webspaceDir . '/usr_images/' . $ilObjUser->getPref('profile_image') . '?dummy=' . rand(1, 999999);
+		$checkFile    = $checkDir    . '/usr_images/' . $ilObjUser->getPref('profile_image');
+
+    // Use ILIAS generated file if not found
+		if (!@is_file($checkFile))
+			$imageFile = \ilObjUser::_getPersonalPicturePath($ilObjUser->getId(), 'small', false, true);
+
+    return $imageFile;
+  }
+
+
+  /**
+   *
+   */
+  public static function getUserInfo($accessToken_OR_userId) {
+    // Using a userId
+    if (is_numeric($accessToken_OR_userId)) {
+      $usingToken   = false;
+      $userId       = intval($accessToken_OR_userId);
+      $userName     = Libs\RESTLib::getUserNameFromUserId($userId);
+    }
+    // Using an access-token
+    elseif (is_a($accessToken_OR_userId, '\RESTController\core\auth\Token\Generic')) {
+      $usingToken   = true;
+      $accessToken  = $accessToken_OR_userId;
+      $userName     = $accessToken->getUserName();
+      $userId       = $accessToken->getUserId();
+    }
+    else
+      throw new Exceptions\UserInfo('NO!', 'YOU');
 
     // Fetch user-information
     $ilObj = \ilObjectFactory::getInstanceByObjId($userId);
 
     // Check if clients request is allowed
-    if (!$ilObj || get_class($ilObj) != 'ilObjUser' || $ilObj->login != $userName)
+    if (!$ilObj || !is_a($ilObj, 'ilObjUser') || $ilObj->login != $userName)
       throw new Exceptions\UserInfo(self::MSG_INVALID_USER, self::ID_INVALID_USER);
 
     // Build user information from ilObjUser
     $userInfo = array(
-      id                      => $ilObj->id,
-      login                   => $ilObj->login,
-      firstname               => $ilObj->firstname,
-      lastname                => $ilObj->lastname,
-      utitle                  => $ilObj->utitle,
-      institution             => $ilObj->institution,
-      department              => $ilObj->department,
-      gender                  => $ilObj->gender,
-      street                  => $ilObj->street,
-      city                    => $ilObj->city,
-      zipcode                 => $ilObj->zipcode,
-      country                 => $ilObj->country,
-      sel_country             => $ilObj->sel_country,
-      phone_office            => $ilObj->phone_office,
-      phone_home              => $ilObj->phone_home,
-      phone_mobile            => $ilObj->phone_mobile,
-      fax                     => $ilObj->fax,
-      email                   => $ilObj->email,
-      hobby                   => $ilObj->hobby,
-      matriculation           => $ilObj->matriculation,
-      referral_comment        => $ilObj->referral_comment,
-      im_icq                  => $ilObj->im_icq,
-      im_yahoo                => $ilObj->im_yahoo,
-      im_msn                  => $ilObj->im_msn,
-      im_aim                  => $ilObj->im_aim,
-      im_skype                => $ilObj->im_skype,
-      im_jabber               => $ilObj->im_jabber,
-      im_voip                 => $ilObj->im_voip,
-      delicious               => $ilObj->delicious,
-      interests_general       => $ilObj->getGeneralInterests(),
-      interests_help_offered  => $ilObj->getOfferingHelp(),
-      interests_help_looking  => $ilObj->getLookingForHelp(),
-      latitude                => $ilObj->latitude,
-      longitude               => $ilObj->longitude
+      firstname               =>
+        $ilObj->firstname,
+      lastname                =>
+        $ilObj->lastname,
+      referral_comment        =>
+        $ilObj->referral_comment,
+      id                      =>
+        $ilObj->id,
+      login                   =>
+        ($usingToken)                                                                ? $ilObj->login : null,
+      utitle                  =>
+        (self::allowedToView($usingToken, $ilObj, 'public_title'))                   ? $ilObj->utitle : null,
+      institution             =>
+        (self::allowedToView($usingToken, $ilObj, 'public_institution'))             ? $ilObj->institution : null,
+      department              =>
+        (self::allowedToView($usingToken, $ilObj, 'public_department'))              ? $ilObj->department : null,
+      gender                  =>
+        (self::allowedToView($usingToken, $ilObj, 'public_gender'))                  ? $ilObj->gender : null,
+      street                  =>
+        (self::allowedToView($usingToken, $ilObj, 'public_street'))                  ? $ilObj->street : null,
+      city                    =>
+        (self::allowedToView($usingToken, $ilObj, 'public_city'))                    ? $ilObj->city : null,
+      zipcode                 =>
+        (self::allowedToView($usingToken, $ilObj, 'public_zip'))                     ? $ilObj->zipcode : null,
+      country                 =>
+        (self::allowedToView($usingToken, $ilObj, 'public_country'))                 ? $ilObj->country : null,
+      sel_country             =>
+        (self::allowedToView($usingToken, $ilObj, 'public_country'))                 ? $ilObj->sel_country : null,
+      phone_office            =>
+        (self::allowedToView($usingToken, $ilObj, 'public_phone_office'))            ? $ilObj->phone_office : null,
+      phone_home              =>
+        (self::allowedToView($usingToken, $ilObj, 'public_phone_home'))              ? $ilObj->phone_home : null,
+      phone_mobile            =>
+        (self::allowedToView($usingToken, $ilObj, 'public_phone_mobile'))            ? $ilObj->phone_mobile : null,
+      fax                     =>
+        (self::allowedToView($usingToken, $ilObj, 'public_fax'))                     ? $ilObj->fax : null,
+      email                   =>
+        (self::allowedToView($usingToken, $ilObj, 'public_email'))                   ? $ilObj->email : null,
+      hobby                   =>
+        (self::allowedToView($usingToken, $ilObj, 'public_hobby'))                   ? $ilObj->hobby : null,
+      matriculation           =>
+        (self::allowedToView($usingToken, $ilObj, 'public_matriculation'))           ? $ilObj->matriculation : null,
+      im_icq                  =>
+        (self::allowedToView($usingToken, $ilObj, 'public_im_icq'))                  ? $ilObj->im_icq : null,
+      im_yahoo                =>
+        (self::allowedToView($usingToken, $ilObj, 'public_im_yahoo'))                ? $ilObj->im_yahoo : null,
+      im_msn                  =>
+        (self::allowedToView($usingToken, $ilObj, 'public_im_msn'))                  ? $ilObj->im_msn : null,
+      im_aim                  =>
+        (self::allowedToView($usingToken, $ilObj, 'public_im_aim'))                  ? $ilObj->im_aim : null,
+      im_skype                =>
+        (self::allowedToView($usingToken, $ilObj, 'public_im_skype'))                ? $ilObj->im_skype : null,
+      im_jabber               =>
+        (self::allowedToView($usingToken, $ilObj, 'public_im_jabber'))               ? $ilObj->im_jabber : null,
+      im_voip                 =>
+        (self::allowedToView($usingToken, $ilObj, 'public_im_voip'))                 ? $ilObj->im_voip : null,
+      interests_general       =>
+        (self::allowedToView($usingToken, $ilObj, 'public_interests_general'))       ? $ilObj->getGeneralInterests() : null,
+      interests_help_offered  =>
+        (self::allowedToView($usingToken, $ilObj, 'public_interests_help_offered'))  ? $ilObj->getOfferingHelp() : null,
+      interests_help_looking  =>
+        (self::allowedToView($usingToken, $ilObj, 'public_interests_help_looking'))  ? $ilObj->getLookingForHelp() : null,
+      avatar                  =>
+        (self::allowedToView($usingToken, $ilObj, 'public_upload'))                  ? self::getAvatar($ilObj) : null
+
+      // Unknown data fields!
+//    delicious               => $ilObj->delicious,
+//    latitude                => $ilObj->latitude,
+//    longitude               => $ilObj->longitude
     );
+
+    // Filter null from array
+    $userInfo = array_filter($userInfo, function($value) { return !is_null($value); });
+
+    // Return user-info
     return $userInfo;
   }
 }

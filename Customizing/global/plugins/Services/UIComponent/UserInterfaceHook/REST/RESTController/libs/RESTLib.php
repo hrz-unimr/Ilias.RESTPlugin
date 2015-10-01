@@ -164,7 +164,7 @@ class RESTLib {
           $ilUser->setId($userId);
           $ilUser->read();
           self::initAccessHandling();
-          
+
           return $ilUser;
         }
     }
@@ -378,7 +378,7 @@ class RESTLib {
      * @param $user_id
      * @return string
      */
-    static public function getUserNameFromId($user_id) {
+    static public function getUserNameFromUserId($user_id) {
         global $ilDB;
 
         $sql = self::safeSQL('SELECT login FROM usr_data WHERE usr_id=%s', $user_id);
@@ -396,7 +396,7 @@ class RESTLib {
      * @param login - user_name
      * @return user_id
      */
-    static public function getIdFromUserName($login) {
+    static public function getUserIdFromUserName($login) {
         global $ilDB;
 
         $sql = self::safeSQL('SELECT usr_id FROM usr_data WHERE login=%s', $login);
@@ -498,7 +498,7 @@ class RESTLib {
     public static function initSession($user_id)
     {
         global $ilLog;
-        $user_name = RESTLib::getUserNameFromId($user_id);
+        $user_name = RESTLib::getUserNameFromUserId($user_id);
 
        // header_remove('Set-Cookie');
        // \ilUtil::setCookie("ilClientId", CLIENT_ID);

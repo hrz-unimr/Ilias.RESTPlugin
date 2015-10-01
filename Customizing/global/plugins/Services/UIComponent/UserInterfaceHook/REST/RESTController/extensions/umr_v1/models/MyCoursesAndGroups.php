@@ -19,14 +19,14 @@ class MyCoursesAndGroups {
   /**
    *
    */
-  public static function get($accessToken) {
+  public static function getMyCoursesAndGroups($accessToken) {
     // Extract user name
     $userId       = $accessToken->getUserId();
 
     // Load ILIAS user
     $ilUser = Libs\RESTLib::loadIlUser($userId);
 
-    // Fetch groups of user
+    // Fetch groups and courses of user
     $grps = \ilUtil::_getObjectsByOperations('grp', 'visible,read', $userId);
     $crss = \ilUtil::_getObjectsByOperations('crs', 'visible,read', $usr_id);
 
