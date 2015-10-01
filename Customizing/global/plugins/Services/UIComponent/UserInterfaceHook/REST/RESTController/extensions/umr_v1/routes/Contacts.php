@@ -25,17 +25,11 @@ $app->group('/v1/umr', function () use ($app) {
     $auth         = new Auth\Util();
     $accessToken  = $auth->getAccessToken();
 
-    try{
-      // Fetch user-information
-      $cags       = Contacts::getContacts($accessToken);
+    // Fetch user-information
+    $ccontacts    = Contacts::getContacts($accessToken);
 
-      // Output result
-      $app->success($cags);
-    }
-    // Catch error thrown by getUserInfo(...)
-    catch (Exceptions\UserInfo $e) {
-      $app->halt(422, $e->getMessage(), $e->getRestCode());
-    }
+    // Output result
+    $app->success($ccontacts);
   });
 
 

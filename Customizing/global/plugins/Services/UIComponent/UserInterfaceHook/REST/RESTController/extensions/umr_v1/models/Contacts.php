@@ -32,12 +32,28 @@ class Contacts {
     $result = array();
     foreach ($contacts as $contact) {
       $loginId  = Libs\RESTLib::getUserIdFromUserName($contact['login']);
-      $userInfo = UserInfo::getUserInfo($loginId);
 
-      $result[] = array_merge(
-        ($userInfo) ?: array(),
-        array(contactId => $contact['addr_id'])
-      );
+      try {
+        $userInfo = UserInfo::getUserInfo($loginId);
+
+        $result[] = array_merge(
+          ($userInfo) ?: array(),
+          array(
+            contact_id     => $contact['addr_id'],
+            contact_email  => $contact['email']
+          )
+        );
+      }
+      // getUserInfo failed, use fallback data
+      catch (Exceptions\UserInfo $e) {
+        $result[] = array(
+          id            => $loginId,
+          firstname     => $contact['firstname'],
+          lastname      => $contact['lastname'],
+          contact_id    => $contact['addr_id'],
+          contact_email => $contact['email']
+        );
+      }
     }
 
     // Return contacts

@@ -18,7 +18,9 @@ use \RESTController\libs as Libs;
 class UserInfo {
   // Allow to re-use status-messages and status-codes
   const MSG_INVALID_USER  = 'Request failed, requesting invalid user.';
+  const MSG_INVALID_TYPE  = 'Request failed, malformed request.';
   const ID_INVALID_USER   = 'RESTController\\core\\extensions\\umr_v1\\UserInfo::ID_INVALID_USER';
+  const ID_INVALID_TYPE   = 'RESTController\\core\\extensions\\umr_v1\\UserInfo::ID_INVALID_TYPE';
 
 
   /**
@@ -75,7 +77,7 @@ class UserInfo {
       $userId       = $accessToken->getUserId();
     }
     else
-      throw new Exceptions\UserInfo('NO!', 'YOU');
+      throw new Exceptions\UserInfo(self::MSG_INVALID_TYPE, self::ID_INVALID_TYPE);
 
     // Fetch user-information
     $ilObj = \ilObjectFactory::getInstanceByObjId($userId);
