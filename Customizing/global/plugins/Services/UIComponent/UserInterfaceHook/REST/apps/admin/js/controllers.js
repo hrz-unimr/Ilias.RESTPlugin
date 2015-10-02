@@ -107,7 +107,7 @@ ctrl.controller("ClientListCtrl", function($scope, $location, $filter, dialogs, 
             // Success
             function(response) {
                 // Enough access rights
-                if (response.status == "success") {
+                if (response.clients) {
                     clientStorage.setClients(response.clients);
                     $scope.clients = clientStorage.getClients();
                 }
@@ -339,12 +339,8 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
                 },
                 // Success
                 function (response) {
-                    if (response.status == "success") {
-                        $scope.current.id = response.id;
-                        clientStorage.addClient($scope.current);
-                    }
-                    else
-                        $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_UNKOWN'), response.status, response.data);
+                    $scope.current.id = response.id;
+                    clientStorage.addClient($scope.current);
 
                     $location.url("/clientlist");
                 },
@@ -383,8 +379,6 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
                     },
                     // Success
                     function (response) {
-                        if (response.status != "success")
-                            $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_UNKOWN'), response.status, response.data);
                         $location.url("/clientlist");
                     },
                     // Failure
@@ -455,7 +449,7 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
             // Success
             function (response) {
                 // Login return OK (Login internally and redirect)
-                if (response.status == "success") {
+                if (response.access_token) {
                     //console.log(JSON.stringify(response));
                     $scope.authentication.login($scope.postVars.userName, response.access_token);
                     $scope.postVars = {};
