@@ -19,6 +19,33 @@ class Events {
   /**
    *
    */
+  protected static function getRecurrenceString($appointmentId) {
+    // Will temporary store string elemts for imploding
+    $recurrenceStrings  = array();
+
+    // Fetch recurrence
+    $recurrences        = \ilCalendarRecurrences::_getRecurrences($appointmentId);
+    foreach($recurrences as $recurrence) {
+      // Fetch exluded recurrence
+      $excludes = \ilCalendarRecurrenceExclusions::getExclusionDates($appointmentId);
+      foreach($excludes as $excluded)
+        $recurrenceStrings[] = $excluded->toICal();
+
+      // Fetch (included) recurrence
+      $recurrenceStrings[] = $recurrence->toICal($userId);
+    }
+
+    // Each recurrence on a new line (mimicking ICS-formated)
+    $recurrenceString = (sizeof($recurrenceStrings) > 0) ? implode("\\n", $recurrenceStrings) : null;
+
+    // Return final result as string
+    return $recurrenceString;
+  }
+
+
+  /**
+   *
+   */
   public static function getEvents($accessToken) {
     // Load classes required to access calendars and their appointments
     require_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
@@ -34,29 +61,25 @@ class Events {
     \RESTController\Libs\RESTLib::initAccessHandling();
 
     // Fetch calendars (called categories here), initialize from database
-    $categories = \ilCalendarCategories::_getInstance();
-    $categories->initialize(\ilCalendarCategories::MODE_PERSONAL_DESKTOP_MEMBERSHIP);
+    $categoryHandler = \ilCalendarCategories::_getInstance($userId);
+    $categoryHandler->initialize(\ilCalendarCategories::MODE_MANAGE);
 
     // Fetch internal ids for calendars
     $result       = array();
-    $categoryIds  = $categories->getCategories(true);
-    foreach($categoryIds as $categoryId) {
-      // Fetch evvents (called appointment here)
-      $appointmentIds = \ilCalendarCategoryAssignments::_getAssignedAppointments(array($categoryId));
+    $categories   = $categoryHandler->getCategoriesInfo();
+    foreach($categories as $category) {
+      // Fetch all sub calendars
+      $categoryId     = $category['cat_id'];
+      $subCategories  = $categoryHandler->getSubitemCategories($categoryId);
+
+      // Fetch events (called appointment here)
+      $appointmentIds = \ilCalendarCategoryAssignments::_getAssignedAppointments($subCategories);
       foreach($appointmentIds as $appointmentId) {
         // Fetch appointment object
         $appointment    = new \ilCalendarEntry($appointmentId);
 
         // Build recurrence-string (ICS-Formatted)
-        $recurrenceStrings  = array();
-        $recurrences        = \ilCalendarRecurrences::_getRecurrences($appointmentId);
-        foreach($recurrences as $recurrence) {
-          foreach(\ilCalendarRecurrenceExclusions::getExclusionDates($appointmentId) as $excl) {
-            $recurrenceStrings[] = $excl->toICal();
-          }
-          $recurrenceStrings[] = $recurrence->toICal($userId);
-        }
-        $recurrenceString = (sizeof($recurrenceStrings) > 0) ? implode("\\n", $recurrenceStrings) : null;
+        $recurrenceString = self::getRecurrenceString($appointmentId);
 
         // Build result array
         $result[] = array(
