@@ -68,7 +68,7 @@ $app->group('/v1', function () use ($app) {
                     $app->redirect($result['data']);
             }
             catch (AuthExceptions\ResponseType $e) {
-                $app->halt(400, $e->getMessage(), $e::ID);
+                $app->halt(422, $e->getMessage(), $e::ID);
             }
             catch (AuthExceptions\LoginFailed $e) {
                 $app->halt(401, $e->getMessage(), $e::ID);
@@ -77,7 +77,7 @@ $app->group('/v1', function () use ($app) {
                 $app->halt(401, $e->getMessage(), $e::ID);
             }
             catch (LibExceptions\MissingParameter $e) {
-                $app->halt(422, $e->getFormatedMessage(), $e::ID);
+                $app->halt(400, $e->getFormatedMessage(), $e::ID);
             }
         });
 
@@ -124,10 +124,10 @@ $app->group('/v1', function () use ($app) {
                 );
             }
             catch (AuthExceptions\ResponseType $e) {
-                $app->halt(400, $e->getMessage(), $e::ID);
+                $app->halt(422, $e->getMessage(), $e::ID);
             }
             catch (LibExceptions\MissingParameter $e) {
-                $app->halt(422, $e->getFormatedMessage(), $e::ID);
+                $app->halt(400, $e->getFormatedMessage(), $e::ID);
             }
         });
 
@@ -220,7 +220,7 @@ $app->group('/v1', function () use ($app) {
                     throw new Exceptions\GrantType(Exceptions\GrantType::MSG);
             }
             catch (AuthExceptions\GrantType $e) {
-                $app->halt(400, $e->getMessage(), $e::ID);
+                $app->halt(422, $e->getMessage(), $e::ID);
             }
             catch (AuthExceptions\LoginFailed $e) {
                 $app->halt(401, $e->getMessage(), $e::ID);
@@ -229,7 +229,7 @@ $app->group('/v1', function () use ($app) {
                 $app->halt(401, $e->getMessage(), $e::ID);
             }
             catch (LibExceptions\MissingParameter $e) {
-                $app->halt(422, $e->getFormatedMessage(), $e::ID);
+                $app->halt(400, $e->getFormatedMessage(), $e::ID);
             }
         });
 
@@ -273,7 +273,7 @@ $app->group('/v1', function () use ($app) {
                 $app->halt(401, $e->getMessage(), $e::ID);
             }
             catch (LibExceptions\MissingParameter $e) {
-                $app->halt(422, $e->getFormatedMessage(), $e::ID);
+                $app->halt(400, $e->getFormatedMessage(), $e::ID);
             }
         });
 
@@ -343,7 +343,7 @@ $app->group('/v1', function () use ($app) {
             $app->halt(401, $e->getMessage(), $e::ID);
         }
         catch (LibExceptions\MissingParameter $e) {
-            $app->halt(422, $e->getFormatedMessage(), $e::ID);
+            $app->halt(400, $e->getFormatedMessage(), $e::ID);
         }
     });
 

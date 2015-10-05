@@ -29,13 +29,14 @@ class RESTLib {
      *  Extensions are allowed to create their own error-codes.
      *  Using a unique string seems to be an easier solution than assigning unique numbers.
      */
-    const ID_NO_ADMIN = 'RESTController\libs\RESTLib::ID_NO_ADMIN';
+    const ID_IP_NOT_ALLOWED   = 'RESTController\libs\RESTLib::ID_IP_NOT_ALLOWED';
+    const ID_NO_ADMIN         = 'RESTController\libs\RESTLib::ID_NO_ADMIN';
+    const ID_PARSE_ISSUE      = 'RESTController\libs\RESTLib::ID_PARSE_ISSUE';
 
     // Allow to re-use status-strings
-    const MSG_NO_ADMIN = 'Access denied. Administrator permissions required.';
-
-    const MSG_IP_NOT_ALLOWED = 'Access denied for client IP address.';
-    const ID_IP_NOT_ALLOWED = 'RESTController\libs\RESTLib::ID_IP_NOT_ALLOWED';
+    const MSG_IP_NOT_ALLOWED  = 'Access denied for client IP address.';
+    const MSG_NO_ADMIN        = 'Access denied. Administrator permissions required.';
+    const MSG_PARSE_ISSUE     = 'Could not parse id(s) %s from %s.';
 
     /**
      * @see ilInitialisation::initGlobal($a_name, $a_class, $a_source_file)
@@ -160,10 +161,11 @@ class RESTLib {
 
         // Create user-object if id is given
         if ($userId != null) {
-          global $ilUser;
+          global $ilUser, $ilias;
           $ilUser->setId($userId);
           $ilUser->read();
           self::initAccessHandling();
+          $ilias->account = $ilUser;
 
           return $ilUser;
         }
@@ -525,7 +527,54 @@ class RESTLib {
         \ilUtil::setCookie("ilClientId", CLIENT_ID);
 
         ilInitialisation_Public::setSessionHandler(); // will put an entry in usr_session table
+    }
 
+
+
+    /**
+     * Parse a list of coma-separated numeric values (ids)
+     * into an array. (Works for integers)
+     *
+     * @param $idString - String that should be parsed.
+     * @param $throwException - Throw exception of string does not contain parseable numeric values
+     *
+     * @return array of parsed values (integer)
+     *
+     * @throws Exceptions\IdParseProblem - Thrown when string does not contain numeric elements (only if $throwException is true)
+     */
+    public static function parseIdsFromString($idString, $throwException = false) {
+        // Parse string with coma as separator
+        $ids    = explode(',', $idString);
+        $throws = array();
+        foreach($ids as $key => $id) {
+            // Can be converted to int?
+            if (is_numeric($id))
+                $ids[$key] = intval($id);
+            // Drop value (and throw exception)
+            else {
+              if ($throwException)
+                $throws[$key] = $id;
+              $ids[$key] = null;
+            }
+        }
+
+        // Filter unverted values
+        $ids = array_filter($ids, function($value) { return !is_null($value); });
+
+        // In case an exception needs to be thrown, the message will be build here
+        if (count($throws) > 0) {
+          $idString     = htmlspecialchars($idString);
+          foreach ($throws as $key => $id)
+              $throws[$key] = sprintf('%d: \'%s\'', $key + 1, $id);
+          $throwString  = implode(', ', $throws);
+          $message      = sprintf(self::MSG_PARSE_ISSUE, $throwString, 'String-List: \'' . $idString . '\'');
+
+          // Throw it!
+          throw new Exceptions\IdParseProblem($message, self::ID_PARSE_ISSUE);
+        }
+
+        // Return ids (array of integers)
+        return $ids;
     }
 }
 

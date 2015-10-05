@@ -56,7 +56,7 @@ class Events {
     // Fetch user-id from access-token
     $userId = $accessToken->getUserId();
 
-    // Initialize (global!) $ilUser object (will be used by ilCalendarCategories::_getInstance())
+    // Initialize (global!) $ilUser object
     $ilUser = Libs\RESTLib::loadIlUser($userId);
     Libs\RESTLib::initAccessHandling();
 

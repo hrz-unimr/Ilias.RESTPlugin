@@ -19,8 +19,8 @@ class UserInfo {
   // Allow to re-use status-messages and status-codes
   const MSG_INVALID_USER  = 'Request failed, requesting invalid user.';
   const MSG_INVALID_TYPE  = 'Request failed, malformed request.';
-  const ID_INVALID_USER   = 'RESTController\\core\\extensions\\umr_v1\\UserInfo::ID_INVALID_USER';
-  const ID_INVALID_TYPE   = 'RESTController\\core\\extensions\\umr_v1\\UserInfo::ID_INVALID_TYPE';
+  const ID_INVALID_USER   = 'RESTController\\extensions\\umr_v1\\UserInfo::ID_INVALID_USER';
+  const ID_INVALID_TYPE   = 'RESTController\\extensions\\umr_v1\\UserInfo::ID_INVALID_TYPE';
 
 
   /**

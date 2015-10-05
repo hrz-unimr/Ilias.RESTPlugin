@@ -16,18 +16,161 @@ use \RESTController\libs as Libs;
  *
  */
 class RefIdData {
+  // Allow to re-use status-messages and status-codes
+  const MSG_INVALID_OBJECT  = 'Object with refId %s does not exist.';
+  const MSG_OBJECT_IN_TRASH = 'Object with refId %s has been moved to trash.';
+  const MSG_NO_ACCESS       = 'Viewing-Access to object with RefId %s was rejected.';
+  const ID_INVALID_OBJ      = 'RESTController\\extensions\\umr_v1\\RefIdData::ID_INVALID_OBJ';
+  const ID_OBJECT_IN_TRASH  = 'RESTController\\extensions\\umr_v1\\RefIdData::ID_OBJECT_IN_TRASH';
+  const ID_NO_ACCESS        = 'RESTController\\extensions\\umr_v1\\RefIdData::ID_NO_ACCESS';
+
+
   /**
    *
    */
-  public static function getRefIds($refIdString) {
-    $refIds       = explode(',', $refIdString);
-    foreach($refIds as $key => $refId)
-      $refIds[$key] = (is_numeric($refId)) ? intval($refId) : null;
-    $refIds = array_filter($refIds, function($value) { return !is_null($value); });
+  protected static function getDataForId($accessToken, $refId) {
+    // User for access checking
+    global $rbacsystem;
 
-    // TODO: Throw exceptions on !is_numeric($refId)
+    // Fetch object with given refId
+    $ilObject = \ilObjectFactory::getInstanceByRefId($refId, false);
 
-    return $refIds;
+    // Throw error if there is no such object
+    if (!$ilObject)
+      throw new Exceptions\RefIdData(sprintf(self::MSG_INVALID_OBJECT, $refId), self::ID_INVALID_OBJ);
+
+    // Throw error if object was already deleted
+    if(\ilObject::_isInTrash($refId))
+      throw new Exceptions\RefIdData(sprintf(self::MSG_OBJECT_IN_TRASH, $refId), self::ID_OBJECT_IN_TRASH);
+
+    // Throw error
+    if(!$rbacsystem->checkAccess('read', $refId))
+      throw new Exceptions\RefIdData(sprintf(self::MSG_NO_ACCESS, $refId), self::ID_NO_ACCESS);
+
+    // Fetch Object data for different object-types
+    // Object: Course
+    if (is_a($ilObject, 'ilObjCourse'))
+      return self::getIlCourseObjectData($ilObject);
+    // Object: Group
+    elseif (is_a($ilObject, 'ilObjGroup'))
+      return self::getIlGroupObjectData($ilObject);
+    // Object: File
+    elseif (is_a($ilObject, 'ilObjFile'))
+      return self::getIlObjectData($ilObject);
+    // Object: Folder
+    elseif (is_a($ilObject, 'ilObjFolder'))
+      return self::getIlObjectData($ilObject);
+    // Object: Bibliography
+    elseif (is_a($ilObject, 'ilObjBibliographic'))
+      return self::getIlObjectData($ilObject);
+    // Object: Blog
+    elseif (is_a($ilObject, 'ilObjBlog'))
+      return self::getIlObjectData($ilObject);
+    // Object:
+    elseif (is_a($ilObject, 'ilObjMediaCast'))
+      return self::getIlObjectData($ilObject);
+    // Object:
+    elseif (is_a($ilObject, 'ilObjLinkResource'))
+      return self::getIlObjectData($ilObject);
+    // Object:
+    elseif (is_a($ilObject, 'ilObjForum'))
+      return self::getIlObjectData($ilObject);
+    // Object:
+    elseif (is_a($ilObject, 'ilObjChatroom'))
+      return self::getIlObjectData($ilObject);
+    // Object:
+    elseif (is_a($ilObject, 'ilObjWiki'))
+      return self::getIlObjectData($ilObject);
+    // Object:
+    elseif (is_a($ilObject, 'ilObjGlossary'))
+      return self::getIlObjectData($ilObject);
+    // Object:
+    elseif (is_a($ilObject, 'ilObjLearningModule'))
+      return self::getIlObjectData($ilObject);
+    // Object:
+    elseif (is_a($ilObject, 'ilObjSAHSLearningModule'))
+      return self::getIlObjectData($ilObject);
+    // Object:
+    elseif (is_a($ilObject, 'ilObjFileBasedLM'))
+      return self::getIlObjectData($ilObject);
+    // Object:
+    elseif (is_a($ilObject, 'ilObjExercise'))
+      return self::getIlObjectData($ilObject);
+    // Object:
+    elseif (is_a($ilObject, 'ilObjMediaPool'))
+      return self::getIlObjectData($ilObject);
+    // Object:
+    elseif (is_a($ilObject, 'ilObjSession'))
+      return self::getIlObjectData($ilObject);
+    // Object:
+    elseif (is_a($ilObject, 'ilObjItemGroup'))
+      return self::getIlObjectData($ilObject);
+    // Object:
+    elseif (is_a($ilObject, 'ilObjExternalFeed'))
+      return self::getIlObjectData($ilObject);
+    // Object:
+    elseif (is_a($ilObject, 'ilObjDataCollection'))
+      return self::getIlObjectData($ilObject);
+    // Object:
+    elseif (is_a($ilObject, 'ilObjCategory'))
+      return self::getIlObjectData($ilObject);
+    // Fallback solution
+    else
+      return self::getIlObjectData($ilObject);
+  }
+
+
+  /**
+   *
+   */
+  protected static function getIlObjectData($ilObject) {
+    // Return basic information about every ilObject (filter 'null' values)
+    return array_filter(
+      array(
+        'type'        => $ilObject->getType(),
+        'title'       => $ilObject->getTitle(),
+        'desc'        => $ilObject->getDescription(),
+        'long_desc'   => $ilObject->getLongDescription(),
+        'owner'       => $ilObject->getOwner(),
+        'createDate'  => $ilObject->getCreateDate(),
+        'lastUpdate'  => $ilObject->getLastUpdateDate(),
+      ),
+      function($value) { return !is_null($value); }
+    );
+  }
+  protected static function getIlCourseObjectData($ilCourseObject) {
+    // Fetch basic ilObject information
+    $result = self::getIlObjectData($ilCourseObject);
+
+    // Add extra ilCourseObject information
+    $result['children'] = self::getChildren($ilCourseObject);
+
+    return $result;
+  }
+  protected static function getIlGroupObjectData($ilCourseObject) {
+    // Fetch basic ilObject information
+    $result = self::getIlObjectData($ilCourseObject);
+
+    // Add extra ilCourseObject information
+    $result['children'] = self::getChildren($ilCourseObject);
+
+    return $result;
+  }
+
+
+  /**
+   *
+   */
+  protected static function getChildren($ilObject) {
+    // Fetch sub-items
+    $subItems = $ilObject->getSubItems();
+
+    // Fetch child-items (ref_id only)
+    $children = array();
+    foreach($subItems['_all'] as $child)
+      $children[] = $child['ref_id'];
+
+    return $children;
   }
 
 
@@ -35,65 +178,20 @@ class RefIdData {
    *
    */
   public static function getData($accessToken, $refIds) {
+    // Convert to array
     if (!is_array($refIds))
       $refIds = array($refIds);
 
+    // Initialize (global!) $ilUser object
+    $userId = $accessToken->getUserId();
+    $ilUser = Libs\RESTLib::loadIlUser($userId);
+    Libs\RESTLib::initAccessHandling();
+
+    // Return result for each refid
     $result = array();
-    foreach ($refIds as $refId) {
-      $ilObject = \ilObjectFactory::getInstanceByRefId($refId, false);
-
-
-      //print_r(get_class_methods($ilObject));
-      //print_r(get_object_vars($ilObject));
-      //die;
-
-      // TODO: throw outside loop!
-
-      // TODO: Check access-rights!
-
-      if (!$ilObject)
-        throw new \Exception('IMP ME');
-
-      if(\ilObject::_isInTrash($refId))
-        throw new \Exception('IMP ME');
-
-      // Todo: Für crs, group, folder, file, etc. mehr (spezielle) daten liefern
-
-      $result[] = array(
-          'title' => $ilObject->getTitle(),
-          'desc' => $ilObject->getDescription(),
-          'owner' => $ilObject->getOwner(),
-          'createDate' => $ilObject->getCreateDate(),
-          'lastUpdate' => $ilObject->getLastUpdateDate(),
-          'importId' => $ilObject->getImportId()
-          //type, (desc/long_desc), untranslatedTitle, objectList, id (!= refId)
-          //getAllOwnedRepositoryObjects, getLongDescriptions,getGroupedObjTypes, gotItems, getContainerDirectory, getMemberObject, getMembersObject, getSubItems, getOfflineStatus
-          // CHILDREN?
-      );
-    }
+    foreach ($refIds as $refId)
+      $result[$refId] = self::getDataForId($accessToken, $refId);
 
     return $result;
   }
 }
-
-
-/*
-$courseModel = new Courses\CoursesModel();
-$my_courses = $courseModel->getCoursesOfUser($user_id);
-
-$repository_items = array();
-foreach ($my_courses as $course_refid)
-{
-    //$my_courses [] = $course_refid;
-    $courseContents = $courseModel->getCourseContent($course_refid);
-    $children_ref_ids = array();
-    foreach ($courseContents as $item) {
-        $children_ref_ids[] = $item['ref_id'];
-        $repository_items[$item['ref_id']] = $item;
-    }
-    $course_item = $courseModel->getCourseInfo($course_refid);
-    $course_item['children_ref_ids'] = $children_ref_ids;
-    $repository_items[$course_refid] = $course_item;
-}
-$result['items'] = $repository_items;
-*/
