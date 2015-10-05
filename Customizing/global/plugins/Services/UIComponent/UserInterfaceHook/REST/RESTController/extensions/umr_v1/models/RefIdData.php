@@ -48,85 +48,84 @@ class RefIdData {
       throw new Exceptions\RefIdData(sprintf(self::MSG_NO_ACCESS, $refId), self::ID_NO_ACCESS);
 
     // Fetch Object data for different object-types
-    // Object: Course
-    if (is_a($ilObject, 'ilObjCourse'))
-      return self::getIlCourseObjectData($ilObject);
-    // Object: Group
-    elseif (is_a($ilObject, 'ilObjGroup'))
-      return self::getIlGroupObjectData($ilObject);
+    // Object: Course or Group
+    if (is_a($ilObject, 'ilObjCourse') || is_a($ilObject, 'ilObjGroup'))
+      return self::getIlObjCourseOrGroupData($ilObject);
     // Object: File
     elseif (is_a($ilObject, 'ilObjFile'))
-      return self::getIlObjectData($ilObject);
+      return self::getIlObjFileData($ilObject);
     // Object: Folder
     elseif (is_a($ilObject, 'ilObjFolder'))
-      return self::getIlObjectData($ilObject);
+      return self::getIlData($ilObject);
     // Object: Bibliography
     elseif (is_a($ilObject, 'ilObjBibliographic'))
-      return self::getIlObjectData($ilObject);
+      return self::getIlData($ilObject);
     // Object: Blog
     elseif (is_a($ilObject, 'ilObjBlog'))
-      return self::getIlObjectData($ilObject);
-    // Object:
+      return self::getIlData($ilObject);
+    // Object: Media-Cast
     elseif (is_a($ilObject, 'ilObjMediaCast'))
-      return self::getIlObjectData($ilObject);
-    // Object:
+      return self::getIlData($ilObject);
+    // Object: Link to Resource
     elseif (is_a($ilObject, 'ilObjLinkResource'))
-      return self::getIlObjectData($ilObject);
-    // Object:
+      return self::getIlData($ilObject);
+    // Object: Forum
     elseif (is_a($ilObject, 'ilObjForum'))
-      return self::getIlObjectData($ilObject);
-    // Object:
+      return self::getIlData($ilObject);
+    // Object: Chatroom
     elseif (is_a($ilObject, 'ilObjChatroom'))
-      return self::getIlObjectData($ilObject);
-    // Object:
+      return self::getIlData($ilObject);
+    // Object: Wiki
     elseif (is_a($ilObject, 'ilObjWiki'))
-      return self::getIlObjectData($ilObject);
-    // Object:
+      return self::getIlData($ilObject);
+    // Object: Glossary
     elseif (is_a($ilObject, 'ilObjGlossary'))
-      return self::getIlObjectData($ilObject);
-    // Object:
+      return self::getIlData($ilObject);
+    // Object: Learning-Module (ILIAS)
     elseif (is_a($ilObject, 'ilObjLearningModule'))
-      return self::getIlObjectData($ilObject);
-    // Object:
+      return self::getIlData($ilObject);
+    // Object: Learning-Module (SCORM)
     elseif (is_a($ilObject, 'ilObjSAHSLearningModule'))
-      return self::getIlObjectData($ilObject);
-    // Object:
+      return self::getIlData($ilObject);
+    // Object: Learning-Module (HTML)
     elseif (is_a($ilObject, 'ilObjFileBasedLM'))
-      return self::getIlObjectData($ilObject);
-    // Object:
+      return self::getIlData($ilObject);
+    // Object: Exercise
     elseif (is_a($ilObject, 'ilObjExercise'))
-      return self::getIlObjectData($ilObject);
-    // Object:
+      return self::getIlData($ilObject);
+    // Object: Media-Pool
     elseif (is_a($ilObject, 'ilObjMediaPool'))
-      return self::getIlObjectData($ilObject);
-    // Object:
+      return self::getIlData($ilObject);
+    // Object: Session
     elseif (is_a($ilObject, 'ilObjSession'))
-      return self::getIlObjectData($ilObject);
-    // Object:
+      return self::getIlData($ilObject);
+    // Object: Item-Group
     elseif (is_a($ilObject, 'ilObjItemGroup'))
-      return self::getIlObjectData($ilObject);
-    // Object:
+      return self::getIlData($ilObject);
+    // Object: RSS/Atom Feed
     elseif (is_a($ilObject, 'ilObjExternalFeed'))
-      return self::getIlObjectData($ilObject);
-    // Object:
+      return self::getIlData($ilObject);
+    // Object: Data-Collection
     elseif (is_a($ilObject, 'ilObjDataCollection'))
-      return self::getIlObjectData($ilObject);
-    // Object:
+      return self::getIlData($ilObject);
+    // Object: Category
     elseif (is_a($ilObject, 'ilObjCategory'))
-      return self::getIlObjectData($ilObject);
+      return self::getIlData($ilObject);
     // Fallback solution
     else
-      return self::getIlObjectData($ilObject);
+      return self::getIlData($ilObject);
   }
 
 
   /**
    *
    */
-  protected static function getIlObjectData($ilObject) {
+  protected static function getIlData($ilObject) {
     // Return basic information about every ilObject (filter 'null' values)
     return array_filter(
       array(
+        'obj_id'      => intval($ilObject->getId()),
+        'ref_id'      => intval($ilObject->getRefId()),
         'type'        => $ilObject->getType(),
         'title'       => $ilObject->getTitle(),
         'desc'        => $ilObject->getDescription(),
@@ -134,25 +133,33 @@ class RefIdData {
         'owner'       => $ilObject->getOwner(),
         'createDate'  => $ilObject->getCreateDate(),
         'lastUpdate'  => $ilObject->getLastUpdateDate(),
+        'children'    => self::getChildren($ilObject)
       ),
       function($value) { return !is_null($value); }
     );
   }
-  protected static function getIlCourseObjectData($ilCourseObject) {
+  protected static function getIlObjCourseOrGroupData($ilObjectCourse) {
     // Fetch basic ilObject information
-    $result = self::getIlObjectData($ilCourseObject);
+    $result = self::getIlData($ilObjectCourse);
 
-    // Add extra ilCourseObject information
-    $result['children'] = self::getChildren($ilCourseObject);
+
+    // TODO:
+    //  * Add reference to calendar (calendarId)
+    require_once('./Services/Calendar/classes/class.ilCalendarCategory.php');
+    $cat = \ilCalendarCategory::_getInstanceByObjId($result['obj_id']);
+    $result['category_id'] = $cat->getCategoryID();
+
 
     return $result;
   }
-  protected static function getIlGroupObjectData($ilCourseObject) {
+  protected static function getIlObjFileData($ilObjectFile) {
     // Fetch basic ilObject information
-    $result = self::getIlObjectData($ilCourseObject);
+    $result = self::getIlData($ilObjectFile);
 
-    // Add extra ilCourseObject information
-    $result['children'] = self::getChildren($ilCourseObject);
+    // Add additional file information
+    $result['fileType'] = $ilObjectFile->getFileType();
+    $result['fileSize'] = $ilObjectFile->getFileSize();
+    $result['version']  = $ilObjectFile->getVersion();
 
     return $result;
   }
@@ -162,8 +169,12 @@ class RefIdData {
    *
    */
   protected static function getChildren($ilObject) {
+    //
+    if (!method_exists($ilObject, 'getSubItems'))
+      return null;
+
     // Fetch sub-items
-    $subItems = $ilObject->getSubItems();
+    $subItems = $ilObject->getSubItems(false, true);
 
     // Fetch child-items (ref_id only)
     $children = array();
@@ -190,7 +201,7 @@ class RefIdData {
     // Return result for each refid
     $result = array();
     foreach ($refIds as $refId)
-      $result[$refId] = self::getDataForId($accessToken, $refId);
+      $result[] = self::getDataForId($accessToken, $refId);
 
     return $result;
   }
