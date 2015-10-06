@@ -10,6 +10,7 @@ namespace RESTController\extensions\umr_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires: $app to be \RESTController\RESTController::getInstance()
+use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 
 
@@ -17,7 +18,9 @@ use \RESTController\core\auth as Auth;
 $app->group('/v1/umr', function () use ($app) {
   /**
    * Route: GET /v1/umr/events
-   *  Gets all events (appointments) of the user given by the access-token.
+   *  [Without HTTP-GET Parameters] Gets all events (appointments) of the user given by the access-token.
+   *  [With HTTP-GET Parameters] Get the events with given eventIds for the user given by the access-token.
+   *  [This endpoint CAN parse HTTP-GET parameters, eg. ...?eventids=1,2,3,10]
    *
    * @See docs/api.pdf
    */
@@ -26,8 +29,42 @@ $app->group('/v1/umr', function () use ($app) {
     $auth         = new Auth\Util();
     $accessToken  = $auth->getAccessToken();
 
+    try {
+      $request        = $app->request;
+      $eventIdString  = $request->params('eventids', null);
+
+      // With HTTP-GET Parameter (fetch by contactIds)
+      if ($eventIdString) {
+        $eventIds   = Libs\RESTLib::parseIdsFromString($eventIdString, true);
+        $events     = Events::getEvents($accessToken, $eventIds);
+      }
+      // Fetch all events
+      else
+        $events       = Events::getAllEvents($accessToken);
+
+      // Output result
+      $app->success($events);
+    }
+    catch (Libs\Exceptions\IdParseProblem $e) {
+      $app->halt(422, $e->getMessage(), $e->getRESTCode());
+    }
+  });
+
+
+  /**
+   * Route: GET /v1/umr/events/:eventId
+   *  Get the events with given eventIds for the user given by the access-token.
+   *  [This endpoint parses one URI parameter, eg. .../10]
+   *
+   * @See docs/api.pdf
+   */
+  $app->get('/events/:eventId', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($eventId) use ($app) {
+    // Fetch userId & userName
+    $auth         = new Auth\Util();
+    $accessToken  = $auth->getAccessToken();
+
     // Fetch user-information
-    $events       = Events::getEvents($accessToken);
+    $events       = Events::getEvents($accessToken, $eventId);
 
     // Output result
     $app->success($events);

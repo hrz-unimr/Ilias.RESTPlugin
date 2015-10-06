@@ -46,7 +46,7 @@ class Events {
   /**
    *
    */
-  public static function getEvents($accessToken) {
+  public static function getAllEvents($accessToken) {
     // Load classes required to access calendars and their appointments
     require_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
     require_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
@@ -74,29 +74,70 @@ class Events {
 
       // Fetch events (called appointment here)
       $appointmentIds = \ilCalendarCategoryAssignments::_getAssignedAppointments($subCategories);
-      foreach($appointmentIds as $appointmentId) {
-        // Fetch appointment object
-        $appointment    = new \ilCalendarEntry($appointmentId);
-
-        // Build recurrence-string (ICS-Formatted)
-        $recurrenceString = self::getRecurrenceString($appointmentId);
-
-        // Build result array
-        $result[] = array(
-          appointment_id  => $appointmentId,
-          calendar_id     => $categoryId,
-          title           => $appointment->getPresentationTitle(false),
-          description     => $appointment->getDescription(),
-          location        => $appointment->getLocation(),
-          start           => $appointment->getStart()->get(IL_CAL_FKT_DATE, 'Ymd\THis\Z', \ilTimeZone::UTC),
-          end             => $appointment->getEnd()->get(  IL_CAL_FKT_DATE, 'Ymd\THis\Z', \ilTimeZone::UTC),
-          full_day        => $appointment->isFullday(),
-          recurrence      => $recurrenceString
-        );
-      }
+      foreach($appointmentIds as $appointmentId)
+        $result[] = self::getEventInfo($categoryId, $appointmentId);
     }
 
     // Return appointments
+    return $result;
+  }
+
+
+  /**
+   *
+   */
+  protected static function getEventInfo($calendarId, $eventId) {
+    // Fetch appointment object
+    $appointment    = new \ilCalendarEntry($eventId);
+
+    // Build recurrence-string (ICS-Formatted)
+    $recurrenceString = self::getRecurrenceString($eventId);
+
+    // Build result array
+    return array_filter(
+      array(
+        event_id        => intval($eventId),
+        calendar_id     => intval($calendarId),
+        title           => $appointment->getPresentationTitle(false),
+        description     => $appointment->getDescription(),
+        location        => $appointment->getLocation(),
+        start           => $appointment->getStart()->get(IL_CAL_FKT_DATE, 'Ymd\THis\Z', \ilTimeZone::UTC),
+        end             => $appointment->getEnd()->get(  IL_CAL_FKT_DATE, 'Ymd\THis\Z', \ilTimeZone::UTC),
+        full_day        => $appointment->isFullday(),
+        recurrence      => $recurrenceString
+      ),
+      function($value) { return !is_null($value); }
+    );
+  }
+
+
+  /**
+   *
+   */
+  public static function getEvents($accessToken, $eventIds) {
+    // Convert to array
+    if (!is_array($eventIds))
+      $eventIds = array($eventIds);
+
+    // Extract user name
+    $userId       = $accessToken->getUserId();
+
+    // Load classes required to appointments
+    require_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
+    require_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
+    require_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
+
+    // Fetch each contact from list
+    $result = array();
+    foreach($eventIds as $eventId) {
+      $calendarId = current(\ilCalendarCategoryAssignments::_getAppointmentCalendars(array($eventId)));
+      $result[]   = self::getEventInfo($calendarId, $eventId);
+    }
+
+    // Flatten simple output
+    if (count($result) == 1)
+      $result = $result[0];
+
     return $result;
   }
 }
