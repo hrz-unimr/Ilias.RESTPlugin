@@ -20,9 +20,11 @@ class RefIdData {
   const MSG_INVALID_OBJECT  = 'Object with refId %s does not exist.';
   const MSG_OBJECT_IN_TRASH = 'Object with refId %s has been moved to trash.';
   const MSG_NO_ACCESS       = 'Viewing-Access to object with RefId %s was rejected.';
+  const MSG_ALL_FAILED      = 'All requests failed, see data-entry for more information.';
   const ID_INVALID_OBJ      = 'RESTController\\extensions\\umr_v1\\RefIdData::ID_INVALID_OBJ';
   const ID_OBJECT_IN_TRASH  = 'RESTController\\extensions\\umr_v1\\RefIdData::ID_OBJECT_IN_TRASH';
   const ID_NO_ACCESS        = 'RESTController\\extensions\\umr_v1\\RefIdData::ID_NO_ACCESS';
+  const ID_ALL_FAILED       = 'RESTController\\extensions\\umr_v1\\RefIdData::ID_ALL_FAILED';
 
 
   /**
@@ -126,11 +128,11 @@ class RefIdData {
       array(
         'obj_id'      => intval($ilObject->getId()),
         'ref_id'      => intval($ilObject->getRefId()),
+        'owner'       => intval($ilObject->getOwner()),
         'type'        => $ilObject->getType(),
         'title'       => $ilObject->getTitle(),
         'desc'        => $ilObject->getDescription(),
         'long_desc'   => $ilObject->getLongDescription(),
-        'owner'       => $ilObject->getOwner(),
         'createDate'  => $ilObject->getCreateDate(),
         'lastUpdate'  => $ilObject->getLastUpdateDate(),
         'children'    => self::getChildren($ilObject)
@@ -142,13 +144,11 @@ class RefIdData {
     // Fetch basic ilObject information
     $result = self::getIlData($ilObjectCourse);
 
-
-    // TODO:
-    //  * Add reference to calendar (calendarId)
+    // Add course/group calendar (if available)
     require_once('./Services/Calendar/classes/class.ilCalendarCategory.php');
     $cat = \ilCalendarCategory::_getInstanceByObjId($result['obj_id']);
-    $result['category_id'] = $cat->getCategoryID();
-
+    if ($cat && $cat->getCategoryID())
+      $result['category_id'] = intval($cat->getCategoryID());
 
     return $result;
   }
@@ -169,7 +169,7 @@ class RefIdData {
    *
    */
   protected static function getChildren($ilObject) {
-    //
+    // Exit if object does not have children (method)
     if (!method_exists($ilObject, 'getSubItems'))
       return null;
 
@@ -179,7 +179,7 @@ class RefIdData {
     // Fetch child-items (ref_id only)
     $children = array();
     foreach($subItems['_all'] as $child)
-      $children[] = $child['ref_id'];
+      $children[] = intval($child['ref_id']);
 
     return $children;
   }
@@ -199,9 +199,24 @@ class RefIdData {
     Libs\RESTLib::initAccessHandling();
 
     // Return result for each refid
-    $result = array();
-    foreach ($refIds as $refId)
-      $result[] = self::getDataForId($accessToken, $refId);
+    $result     = array();
+    $noSuccess  = true;
+    foreach ($refIds as $refId) {
+      try {
+        $result[]   = self::getDataForId($accessToken, $refId);
+        $noSuccess  = false;
+      }
+      catch (Exceptions\RefIdData $e) {
+        // Add error-response for failed refIds
+        $responseObject           = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+        $responseObject['ref_id'] = $refId;
+        $result[]                 = $responseObject;
+      }
+    }
+
+    // If EVERY request failed, throw instead
+    if ($noSuccess)
+      throw new Exceptions\RefIdData(self::MSG_ALL_FAILED, self::ID_ALL_FAILED, $result);
 
     return $result;
   }

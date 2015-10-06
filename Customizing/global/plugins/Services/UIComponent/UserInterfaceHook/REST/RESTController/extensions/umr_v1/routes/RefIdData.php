@@ -42,7 +42,9 @@ $app->group('/v1/umr', function () use ($app) {
         $app->halt(422, $e->getMessage(), $e->getRESTCode());
       }
       catch (Exceptions\RefIdData $e) {
-        $app->halt(422, $e->getMessage(), $e->getRESTCode());
+        $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+        $responseObject['data'] = $e->getData();
+        $app->halt(422, $responseObject);
       }
       catch (Libs\Exceptions\MissingParameter $e) {
           $app->halt(400, $e->getFormatedMessage(), $e::ID);
@@ -71,7 +73,9 @@ $app->group('/v1/umr', function () use ($app) {
       $app->halt(422, $e->getMessage(), $e->getRESTCode());
     }
     catch (Exceptions\RefIdData $e) {
-      $app->halt(422, $e->getMessage(), $e->getRESTCode());
+      $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+      $responseObject['data'] = $e->getData();
+      $app->halt(422, $responseObject);
     }
     catch (Libs\Exceptions\MissingParameter $e) {
         $app->halt(400, $e->getFormatedMessage(), $e::ID);

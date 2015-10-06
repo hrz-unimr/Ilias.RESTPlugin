@@ -246,17 +246,6 @@ class RESTController extends \Slim\Slim {
      *
      */
     public function halt($httpCode, $dataOrMsg = null, $status = 'halt') {
-        if ($status != null) {
-            if (is_array($dataOrMsg))
-                $dataOrMsg['status'] = ($dataOrMsg['status']) ?: $status;
-            else
-                if ($dataOrMsg != '')
-                    $dataOrMsg = array(
-                      'status' => $status,
-                      'msg' => $dataOrMsg
-                    );
-        }
-
-        parent::halt($httpCode, $dataOrMsg);
+        parent::halt($httpCode, Libs\RESTLib::responseObject($dataOrMsg, $status));
     }
 }

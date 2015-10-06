@@ -67,7 +67,8 @@ $app->group('/v1', function () use ($app) {
             $title = $request->params('title', null, true);
             $description = $request->params('description', '');
 
-            Libs\RestLib::setupUserContext();
+            Libs\RestLib::loadIlUser();
+            Libs\RestLib::initAccessHandling();
             if(!$GLOBALS['ilAccess']->checkAccess("create_crs", "", $ref_id))
                 $app->halt(401, "Insufficient access rights");
 

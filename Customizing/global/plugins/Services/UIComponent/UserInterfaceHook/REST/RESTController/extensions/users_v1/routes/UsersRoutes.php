@@ -162,7 +162,10 @@ $app->put('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRou
 $app->delete('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($user_id) use ($app) {
     try {
         $result = array();
-        Libs\RestLib::setupUserContext();
+
+        Libs\RestLib::loadIlUser();
+        Libs\RestLib::initAccessHandling();
+        
         $usr_model = new UsersModel();
         $status = $usr_model->deleteUser($user_id);
 
