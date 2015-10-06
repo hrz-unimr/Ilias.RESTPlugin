@@ -17,6 +17,7 @@ use \RESTController\core\auth as Auth;
 $app->group('/v1/umr', function () use ($app) {
   /**
    * Route: GET /v1/umr/mycoursesandgroups
+   *  Fetches all groups and courses the user given by the access-token is a member of.
    *
    * @See docs/api.pdf
    */

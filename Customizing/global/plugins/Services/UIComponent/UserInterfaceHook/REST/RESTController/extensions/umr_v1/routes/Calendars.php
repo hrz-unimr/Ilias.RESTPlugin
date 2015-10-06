@@ -17,6 +17,7 @@ use \RESTController\core\auth as Auth;
 $app->group('/v1/umr', function () use ($app) {
   /**
    * Route: GET /v1/umr/calendars
+   *  Fetches all calendars of the user given by the access-token.
    *
    * @See docs/api.pdf
    */
@@ -25,6 +26,7 @@ $app->group('/v1/umr', function () use ($app) {
 
   /**
    * Route: POST /v1/umr/calendars
+   *  Adds a calendar to the user given by the access-token.
    *
    * @See docs/api.pdf
    */
@@ -33,6 +35,7 @@ $app->group('/v1/umr', function () use ($app) {
 
   /**
    * Route: PUT /v1/umr/calendars
+   *  Updates a calendar of the user given by the access-token.
    *
    * @See docs/api.pdf
    */
@@ -41,6 +44,7 @@ $app->group('/v1/umr', function () use ($app) {
 
   /**
    * Route: DELETE /v1/umr/calendars
+   *  Deletes a calendar of the user given by the access-token.
    *
    * @See docs/api.pdf
    */

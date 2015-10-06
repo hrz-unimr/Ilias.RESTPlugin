@@ -17,6 +17,7 @@ use \RESTController\core\auth as Auth;
 $app->group('/v1/umr', function () use ($app) {
   /**
    * Route: GET /v1/umr/UserInfo
+   *  Return profil-data for the user given by the access-token.
    *
    * @See docs/api.pdf
    */
@@ -40,15 +41,8 @@ $app->group('/v1/umr', function () use ($app) {
 
 
   /**
-   * Route: POST /v1/umr/UserInfo
-   *
-   * @See docs/api.pdf
-   */
-  $app->post('/userinfo', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
-
-
-  /**
    * Route: PUT /v1/umr/UserInfo
+   *  Updates the profil of the user given by the access-token with provided data.
    *
    * @See docs/api.pdf
    */

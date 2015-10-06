@@ -19,44 +19,85 @@ class Contacts {
   /**
    *
    */
-  public static function getContacts($accessToken) {
+  protected function getContactInfo($contact) {
+    $loginId  = Libs\RESTLib::getUserIdFromUserName($contact['login']);
+
+    try {
+      $userInfo = UserInfo::getUserInfo($loginId);
+
+      return array_merge(
+        ($userInfo) ?: array(),
+        array(
+          contact_id     => $contact['addr_id'],
+          contact_email  => $contact['email']
+        )
+      );
+    }
+    // getUserInfo failed, use fallback data
+    catch (Exceptions\UserInfo $e) {
+      return array(
+        id            => $loginId,
+        firstname     => $contact['firstname'],
+        lastname      => $contact['lastname'],
+        contact_id    => $contact['addr_id'],
+        contact_email => $contact['email']
+      );
+    }
+  }
+
+
+  /**
+   *
+   */
+  public static function getAllContacts($accessToken) {
     // Extract user name
     $userId       = $accessToken->getUserId();
 
     // Fetch contacts of user
     require_once("Services/Contact/classes/class.ilAddressbook.php");
     $adressbook = new \ilAddressbook($userId);
-    $contacts = $adressbook->getEntries();
+    $contacts   = $adressbook->getEntries();
 
     // Add user-info (filtered) to each contact
     $result = array();
-    foreach ($contacts as $contact) {
-      $loginId  = Libs\RESTLib::getUserIdFromUserName($contact['login']);
+    foreach ($contacts as $contact)
+      $result[] = self::getContactInfo($contact);
 
-      try {
-        $userInfo = UserInfo::getUserInfo($loginId);
-
-        $result[] = array_merge(
-          ($userInfo) ?: array(),
-          array(
-            contact_id     => $contact['addr_id'],
-            contact_email  => $contact['email']
-          )
-        );
-      }
-      // getUserInfo failed, use fallback data
-      catch (Exceptions\UserInfo $e) {
-        $result[] = array(
-          id            => $loginId,
-          firstname     => $contact['firstname'],
-          lastname      => $contact['lastname'],
-          contact_id    => $contact['addr_id'],
-          contact_email => $contact['email']
-        );
-      }
-    }
+    // Flatten simple output
+    if (count($result) == 1)
+      $result = $result[0];
 
     // Return contacts
+    return $result;
+  }
+
+
+  /**
+   *
+   */
+  public static function getContacts($accessToken, $contactIds) {
+    // Convert to array
+    if (!is_array($contactIds))
+      $contactIds = array($contactIds);
+
+    // Extract user name
+    $userId       = $accessToken->getUserId();
+
+    // Fetch contacts of user
+    require_once("Services/Contact/classes/class.ilAddressbook.php");
+    $adressbook = new \ilAddressbook($userId);
+
+    // Fetch each contact from list
+    $result = array();
+    foreach($contactIds as $contactId) {
+      $contact  = $adressbook->getEntry($contactId);
+      $result[] = self::getContactInfo($contact);
+    }
+
+    // Flatten simple output
+    if (count($result) == 1)
+      $result = $result[0];
+
     return $result;
   }
 }

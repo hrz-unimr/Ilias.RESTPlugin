@@ -17,6 +17,10 @@ use \RESTController\core\auth as Auth;
 $app->group('/v1/umr', function () use ($app) {
   /**
    * Route: GET /v1/umr/bulkrequest
+   *  Returns collected (bulk) information of all contacts, calendars,
+   *  events, groups, courses, user-info, items on users desktop
+   *  combined with contents of those items for the user given by
+   *  the access-token.
    *
    * @See docs/api.pdf
    */

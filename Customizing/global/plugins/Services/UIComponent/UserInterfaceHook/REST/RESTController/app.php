@@ -246,6 +246,6 @@ class RESTController extends \Slim\Slim {
      *
      */
     public function halt($httpCode, $dataOrMsg = null, $status = 'halt') {
-        parent::halt($httpCode, Libs\RESTLib::responseObject($dataOrMsg, $status));
+        parent::halt($httpCode, libs\RESTLib::responseObject($dataOrMsg, $status));
     }
 }

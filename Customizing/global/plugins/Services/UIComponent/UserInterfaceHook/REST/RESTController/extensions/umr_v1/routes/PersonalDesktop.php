@@ -17,6 +17,7 @@ use \RESTController\core\auth as Auth;
 $app->group('/v1/umr', function () use ($app) {
   /**
    * Route: GET /v1/umr/personaldesktop
+   *  Fetches all items on the personel desktop of the user given by the access-token.
    *
    * @See docs/api.pdf
    */
@@ -35,6 +36,7 @@ $app->group('/v1/umr', function () use ($app) {
 
   /**
    * Route: POST /v1/umr/personaldesktop
+   *  Adds an item to the personal desktop of the user given by the access-token.
    *
    * @See docs/api.pdf
    */
@@ -43,6 +45,7 @@ $app->group('/v1/umr', function () use ($app) {
 
   /**
    * Route: DELETE /v1/umr/personaldesktop
+   *  Removes an item from the desktop of the user given by the access-token.
    *
    * @See docs/api.pdf
    */

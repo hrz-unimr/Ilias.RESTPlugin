@@ -30,99 +30,7 @@ class RefIdData {
   /**
    *
    */
-  protected static function getDataForId($accessToken, $refId) {
-    // User for access checking
-    global $rbacsystem;
-
-    // Fetch object with given refId
-    $ilObject = \ilObjectFactory::getInstanceByRefId($refId, false);
-
-    // Throw error if there is no such object
-    if (!$ilObject)
-      throw new Exceptions\RefIdData(sprintf(self::MSG_INVALID_OBJECT, $refId), self::ID_INVALID_OBJ);
-
-    // Throw error if object was already deleted
-    if(\ilObject::_isInTrash($refId))
-      throw new Exceptions\RefIdData(sprintf(self::MSG_OBJECT_IN_TRASH, $refId), self::ID_OBJECT_IN_TRASH);
-
-    // Throw error
-    if(!$rbacsystem->checkAccess('read', $refId))
-      throw new Exceptions\RefIdData(sprintf(self::MSG_NO_ACCESS, $refId), self::ID_NO_ACCESS);
-
-    // Fetch Object data for different object-types
-    // Object: Course or Group
-    if (is_a($ilObject, 'ilObjCourse') || is_a($ilObject, 'ilObjGroup'))
-      return self::getIlObjCourseOrGroupData($ilObject);
-    // Object: File
-    elseif (is_a($ilObject, 'ilObjFile'))
-      return self::getIlObjFileData($ilObject);
-    // Object: Folder
-    elseif (is_a($ilObject, 'ilObjFolder'))
-      return self::getIlData($ilObject);
-    // Object: Bibliography
-    elseif (is_a($ilObject, 'ilObjBibliographic'))
-      return self::getIlData($ilObject);
-    // Object: Blog
-    elseif (is_a($ilObject, 'ilObjBlog'))
-      return self::getIlData($ilObject);
-    // Object: Media-Cast
-    elseif (is_a($ilObject, 'ilObjMediaCast'))
-      return self::getIlData($ilObject);
-    // Object: Link to Resource
-    elseif (is_a($ilObject, 'ilObjLinkResource'))
-      return self::getIlData($ilObject);
-    // Object: Forum
-    elseif (is_a($ilObject, 'ilObjForum'))
-      return self::getIlData($ilObject);
-    // Object: Chatroom
-    elseif (is_a($ilObject, 'ilObjChatroom'))
-      return self::getIlData($ilObject);
-    // Object: Wiki
-    elseif (is_a($ilObject, 'ilObjWiki'))
-      return self::getIlData($ilObject);
-    // Object: Glossary
-    elseif (is_a($ilObject, 'ilObjGlossary'))
-      return self::getIlData($ilObject);
-    // Object: Learning-Module (ILIAS)
-    elseif (is_a($ilObject, 'ilObjLearningModule'))
-      return self::getIlData($ilObject);
-    // Object: Learning-Module (SCORM)
-    elseif (is_a($ilObject, 'ilObjSAHSLearningModule'))
-      return self::getIlData($ilObject);
-    // Object: Learning-Module (HTML)
-    elseif (is_a($ilObject, 'ilObjFileBasedLM'))
-      return self::getIlData($ilObject);
-    // Object: Exercise
-    elseif (is_a($ilObject, 'ilObjExercise'))
-      return self::getIlData($ilObject);
-    // Object: Media-Pool
-    elseif (is_a($ilObject, 'ilObjMediaPool'))
-      return self::getIlData($ilObject);
-    // Object: Session
-    elseif (is_a($ilObject, 'ilObjSession'))
-      return self::getIlData($ilObject);
-    // Object: Item-Group
-    elseif (is_a($ilObject, 'ilObjItemGroup'))
-      return self::getIlData($ilObject);
-    // Object: RSS/Atom Feed
-    elseif (is_a($ilObject, 'ilObjExternalFeed'))
-      return self::getIlData($ilObject);
-    // Object: Data-Collection
-    elseif (is_a($ilObject, 'ilObjDataCollection'))
-      return self::getIlData($ilObject);
-    // Object: Category
-    elseif (is_a($ilObject, 'ilObjCategory'))
-      return self::getIlData($ilObject);
-    // Fallback solution
-    else
-      return self::getIlData($ilObject);
-  }
-
-
-  /**
-   *
-   */
-  protected static function getIlData($ilObject) {
+  protected static function getIlObjData($ilObject) {
     // Return basic information about every ilObject (filter 'null' values)
     return array_filter(
       array(
@@ -142,7 +50,7 @@ class RefIdData {
   }
   protected static function getIlObjCourseOrGroupData($ilObjectCourse) {
     // Fetch basic ilObject information
-    $result = self::getIlData($ilObjectCourse);
+    $result = self::getIlObjData($ilObjectCourse);
 
     // Add course/group calendar (if available)
     require_once('./Services/Calendar/classes/class.ilCalendarCategory.php');
@@ -154,7 +62,7 @@ class RefIdData {
   }
   protected static function getIlObjFileData($ilObjectFile) {
     // Fetch basic ilObject information
-    $result = self::getIlData($ilObjectFile);
+    $result = self::getIlObjData($ilObjectFile);
 
     // Add additional file information
     $result['fileType'] = $ilObjectFile->getFileType();
@@ -188,6 +96,98 @@ class RefIdData {
   /**
    *
    */
+  protected static function getDataForId($accessToken, $refId) {
+    // User for access checking
+    global $rbacsystem;
+
+    // Fetch object with given refId
+    $ilObject = \ilObjectFactory::getInstanceByRefId($refId, false);
+
+    // Throw error if there is no such object
+    if (!$ilObject)
+      throw new Exceptions\RefIdData(sprintf(self::MSG_INVALID_OBJECT, $refId), self::ID_INVALID_OBJ);
+
+    // Throw error if object was already deleted
+    if(\ilObject::_isInTrash($refId))
+      throw new Exceptions\RefIdData(sprintf(self::MSG_OBJECT_IN_TRASH, $refId), self::ID_OBJECT_IN_TRASH);
+
+    // Throw error
+    if(!$rbacsystem->checkAccess('read', $refId))
+      throw new Exceptions\RefIdData(sprintf(self::MSG_NO_ACCESS, $refId), self::ID_NO_ACCESS);
+
+    // Fetch Object data for different object-types
+    // Object: Course or Group
+    if (is_a($ilObject, 'ilObjCourse') || is_a($ilObject, 'ilObjGroup'))
+      return self::getIlObjCourseOrGroupData($ilObject);
+    // Object: File
+    elseif (is_a($ilObject, 'ilObjFile'))
+      return self::getIlObjFileData($ilObject);
+    // Object: Folder
+    elseif (is_a($ilObject, 'ilObjFolder'))
+      return self::getIlObjData($ilObject);
+    // Object: Bibliography
+    elseif (is_a($ilObject, 'ilObjBibliographic'))
+      return self::getIlObjData($ilObject);
+    // Object: Blog
+    elseif (is_a($ilObject, 'ilObjBlog'))
+      return self::getIlObjData($ilObject);
+    // Object: Media-Cast
+    elseif (is_a($ilObject, 'ilObjMediaCast'))
+      return self::getIlObjData($ilObject);
+    // Object: Link to Resource
+    elseif (is_a($ilObject, 'ilObjLinkResource'))
+      return self::getIlObjData($ilObject);
+    // Object: Forum
+    elseif (is_a($ilObject, 'ilObjForum'))
+      return self::getIlObjData($ilObject);
+    // Object: Chatroom
+    elseif (is_a($ilObject, 'ilObjChatroom'))
+      return self::getIlObjData($ilObject);
+    // Object: Wiki
+    elseif (is_a($ilObject, 'ilObjWiki'))
+      return self::getIlObjData($ilObject);
+    // Object: Glossary
+    elseif (is_a($ilObject, 'ilObjGlossary'))
+      return self::getIlObjData($ilObject);
+    // Object: Learning-Module (ILIAS)
+    elseif (is_a($ilObject, 'ilObjLearningModule'))
+      return self::getIlObjData($ilObject);
+    // Object: Learning-Module (SCORM)
+    elseif (is_a($ilObject, 'ilObjSAHSLearningModule'))
+      return self::getIlObjData($ilObject);
+    // Object: Learning-Module (HTML)
+    elseif (is_a($ilObject, 'ilObjFileBasedLM'))
+      return self::getIlObjData($ilObject);
+    // Object: Exercise
+    elseif (is_a($ilObject, 'ilObjExercise'))
+      return self::getIlObjData($ilObject);
+    // Object: Media-Pool
+    elseif (is_a($ilObject, 'ilObjMediaPool'))
+      return self::getIlObjData($ilObject);
+    // Object: Session
+    elseif (is_a($ilObject, 'ilObjSession'))
+      return self::getIlObjData($ilObject);
+    // Object: Item-Group
+    elseif (is_a($ilObject, 'ilObjItemGroup'))
+      return self::getIlObjData($ilObject);
+    // Object: RSS/Atom Feed
+    elseif (is_a($ilObject, 'ilObjExternalFeed'))
+      return self::getIlObjData($ilObject);
+    // Object: Data-Collection
+    elseif (is_a($ilObject, 'ilObjDataCollection'))
+      return self::getIlObjData($ilObject);
+    // Object: Category
+    elseif (is_a($ilObject, 'ilObjCategory'))
+      return self::getIlObjData($ilObject);
+    // Fallback solution
+    else
+      return self::getIlObjData($ilObject);
+  }
+
+
+  /**
+   *
+   */
   public static function getData($accessToken, $refIds) {
     // Convert to array
     if (!is_array($refIds))
@@ -213,6 +213,10 @@ class RefIdData {
         $result[]                 = $responseObject;
       }
     }
+
+    // Flatten simple output
+    if (count($result) == 1)
+      $result = $result[0];
 
     // If EVERY request failed, throw instead
     if ($noSuccess)

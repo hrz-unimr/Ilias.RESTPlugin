@@ -18,6 +18,8 @@ use \RESTController\core\auth as Auth;
 $app->group('/v1/umr', function () use ($app) {
   /**
    * Route: GET /v1/umr/refiddata
+   *  Returns all relevant data for the ILIAS-Object given by the provided refId(s).
+   *  [This endpoint parses HTTP-GET parameters, eg. ...?refids=1,2,3,10]
    *
    * @See docs/api.pdf
    */
@@ -50,6 +52,15 @@ $app->group('/v1/umr', function () use ($app) {
           $app->halt(400, $e->getFormatedMessage(), $e::ID);
       }
   });
+
+
+  /**
+   * Route: GET /v1/umr/refiddata
+   *  Returns all relevant data for the ILIAS-Object given by the provided refId(s).
+   *  [This endpoint parses one URI parameter, eg. .../10]
+   *
+   * @See docs/api.pdf
+   */
   $app->get('/refiddata/:refId', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($refId) use ($app) {
     // Fetch userId & userName
     $auth         = new Auth\Util();
