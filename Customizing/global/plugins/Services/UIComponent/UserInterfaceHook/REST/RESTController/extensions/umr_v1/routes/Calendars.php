@@ -10,6 +10,7 @@ namespace RESTController\extensions\umr_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires: $app to be \RESTController\RESTController::getInstance()
+use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 
 
@@ -24,7 +25,29 @@ $app->group('/v1/umr', function () use ($app) {
    * @See docs/api.pdf
    */
   $app->get('/calendars', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
-    // TODO: Implement for mobile stuff
+    // Fetch userId & userName
+    $auth         = new Auth\Util();
+    $accessToken  = $auth->getAccessToken();
+
+    try {
+      $request          = $app->request;
+      $calendarIdString = $request->params('calendarids', null);
+
+      // With HTTP-GET Parameter (fetch by contactIds)
+      if ($calendarIdString) {
+        $calendarIds   = Libs\RESTLib::parseIdsFromString($calendarIdString, true);
+        $calendars     = Calendars::getCalendars($accessToken, $calendarIds);
+      }
+      // Fetch all events
+      else
+        $calendars     = Calendars::getAllCalendars($accessToken);
+
+      // Output result
+      $app->success($calendars);
+    }
+    catch (Libs\Exceptions\IdParseProblem $e) {
+      $app->halt(422, $e->getMessage(), $e->getRESTCode());
+    }
   });
 
 
@@ -36,7 +59,15 @@ $app->group('/v1/umr', function () use ($app) {
    * @See docs/api.pdf
    */
   $app->get('/calendars/:calendarIds', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($calendarIds) use ($app) {
-    // TODO: Implement for mobile stuff
+    // Fetch userId & userName
+    $auth         = new Auth\Util();
+    $accessToken  = $auth->getAccessToken();
+
+    // Fetch user-information
+    $calendars    = Calendars::getCalendars($accessToken, $calendarIds);
+
+    // Output result
+    $app->success($calendars);
   });
 
 

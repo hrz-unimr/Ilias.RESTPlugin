@@ -20,6 +20,9 @@ class Events {
    *
    */
   protected static function getRecurrenceString($appointmentId) {
+    // Load classes required to access calendars and their appointments
+    require_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
+
     // Will temporary store string elemts for imploding
     $recurrenceStrings  = array();
 
@@ -48,34 +51,19 @@ class Events {
    */
   public static function getAllEvents($accessToken) {
     // Load classes required to access calendars and their appointments
-    require_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
-    require_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
-    require_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
     require_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
 
-    // Fetch user-id from access-token
-    $userId = $accessToken->getUserId();
-
-    // Initialize (global!) $ilUser object
-    $ilUser = Libs\RESTLib::loadIlUser($userId);
-    Libs\RESTLib::initAccessHandling();
-
-    // Fetch calendars (called categories here), initialize from database
-    $categoryHandler = \ilCalendarCategories::_getInstance($userId);
-    $categoryHandler->initialize(\ilCalendarCategories::MODE_MANAGE);
-
-    // Fetch internal ids for calendars
-    $result       = array();
-    $categories   = $categoryHandler->getCategoriesInfo();
-    foreach($categories as $category) {
-      // Fetch all sub calendars
-      $categoryId     = $category['cat_id'];
-      $subCategories  = $categoryHandler->getSubitemCategories($categoryId);
+    // Fetch calendars
+    $calendars = Calendars::getAllCalendars($accessToken);
+    foreach($calendars as $calendar) {
+      // Look up events of calendar and all children
+      $items    = ($calendar['children']) ?: array();
+      $items[]  = $calendar['calendar_id'];
 
       // Fetch events (called appointment here)
-      $appointmentIds = \ilCalendarCategoryAssignments::_getAssignedAppointments($subCategories);
+      $appointmentIds = \ilCalendarCategoryAssignments::_getAssignedAppointments($items);
       foreach($appointmentIds as $appointmentId)
-        $result[] = self::getEventInfo($categoryId, $appointmentId);
+        $result[] = self::getEventInfo($calendar['calendar_id'], $appointmentId);
     }
 
     // Return appointments
@@ -87,6 +75,9 @@ class Events {
    *
    */
   protected static function getEventInfo($calendarId, $eventId) {
+    // Load classes required to access calendars and their appointments
+    require_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
+
     // Fetch appointment object
     $appointment    = new \ilCalendarEntry($eventId);
 
@@ -121,10 +112,10 @@ class Events {
 
     // Extract user name
     $userId       = $accessToken->getUserId();
+    
+    // TODO: Check access-rights!
 
     // Load classes required to appointments
-    require_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
-    require_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
     require_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
 
     // Fetch each contact from list
