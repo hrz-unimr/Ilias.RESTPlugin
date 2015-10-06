@@ -184,7 +184,7 @@ class RESTLib {
      * @param $password - ILIS user-password
      * @return bool - True if authentication was successfull, false otherwise
      */
-    static public function authenticateViaIlias($username, $password) {
+    public static function authenticateViaIlias($username, $password) {
         RESTLib::initAccessHandling();
 
         $_POST['username'] = $username;
@@ -217,7 +217,7 @@ class RESTLib {
      * @return mixed
      * @throws \Exception
      */
-    static public function getObjIdFromRef($ref_id) {
+    public static function getObjIdFromRef($ref_id) {
         global $ilDB;
 
         $sql = self::safeSQL('SELECT obj_id FROM object_reference WHERE object_reference.ref_id = %d', intval($ref_id));
@@ -239,7 +239,7 @@ class RESTLib {
      * @return mixed
      * @throws \Exception
      */
-    static public function getRefIdFromObj($obj_id) {
+    public static function getRefIdFromObj($obj_id) {
         global $ilDB;
 
         $sql = self::safeSQL('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', intval($obj_id));
@@ -258,7 +258,7 @@ class RESTLib {
      * @param $obj_id
      * @return array
      */
-    static public function getRefIdsFromObj($obj_id) {
+    public static function getRefIdsFromObj($obj_id) {
         global $ilDB;
 
         $sql = self::safeSQL('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', $obj_id);
@@ -278,7 +278,7 @@ class RESTLib {
      * @return string
      * @throws \Exception
      */
-    static public function getPermanentLink($ref_id) {
+    public static function getPermanentLink($ref_id) {
         global $ilObjDataCache;
 
         $obj_id     = self::getObjIdFromRef($ref_id);
@@ -295,7 +295,7 @@ class RESTLib {
      * @param $user_id
      * @return string
      */
-    static public function getUserNameFromUserId($user_id) {
+    public static function getUserNameFromUserId($user_id) {
         global $ilDB;
 
         $sql = self::safeSQL('SELECT login FROM usr_data WHERE usr_id=%s', $user_id);
@@ -313,7 +313,7 @@ class RESTLib {
      * @param login - user_name
      * @return user_id
      */
-    static public function getUserIdFromUserName($login) {
+    public static function getUserIdFromUserName($login) {
         global $ilDB;
 
         $sql = self::safeSQL('SELECT usr_id FROM usr_data WHERE login=%s', $login);

@@ -19,7 +19,7 @@ class Calendars {
   /**
    *
    */
-  static protected function getCategories($accessToken) {
+  protected static function getCategories($accessToken) {
     // Load classes required to access calendars and their appointments
     require_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
 
@@ -31,41 +31,26 @@ class Calendars {
     Libs\RESTLib::initAccessHandling();
 
     // Fetch calendars (called categories here), initialize from database
-    $categoryHandler = \ilCalendarCategories::_getInstance($userId);
-    $categoryHandler->initialize(\ilCalendarCategories::MODE_MANAGE);
+    $calendarHandler = \ilCalendarCategories::_getInstance($userId);
+    $calendarHandler->initialize(\ilCalendarCategories::MODE_MANAGE);
 
     // Fetch internal ids for calendars
-    return $categoryHandler;
+    return $calendarHandler;
   }
 
 
   /**
    *
    */
-  static public function getAllCalendars($accessToken) {
-    // Fetch info for each calendar (called category here)
-    $result     = array();
-    $categories = self::getCategories($accessToken);
-    foreach($categories->getCategoriesInfo() as $categoryInfo)
-      $result[] = self::getCalendarInfo($categories, $categoryInfo);
-
-    // Return appointments
-    return $result;
-  }
-
-
-  /**
-   *
-   */
-  static protected function getCalendarInfo($categories, $categoryInfo) {
+  protected static function getCalendarInfo($categories, $calendarInfo) {
     // Fetch all sub calendars
-    $categoryId     = $categoryInfo['cat_id'];
-    $subCategories  = $categories->getSubitemCategories($categoryId);
+    $calendarId     = $calendarInfo['cat_id'];
+    $subCategories  = $categories->getSubitemCategories($calendarId);
 
     // Build calendar-info
     $object         = array(
-      'calendar_id'   => intval($categoryId),
-      'title'         => $categoryInfo['title']
+      'calendar_id'   => intval($calendarId),
+      'title'         => $calendarInfo['title']
     );
 
     // Add children (if available)
@@ -88,23 +73,58 @@ class Calendars {
   /**
    *
    */
-  static public function getCalendars($accessToken, $calendarIds) {
+  public static function getAllCalendars($accessToken) {
+    // Fetch info for each calendar (called category here)
+    $result     = array();
+    $categories = self::getCategories($accessToken);
+    foreach($categories->getCategoriesInfo() as $calendarInfo)
+      $result[] = self::getCalendarInfo($categories, $calendarInfo);
+
+    // Return appointments
+    return $result;
+  }
+
+
+  /**
+   *
+   */
+  public static function getCalendars($accessToken, $calendarIds) {
     // Convert to array
     if (!is_array($calendarIds))
       $calendarIds = array($calendarIds);
 
     // Fetch each contact from list
-    $result = array();
-    foreach($calendarIds as $calendarId) {
-      $categories     = self::getCategories($accessToken);
-      $categoryInfos  = $categories->getCategoriesInfo();
-      $result[]       = self::getCalendarInfo($categories, $categoryInfos[$calendarId]);
-    }
+    $result         = array();
+    $categories     = self::getCategories($accessToken);
+    $calendarInfos  = $categories->getCategoriesInfo();
+    foreach($calendarIds as $calendarId)
+      $result[]       = self::getCalendarInfo($categories, $calendarInfos[$calendarId]);
 
     // Flatten simple output
     if (count($result) == 1)
       $result = $result[0];
 
+    return $result;
+  }
+
+
+  /**
+   *
+   */
+  public static function getAllEventsOfCalendar($accessToken, $calendarId) {
+    // TODO: Check access-rights!
+
+    return Events::getEventsForCalendar($calendarId);
+  }
+
+
+  /**
+   *
+   */
+  public static function getAllEventsOfCalendars($accessToken, $calendarIds) {
+    $result = array();
+    foreach ($calendarIds as $calendarId)
+      $result[] = self::getAllEventsOfCalendar($accessToken, $calendarId);
     return $result;
   }
 }

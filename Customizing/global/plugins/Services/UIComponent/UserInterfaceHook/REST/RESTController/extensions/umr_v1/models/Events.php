@@ -49,31 +49,6 @@ class Events {
   /**
    *
    */
-  public static function getAllEvents($accessToken) {
-    // Load classes required to access calendars and their appointments
-    require_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
-
-    // Fetch calendars
-    $calendars = Calendars::getAllCalendars($accessToken);
-    foreach($calendars as $calendar) {
-      // Look up events of calendar and all children
-      $items    = ($calendar['children']) ?: array();
-      $items[]  = $calendar['calendar_id'];
-
-      // Fetch events (called appointment here)
-      $appointmentIds = \ilCalendarCategoryAssignments::_getAssignedAppointments($items);
-      foreach($appointmentIds as $appointmentId)
-        $result[] = self::getEventInfo($calendar['calendar_id'], $appointmentId);
-    }
-
-    // Return appointments
-    return $result;
-  }
-
-
-  /**
-   *
-   */
   protected static function getEventInfo($calendarId, $eventId) {
     // Load classes required to access calendars and their appointments
     require_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
@@ -105,6 +80,50 @@ class Events {
   /**
    *
    */
+  public static function getAllEvents($accessToken) {
+    // Fetch calendars
+    $result     = array();
+    $calendars  = Calendars::getAllCalendars($accessToken);
+    foreach($calendars as $calendar) {
+      // Look up events of calendar and all children
+      $items    = ($calendar['children']) ?: array();
+      $items[]  = $calendar['calendar_id'];
+
+      // Fetch events
+      $result[] = self::getEventsForCalendar($calendar['calendar_id'], $items);
+    }
+
+    // Return appointments
+    return $result;
+  }
+
+
+  /**
+   * NOTE: Before calling this method, make sure whoever is requesting this data
+   *       is allowed to view and/or publish this information!
+   */
+  public static function getEventsForCalendar($calendarId, $subItems = null) {
+    // Load classes required to access calendars and their appointments
+    require_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
+
+    // Use calendarId if no subItems are given
+    if (!$subItems)
+      $subItems = array($calendarId);
+
+    // Fetch events (called appointment here)
+    $result         = array();
+    $appointmentIds = \ilCalendarCategoryAssignments::_getAssignedAppointments($subItems);
+    foreach($appointmentIds as $appointmentId)
+      $result[] = self::getEventInfo($calendarId, $appointmentId);
+
+    // Return all collected events
+    return $result;
+  }
+
+
+  /**
+   *
+   */
   public static function getEvents($accessToken, $eventIds) {
     // Convert to array
     if (!is_array($eventIds))
@@ -112,7 +131,7 @@ class Events {
 
     // Extract user name
     $userId       = $accessToken->getUserId();
-    
+
     // TODO: Check access-rights!
 
     // Load classes required to appointments

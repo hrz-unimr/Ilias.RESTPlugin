@@ -20,7 +20,7 @@ $app->group('/v1/umr', function () use ($app) {
    * Route: GET /v1/umr/calendars
    *  [Without HTTP-GET Parameters] Fetches all calendars of the user given by the access-token.
    *  [With HTTP-GET Parameters] Get the calendars with given calendarIds for the user given by the access-token.
-   *  [This endpoint CAN parse HTTP-GET parameters, eg. ...?eventids=1,2,3,10]
+   *  [This endpoint CAN parse HTTP-GET parameters, eg. ...?calendarids=1,2,3,10]
    *
    * @See docs/api.pdf
    */
@@ -58,13 +58,13 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/calendars/:calendarIds', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($calendarIds) use ($app) {
+  $app->get('/calendars/:calendarId', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($calendarId) use ($app) {
     // Fetch userId & userName
     $auth         = new Auth\Util();
     $accessToken  = $auth->getAccessToken();
 
     // Fetch user-information
-    $calendars    = Calendars::getCalendars($accessToken, $calendarIds);
+    $calendars    = Calendars::getCalendars($accessToken, $calendarId);
 
     // Output result
     $app->success($calendars);
@@ -74,12 +74,32 @@ $app->group('/v1/umr', function () use ($app) {
   /**
    * Route: GET /v1/umr/calendars/events
    *  Get all events of the calendars with given calendarIds for the user given by the access-token.
-   *  [This endpoint CAN parse HTTP-GET parameters, eg. ...?eventids=1,2,3,10]
+   *  [This endpoint CAN parse HTTP-GET parameters, eg. ...?calendarids=1,2,3,10]
    *
    * @See docs/api.pdf
    */
   $app->get('/calendars/events', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
-    // TODO: Implement for mobile stuff
+    // Fetch userId & userName
+    $auth         = new Auth\Util();
+    $accessToken  = $auth->getAccessToken();
+
+    try {
+      $request          = $app->request;
+      $calendarIdString = $request->params('calendarids', null, true);
+
+      // With HTTP-GET Parameter (fetch by contactIds)
+      $calendarIds   = Libs\RESTLib::parseIdsFromString($calendarIdString, true);
+      $calendars     = Calendars::getAllEventsOfCalendars($accessToken, $calendarIds);
+
+      // Output result
+      $app->success($calendars);
+    }
+    catch (Libs\Exceptions\IdParseProblem $e) {
+      $app->halt(422, $e->getMessage(), $e->getRESTCode());
+    }
+    catch (LibExceptions\MissingParameter $e) {
+        $app->halt(400, $e->getFormatedMessage(), $e::ID);
+    }
   });
 
 
@@ -90,8 +110,16 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/calendars/:calendarIds/events/', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($calendarIds) use ($app) {
-    // TODO: Implement for mobile stuff
+  $app->get('/calendars/:calendarId/events/', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($calendarId) use ($app) {
+    // Fetch userId & userName
+    $auth         = new Auth\Util();
+    $accessToken  = $auth->getAccessToken();
+
+    // Fetch user-information
+    $calendars    = Calendars::getAllEventsOfCalendar($accessToken, $calendarId);
+
+    // Output result
+    $app->success($calendars);
   });
 
 
