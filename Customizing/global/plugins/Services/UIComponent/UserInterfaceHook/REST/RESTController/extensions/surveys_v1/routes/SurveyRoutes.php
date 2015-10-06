@@ -25,8 +25,21 @@ $app->group('/v1', function () use ($app) {
          foreach($attribs as $a) {
              $req_data[$a] = $request->params($a);
          }
+         $model = new Surveys\SurveyModel();
+         $model->fillRandomAnswers($req_data['ref_id'], $req_data['user_id']);
+         $app->success("ok");
+    });
+
+    /**
+     * Returns a Json representation of the survey ref_id.
+     */
+    $app->get('/survey/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function($ref_id) use ($app) {
+        $auth = new Auth\Util();
+        $accessToken = $auth->getAccessToken();
+        $user_id = $accessToken->getUserId();
+
         $model = new Surveys\SurveyModel();
-        $model->fillRandomAnswers($req_data['ref_id'], $req_data['user_id']);
-        $app->success("ok");
+        $result = $model->getJsonRepresentation($ref_id,$user_id);
+        $app->success($result);
     });
 });
