@@ -62,27 +62,6 @@ class UserInfo {
   /**
    *
    */
-  public static function getUserInfo($accessToken_OR_userId) {
-      // Parse input: Using a userId
-      if (is_numeric($accessToken_OR_userId)) {
-        $usingToken   = false;
-        $userId       = intval($accessToken_OR_userId);
-        $userName     = Libs\RESTLib::getUserNameFromUserId($userId);
-      }
-      // Parse input: Using an access-token
-      elseif (is_a($accessToken_OR_userId, '\RESTController\core\auth\Token\Generic')) {
-        $usingToken   = true;
-        $accessToken  = $accessToken_OR_userId;
-        $userName     = $accessToken->getUserName();
-        $userId       = $accessToken->getUserId();
-      }
-      // Parse input: fail!
-      else
-        throw new Exceptions\UserInfo(self::MSG_INVALID_TYPE, self::ID_INVALID_TYPE);
-
-      // Delegate to actual implementation
-      return self::getUserInfo_Intern($userId, $userName, $usingToken);
-  }
   protected static function getUserInfo_Intern($userId, $userName, $usingToken) {
     // Fetch user-information
     $ilObj = \ilObjectFactory::getInstanceByObjId($userId);
@@ -169,5 +148,31 @@ class UserInfo {
 
     // Return user-info
     return $userInfo;
+  }
+
+
+  /**
+   *
+   */
+  public static function getUserInfo($accessToken_OR_userId) {
+      // Parse input: Using a userId
+      if (is_numeric($accessToken_OR_userId)) {
+        $usingToken   = false;
+        $userId       = intval($accessToken_OR_userId);
+        $userName     = Libs\RESTLib::getUserNameFromUserId($userId);
+      }
+      // Parse input: Using an access-token
+      elseif (is_a($accessToken_OR_userId, '\RESTController\core\auth\Token\Generic')) {
+        $usingToken   = true;
+        $accessToken  = $accessToken_OR_userId;
+        $userName     = $accessToken->getUserName();
+        $userId       = $accessToken->getUserId();
+      }
+      // Parse input: fail!
+      else
+        throw new Exceptions\UserInfo(self::MSG_INVALID_TYPE, self::ID_INVALID_TYPE);
+
+      // Delegate to actual implementation
+      return self::getUserInfo_Intern($userId, $userName, $usingToken);
   }
 }

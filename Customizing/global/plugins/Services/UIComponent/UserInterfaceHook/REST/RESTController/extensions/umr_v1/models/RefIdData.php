@@ -203,8 +203,8 @@ class RefIdData {
     $noSuccess  = true;
     foreach ($refIds as $refId) {
       try {
-        $result[]   = self::getDataForId($accessToken, $refId);
-        $noSuccess  = false;
+        $result[$refId] = self::getDataForId($accessToken, $refId);
+        $noSuccess      = false;
       }
       catch (Exceptions\RefIdData $e) {
         // Add error-response for failed refIds

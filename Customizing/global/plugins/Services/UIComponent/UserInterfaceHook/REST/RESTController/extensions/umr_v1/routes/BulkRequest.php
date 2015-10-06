@@ -24,7 +24,17 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/bulkrequest', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->get('/bulkrequest', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+    // Fetch userId & userName
+    $auth         = new Auth\Util();
+    $accessToken  = $auth->getAccessToken();
+
+    // Fetch user-information
+    $bulk         = BulkRequest::getBulk($accessToken);
+
+    // Output result
+    $app->success($bulk);
+  });
 
 // End of '/v1/umr/' URI-Group
 });
