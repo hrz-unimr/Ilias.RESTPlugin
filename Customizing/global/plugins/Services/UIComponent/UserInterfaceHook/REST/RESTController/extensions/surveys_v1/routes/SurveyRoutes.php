@@ -42,4 +42,19 @@ $app->group('/v1', function () use ($app) {
         $result = $model->getJsonRepresentation($ref_id,$user_id);
         $app->success($result);
     });
+
+    /**
+     * Returns the answers of a survey of the authenticated user.
+     */
+    $app->get('/survey_answers/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function($ref_id) use ($app) {
+        $auth = new Auth\Util();
+        $accessToken = $auth->getAccessToken();
+        $user_id = $accessToken->getUserId();
+
+        $model = new Surveys\SurveyModel();
+        $result = $model->getSurveyResultsOfUser($ref_id,$user_id);
+        $app->success($result);
+    });
+
+
 });

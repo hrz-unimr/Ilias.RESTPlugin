@@ -85,4 +85,48 @@ class SurveyModel extends Libs\RESTModel
         $result['questions'] = $res_questions;
         return $result;
     }
+
+    /**
+     * Returns the answers of a user for a survey.
+     * @param $ref_id - survey id
+     * @param $user_id
+     * @return array
+     */
+    public function getSurveyResultsOfUser($ref_id, $user_id) {
+        Libs\RESTLib::loadIlUser();
+        global $ilUser;
+        $ilUser->setId($user_id);
+        $ilUser->read();
+        $svyObj = new \ilObjSurvey($ref_id);
+        $ids = $this->getFinishIdOfUser($ref_id, $user_id);
+        $data = $svyObj->getUserSpecificResults($ids);
+        return $data;
+    }
+
+    /**
+     * Returns the "finishID" of a particular user.
+     * @param $ref_id
+     * @param $user_id
+     * @return array
+     */
+    private function getFinishIdOfUser($ref_id, $user_id) {
+        global $ilDB;
+        Libs\RESTLib::loadIlUser();
+        global $ilUser;
+        $ilUser->setId($user_id);
+        $ilUser->read();
+        $svyObj = new \ilObjSurvey($ref_id);
+
+        // gather participants who already finished
+        $finished_ids = array();
+        $set = $ilDB->query("SELECT finished_id FROM svy_finished".
+            " WHERE survey_fi = ".$ilDB->quote($svyObj->getSurveyId(), "integer").
+            " AND state = ".$ilDB->quote(1, "text").
+            " AND user_fi= ". $user_id);
+        while($row = $ilDB->fetchAssoc($set))
+        {
+            $finished_ids[] = $row["finished_id"];
+        }
+        return $finished_ids;
+    }
 }
