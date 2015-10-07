@@ -58,15 +58,15 @@ class Calendars extends Libs\RESTModel {
   /**
    *
    */
-  protected static function getCalendarInfo($categories, $calendarInfo) {
+  protected static function getCalendarInfo($categories, $categoryInfo) {
     // Fetch all sub calendars
-    $calendarId     = $calendarInfo['cat_id'];
+    $calendarId     = $categoryInfo['cat_id'];
     $subCategories  = $categories->getSubitemCategories($calendarId);
 
     // Build calendar-info
     $object         = array(
       'calendar_id'   => intval($calendarId),
-      'title'         => $calendarInfo['title']
+      'title'         => $categoryInfo['title']
     );
 
     // Add children (if available)
@@ -91,9 +91,9 @@ class Calendars extends Libs\RESTModel {
    */
   public static function hasCalendar($accessToken, $calendarId) {
     $categories     = Calendars::getCategories($accessToken);
-    $calendarInfos  = $categories->getCategoriesInfo();
+    $categoryInfos  = $categories->getCategoriesInfo();
 
-    return ($calendarInfos[$calendarId] != null);
+    return ($categoryInfos[$calendarId] != null);
   }
 
 
@@ -104,8 +104,8 @@ class Calendars extends Libs\RESTModel {
     // Fetch info for each calendar (called category here)
     $result     = array();
     $categories = self::getCategories($accessToken);
-    foreach($categories->getCategoriesInfo() as $calendarInfo) {
-      $info                 = self::getCalendarInfo($categories, $calendarInfo);
+    foreach($categories->getCategoriesInfo() as $categoryInfo) {
+      $info                 = self::getCalendarInfo($categories, $categoryInfo);
       $calendarId           = $info['calendar_id'];
       $result[$calendarId]  = $info;
     }
@@ -125,12 +125,12 @@ class Calendars extends Libs\RESTModel {
     // Fetch each contact from list
     $result         = array();
     $categories     = self::getCategories($accessToken);
-    $calendarInfos  = $categories->getCategoriesInfo();
+    $categoryInfos  = $categories->getCategoriesInfo();
     $noSuccess      = true;
     foreach($calendarIds as $calendarId)
       // Does calendar with this id exist?
-      if ($calendarInfos[$calendarId]) {
-        $result[$calendarId]  = self::getCalendarInfo($categories, $calendarInfos[$calendarId]);
+      if ($categoryInfos[$calendarId]) {
+        $result[$calendarId]  = self::getCalendarInfo($categories, $categoryInfos[$calendarId]);
         $noSuccess            = false;
       }
       // Add missing calendarId information to response
