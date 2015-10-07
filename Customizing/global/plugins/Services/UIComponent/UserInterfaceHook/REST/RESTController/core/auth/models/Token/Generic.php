@@ -30,7 +30,7 @@ class Generic extends Base {
     const MSG_INVALID = 'Token is invalid.';
 
 
-    //
+    // Contents of TokenArray
     protected static $fields = array(
         'user',
         'api_key',
@@ -40,6 +40,8 @@ class Generic extends Base {
         's',
         'h'
     );
+    // Buffer UserId of given User
+    protected $bufferedUserId = null;
 
 
     /**
@@ -104,8 +106,11 @@ class Generic extends Base {
         return $this->tokenArray['user'];
     }
     public function getUserId() {
-        $user = $this->tokenArray['user'];
-        return Libs\RESTLib::getUserIdFromUserName($user);
+        if (!$this->bufferedUserId) {
+            $user                 = $this->tokenArray['user'];
+            $this->bufferedUserId = Libs\RESTLib::getUserIdFromUserName($user);
+        }
+        return $this->bufferedUserId;
     }
     public function getApiKey() {
         return $this->tokenArray['api_key'];

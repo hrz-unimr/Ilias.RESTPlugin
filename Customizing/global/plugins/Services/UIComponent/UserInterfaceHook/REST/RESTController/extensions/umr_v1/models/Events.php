@@ -136,31 +136,46 @@ class Events extends Libs\RESTModel {
     if (!is_array($eventIds))
       $eventIds = array($eventIds);
 
-    // Extract user name
-    $userId       = $accessToken->getUserId();
-
-    // TODO: Check access-rights!
-
     // Load classes required to appointments
     require_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
 
     // Fetch each contact from list
     $result     = array();
-    $noSuccess  = true;
+    $calendars  = array();
+    $success     = 0;
     foreach($eventIds as $eventId) {
-      $calendarId       = current(\ilCalendarCategoryAssignments::_getAppointmentCalendars(array($eventId)));
+      // Fetch calendarId
+      $calendarId             = current(\ilCalendarCategoryAssignments::_getAppointmentCalendars(array($eventId)));
+
+      // Does calendar exist
       if ($calendarId) {
+        // Fetch event
         $result[$eventId] = self::getEventInfo($calendarId, $eventId);
-        $noSuccess        = false;
+
+        // Store events to check calendar access-rights later
+        $calendars[$calendarId] = ($calendars[$calendarId]) ? $calendars[$calendarId][] = $eventId : array($eventId);
+        ++$success;
       }
+      // Calendar does not exist
       else {
         $result[$eventId]             = Libs\RESTLib::responseObject(sprintf(self::MSG_NO_EVENT_ID, $eventId), self::ID_NO_EVENT_ID);
         $result[$eventId]['event_id'] = $eventId;
       }
     }
 
+    // Check access-rights
+    foreach($calendars as $calendarId => $eventIds)
+      if (!Calendars::hasCalendar($accessToken, $calendarId))
+        // Unset all events of this calendar
+        foreach($eventIds as $eventId) {
+          $result[$eventId] = Libs\RESTLib::responseObject(sprintf(self::MSG_NO_EVENT_ID, $eventId), self::ID_NO_EVENT_ID);
+          $result[$eventId]['event_id'] = $eventId;
+
+          --$success;
+        }
+
     // If every request failed, throw instead
-    if ($noSuccess)
+    if ($success == 0)
       throw new Exceptions\Events(self::MSG_ALL_FAILED, self::ID_ALL_FAILED, $result);
 
     return $result;

@@ -22,26 +22,36 @@ class Calendars extends Libs\RESTModel {
   const ID_NO_CALENDAR_ID   = 'RESTController\\extensions\\umr_v1\\Calendars::ID_NO_CALENDAR_ID';
   const ID_ALL_FAILED       = 'RESTController\\extensions\\umr_v1\\Calendars::ID_ALL_FAILED';
 
+
+  // Buffer categories (once for each userId)
+  protected static $categories    = array();
+
+
   /**
    *
    */
   protected static function getCategories($accessToken) {
-    // Load classes required to access calendars and their appointments
-    require_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
-
-    // Fetch user-id from access-token
     $userId = $accessToken->getUserId();
 
-    // Initialize (global!) $ilUser object
-    $ilUser = Libs\RESTLib::loadIlUser($userId);
-    Libs\RESTLib::initAccessHandling();
+    // Query information only ONCE
+    if (!self::$categories[$userId]) {
+      // Load classes required to access calendars and their appointments
+      require_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
 
-    // Fetch calendars (called categories here), initialize from database
-    $calendarHandler = \ilCalendarCategories::_getInstance($userId);
-    $calendarHandler->initialize(\ilCalendarCategories::MODE_MANAGE);
+      // Fetch user-id from access-token
+      $userId = $accessToken->getUserId();
+
+      // Initialize (global!) $ilUser object
+      $ilUser = Libs\RESTLib::loadIlUser($userId);
+      Libs\RESTLib::initAccessHandling();
+
+      // Fetch calendars (called categories here), initialize from database
+      self::$categories[$userId] = \ilCalendarCategories::_getInstance($userId);
+      self::$categories[$userId]->initialize(\ilCalendarCategories::MODE_MANAGE);
+    }
 
     // Fetch internal ids for calendars
-    return $calendarHandler;
+    return self::$categories[$userId];
   }
 
 
@@ -73,6 +83,17 @@ class Calendars extends Libs\RESTModel {
     }
 
     return $object;
+  }
+
+
+  /**
+   *
+   */
+  public static function hasCalendar($accessToken, $calendarId) {
+    $categories     = Calendars::getCategories($accessToken);
+    $calendarInfos  = $categories->getCategoriesInfo();
+
+    return ($calendarInfos[$calendarId] != null);
   }
 
 
@@ -130,12 +151,8 @@ class Calendars extends Libs\RESTModel {
    *
    */
   public static function getAllEventsOfCalendar($accessToken, $calendarId) {
-    // Fetch all calendars
-    $categories     = self::getCategories($accessToken);
-    $calendarInfos  = $categories->getCategoriesInfo();
-
     // Check if calendar exists
-    if ($calendarInfos[$calendarId])
+    if (self::hasCalendar($accessToken, $calendarId))
       // Fetch events of calendar
       return Events::getEventsForCalendar($calendarId);
     else
