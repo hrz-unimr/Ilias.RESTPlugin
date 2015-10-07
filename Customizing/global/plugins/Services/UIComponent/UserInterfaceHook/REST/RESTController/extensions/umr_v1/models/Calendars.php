@@ -77,9 +77,11 @@ class Calendars {
     // Fetch info for each calendar (called category here)
     $result     = array();
     $categories = self::getCategories($accessToken);
-    foreach($categories->getCategoriesInfo() as $calendarInfo)
-      $result[] = self::getCalendarInfo($categories, $calendarInfo);
-
+    foreach($categories->getCategoriesInfo() as $calendarInfo) {
+      $info                 = self::getCalendarInfo($categories, $calendarInfo);
+      $calendarId           = $info['calendar_id'];
+      $result[$calendarId]  = $info;
+    }
     // Return appointments
     return $result;
   }
@@ -98,11 +100,7 @@ class Calendars {
     $categories     = self::getCategories($accessToken);
     $calendarInfos  = $categories->getCategoriesInfo();
     foreach($calendarIds as $calendarId)
-      $result[]       = self::getCalendarInfo($categories, $calendarInfos[$calendarId]);
-
-    // Flatten simple output
-    if (count($result) == 1)
-      $result = $result[0];
+      $result[$calendarId] = self::getCalendarInfo($categories, $calendarInfos[$calendarId]);
 
     return $result;
   }
@@ -124,7 +122,7 @@ class Calendars {
   public static function getAllEventsOfCalendars($accessToken, $calendarIds) {
     $result = array();
     foreach ($calendarIds as $calendarId)
-      $result[] = self::getAllEventsOfCalendar($accessToken, $calendarId);
+      $result[$calendarId] = self::getAllEventsOfCalendar($accessToken, $calendarId);
     return $result;
   }
 }

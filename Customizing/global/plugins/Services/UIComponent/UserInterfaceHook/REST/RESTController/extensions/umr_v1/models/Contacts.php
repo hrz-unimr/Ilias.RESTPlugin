@@ -60,12 +60,11 @@ class Contacts {
 
     // Add user-info (filtered) to each contact
     $result = array();
-    foreach ($contacts as $contact)
-      $result[] = self::getContactInfo($contact);
-
-    // Flatten simple output
-    if (count($result) == 1)
-      $result = $result[0];
+    foreach ($contacts as $contact) {
+      $info               = self::getContactInfo($contact);
+      $contactId          = $info['contact_id'];
+      $result[$contactId] = $info;
+    }
 
     // Return contacts
     return $result;
@@ -90,13 +89,9 @@ class Contacts {
     // Fetch each contact from list
     $result = array();
     foreach($contactIds as $contactId) {
-      $contact  = $adressbook->getEntry($contactId);
-      $result[] = self::getContactInfo($contact);
+      $contact            = $adressbook->getEntry($contactId);
+      $result[$contactId] = self::getContactInfo($contact);
     }
-
-    // Flatten simple output
-    if (count($result) == 1)
-      $result = $result[0];
 
     return $result;
   }

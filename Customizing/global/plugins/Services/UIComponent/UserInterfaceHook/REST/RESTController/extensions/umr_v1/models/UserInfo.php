@@ -136,11 +136,6 @@ class UserInfo {
         (self::allowedToView($usingToken, $ilObj, 'public_interests_help_looking'))  ? $ilObj->getLookingForHelp() : null,
       avatar                  =>
         (self::allowedToView($usingToken, $ilObj, 'public_upload'))                  ? self::getAvatar($ilObj) : null
-
-      // Unknown data fields!
-//    delicious               => $ilObj->delicious,
-//    latitude                => $ilObj->latitude,
-//    longitude               => $ilObj->longitude
     );
 
     // Filter null from array

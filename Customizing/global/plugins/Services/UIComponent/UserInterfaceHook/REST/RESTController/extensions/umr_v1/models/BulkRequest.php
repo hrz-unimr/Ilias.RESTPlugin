@@ -32,7 +32,7 @@ class BulkRequest {
             $newData      = self::fetchDataRecursive($accessToken, $childrenData);
 
             if (is_array($newData))
-              $refIdData    = $refIdData + $newData;
+              $refIdData  = $refIdData + $newData;
           }
         }
       }

@@ -90,7 +90,7 @@ class Events {
       $items[]  = $calendar['calendar_id'];
 
       // Fetch events
-      $result[] = self::getEventsForCalendar($calendar['calendar_id'], $items);
+      $result  += self::getEventsForCalendar($calendar['calendar_id'], $items);
     }
 
     // Return appointments
@@ -114,7 +114,7 @@ class Events {
     $result         = array();
     $appointmentIds = \ilCalendarCategoryAssignments::_getAssignedAppointments($subItems);
     foreach($appointmentIds as $appointmentId)
-      $result[] = self::getEventInfo($calendarId, $appointmentId);
+      $result[$appointmentId] = self::getEventInfo($calendarId, $appointmentId);
 
     // Return all collected events
     return $result;
@@ -140,13 +140,9 @@ class Events {
     // Fetch each contact from list
     $result = array();
     foreach($eventIds as $eventId) {
-      $calendarId = current(\ilCalendarCategoryAssignments::_getAppointmentCalendars(array($eventId)));
-      $result[]   = self::getEventInfo($calendarId, $eventId);
+      $calendarId       = current(\ilCalendarCategoryAssignments::_getAppointmentCalendars(array($eventId)));
+      $result[$eventId] = self::getEventInfo($calendarId, $eventId);
     }
-
-    // Flatten simple output
-    if (count($result) == 1)
-      $result = $result[0];
 
     return $result;
   }

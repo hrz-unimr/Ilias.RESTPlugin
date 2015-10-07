@@ -210,13 +210,9 @@ class RefIdData {
         // Add error-response for failed refIds
         $responseObject           = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
         $responseObject['ref_id'] = $refId;
-        $result[]                 = $responseObject;
+        $result[$refId]           = $responseObject;
       }
     }
-
-    // Flatten simple output
-    if (count($result) == 1)
-      $result = $result[0];
 
     // If EVERY request failed, throw instead
     if ($noSuccess)
