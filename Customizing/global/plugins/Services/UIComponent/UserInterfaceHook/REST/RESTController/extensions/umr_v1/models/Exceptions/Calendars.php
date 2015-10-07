@@ -15,4 +15,4 @@ use \RESTController\libs\Exceptions as LibExceptions;
 /**
  *
  */
-class RefIdData extends BaseException { }
+class Calendars extends BaseException { }

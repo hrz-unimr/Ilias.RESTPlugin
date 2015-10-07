@@ -15,7 +15,14 @@ use \RESTController\libs as Libs;
 /**
  *
  */
-class Contacts {
+class Contacts extends Libs\RESTModel {
+  // Allow to re-use status-messages and status-codes
+  const MSG_NO_CONTACT_ID  = 'Contact with contactId %s does not exist.';
+  const MSG_ALL_FAILED      = 'All requests failed, see data-entry for more information.';
+  const ID_NO_CONTACT_ID   = 'RESTController\\extensions\\umr_v1\\Contacts::ID_NO_CONTACT_ID';
+  const ID_ALL_FAILED       = 'RESTController\\extensions\\umr_v1\\Contacts::ID_ALL_FAILED';
+
+
   /**
    *
    */
@@ -87,11 +94,26 @@ class Contacts {
     $adressbook = new \ilAddressbook($userId);
 
     // Fetch each contact from list
-    $result = array();
+    $result     = array();
+    $noSuccess  = true;
     foreach($contactIds as $contactId) {
       $contact            = $adressbook->getEntry($contactId);
-      $result[$contactId] = self::getContactInfo($contact);
+
+      // Contact was found
+      if ($contact && $contact['login']) {
+        $result[$contactId] = self::getContactInfo($contact);
+        $noSuccess          = false;
+      }
+      // No contact with given id
+      else {
+        $result[$contactId]               = Libs\RESTLib::responseObject(sprintf(self::MSG_NO_CONTACT_ID, $contactId), self::ID_NO_CONTACT_ID);
+        $result[$contactId]['contact_id'] = $contactId;
+      }
     }
+
+    // If every request failed, throw instead
+    if ($noSuccess)
+      throw new Exceptions\Contacts(self::MSG_ALL_FAILED, self::ID_ALL_FAILED, $result);
 
     return $result;
   }

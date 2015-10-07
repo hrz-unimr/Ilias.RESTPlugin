@@ -15,7 +15,13 @@ use \RESTController\libs as Libs;
 /**
  *
  */
-class Calendars {
+class Calendars extends Libs\RESTModel {
+  // Allow to re-use status-messages and status-codes
+  const MSG_NO_CALENDAR_ID  = 'Calendar with calendarId %s does not exist.';
+  const MSG_ALL_FAILED      = 'All requests failed, see data-entry for more information.';
+  const ID_NO_CALENDAR_ID   = 'RESTController\\extensions\\umr_v1\\Calendars::ID_NO_CALENDAR_ID';
+  const ID_ALL_FAILED       = 'RESTController\\extensions\\umr_v1\\Calendars::ID_ALL_FAILED';
+
   /**
    *
    */
@@ -99,8 +105,22 @@ class Calendars {
     $result         = array();
     $categories     = self::getCategories($accessToken);
     $calendarInfos  = $categories->getCategoriesInfo();
+    $noSuccess      = true;
     foreach($calendarIds as $calendarId)
-      $result[$calendarId] = self::getCalendarInfo($categories, $calendarInfos[$calendarId]);
+      // Does calendar with this id exist?
+      if ($calendarInfos[$calendarId]) {
+        $result[$calendarId]  = self::getCalendarInfo($categories, $calendarInfos[$calendarId]);
+        $noSuccess            = false;
+      }
+      // Add missing calendarId information to response
+      else {
+        $result[$calendarId]                = Libs\RESTLib::responseObject(sprintf(self::MSG_NO_CALENDAR_ID, $calendarId), self::ID_NO_CALENDAR_ID);
+        $result[$calendarId]['calendar_id'] = $calendarId;
+      }
+
+    // If every request failed, throw instead
+    if ($noSuccess)
+      throw new Exceptions\Calendars(self::MSG_ALL_FAILED, self::ID_ALL_FAILED, $result);
 
     return $result;
   }
@@ -110,9 +130,16 @@ class Calendars {
    *
    */
   public static function getAllEventsOfCalendar($accessToken, $calendarId) {
-    // TODO: Check access-rights!
+    // Fetch all calendars
+    $categories     = self::getCategories($accessToken);
+    $calendarInfos  = $categories->getCategoriesInfo();
 
-    return Events::getEventsForCalendar($calendarId);
+    // Check if calendar exists
+    if ($calendarInfos[$calendarId])
+      // Fetch events of calendar
+      return Events::getEventsForCalendar($calendarId);
+    else
+      throw new Exceptions\Calendars(sprintf(self::MSG_NO_CALENDAR_ID, $calendarId), self::ID_NO_CALENDAR_ID, intval($calendarId));
   }
 
 
@@ -120,9 +147,29 @@ class Calendars {
    *
    */
   public static function getAllEventsOfCalendars($accessToken, $calendarIds) {
-    $result = array();
+    // Convert input to array
+    if (!is_array($calendarIds))
+      $calendarIds = array($calendarIds);
+
+    // Fetch all calendars
+    $result     = array();
+    $noSuccess  = true;
     foreach ($calendarIds as $calendarId)
-      $result[$calendarId] = self::getAllEventsOfCalendar($accessToken, $calendarId);
+      // Try to fetch information
+      try {
+        $result[$calendarId]  = self::getAllEventsOfCalendar($accessToken, $calendarId);
+        $noSuccess            = false;
+      }
+      // Add exception information if failure
+      catch (Exceptions\Calendars $e) {
+        $result[$calendarId]                = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+        $result[$calendarId]['calendar_id'] = $calendarId;
+      }
+
+    // If every request failed, throw instead
+    if ($noSuccess)
+      throw new Exceptions\Calendars(self::MSG_ALL_FAILED, self::ID_ALL_FAILED, $result);
+
     return $result;
   }
 }

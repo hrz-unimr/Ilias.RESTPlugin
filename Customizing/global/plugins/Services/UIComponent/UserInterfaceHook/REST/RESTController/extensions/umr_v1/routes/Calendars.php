@@ -48,6 +48,11 @@ $app->group('/v1/umr', function () use ($app) {
     catch (Libs\Exceptions\IdParseProblem $e) {
       $app->halt(422, $e->getMessage(), $e->getRESTCode());
     }
+    catch (Exceptions\Calendars $e) {
+      $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+      $responseObject['data'] = $e->getData();
+      $app->halt(500, $responseObject);
+    }
   });
 
 
@@ -63,11 +68,18 @@ $app->group('/v1/umr', function () use ($app) {
     $auth         = new Auth\Util();
     $accessToken  = $auth->getAccessToken();
 
-    // Fetch user-information
-    $calendars    = Calendars::getCalendars($accessToken, $calendarId);
+    try {
+      // Fetch user-information
+      $calendars    = Calendars::getCalendars($accessToken, $calendarId);
 
-    // Output result
-    $app->success($calendars);
+      // Output result
+      $app->success($calendars);
+    }
+    catch (Exceptions\Calendars $e) {
+      $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+      $responseObject['data'] = $e->getData();
+      $app->halt(500, $responseObject);
+    }
   });
 
 
@@ -78,7 +90,8 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/calendars/events', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+  $app->get('/calendar/events', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+
     // Fetch userId & userName
     $auth         = new Auth\Util();
     $accessToken  = $auth->getAccessToken();
@@ -97,8 +110,13 @@ $app->group('/v1/umr', function () use ($app) {
     catch (Libs\Exceptions\IdParseProblem $e) {
       $app->halt(422, $e->getMessage(), $e->getRESTCode());
     }
-    catch (LibExceptions\MissingParameter $e) {
+    catch (Libs\Exceptions\MissingParameter $e) {
         $app->halt(400, $e->getFormatedMessage(), $e::ID);
+    }
+    catch (Exceptions\Calendars $e) {
+      $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+      $responseObject['data'] = $e->getData();
+      $app->halt(500, $responseObject);
     }
   });
 
@@ -110,16 +128,23 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/calendars/:calendarId/events/', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($calendarId) use ($app) {
+  $app->get('/calendar/:calendarId/events', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($calendarId) use ($app) {
     // Fetch userId & userName
     $auth         = new Auth\Util();
     $accessToken  = $auth->getAccessToken();
 
-    // Fetch user-information
-    $calendars    = Calendars::getAllEventsOfCalendar($accessToken, $calendarId);
+    try {
+      // Fetch user-information
+      $calendars    = Calendars::getAllEventsOfCalendars($accessToken, $calendarId);
 
-    // Output result
-    $app->success($calendars);
+      // Output result
+      $app->success($calendars);
+    }
+    catch (Exceptions\Calendars $e) {
+      $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+      $responseObject['data'] = $e->getData();
+      $app->halt(500, $responseObject);
+    }
   });
 
 

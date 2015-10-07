@@ -48,6 +48,11 @@ $app->group('/v1/umr', function () use ($app) {
     catch (Libs\Exceptions\IdParseProblem $e) {
       $app->halt(422, $e->getMessage(), $e->getRESTCode());
     }
+    catch (Exceptions\Events $e) {
+      $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+      $responseObject['data'] = $e->getData();
+      $app->halt(500, $responseObject);
+    }
   });
 
 
@@ -63,11 +68,18 @@ $app->group('/v1/umr', function () use ($app) {
     $auth         = new Auth\Util();
     $accessToken  = $auth->getAccessToken();
 
-    // Fetch user-information
-    $events       = Events::getEvents($accessToken, $eventId);
+    try {
+      // Fetch user-information
+      $events       = Events::getEvents($accessToken, $eventId);
 
-    // Output result
-    $app->success($events);
+      // Output result
+      $app->success($events);
+    }
+    catch (Exceptions\Events $e) {
+      $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+      $responseObject['data'] = $e->getData();
+      $app->halt(500, $responseObject);
+    }
   });
 
 

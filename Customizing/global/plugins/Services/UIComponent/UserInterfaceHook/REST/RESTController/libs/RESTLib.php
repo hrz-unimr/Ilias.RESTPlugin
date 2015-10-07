@@ -421,7 +421,11 @@ class RESTLib {
 
 
     /**
-     *
+     * Creates a responseObject from given $data and $status
+     *  Should be used whenever someone wants to emulate
+     *  $app->success(...) or $app->halt(...) response
+     *  without actually transmitting and terminating
+     *  said response. 
      */
     public static function responseObject($data, $status) {
         // Add a status-code to response object?

@@ -15,7 +15,7 @@ use \RESTController\libs as Libs;
 /**
  *
  */
-class BulkRequest {
+class BulkRequest extends Libs\RESTModel {
   /**
    *
    */

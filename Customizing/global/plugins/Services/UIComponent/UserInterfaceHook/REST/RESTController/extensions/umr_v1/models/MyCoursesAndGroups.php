@@ -15,7 +15,7 @@ use \RESTController\libs as Libs;
 /**
  *
  */
-class MyCoursesAndGroups {
+class MyCoursesAndGroups extends Libs\RESTModel {
   /**
    *
    */

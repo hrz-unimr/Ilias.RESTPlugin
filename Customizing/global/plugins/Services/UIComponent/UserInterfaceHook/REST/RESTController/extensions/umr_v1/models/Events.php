@@ -15,7 +15,14 @@ use \RESTController\libs as Libs;
 /**
  *
  */
-class Events {
+class Events extends Libs\RESTModel {
+  // Allow to re-use status-messages and status-codes
+  const MSG_NO_EVENT_ID  = 'Event with eventId %s does not exist.';
+  const MSG_ALL_FAILED   = 'All requests failed, see data-entry for more information.';
+  const ID_NO_EVENT_ID   = 'RESTController\\extensions\\umr_v1\\Events::ID_NO_EVENT_ID';
+  const ID_ALL_FAILED    = 'RESTController\\extensions\\umr_v1\\Events::ID_ALL_FAILED';
+
+
   /**
    *
    */
@@ -108,7 +115,7 @@ class Events {
 
     // Use calendarId if no subItems are given
     if (!$subItems)
-      $subItems = array($calendarId);
+      $subItems = array(intval($calendarId));
 
     // Fetch events (called appointment here)
     $result         = array();
@@ -138,11 +145,23 @@ class Events {
     require_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
 
     // Fetch each contact from list
-    $result = array();
+    $result     = array();
+    $noSuccess  = true;
     foreach($eventIds as $eventId) {
       $calendarId       = current(\ilCalendarCategoryAssignments::_getAppointmentCalendars(array($eventId)));
-      $result[$eventId] = self::getEventInfo($calendarId, $eventId);
+      if ($calendarId) {
+        $result[$eventId] = self::getEventInfo($calendarId, $eventId);
+        $noSuccess        = false;
+      }
+      else {
+        $result[$eventId]             = Libs\RESTLib::responseObject(sprintf(self::MSG_NO_EVENT_ID, $eventId), self::ID_NO_EVENT_ID);
+        $result[$eventId]['event_id'] = $eventId;
+      }
     }
+
+    // If every request failed, throw instead
+    if ($noSuccess)
+      throw new Exceptions\Events(self::MSG_ALL_FAILED, self::ID_ALL_FAILED, $result);
 
     return $result;
   }

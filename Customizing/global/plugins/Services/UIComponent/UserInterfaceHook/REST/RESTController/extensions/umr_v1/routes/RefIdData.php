@@ -43,13 +43,13 @@ $app->group('/v1/umr', function () use ($app) {
       catch (Libs\Exceptions\IdParseProblem $e) {
         $app->halt(422, $e->getMessage(), $e->getRESTCode());
       }
+      catch (Libs\Exceptions\MissingParameter $e) {
+          $app->halt(400, $e->getFormatedMessage(), $e::ID);
+      }
       catch (Exceptions\RefIdData $e) {
         $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
         $responseObject['data'] = $e->getData();
-        $app->halt(422, $responseObject);
-      }
-      catch (Libs\Exceptions\MissingParameter $e) {
-          $app->halt(400, $e->getFormatedMessage(), $e::ID);
+        $app->halt(500, $responseObject);
       }
   });
 
@@ -83,13 +83,13 @@ $app->group('/v1/umr', function () use ($app) {
     catch (Libs\Exceptions\IdParseProblem $e) {
       $app->halt(422, $e->getMessage(), $e->getRESTCode());
     }
+    catch (Libs\Exceptions\MissingParameter $e) {
+        $app->halt(400, $e->getFormatedMessage(), $e::ID);
+    }
     catch (Exceptions\RefIdData $e) {
       $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
       $responseObject['data'] = $e->getData();
-      $app->halt(422, $responseObject);
-    }
-    catch (Libs\Exceptions\MissingParameter $e) {
-        $app->halt(400, $e->getFormatedMessage(), $e::ID);
+      $app->halt(500, $responseObject);
     }
   });
 

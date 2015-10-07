@@ -15,7 +15,7 @@ use \RESTController\libs as Libs;
 /**
  *
  */
-class UserInfo {
+class UserInfo extends Libs\RESTModel {
   // Allow to re-use status-messages and status-codes
   const MSG_INVALID_USER  = 'Request failed, requesting invalid user.';
   const MSG_INVALID_TYPE  = 'Request failed, malformed request.';

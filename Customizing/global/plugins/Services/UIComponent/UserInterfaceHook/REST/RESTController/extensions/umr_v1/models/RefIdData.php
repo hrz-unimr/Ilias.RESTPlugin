@@ -15,10 +15,10 @@ use \RESTController\libs as Libs;
 /**
  *
  */
-class RefIdData {
+class RefIdData extends Libs\RESTModel {
   // Allow to re-use status-messages and status-codes
-  const MSG_INVALID_OBJECT  = 'Object with refId %s does not exist.';
-  const MSG_OBJECT_IN_TRASH = 'Object with refId %s has been moved to trash.';
+  const MSG_INVALID_OBJECT  = 'Object with refId %d does not exist.';
+  const MSG_OBJECT_IN_TRASH = 'Object with refId %d has been moved to trash.';
   const MSG_NO_ACCESS       = 'Viewing-Access to object with RefId %s was rejected.';
   const MSG_ALL_FAILED      = 'All requests failed, see data-entry for more information.';
   const ID_INVALID_OBJ      = 'RESTController\\extensions\\umr_v1\\RefIdData::ID_INVALID_OBJ';

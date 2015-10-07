@@ -15,7 +15,7 @@ use \RESTController\libs as Libs;
 /**
  *
  */
-class PersonalDesktop {
+class PersonalDesktop extends Libs\RESTModel {
   /**
    *
    */
