@@ -20,24 +20,32 @@ class BulkRequest {
    *
    */
   protected static function fetchDataRecursive($accessToken, $refIdData) {
-    foreach ($refIdData as $obj) {
+    // Iterate over all objects (to find all children refIds)
+    $children = array();
+    foreach ($refIdData as $obj)
+      // Fetch all children with yet unknown refIds
       if ($obj['children']) {
-        $children       = array_diff_key($obj['children'], $refIdData);
-        if ($children && count($children) > 0) {
-          $childrenData = RefIdData::getData($accessToken, $children);
-
-          // TODO: Why is $childrenData empty sometimes (eg. ref_id=65)?
-
-          if ($childrenData) {
-            $newData      = self::fetchDataRecursive($accessToken, $childrenData);
-
-            if (is_array($newData))
-              $refIdData  = $refIdData + $newData;
-          }
-        }
+        $newChildren  = array_diff($obj['children'], $refIdData);
+        $children     = array_unique(array_merge($children, $newChildren), SORT_NUMERIC);
       }
+
+    // Fetch data for all (new) children
+    if (count($children) > 0) {
+      try {
+        $childrenData = RefIdData::getData($accessToken, $children);
+        $newData      = self::fetchDataRecursive($accessToken, $childrenData);
+      }
+      // Fail silently (but use errorObjects as data)
+      catch (Exceptions\RefIdData $e) {
+        $newData = $e->getData();
+      }
+
+      // Append data
+      if (is_array($newData))
+        $refIdData  = $refIdData + $newData;
     }
 
+    // Return complete data
     return $refIdData;
   }
 
