@@ -31,6 +31,8 @@ class PersonalDesktop extends Libs\RESTModel {
     foreach ($items as $item)
       $result[] = $item['ref_id'];
 
-    return $result;
+    return array(
+      'ref_ids' => $result
+    );
   }
 }

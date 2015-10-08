@@ -63,7 +63,7 @@ class BulkRequest extends Libs\RESTModel {
     $desktop    = PersonalDesktop::getPersonalDesktop($accessToken);
 
     // Fetch data for refIds
-    $refIds     = array_merge($cag, $desktop);
+    $refIds     = array_merge($cag['group_ids'], $cag['course_ids'], $desktop['ref_ids']);
     $refIds     = array_unique($refIds, SORT_NUMERIC);
     $refIdData  = RefIdData::getData($accessToken, $refIds);
     $refIdData  = self::fetchDataRecursive($accessToken, $refIdData);

@@ -75,14 +75,7 @@ class RESTResponse extends \Slim\Http\Response {
             switch($this->format) {
                 default:
                 case 'JSON':
-                    $body_ = json_encode($body);
-
-                    // If $body is a non-assoc array (with depth 1), json_encode produces a json array instead of an object
-                    // Issue: Angular requires top JSON element to be an object
-                    if (substr($body_, 0, 1) == '[' && substr($body_, -1, 1) == ']')
-                      $body = json_encode($body, JSON_FORCE_OBJECT);
-                    else
-                      $body = $body_;
+                    $body = json_encode($body);
 
                     break;
                 case 'RAW':

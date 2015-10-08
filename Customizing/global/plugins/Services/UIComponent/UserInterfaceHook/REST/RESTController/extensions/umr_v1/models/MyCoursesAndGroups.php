@@ -31,6 +31,9 @@ class MyCoursesAndGroups extends Libs\RESTModel {
     $crss = \ilUtil::_getObjectsByOperations('crs', 'visible,read', $usr_id);
 
     // Return groups & courses
-    return array_merge($grps, $crss);
+    return array(
+      'group_ids'  => $grps,
+      'course_ids' => $crss
+    );
   }
 }
