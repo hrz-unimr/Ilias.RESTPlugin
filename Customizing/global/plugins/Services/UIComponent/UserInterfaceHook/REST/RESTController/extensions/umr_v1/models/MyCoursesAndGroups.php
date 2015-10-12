@@ -28,7 +28,9 @@ class MyCoursesAndGroups extends Libs\RESTModel {
 
     // Fetch groups and courses of user
     $grps = \ilUtil::_getObjectsByOperations('grp', 'visible,read', $userId);
+    $grps = array_map(function($value) { return intval($value); }, $grps);
     $crss = \ilUtil::_getObjectsByOperations('crs', 'visible,read', $usr_id);
+    $crss = array_map(function($value) { return intval($value); }, $crss);
 
     // Return groups & courses
     return array(

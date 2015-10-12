@@ -79,7 +79,7 @@ class UserInfo extends Libs\RESTModel {
       referral_comment        =>
         $ilObj->referral_comment,
       id                      =>
-        $ilObj->id,
+        intval($ilObj->id),
       login                   =>
         ($usingToken)                                                                ? $ilObj->login : null,
       utitle                  =>

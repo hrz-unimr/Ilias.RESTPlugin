@@ -35,7 +35,7 @@ class Contacts extends Libs\RESTModel {
       return array_merge(
         ($userInfo) ?: array(),
         array(
-          contact_id     => $contact['addr_id'],
+          contact_id     => intval($contact['addr_id']),
           contact_email  => $contact['email']
         )
       );
@@ -43,10 +43,10 @@ class Contacts extends Libs\RESTModel {
     // getUserInfo failed, use fallback data
     catch (Exceptions\UserInfo $e) {
       return array(
-        id            => $loginId,
+        id            => intval($loginId),
         firstname     => $contact['firstname'],
         lastname      => $contact['lastname'],
-        contact_id    => $contact['addr_id'],
+        contact_id    => intval($contact['addr_id']),
         contact_email => $contact['email']
       );
     }
