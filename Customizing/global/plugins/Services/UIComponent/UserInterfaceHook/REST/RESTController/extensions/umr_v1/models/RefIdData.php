@@ -41,8 +41,8 @@ class RefIdData extends Libs\RESTModel {
         'title'       => $ilObject->getTitle(),
         'desc'        => $ilObject->getDescription(),
         'long_desc'   => $ilObject->getLongDescription(),
-        'createDate'  => $ilObject->getCreateDate(),
-        'lastUpdate'  => $ilObject->getLastUpdateDate(),
+        'create_date' => $ilObject->getCreateDate(),
+        'last_update' => $ilObject->getLastUpdateDate(),
         'children'    => self::getChildren($ilObject)
       ),
       function($value) { return !is_null($value); }
@@ -65,9 +65,9 @@ class RefIdData extends Libs\RESTModel {
     $result = self::getIlObjData($ilObjectFile);
 
     // Add additional file information
-    $result['fileType'] = $ilObjectFile->getFileType();
-    $result['fileSize'] = $ilObjectFile->getFileSize();
-    $result['version']  = $ilObjectFile->getVersion();
+    $result['file_type'] = $ilObjectFile->getFileType();
+    $result['file_size'] = $ilObjectFile->getFileSize();
+    $result['version']   = $ilObjectFile->getVersion();
 
     return $result;
   }
