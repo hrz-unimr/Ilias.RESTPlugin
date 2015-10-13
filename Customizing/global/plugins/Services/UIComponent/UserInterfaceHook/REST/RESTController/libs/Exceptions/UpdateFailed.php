@@ -7,6 +7,7 @@
  */
 namespace RESTController\libs\Exceptions;
 
+
 /**
  * This class provides generic exception handling for UPDATE /PUT events.
  */
@@ -30,8 +31,8 @@ class UpdateFailed extends \Exception {
      * Constructor
      *  Don't set member variables, since this is a Exception that handles multiple issues
      */
-    public function __construct ($message, $id, $fieldName, $code = 0, $previous = NULL) {
-        parent::__construct ($message, $code, $previous);
+    public function __construct ($message, $id, $fieldName, $restCode = 0, $previous = NULL) {
+        parent::__construct ($message, $restCode, $previous);
         $this->id = $id;
         $this->fieldName = $fieldName;
     }
@@ -50,7 +51,7 @@ class UpdateFailed extends \Exception {
     /**
      *
      */
-    public function getMessage() {
+    public function getFormatedMessage() {
         $message = parent::getMessage();
         $message = str_replace('%id%', $this->id, $message);
         $message = str_replace('%fieldName%', $this->fieldName, $message);

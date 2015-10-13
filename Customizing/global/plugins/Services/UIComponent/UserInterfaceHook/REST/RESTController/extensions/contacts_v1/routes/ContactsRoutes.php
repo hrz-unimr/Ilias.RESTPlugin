@@ -46,7 +46,7 @@ $app->group('/v1', function () use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
-        $authorizedUserId =  Libs\RESTLib::getIdFromUserName($user);
+        $authorizedUserId =  Libs\RESTLib::getUserIdFromUserName($user);
 
         if ($authorizedUserId > -1) { // only the user is allowed to access the data
             $id = $authorizedUserId;

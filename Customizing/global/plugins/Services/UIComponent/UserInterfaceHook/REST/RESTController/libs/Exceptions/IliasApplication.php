@@ -30,8 +30,8 @@ class IliasApplication extends \Exception {
      * Constructor
      *  Set parameter name.
      */
-    public function __construct ($message, $paramName, $code = 0, $previous = NULL) {
-        parent::__construct ($message, $code, $previous);
+    public function __construct ($message, $paramName, $restCode = 0, $previous = NULL) {
+        parent::__construct ($message, $restCode, $previous);
         $this->paramName = $paramName;
     }
 

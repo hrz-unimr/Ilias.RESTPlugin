@@ -237,7 +237,7 @@ $app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',
     try {
         $api_key = $request->params('api_key', null, true);
     } catch(LibExceptions\MissingParameter $e) {
-        $app->halt(422, $e->getFormatedMessage(), $e::ID);
+        $app->halt(400, $e->getFormatedMessage(), $e::ID);
     }
 
     // Get optional inputs
@@ -318,6 +318,6 @@ $app->delete('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteA
         $result = array();
         $app->success($result);
     } catch(ClientExceptions\DeleteFailed $e) {
-        $app->halt(500, $e->getMessage(), $e::ID);
+        $app->halt(500, $e->getFormatedMessage(), $e::ID);
     }
 });

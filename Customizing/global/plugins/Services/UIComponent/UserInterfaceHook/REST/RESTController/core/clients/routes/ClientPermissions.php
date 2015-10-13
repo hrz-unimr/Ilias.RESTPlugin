@@ -47,7 +47,7 @@ use \RESTController\core\auth as Auth;
      try {
          $api_key = $request->params('api_key', null, true);
      } catch(LibExceptions\MissingParameter $e) {
-         $app->halt(422, $e->getFormatedMessage(), $e::ID);
+         $app->halt(400, $e->getFormatedMessage(), $e::ID);
      }
 
     // Use the model class to fetch data
@@ -100,7 +100,7 @@ $app->post('/clientpermissions/', '\RESTController\libs\OAuth2Middleware::TokenR
     try {
         $api_key = $request->params('api_key', null, true);
     } catch(LibExceptions\MissingParameter $e) {
-        $app->halt(422, $e->getFormatedMessage(), $e::ID);
+        $app->halt(400, $e->getFormatedMessage(), $e::ID);
     }
 
     // Get optional inputs
@@ -150,6 +150,6 @@ $app->delete('/clientpermissions/:id', '\RESTController\libs\OAuth2Middleware::T
         $result = array('NumItemsDeleted'=>$aff_rows);
         $app->success($result);
     } catch(ClientExceptions\DeleteFailed $e) {
-        $app->halt(500, $e->getMessage(), $e::ID);
+        $app->halt(500, $e->getFormatedMessage(), $e::ID);
     }
 });

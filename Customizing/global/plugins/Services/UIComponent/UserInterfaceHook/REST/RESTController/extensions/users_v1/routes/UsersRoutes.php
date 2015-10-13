@@ -73,7 +73,7 @@ $app->get('/v1/search/user','\RESTController\libs\OAuth2Middleware::TokenAdminAu
                 $result['user'] = $userdata;
                 $app->success($result);
             } catch (Libs\ReadFailed $e) {
-                $app->halt(400, $e->getMessage());
+                $app->halt(400, $e->getFormatedMessage());
             }
         } else {
             // no extname specified: retrieve ALL users with auth_mode 'ldap'
@@ -83,7 +83,7 @@ $app->get('/v1/search/user','\RESTController\libs\OAuth2Middleware::TokenAdminAu
                 $userdata = $usr_model->findExtLdapUsers();
                 $result['user'] = $userdata;
             } catch (Libs\ReadFailed $e) {
-                $app->halt(400, $e->getMessage());
+                $app->halt(400, $e->getFormatedMessage());
             }
         }
     }
@@ -152,7 +152,7 @@ $app->put('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRou
         $app->success($usr_basic_info);
 
     } catch (LibExceptions\UpdateFailed $e) {
-        $app->halt(400, $e->getMessage());
+        $app->halt(400, $e->getFormatedMessage());
     }
 });
 
@@ -162,7 +162,10 @@ $app->put('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRou
 $app->delete('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($user_id) use ($app) {
     try {
         $result = array();
-        Libs\RestLib::setupUserContext();
+
+        Libs\RestLib::loadIlUser();
+        Libs\RestLib::initAccessHandling();
+        
         $usr_model = new UsersModel();
         $status = $usr_model->deleteUser($user_id);
 

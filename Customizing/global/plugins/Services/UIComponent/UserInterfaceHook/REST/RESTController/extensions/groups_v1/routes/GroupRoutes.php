@@ -35,7 +35,7 @@ $app->group('/v1', function () use ($app) {
             $result['groups'] = $my_groups;
             $app->success($result);
         } catch (Libs\ReadFailed $e) {
-            $app->halt(400, $e->getMessage());
+            $app->halt(400, $e->getFormatedMessage());
         }
     });
 

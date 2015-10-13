@@ -56,7 +56,7 @@ $app->group('/admin', function () use ($app) {
         }
 
         if ($id_type == 'usr_id') {
-            $username = Libs\RESTLib::getUserNameFromId($id);
+            $username = Libs\RESTLib::getUserNameFromUserId($id);
             if ($username == 'User unknown') {
                 $result['msg'][] = 'User not found.';
             } else {

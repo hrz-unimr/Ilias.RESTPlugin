@@ -31,7 +31,7 @@ $app->group('/v1', function () use ($app) {
         );
         $app->success($result);
         } catch (Libs\Exceptions\ReadFailed $e) {
-            $app->halt(500, $e->getMessage());
+            $app->halt(500, $e->getFormatedMessage());
         }
     });
 
@@ -55,7 +55,7 @@ $app->group('/v1', function () use ($app) {
             );
             $app->success($result);
         } catch (Libs\Exceptions\ReadFailed $e) {
-            $app->halt(500, $e->getMessage());
+            $app->halt(500, $e->getFormatedMessage());
         }
     });
 
@@ -67,7 +67,8 @@ $app->group('/v1', function () use ($app) {
             $title = $request->params('title', null, true);
             $description = $request->params('description', '');
 
-            Libs\RestLib::setupUserContext();
+            Libs\RestLib::loadIlUser();
+            Libs\RestLib::initAccessHandling();
             if(!$GLOBALS['ilAccess']->checkAccess("create_crs", "", $ref_id))
                 $app->halt(401, "Insufficient access rights");
 
@@ -78,7 +79,7 @@ $app->group('/v1', function () use ($app) {
             $app->success($result);
         }
         catch (Libs\Exceptions\MissingParameter $e) {
-            $app->halt(422, $e->getFormatedMessage(), $e::ID);
+            $app->halt(400, $e->getFormatedMessage(), $e::ID);
         }
     });
 
@@ -129,7 +130,7 @@ $app->group('/v1', function () use ($app) {
 
         if($mode == "by_login") {
             $login = $request->params("login");
-            $user_id = Libs\RESTLib::getIdFromUserName($login);
+            $user_id = Libs\RESTLib::getUserIdFromUserName($login);
             if(empty($user_id)){
                 $data = $request->params("data");
                 $userData = array_merge(array(

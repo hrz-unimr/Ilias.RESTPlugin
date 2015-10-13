@@ -8,10 +8,14 @@
 namespace RESTController\core\clients\Exceptions;
 
 
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\Exceptions as LibExceptions;
+
+
 /**
  *
  */
-class UpdateFailed extends \Exception {
+class UpdateFailed extends RESTException {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.
@@ -31,8 +35,8 @@ class UpdateFailed extends \Exception {
      * Constructor
      *  Don't set member variables, since this is a Exception that handles multiple issues
      */
-    public function __construct ($message, $id, $fieldName, $code = 0, $previous = NULL) {
-        parent::__construct ($message, $code, $previous);
+    public function __construct ($message, $id, $fieldName, $restCode = 0, $previous = NULL) {
+        parent::__construct ($message, ($restCode == 0) ? self::ID : $restCode, $previous);
         $this->id = $id;
         $this->fieldName = $fieldName;
     }

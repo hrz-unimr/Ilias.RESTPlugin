@@ -76,6 +76,7 @@ class RESTResponse extends \Slim\Http\Response {
                 default:
                 case 'JSON':
                     $body = json_encode($body);
+
                     break;
                 case 'RAW':
                     break;

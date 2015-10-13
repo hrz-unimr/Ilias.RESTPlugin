@@ -43,7 +43,7 @@ $app->group('/v1', function () use ($app) {
             $model->removeItemFromDesktop($authorizedUserId, $ref_id);
             $app->success("Removed item with ref_id=".$ref_id." from desktop.");
         } catch (Libs\DeleteFailed $e) {
-            $app->halt(401, "Error: ".$e->getMessage(), -15);
+            $app->halt(401, "Error: ".$e->getFormatedMessage(), -15);
         }
     });
 
@@ -62,7 +62,7 @@ $app->group('/v1', function () use ($app) {
             $model->addItemToDesktop($authorizedUserId, $ref_id);
             $app->success("Added item with ref_id=".$ref_id." to the desktop.");
         } catch (Libs\UpdateFailed $e) {
-            $app->halt(401, "Error: ".$e->getMessage(), -15);
+            $app->halt(401, "Error: ".$e->getFormatedMessage(), -15);
         }
     });
 

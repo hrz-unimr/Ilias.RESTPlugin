@@ -19,7 +19,7 @@ require_once('Services/Authentication/classes/class.ilAuthUtils.php');
  * to use the ILIAS SOAP webservice.
  */
 class RESTSoapAdapter {
-    //static protected $instance = null;
+    //protected static $instance = null;
     public $SID = "";
 
     /**

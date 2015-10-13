@@ -29,13 +29,14 @@ class RESTLib {
      *  Extensions are allowed to create their own error-codes.
      *  Using a unique string seems to be an easier solution than assigning unique numbers.
      */
-    const ID_NO_ADMIN = 'RESTController\libs\RESTLib::ID_NO_ADMIN';
+    const ID_IP_NOT_ALLOWED   = 'RESTController\libs\RESTLib::ID_IP_NOT_ALLOWED';
+    const ID_NO_ADMIN         = 'RESTController\libs\RESTLib::ID_NO_ADMIN';
+    const ID_PARSE_ISSUE      = 'RESTController\libs\RESTLib::ID_PARSE_ISSUE';
 
     // Allow to re-use status-strings
-    const MSG_NO_ADMIN = 'Access denied. Administrator permissions required.';
-
-    const MSG_IP_NOT_ALLOWED = 'Access denied for client IP address.';
-    const ID_IP_NOT_ALLOWED = 'RESTController\libs\RESTLib::ID_IP_NOT_ALLOWED';
+    const MSG_IP_NOT_ALLOWED  = 'Access denied for client IP address.';
+    const MSG_NO_ADMIN        = 'Access denied. Administrator permissions required.';
+    const MSG_PARSE_ISSUE     = 'Could not parse id(s) %s from %s.';
 
     /**
      * @see ilInitialisation::initGlobal($a_name, $a_class, $a_source_file)
@@ -66,51 +67,40 @@ class RESTLib {
 
 
     /**
-     * Sets ILIAS user-context to given user.
+     * Shortcut for loading ilObjUser via initGlobal.
      * Will load user from token, if userId isn't provided
      * and token is available.
      *
      * Throws exception when using on route without auth-middleware!
      */
-    public static function setupUserContext($userId = null) {
-        if ($userId == null)
-          $userId = self::getUserId();
+    public static function loadIlUser($userId = null) {
+        // Include ilObjUser and initialize
+        self::initGlobal('ilUser', 'ilObjUser', './Services/User/classes/class.ilObjUser.php');
 
-        self::loadIlUser();
-        $ilUser = $GLOBALS['ilUser'];
+        // Fetch user-id from token if non is given
+        if ($userId == null) {
+          $auth         = new Auth\Util();
+          $accessToken  = $auth->getAccessToken();
+          $userId       = $accessToken->getUserId();
+        }
+
+        // Create user-object if id is given
+        global $ilUser, $ilias;
         $ilUser->setId($userId);
         $ilUser->read();
         self::initAccessHandling();
-    }
+        $ilias->account = $ilUser;
 
-
-    /**
-     * Fetch current ILIAS-UserName from provided (OAuth2-)token.
-     *
-     * Throws exception when using on route without auth-middleware!
-     */
-    public static function getUserName() {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
-        return $accessToken->getUserName();
-    }
-
-
-    /**
-     * Fetch current ILIAS-UserId from provided (OAuth2-)token.
-     *
-     * Throws exception when using on route without auth-middleware!
-     */
-    public static function getUserId() {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
-        return $accessToken->getUserId();
+        return $ilUser;
     }
 
 
     /**
     * Use this (or  $ilDB-quote(<value>, <type>) directly) to make sure
     * alle variables in an sql-statement are escaped (thus the query is safe).
+    *
+    * NOTE: This is a pretty rough implementation that allowed minimal changes
+    *       to existing code. Thus it MIGHT not catch all corner cases!
     */
     public static function safeSQL($sql) {
         $params = func_get_args();
@@ -139,7 +129,7 @@ class RESTLib {
                 $result[] = $ilDB->quote($value, 'float');
             elseif (is_double($value))
                 $result[] = $ilDB->quote($value, 'float');
-            elseif (is_numeric($value)) // TODO: could be improved
+            elseif (is_numeric($value))
                 $result[] = $ilDB->quote($value, 'float');
             elseif (is_string($value))
                 $result[] = $ilDB->quote($value, 'text');
@@ -149,14 +139,6 @@ class RESTLib {
         }
 
         return $result;
-    }
-
-
-    /**
-     * Shortcut for loading ilObjUser via initGlobal
-     */
-    public static function loadIlUser() {
-        self::initGlobal('ilUser', 'ilObjUser', './Services/User/classes/class.ilObjUser.php');
     }
 
 
@@ -195,29 +177,6 @@ class RESTLib {
 
 
     /**
-     * Initializes ILIAS user application class
-     * with given ILIAS user-id.
-     *
-     * @param $login - ILIAS user id to use as context
-     * @return bool - True if context-creation was (probably) successfull, false otherwise
-     */
-    static public function setUserContext($login) {
-        global $ilias;
-
-        require_once('./Services/User/classes/class.ilObjUser.php');
-        $userId = \ilObjUser::_lookupId($login);
-        if (!$userId)
-            return false;
-
-        $ilUser = new \ilObjUser($userId);
-        $ilias->account =& $ilUser;
-        RESTLib::loadIlUser();
-
-        return true;
-    }
-
-
-    /**
      * Authentication via the ILIAS Auth mechanisms.
      * This method is used as backend for OAuth2.
      *
@@ -225,7 +184,7 @@ class RESTLib {
      * @param $password - ILIS user-password
      * @return bool - True if authentication was successfull, false otherwise
      */
-    static public function authenticateViaIlias($username, $password) {
+    public static function authenticateViaIlias($username, $password) {
         RESTLib::initAccessHandling();
 
         $_POST['username'] = $username;
@@ -258,7 +217,7 @@ class RESTLib {
      * @return mixed
      * @throws \Exception
      */
-    static public function getObjIdFromRef($ref_id) {
+    public static function getObjIdFromRef($ref_id) {
         global $ilDB;
 
         $sql = self::safeSQL('SELECT obj_id FROM object_reference WHERE object_reference.ref_id = %d', intval($ref_id));
@@ -280,7 +239,7 @@ class RESTLib {
      * @return mixed
      * @throws \Exception
      */
-    static public function getRefIdFromObj($obj_id) {
+    public static function getRefIdFromObj($obj_id) {
         global $ilDB;
 
         $sql = self::safeSQL('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', intval($obj_id));
@@ -299,7 +258,7 @@ class RESTLib {
      * @param $obj_id
      * @return array
      */
-    static public function getRefIdsFromObj($obj_id) {
+    public static function getRefIdsFromObj($obj_id) {
         global $ilDB;
 
         $sql = self::safeSQL('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', $obj_id);
@@ -312,40 +271,6 @@ class RESTLib {
         return $res;
     }
 
-    /**
-     * Determines the type of an ILIAS object.
-     * @param $obj_id
-     * @return string
-     */
-    static public function getTypeOfObject($obj_id) {
-        global $ilObjDataCache;
-        $a_type = $ilObjDataCache->lookupType($obj_id);
-        return $a_type;
-    }
-
-
-    /**
-     * Returns the URL of the current ILIAS installation.
-     * @return string
-     */
-    static public function getBaseUrl() {
-        if (isset($_SERVER['HTTPS']) &&
-            ($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1) ||
-            isset($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
-            $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
-            $protocol = 'https://';
-        }
-        else {
-            $protocol = 'http://';
-        }
-        $domainName = $_SERVER['HTTP_HOST'];
-        if ($GLOBALS['COOKIE_PATH']=='/') {
-            $baseUrl = $protocol.$domainName.'/';
-        } else {
-            $baseUrl = $protocol.$domainName.$GLOBALS['COOKIE_PATH'].'/';
-        }
-        return $baseUrl;
-    }
 
     /**
      * Returns the perma link of a repository object specified by its ref_id.
@@ -353,11 +278,13 @@ class RESTLib {
      * @return string
      * @throws \Exception
      */
-    static public function getPermanentLink($ref_id) {
-        $obj_id = self::getObjIdFromRef($ref_id);
-        $type = self::getTypeOfObject($obj_id);
-        // mimics Services/Link/../class.ilLink.php::_getStaticLink
-        $permaLink = self::getBaseUrl().'goto.php'.'?target='.$type.'_'.$ref_id.'&client_id='.CLIENT_ID;
+    public static function getPermanentLink($ref_id) {
+        global $ilObjDataCache;
+
+        $obj_id     = self::getObjIdFromRef($ref_id);
+        $type       = $ilObjDataCache->lookupType($obj_id);
+        $permaLink  = self::getBaseUrl().'goto.php'.'?target='.$type.'_'.$ref_id.'&client_id='.CLIENT_ID;
+
         return $permaLink;
     }
 
@@ -368,7 +295,7 @@ class RESTLib {
      * @param $user_id
      * @return string
      */
-    static public function getUserNameFromId($user_id) {
+    public static function getUserNameFromUserId($user_id) {
         global $ilDB;
 
         $sql = self::safeSQL('SELECT login FROM usr_data WHERE usr_id=%s', $user_id);
@@ -386,7 +313,7 @@ class RESTLib {
      * @param login - user_name
      * @return user_id
      */
-    static public function getIdFromUserName($login) {
+    public static function getUserIdFromUserName($login) {
         global $ilDB;
 
         $sql = self::safeSQL('SELECT usr_id FROM usr_data WHERE login=%s', $login);
@@ -399,77 +326,6 @@ class RESTLib {
 
 
     /**
-     * Provides object properties as stored in table object_data.
-     *
-     * @param $obj_id
-     * @param $fields array of strings; to query all fields please specify 'array('*')'
-     * @return mixed
-     */
-    public static  function getObjectData($obj_id, $fields) {
-        global $ilDB;
-
-        // TODO: remove sprintf after safeSQL is fixed
-        $sql = self::safeSQL('SELECT '. implode(', ', $fields) .' FROM object_data WHERE object_data.obj_id = %d', $obj_id);
-        $query = $ilDB->query($sql);
-        $row = $ilDB->fetchAssoc($query);
-
-        return $row;
-    }
-
-
-    /**
-     * Reads top 1 read event which occurred on the object.
-     *
-     * @param $obj_id int the object id.
-     * @return timestamp
-     */
-    public static function getLatestReadEventTimestamp($obj_id) {
-        global $ilDB;
-
-        $sql = self::safeSQL('SELECT last_access FROM read_event WHERE obj_id = %d ORDER BY last_access DESC LIMIT 1', $obj_id);
-        $query = $ilDB->query($sql);
-        $row = $ilDB->fetchAssoc($query);
-
-        return $row['last_access'];
-    }
-    /* <REMOVE THIS COMMENT>
-     * Todo:
-     *  This is only used in [extensions\admin\models\RepositoryAdminModel.php].
-     * Suggestion:
-     *  Move this method there?
-     */
-
-
-    /**
-     * Reads top-k read events which occurred on the object.
-     *
-     * Tries to deliver a list with max -k items
-     * @param $obj_id int the object id.
-     * @return timestamp
-     */
-    public static function getTopKReadEventTimestamp($obj_id, $k) {
-        global $ilDB;
-
-        $sql = self::safeSQL('SELECT last_access FROM read_event WHERE obj_id = %d ORDER BY last_access DESC LIMIT %d', $obj_id, $k);
-        $query = $ilDB->query($sql);
-        $list = array();
-        $cnt = 0;
-        while ($row = $ilDB->fetchAssoc($query)){
-            $list[] = $row['last_access'];
-            $cnt = $cnt + 1;
-            if ($cnt == $k) break;
-        }
-
-        return $list;
-    }
-    /* <REMOVE THIS COMMENT>
-     * Todo:
-     *  This is only used in [extensions\admin\models\RepositoryAdminModel.php].
-     * Suggestion:
-     *  Move this method there?
-     */
-
-    /**
      * Returns the web directory, where e.g. learning modules are located.
      * In contrast to ilUtil::getWebDir() this functions  returns the
      * dir path without any prefix.
@@ -480,6 +336,7 @@ class RESTLib {
         return ILIAS_WEB_DIR."/".CLIENT_ID;
     }
 
+
     /**
      * Initiates an ILIAS Session for a user specified by $user_id.
      * (Requires ILIAS >5.0)
@@ -488,10 +345,7 @@ class RESTLib {
     public static function initSession($user_id)
     {
         global $ilLog;
-        $user_name = RESTLib::getUserNameFromId($user_id);
-
-       // header_remove('Set-Cookie');
-       // \ilUtil::setCookie("ilClientId", CLIENT_ID);
+        $user_name = RESTLib::getUserNameFromUserId($user_id);
 
         require_once('Auth/Auth.php');
         require_once('Services/Authentication/classes/class.ilSession.php');
@@ -514,8 +368,80 @@ class RESTLib {
         header_remove('Set-Cookie');
         \ilUtil::setCookie("ilClientId", CLIENT_ID);
 
-        ilInitialisation_Public::setSessionHandler(); // will put an entry in usr_session table
+        \ilInitialisation::setSessionHandler(); // will put an entry in usr_session table
+    }
 
+
+
+    /**
+     * Parse a list of coma-separated numeric values (ids)
+     * into an array. (Works for integers)
+     *
+     * @param $idString - String that should be parsed.
+     * @param $throwException - Throw exception of string does not contain parseable numeric values
+     *
+     * @return array of parsed values (integer)
+     *
+     * @throws Exceptions\IdParseProblem - Thrown when string does not contain numeric elements (only if $throwException is true)
+     */
+    public static function parseIdsFromString($idString, $throwException = false) {
+        // Parse string with coma as separator
+        $ids    = explode(',', $idString);
+        $throws = array();
+        foreach($ids as $key => $id) {
+            // Can be converted to int?
+            if (is_numeric($id))
+                $ids[$key] = intval($id);
+            // Drop value (and throw exception)
+            else {
+              if ($throwException)
+                $throws[$key] = $id;
+              $ids[$key] = null;
+            }
+        }
+
+        // Filter unverted values
+        $ids = array_filter($ids, function($value) { return !is_null($value); });
+
+        // In case an exception needs to be thrown, the message will be build here
+        if (count($throws) > 0) {
+          $idString     = htmlspecialchars($idString);
+          foreach ($throws as $key => $id)
+              $throws[$key] = sprintf('%d: \'%s\'', $key + 1, $id);
+          $throwString  = implode(', ', $throws);
+          $message      = sprintf(self::MSG_PARSE_ISSUE, $throwString, 'String-List: \'' . $idString . '\'');
+
+          // Throw it!
+          throw new Exceptions\IdParseProblem($message, self::ID_PARSE_ISSUE);
+        }
+
+        // Return ids (array of integers)
+        return $ids;
+    }
+
+
+    /**
+     * Creates a responseObject from given $data and $status
+     *  Should be used whenever someone wants to emulate
+     *  $app->success(...) or $app->halt(...) response
+     *  without actually transmitting and terminating
+     *  said response. 
+     */
+    public static function responseObject($data, $status) {
+        // Add a status-code to response object?
+        if ($status != null) {
+            // Do NOT overwrite status key inside $data
+            if (is_array($data))
+                $data['status'] = ($data['status']) ?: $status;
+            // If data is not empty, construct array with status and original data
+            elseif ($data != '')
+                $data = array(
+                  'status'  => $status,
+                  'msg'     => $data
+                );
+        }
+
+        return $data;
     }
 }
 
