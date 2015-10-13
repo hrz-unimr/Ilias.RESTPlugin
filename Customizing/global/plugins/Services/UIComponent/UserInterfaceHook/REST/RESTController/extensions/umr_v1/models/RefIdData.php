@@ -56,7 +56,7 @@ class RefIdData extends Libs\RESTModel {
     require_once('./Services/Calendar/classes/class.ilCalendarCategory.php');
     $cat = \ilCalendarCategory::_getInstanceByObjId($result['obj_id']);
     if ($cat && $cat->getCategoryID())
-      $result['category_id'] = intval($cat->getCategoryID());
+      $result['calendar_id'] = intval($cat->getCategoryID());
 
     return $result;
   }

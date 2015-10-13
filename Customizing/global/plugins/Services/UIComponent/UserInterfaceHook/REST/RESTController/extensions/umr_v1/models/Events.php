@@ -26,7 +26,7 @@ class Events extends Libs\RESTModel {
   /**
    *
    */
-  protected static function getRecurrenceString($appointmentId) {
+  protected static function getRecurrenceString($eventId) {
     // Load classes required to access calendars and their appointments
     require_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
 
@@ -34,10 +34,10 @@ class Events extends Libs\RESTModel {
     $recurrenceStrings  = array();
 
     // Fetch recurrence
-    $recurrences        = \ilCalendarRecurrences::_getRecurrences($appointmentId);
+    $recurrences        = \ilCalendarRecurrences::_getRecurrences($eventId);
     foreach($recurrences as $recurrence) {
       // Fetch exluded recurrence
-      $excludes = \ilCalendarRecurrenceExclusions::getExclusionDates($appointmentId);
+      $excludes = \ilCalendarRecurrenceExclusions::getExclusionDates($eventId);
       foreach($excludes as $excluded)
         $recurrenceStrings[] = $excluded->toICal();
 
@@ -61,7 +61,7 @@ class Events extends Libs\RESTModel {
     require_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
 
     // Fetch appointment object
-    $appointment    = new \ilCalendarEntry($eventId);
+    $event    = new \ilCalendarEntry($eventId);
 
     // Build recurrence-string (ICS-Formatted)
     $recurrenceString = self::getRecurrenceString($eventId);
@@ -71,12 +71,12 @@ class Events extends Libs\RESTModel {
       array(
         event_id        => intval($eventId),
         calendar_id     => intval($calendarId),
-        title           => $appointment->getPresentationTitle(false),
-        description     => $appointment->getDescription(),
-        location        => $appointment->getLocation(),
-        start           => $appointment->getStart()->get(IL_CAL_FKT_DATE, 'Ymd\THis\Z', \ilTimeZone::UTC),
-        end             => $appointment->getEnd()->get(  IL_CAL_FKT_DATE, 'Ymd\THis\Z', \ilTimeZone::UTC),
-        full_day        => $appointment->isFullday(),
+        title           => $event->getPresentationTitle(false),
+        description     => $event->getDescription(),
+        location        => $event->getLocation(),
+        start           => $event->getStart()->get(IL_CAL_FKT_DATE, 'Ymd\THis\Z', \ilTimeZone::UTC),
+        end             => $event->getEnd()->get(  IL_CAL_FKT_DATE, 'Ymd\THis\Z', \ilTimeZone::UTC),
+        full_day        => $event->isFullday(),
         recurrence      => $recurrenceString
       ),
       function($value) { return !is_null($value); }
@@ -119,9 +119,9 @@ class Events extends Libs\RESTModel {
 
     // Fetch events (called appointment here)
     $result         = array();
-    $appointmentIds = \ilCalendarCategoryAssignments::_getAssignedAppointments($subItems);
-    foreach($appointmentIds as $appointmentId)
-      $result[$appointmentId] = self::getEventInfo($calendarId, $appointmentId);
+    $eventIds = \ilCalendarCategoryAssignments::_getAssignedAppointments($subItems);
+    foreach($eventIds as $eventId)
+      $result[$eventId] = self::getEventInfo($calendarId, $eventId);
 
     // Return all collected events
     return $result;
