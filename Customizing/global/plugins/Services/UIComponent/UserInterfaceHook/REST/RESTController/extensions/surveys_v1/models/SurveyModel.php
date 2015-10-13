@@ -82,8 +82,9 @@ class SurveyModel extends Libs\RESTModel
 
             }
         }
-        $result['questions'] = $res_questions;
-        return $result;
+        return $res_questions;
+        //$result['questions'] = $res_questions;
+        //return $result;
     }
 
     /**

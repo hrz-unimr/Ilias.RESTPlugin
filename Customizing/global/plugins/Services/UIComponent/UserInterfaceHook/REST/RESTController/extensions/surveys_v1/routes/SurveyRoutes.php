@@ -39,22 +39,49 @@ $app->group('/v1', function () use ($app) {
         $user_id = $accessToken->getUserId();
 
         $model = new Surveys\SurveyModel();
-        $result = $model->getJsonRepresentation($ref_id,$user_id);
+        $result = array();
+        $result['svy_id'] = $ref_id;
+        $result['questions'] = $model->getJsonRepresentation($ref_id,$user_id);
         $app->success($result);
     });
 
     /**
-     * Returns the answers of a survey of the authenticated user.
+     * Returns the answers of a survey (ref_id) of the authenticated user.
      */
     $app->get('/survey_answers/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function($ref_id) use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user_id = $accessToken->getUserId();
 
+        $request = $app->request();
+        $qst_id = $request->params('qst_id');
+        $choice_csv_str = $request->params('choice_csv');
+        $sel_answers = explode(',',$choice_csv_str);
+        for ($i = 0; $i<count($sel_answers);$i++) {
+            $sel_answers[$i] = $sel_answers[$i] - 1;
+        }
+        //$attribs = array("qst_id","choice_csv");
+        /*$req_data = array();
+        foreach($attribs as $a) {
+            $req_data[$a] = $request->params($a);
+        }*/
+
+        $model = new Surveys\SurveyModel();
+        $result = $model->getSurveyResultsOfUser($ref_id, $user_id);
+        $app->success($result);
+    });
+
+    /**
+     * Stores the answers of one particular question of survey ref_id.
+     */
+    $app->post('/survey_answer/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function($ref_id) use ($app) {
+        $auth = new Auth\Util();
+        $accessToken = $auth->getAccessToken();
+        $user_id = $accessToken->getUserId();
+        // TODO
         $model = new Surveys\SurveyModel();
         $result = $model->getSurveyResultsOfUser($ref_id,$user_id);
         $app->success($result);
     });
-
 
 });
