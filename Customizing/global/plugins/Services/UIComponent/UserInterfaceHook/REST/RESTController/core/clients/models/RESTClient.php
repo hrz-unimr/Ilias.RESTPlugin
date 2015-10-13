@@ -165,10 +165,12 @@ class RESTClient extends Libs\RESTModel {
      * @return bool
      */
     public function checkIPAccess($request_ip) {
+        //self::$app->log->debug('in checkIPAccess : '.$request_ip);
         if (!$this->hasIpRestrictions() == true) {
             return true;
         } else {
             $a = $this->getAllowedIPAddresses();
+            if (empty($a) == true) return false;
             return in_array($request_ip,$a);
         }
     }
