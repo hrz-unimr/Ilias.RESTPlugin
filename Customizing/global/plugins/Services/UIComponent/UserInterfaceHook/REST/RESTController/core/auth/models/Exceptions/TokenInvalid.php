@@ -17,7 +17,7 @@ use \RESTController\libs\Exceptions as LibExceptions;
  * the client trys to authenticate via token
  * but the token is invalid (eg. wrong hash)
  */
-class TokenInvalid extends RESTException {
+class TokenInvalid extends LibExceptions\RESTException {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.
