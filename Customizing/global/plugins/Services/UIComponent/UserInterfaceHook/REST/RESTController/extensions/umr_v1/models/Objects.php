@@ -15,16 +15,16 @@ use \RESTController\libs as Libs;
 /**
  *
  */
-class RefIdData extends Libs\RESTModel {
+class Objects extends Libs\RESTModel {
   // Allow to re-use status-messages and status-codes
   const MSG_INVALID_OBJECT  = 'Object with refId %d does not exist.';
   const MSG_OBJECT_IN_TRASH = 'Object with refId %d has been moved to trash.';
   const MSG_NO_ACCESS       = 'Viewing-Access to object with RefId %s was rejected.';
   const MSG_ALL_FAILED      = 'All requests failed, see data-entry for more information.';
-  const ID_INVALID_OBJ      = 'RESTController\\extensions\\umr_v1\\RefIdData::ID_INVALID_OBJ';
-  const ID_OBJECT_IN_TRASH  = 'RESTController\\extensions\\umr_v1\\RefIdData::ID_OBJECT_IN_TRASH';
-  const ID_NO_ACCESS        = 'RESTController\\extensions\\umr_v1\\RefIdData::ID_NO_ACCESS';
-  const ID_ALL_FAILED       = 'RESTController\\extensions\\umr_v1\\RefIdData::ID_ALL_FAILED';
+  const ID_INVALID_OBJ      = 'RESTController\\extensions\\umr_v1\\Objects::ID_INVALID_OBJ';
+  const ID_OBJECT_IN_TRASH  = 'RESTController\\extensions\\umr_v1\\Objects::ID_OBJECT_IN_TRASH';
+  const ID_NO_ACCESS        = 'RESTController\\extensions\\umr_v1\\Objects::ID_NO_ACCESS';
+  const ID_ALL_FAILED       = 'RESTController\\extensions\\umr_v1\\Objects::ID_ALL_FAILED';
 
 
   /**
@@ -105,15 +105,15 @@ class RefIdData extends Libs\RESTModel {
 
     // Throw error if there is no such object
     if (!$ilObject)
-      throw new Exceptions\RefIdData(sprintf(self::MSG_INVALID_OBJECT, $refId), self::ID_INVALID_OBJ);
+      throw new Exceptions\Objects(sprintf(self::MSG_INVALID_OBJECT, $refId), self::ID_INVALID_OBJ);
 
     // Throw error if object was already deleted
     if(\ilObject::_isInTrash($refId))
-      throw new Exceptions\RefIdData(sprintf(self::MSG_OBJECT_IN_TRASH, $refId), self::ID_OBJECT_IN_TRASH);
+      throw new Exceptions\Objects(sprintf(self::MSG_OBJECT_IN_TRASH, $refId), self::ID_OBJECT_IN_TRASH);
 
     // Throw error
     if(!$rbacsystem->checkAccess('read', $refId))
-      throw new Exceptions\RefIdData(sprintf(self::MSG_NO_ACCESS, $refId), self::ID_NO_ACCESS);
+      throw new Exceptions\Objects(sprintf(self::MSG_NO_ACCESS, $refId), self::ID_NO_ACCESS);
 
     // Fetch Object data for different object-types
     // Object: Course or Group
@@ -206,7 +206,7 @@ class RefIdData extends Libs\RESTModel {
         $result[$refId] = self::getDataForId($accessToken, $refId);
         $noSuccess      = false;
       }
-      catch (Exceptions\RefIdData $e) {
+      catch (Exceptions\Objects $e) {
         // Add error-response for failed refIds
         $responseObject           = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
         $responseObject['ref_id'] = $refId;
@@ -216,7 +216,7 @@ class RefIdData extends Libs\RESTModel {
 
     // If EVERY request failed, throw instead
     if ($noSuccess)
-      throw new Exceptions\RefIdData(self::MSG_ALL_FAILED, self::ID_ALL_FAILED, $result);
+      throw new Exceptions\Objects(self::MSG_ALL_FAILED, self::ID_ALL_FAILED, $result);
 
     return $result;
   }

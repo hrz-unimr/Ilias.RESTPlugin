@@ -19,34 +19,34 @@ class BulkRequest extends Libs\RESTModel {
   /**
    *
    */
-  protected static function fetchDataRecursive($accessToken, $refIdData) {
+  protected static function fetchDataRecursive($accessToken, $objects) {
     // Iterate over all objects (to find all children refIds)
     $children = array();
-    foreach ($refIdData as $obj)
+    foreach ($objects as $object)
       // Fetch all children with yet unknown refIds
-      if ($obj['children']) {
-        $newChildren  = array_diff($obj['children'], $refIdData);
+      if ($object['children']) {
+        $newChildren  = array_diff($object['children'], $objects);
         $children     = array_unique(array_merge($children, $newChildren), SORT_NUMERIC);
       }
 
     // Fetch data for all (new) children
     if (count($children) > 0) {
       try {
-        $childrenData = RefIdData::getData($accessToken, $children);
+        $childrenData = Objects::getData($accessToken, $children);
         $newData      = self::fetchDataRecursive($accessToken, $childrenData);
       }
       // Fail silently (but use errorObjects as data)
-      catch (Exceptions\RefIdData $e) {
+      catch (Exceptions\Object $e) {
         $newData = $e->getData();
       }
 
       // Append data
       if (is_array($newData))
-        $refIdData  = $refIdData + $newData;
+        $objects  = $objects + $newData;
     }
 
     // Return complete data
-    return $refIdData;
+    return $objects;
   }
 
 
@@ -65,8 +65,8 @@ class BulkRequest extends Libs\RESTModel {
     // Fetch data for refIds
     $refIds     = array_merge($cag['group_ids'], $cag['course_ids'], $desktop['ref_ids']);
     $refIds     = array_unique($refIds, SORT_NUMERIC);
-    $refIdData  = RefIdData::getData($accessToken, $refIds);
-    $refIdData  = self::fetchDataRecursive($accessToken, $refIdData);
+    $objects    = Objects::getData($accessToken, $refIds);
+    $objects    = self::fetchDataRecursive($accessToken, $objects);
 
     // Output result
     return array(
@@ -76,7 +76,7 @@ class BulkRequest extends Libs\RESTModel {
       'user'       => $user,
       'cag'        => $cag,
       'desktop'    => $desktop,
-      'refIdData'  => $refIdData
+      'objects'    => $objects
     );
   }
 }

@@ -18,7 +18,7 @@ use \RESTController\libs\Exceptions as LibExceptions;
  * but can't be authentificated because his
  * data is wrong.
  */
-class LoginFailed extends RESTException {
+class LoginFailed extends LibExceptions\RESTException {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.
