@@ -36,6 +36,7 @@ class SurveyModel extends Libs\RESTModel
 
     /**
      * Creates a JSON representation of a survey.
+     *
      * @param $ref_id
      * @param $user_id
      * @return array
@@ -71,7 +72,8 @@ class SurveyModel extends Libs\RESTModel
                     $res_cats = array();
                     for ($i = 0; $i < $nCats; $i++) {
                         $cat =$cats->getCategory($i);
-                        $res_cats[] = $cat->title;
+                        //self::$app->log->debug('Category data: '.print_r($cat, true));
+                        $res_cats[] = array("title" => $cat->title, "scale" => $cat->scale); // bad terminology: scale means smth like answer id here (i think)
                     }
                     $q['categories'] = $res_cats;
                 }
@@ -105,6 +107,22 @@ class SurveyModel extends Libs\RESTModel
     }
 
     /**
+     * Removes the answers of all users of a survey.
+     * Note: the user needs administrator permission.
+     *
+     * @param $ref_id
+     * @param $user_id
+     */
+    public function removeSurveyResultsOfAllUsers($ref_id, $user_id) {
+        Libs\RESTLib::loadIlUser();
+        global $ilUser;
+        $ilUser->setId($user_id);
+        $ilUser->read();
+        $svyObj = new \ilObjSurvey($ref_id);
+        $svyObj->deleteAllUserData();
+    }
+
+    /**
      * Returns the "finishID" of a particular user.
      * @param $ref_id
      * @param $user_id
@@ -132,6 +150,9 @@ class SurveyModel extends Libs\RESTModel
     }
 
     /**
+     * Starts a survey, i.e. creates appropriate data base fields.
+     * The method should be used in conjunction with saveQuestionAnswer and finishSurvey.
+     *
      * @param $ref_id
      * @param $user_id
      * @return active_id (same as finish_id)
@@ -148,19 +169,24 @@ class SurveyModel extends Libs\RESTModel
     }
 
     /**
+     * Stores the answers of a single survey question.
+     * The method should be used in conjunction with beginSurvey and finishSurvey.
+     *
      * @param $ref_id
      * @param $user_id
      * @param $active_id
      * @param $question_id
      * @param $answerdata - array of numbers (type string) - they denote the answer id(+1)
+     * @return bool
      */
     public function saveQuestionAnswer($ref_id, $user_id, $active_id, $question_id, $answer_csv) {
         // convert answer_data  to $post_data format
         $answers = explode(',',$answer_csv);
+        $mpc_answers = array();
         for ($i=0;$i<count($answers);$i++) {
-
-        } // TODO
-        $post_data = array($question_id.'_value'=>'1',$question_id.'_1_other'=>'text answer');
+            $mpc_answers [] = $answers[$i] - 1;
+        }
+        if (count($mpc_answers)==0) return false;
 
         Libs\RESTLib::loadIlUser();
         global $ilUser;
@@ -179,13 +205,22 @@ class SurveyModel extends Libs\RESTModel
                 require_once "./Modules/SurveyQuestionPool/classes/class.SurveyQuestion.php";
                 $question =&  \SurveyQuestion::_instanciateQuestion($question["question_id"]);
                 if ($question->getId() == $question_id) {
+                    if ($question->getQuestionTypeID()==1) { // MPC, see table svy_qtype
+                        $post_data[$question_id.'_value'] = $mpc_answers;
+                    } else if ($question->getQuestionTypeID()==2) { // SC
+                        $post_data[$question_id.'_value'] = $mpc_answers[0];
+                    }
                     $question->saveUserInput($post_data, $active_id,  false);
                 }
             }
         }
+        return true;
     }
 
     /**
+     * Finishes a survey (session).
+     * The method should be used in conjunction with saveQuestionAnswer and finishSurvey.
+     *
      * @param $ref_id
      * @param $user_id
      * @param $finish_id
