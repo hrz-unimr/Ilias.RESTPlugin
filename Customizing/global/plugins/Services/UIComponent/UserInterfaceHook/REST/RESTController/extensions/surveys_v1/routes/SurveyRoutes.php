@@ -31,7 +31,7 @@ $app->group('/v1', function () use ($app) {
     });
 
     /**
-     * Returns a Json representation of the survey ref_id.
+     * Returns a json representation of the survey ref_id.
      */
     $app->get('/survey/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function($ref_id) use ($app) {
         $auth = new Auth\Util();
@@ -66,7 +66,7 @@ $app->group('/v1', function () use ($app) {
         $accessToken = $auth->getAccessToken();
         $user_id = $accessToken->getUserId();
         $model = new Surveys\SurveyModel();
-        $model->removeSurveyResultsOfAllUsers($ref_id, $user_id); // TODO deleteAllUserData
+        $model->removeSurveyResultsOfAllUsers($ref_id, $user_id);
         $app->success(200);
     });
 
@@ -99,7 +99,6 @@ $app->group('/v1', function () use ($app) {
                 $ct_question_id = $answers[$i]['id'];
                 $ct_answers =  $answers[$i]['answer'];
                 $model->saveQuestionAnswer($ref_id, $user_id, $active_id, $ct_question_id, $ct_answers);
-                //$model->saveQuestionAnswer($ref_id, $user_id, $active_id, $question_id, "1");
             }
             $model->finishSurvey($ref_id,$user_id,$active_id);
             $result = $model->getSurveyResultsOfUser($ref_id,$user_id);
