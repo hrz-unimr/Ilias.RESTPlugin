@@ -53,13 +53,14 @@ $app->group('/v1', function () use ($app) {
         $accessToken = $auth->getAccessToken();
         $user_id = $accessToken->getUserId();
 
-        $request = $app->request();
+       /* $request = $app->request();
         $qst_id = $request->params('qst_id');
         $choice_csv_str = $request->params('choice_csv');
+
         $sel_answers = explode(',',$choice_csv_str);
         for ($i = 0; $i<count($sel_answers);$i++) {
             $sel_answers[$i] = $sel_answers[$i] - 1;
-        }
+        }*/
         //$attribs = array("qst_id","choice_csv");
         /*$req_data = array();
         foreach($attribs as $a) {
@@ -73,15 +74,42 @@ $app->group('/v1', function () use ($app) {
 
     /**
      * Stores the answers of one particular question of survey ref_id.
+     * Note: Only question types SC and MPC are supported.
+     *
+     * Post-data:
+     * {'nQuestions' => '5', 'q1_id'=>'1', 'q1_answer_values'=>'2,3',...}
      */
-    $app->post('/survey_answer/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function($ref_id) use ($app) {
+    $app->post('/survey_answers/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function($ref_id) use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user_id = $accessToken->getUserId();
-        // TODO
-        $model = new Surveys\SurveyModel();
-        $result = $model->getSurveyResultsOfUser($ref_id,$user_id);
-        $app->success($result);
+
+        $request = $app->request();
+        $nQuest = $request->params('nQuestions');
+        if (isset($nQuest) == true) {
+            $nQuest = intval($nQuest);
+            $answers = array();
+            for ($i = 0; $i < $nQuest; $i++) {
+                $ct_id = $request->params('q'.($i+1).'_id');
+                $ct_values = $request->params('q'.($i+1).'_answer_values');
+                $answers[$ct_id] = $ct_values;
+            }
+
+            $model = new Surveys\SurveyModel();
+            $active_id = $model->beginSurvey($ref_id, $user_id);
+            foreach ($answers as $key=>$value) {
+                $ct_question_id = $key;
+                $ct_answers = $value;
+                $model->saveQuestionAnswer($ref_id, $user_id, $active_id, $ct_question_id, $ct_answers);
+                //$model->saveQuestionAnswer($ref_id, $user_id, $active_id, $question_id, "1");
+            }
+            $model->finishSurvey($ref_id,$user_id,$active_id);
+            $result = $model->getSurveyResultsOfUser($ref_id,$user_id);
+            $app->success(200, $result);
+        } else {
+            $app->success(422);
+        }
+
     });
 
 });

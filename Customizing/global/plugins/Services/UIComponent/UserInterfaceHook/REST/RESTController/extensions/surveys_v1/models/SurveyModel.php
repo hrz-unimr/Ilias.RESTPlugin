@@ -130,4 +130,74 @@ class SurveyModel extends Libs\RESTModel
         }
         return $finished_ids;
     }
+
+    /**
+     * @param $ref_id
+     * @param $user_id
+     * @return active_id (same as finish_id)
+     */
+    public function beginSurvey($ref_id, $user_id){
+        Libs\RESTLib::loadIlUser();
+        global $ilUser;
+        $ilUser->setId($user_id);
+        $ilUser->read();
+        $svyObj = new \ilObjSurvey($ref_id);
+        $id = $svyObj->startSurvey($user_id,"",0);
+        //$active_id = $ilDB->nextId('svy_finished');
+        return $id; // =finish_id=active_id?
+    }
+
+    /**
+     * @param $ref_id
+     * @param $user_id
+     * @param $active_id
+     * @param $question_id
+     * @param $answerdata - array of numbers (type string) - they denote the answer id(+1)
+     */
+    public function saveQuestionAnswer($ref_id, $user_id, $active_id, $question_id, $answer_csv) {
+        // convert answer_data  to $post_data format
+        $answers = explode(',',$answer_csv);
+        for ($i=0;$i<count($answers);$i++) {
+
+        } // TODO
+        $post_data = array($question_id.'_value'=>'1',$question_id.'_1_other'=>'text answer');
+
+        Libs\RESTLib::loadIlUser();
+        global $ilUser;
+        $ilUser->setId($user_id);
+        $ilUser->read();
+        $svyObj = new \ilObjSurvey($ref_id);
+        $pages =& $svyObj->getSurveyPages();
+        $result = array();
+        $res_questions = array();
+        $cnt = 1;
+        foreach ($pages as $key => $question_array)
+        {
+            foreach ($question_array as $question)
+            {
+                // instanciate question
+                require_once "./Modules/SurveyQuestionPool/classes/class.SurveyQuestion.php";
+                $question =&  \SurveyQuestion::_instanciateQuestion($question["question_id"]);
+                if ($question->getId() == $question_id) {
+                    $question->saveUserInput($post_data, $active_id,  false);
+                }
+            }
+        }
+    }
+
+    /**
+     * @param $ref_id
+     * @param $user_id
+     * @param $finish_id
+     */
+    public function finishSurvey($ref_id, $user_id, $finish_id){
+        Libs\RESTLib::loadIlUser();
+        global $ilUser;
+        $ilUser->setId($user_id);
+        $ilUser->read();
+        $svyObj = new \ilObjSurvey($ref_id);
+        $svyObj->finishSurvey($finish_id);
+    }
+
+
 }
