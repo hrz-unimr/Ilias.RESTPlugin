@@ -32,9 +32,6 @@ $app->group('/v1/news', function () use ($app) {
         $pdnews = $model->getPDNewsForUser($uid);
 
         $result = array();
-        $result['msg'] = 'In get News OP.';
-        $result['debug_uid'] = $uid;
-        $result['debug_uname'] = $uname;
         $result['pdnews'] = $pdnews;
         $app->success($result);
     });
