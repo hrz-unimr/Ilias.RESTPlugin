@@ -19,6 +19,55 @@ require_once('./Modules/SurveyQuestionPool/classes/class.SurveyQuestion.php');
 
 class SurveyModel extends Libs\RESTModel
 {
+
+    /**
+     * Retrieves all surveys of a user.
+     * @param $usr_id
+     * @return array
+     */
+    public function getAllSurveys($usr_id)
+    {
+        Libs\RESTLib::loadIlUser();
+        global    $ilUser;
+        $ilUser->setId($usr_id);
+        $ilUser->read();
+        Libs\RESTLib::initAccessHandling();
+        $list = \ilUtil::_getObjectsByOperations('svy','visible,read'); // returns ref_ids
+        foreach ($list as $id) {
+            $result[] = array($this->getSurveyInfo($id));
+        }
+        return $result;
+    }
+
+    /**
+     * This method delivers basic information such as title and description of a survey.
+     *
+     * @param $svy_ref_id
+     * @return array
+     */
+    public function getSurveyInfo($svy_ref_id)
+    {
+        require_once('./Services/Xml/classes/class.ilSaxParser.php');
+        Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
+        Libs\RESTLib::initGlobal('ilObjDataCache', 'ilObjectDataCache',
+            './Services/Object/classes/class.ilObjectDataCache.php');
+        global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilObjDataCache;
+
+        $svy_info = array();
+        $svy_info['ref_id'] = $svy_ref_id;
+        $obj = \ilObjectFactory::getInstanceByRefId($svy_ref_id,false);
+        if(is_null($obj)) {
+            $svy_info['title'] = 'notFound';
+        } else {
+            $svy_info['title'] = $obj->getTitle();
+            $svy_info['description'] = $obj->getDescription();
+            $svy_info['create_date'] = $obj->create_date;
+            $svy_info['type'] = $obj->getType();
+        }
+        //var_dump($obj);
+        return $svy_info;
+    }
+
     /**
      * Fills random answers for a user and survey specified by ref_id.
      * @param $ref_id - survey_id

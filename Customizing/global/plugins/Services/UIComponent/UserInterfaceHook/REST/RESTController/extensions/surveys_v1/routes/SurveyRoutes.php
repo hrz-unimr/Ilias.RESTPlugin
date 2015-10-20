@@ -15,25 +15,21 @@ use \RESTController\extensions\surveys_v1 as Surveys;
 
 $app->group('/v1', function () use ($app) {
 
-    /**
-     * (Admin) Assigns random answers to the question of survey (ref_id) for user (user_id).
-     */
-    $app->post('/svy_rand', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
-         $request = $app->request();
-         $attribs = array("ref_id","user_id");
-         $req_data = array();
-         foreach($attribs as $a) {
-             $req_data[$a] = $request->params($a);
-         }
-         $model = new Surveys\SurveyModel();
-         $model->fillRandomAnswers($req_data['ref_id'], $req_data['user_id']);
-         $app->success("ok");
+    $app->get('/surveys', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function() use ($app) {
+        $auth = new Auth\Util();
+        $accessToken = $auth->getAccessToken();
+        $user_id = $accessToken->getUserId();
+
+        $model = new Surveys\SurveyModel();
+        $result = array();
+        $result['surveys'] = $model->getAllSurveys($user_id);
+        $app->success($result);
     });
 
     /**
      * Returns a json representation of the survey ref_id.
      */
-    $app->get('/survey/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function($ref_id) use ($app) {
+    $app->get('/surveys/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function($ref_id) use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user_id = $accessToken->getUserId();
@@ -107,6 +103,17 @@ $app->group('/v1', function () use ($app) {
             $app->success(422);
         }
 
+    });
+
+    /**
+     * (Admin) Assigns random answers to the question of survey (ref_id) for user (user_id).
+     */
+    $app->post('/survey_answers_randfill/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($ref_id) use ($app) {
+        $request = $app->request();
+        $user_id = $request->params("user_id");
+        $model = new Surveys\SurveyModel();
+        $model->fillRandomAnswers($$ref_id, $user_id);
+        $app->success(200);
     });
 
 });
