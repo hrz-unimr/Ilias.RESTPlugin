@@ -11,6 +11,7 @@ namespace RESTController\extensions\umr_v1;
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
 use \RESTController\extensions\courses_v1 as Courses;
+use \RESTController\extensions\groups_v1 as Groups;
 
 /**
  *
@@ -63,7 +64,8 @@ class Objects extends Libs\RESTModel {
       $include_tutors_and_admins = true;
       $result['members'] = $crs_model->getCourseMembers($result['ref_id'], $include_tutors_and_admins);
     } else if (is_a($ilObjectCourse, 'ilObjGroup') == true) {
-      // TODO
+      $grp_model = new Groups\GroupsModel();
+      $result['members'] = $grp_model->getGroupMembers($result['ref_id']);
     }
     return $result;
   }

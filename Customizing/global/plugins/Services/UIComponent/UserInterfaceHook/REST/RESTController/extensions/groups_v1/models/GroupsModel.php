@@ -21,7 +21,7 @@ require_once('./Services/Database/classes/class.ilDB.php');
 require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
 
 
-class GroupsModel
+class GroupsModel extends Libs\RESTModel
 {
 
     /**
@@ -96,6 +96,26 @@ class GroupsModel
             $crs_items[] = $record;
         }
         return $crs_items;
+    }
+
+    /**
+     * Returns a list of user ids that are members of a group.
+     *
+     * @param $grp_ref_id
+     * @return array
+     */
+    public function getGroupMembers($grp_ref_id)
+    {
+        $a_userids = array();
+        Libs\RESTLib::loadIlUser();
+        Libs\RESTLib::initAccessHandling();
+
+        $obj = \ilObjectFactory::getInstanceByRefId($grp_ref_id,false);
+        if(!is_null($obj) && is_a($obj, 'ilObjGroup')) {
+            self::$app->log->debug('in getGroupMembers '.print_r($obj,true));
+            $a_userids = $obj->getGroupMemberIds();
+        }
+        return $a_userids;
     }
 
     // TODO

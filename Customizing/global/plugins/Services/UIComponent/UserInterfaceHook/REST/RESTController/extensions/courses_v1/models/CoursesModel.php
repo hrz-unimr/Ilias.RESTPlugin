@@ -149,12 +149,9 @@ class CoursesModel extends Libs\RESTModel
         $a_userids = array();
         Libs\RESTLib::loadIlUser();
         Libs\RESTLib::initAccessHandling();
-        global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilObjDataCache;
-
 
         $obj = \ilObjectFactory::getInstanceByRefId($crs_ref_id,false);
         if(!is_null($obj) && is_a($obj, 'ilObjCourse')) {
-            self::$app->log->debug('in getCourseMembers '.print_r($obj,true));
             if ($obj->getShowMembers() == true) {
                 $mem_obj = $obj->getMembersObject();
                 if ($include_tutors_and_admin == true) {
