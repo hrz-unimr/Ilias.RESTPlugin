@@ -92,7 +92,7 @@ class Objects extends Libs\RESTModel {
 
     // Fetch sub-items
     $subItems = $ilObject->getSubItems(false, true);
-    self::$app->log->debug('subitems '.print_r($subItems,true));
+
     // Fetch child-items (ref_id only)
     $children = array();
     if (count($subItems) == 0) return null;
