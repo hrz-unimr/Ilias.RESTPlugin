@@ -112,7 +112,6 @@ class GroupsModel extends Libs\RESTModel
 
         $obj = \ilObjectFactory::getInstanceByRefId($grp_ref_id,false);
         if(!is_null($obj) && is_a($obj, 'ilObjGroup')) {
-            self::$app->log->debug('in getGroupMembers '.print_r($obj,true));
             $a_userids = $obj->getGroupMemberIds();
         }
         return $a_userids;
