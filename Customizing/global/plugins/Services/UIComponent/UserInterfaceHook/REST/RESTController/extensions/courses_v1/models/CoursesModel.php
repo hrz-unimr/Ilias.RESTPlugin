@@ -136,6 +136,9 @@ class CoursesModel extends Libs\RESTModel
 
     /**
      * Returns a list of user ids that are members of a specific course.
+     * Note: this method returns course members/participants only
+     * if the setting "Show Memebers" is activated, i.e.
+     * "If activated, course members can access the members gallery."
      *
      * @param $crs_ref_id
      * @param $include_tutors_and_admin - bool
@@ -155,11 +158,13 @@ class CoursesModel extends Libs\RESTModel
 
         $obj = \ilObjectFactory::getInstanceByRefId($crs_ref_id,false);
         if(!is_null($obj)) {
-            $mem_obj = $obj->getMembersObject();
-            if ($include_tutors_and_admin == true) {
-                $a_userids = $mem_obj->getParticipants();
-            } else {
-                $a_userids = $mem_obj->getMembers();
+            if ($obj->getShowMembers() == true) {
+                $mem_obj = $obj->getMembersObject();
+                if ($include_tutors_and_admin == true) {
+                    $a_userids = $mem_obj->getParticipants();
+                } else {
+                    $a_userids = $mem_obj->getMembers();
+                }
             }
 
         }
