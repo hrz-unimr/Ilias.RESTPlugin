@@ -46,12 +46,15 @@ $app->group('/v1', function () use ($app) {
         $app->log->debug('in course get ref_id= '.$ref_id);
         try {
             $crs_model = new CoursesModel();
-            $data1 =  $crs_model->getCourseContent($ref_id);
-            $data2 =  $crs_model->getCourseInfo($ref_id);
+            $data1 = $crs_model->getCourseContent($ref_id);
+            $data2 = $crs_model->getCourseInfo($ref_id);
+            $include_tutors_and_admints = true;
+            $data3 = $crs_model->getCourseMembers($ref_id, $include_tutors_and_admints);
 
             $result = array(
                 'coursecontents' => $data1,
-                'courseinfo' => $data2
+                'courseinfo' => $data2,
+                'coursemembers' => $data3
             );
             $app->success($result);
         } catch (Libs\Exceptions\ReadFailed $e) {

@@ -21,7 +21,7 @@ require_once('./Services/Database/classes/class.ilDB.php');
 require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
 
 
-class CoursesModel
+class CoursesModel extends Libs\RESTModel
 {
 
     /**
@@ -132,6 +132,38 @@ class CoursesModel
             $crs_items[] = $record;
         }
         return $crs_items;
+    }
+
+    /**
+     * Returns a list of user ids that are members of a specific course.
+     *
+     * @param $crs_ref_id
+     * @param $include_tutors_and_admin - bool
+     * @return array
+     */
+    public function getCourseMembers($crs_ref_id, $include_tutors_and_admin)
+    {
+        $a_userids = array();
+        require_once('./Services/Xml/classes/class.ilSaxParser.php');
+       // Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
+        //Libs\RESTLib::initGlobal('ilObjDataCache', 'ilObjectDataCache',
+         //   './Services/Object/classes/class.ilObjectDataCache.php');
+        Libs\RESTLib::loadIlUser();
+        Libs\RESTLib::initAccessHandling();
+        global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilObjDataCache;
+
+
+        $obj = \ilObjectFactory::getInstanceByRefId($crs_ref_id,false);
+        if(!is_null($obj)) {
+            $mem_obj = $obj->getMembersObject();
+            if ($include_tutors_and_admin == true) {
+                $a_userids = $mem_obj->getParticipants();
+            } else {
+                $a_userids = $mem_obj->getMembers();
+            }
+
+        }
+        return $a_userids;
     }
 
     /**
