@@ -10,7 +10,7 @@ namespace RESTController\extensions\umr_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
-
+use \RESTController\extensions\courses_v1 as Courses;
 
 /**
  *
@@ -58,6 +58,13 @@ class Objects extends Libs\RESTModel {
     if ($cat && $cat->getCategoryID())
       $result['calendar_id'] = intval($cat->getCategoryID());
 
+    if (is_a($ilObjectCourse, 'ilObjCourse') == true) {
+      $crs_model = new Courses\CoursesModel();
+      $include_tutors_and_admins = true;
+      $result['members'] = $crs_model->getCourseMembers($result['ref_id'], $include_tutors_and_admins);
+    } else if (is_a($ilObjectCourse, 'ilObjGroup') == true) {
+      // TODO
+    }
     return $result;
   }
   protected static function getIlObjFileData($ilObjectFile) {

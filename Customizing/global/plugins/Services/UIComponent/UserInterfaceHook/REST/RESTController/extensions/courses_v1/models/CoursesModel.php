@@ -147,17 +147,14 @@ class CoursesModel extends Libs\RESTModel
     public function getCourseMembers($crs_ref_id, $include_tutors_and_admin)
     {
         $a_userids = array();
-        require_once('./Services/Xml/classes/class.ilSaxParser.php');
-       // Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
-        //Libs\RESTLib::initGlobal('ilObjDataCache', 'ilObjectDataCache',
-         //   './Services/Object/classes/class.ilObjectDataCache.php');
         Libs\RESTLib::loadIlUser();
         Libs\RESTLib::initAccessHandling();
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilObjDataCache;
 
 
         $obj = \ilObjectFactory::getInstanceByRefId($crs_ref_id,false);
-        if(!is_null($obj)) {
+        if(!is_null($obj) && is_a($obj, 'ilObjCourse')) {
+            self::$app->log->debug('in getCourseMembers '.print_r($obj,true));
             if ($obj->getShowMembers() == true) {
                 $mem_obj = $obj->getMembersObject();
                 if ($include_tutors_and_admin == true) {
