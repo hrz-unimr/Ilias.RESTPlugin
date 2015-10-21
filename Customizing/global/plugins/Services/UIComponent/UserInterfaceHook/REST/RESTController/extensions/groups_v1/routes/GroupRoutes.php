@@ -39,4 +39,23 @@ $app->group('/v1', function () use ($app) {
         }
     });
 
+    $app->get('/groups/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
+        $result = array();
+
+        $auth = new Auth\Util();
+        $user_id = $auth->getAccessToken()->getUserId();
+
+        try {
+            Libs\RESTLib::initAccessHandling();
+            $grpModel = new Groups\GroupsModel();
+            $info = $grpModel->getGroupInfo($ref_id);
+            $result['info'] = $info;
+            $members = $grpModel->getGroupMembers($ref_id);
+            $result['members'] = $members;
+            $app->success($result);
+        } catch (Libs\ReadFailed $e) {
+            $app->halt(400, $e->getFormatedMessage());
+        }
+    });
+
 });

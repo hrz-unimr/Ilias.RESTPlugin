@@ -52,9 +52,9 @@ $app->group('/v1', function () use ($app) {
             $data3 = $crs_model->getCourseMembers($ref_id, $include_tutors_and_admints);
 
             $result = array(
-                'coursecontents' => $data1,
-                'courseinfo' => $data2,
-                'coursemembers' => $data3
+                'contents' => $data1, // course contents
+                'info' => $data2,     // course info
+                'members' => $data3   // course members
             );
             $app->success($result);
         } catch (Libs\Exceptions\ReadFailed $e) {
