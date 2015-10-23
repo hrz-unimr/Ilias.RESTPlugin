@@ -283,7 +283,10 @@ class RESTLib {
 
         $obj_id     = self::getObjIdFromRef($ref_id);
         $type       = $ilObjDataCache->lookupType($obj_id);
-        $permaLink  = self::getBaseUrl().'goto.php'.'?target='.$type.'_'.$ref_id.'&client_id='.CLIENT_ID;
+        //$permaLink  = self::getBaseUrl().'goto.php'.'?target='.$type.'_'.$ref_id.'&client_id='.CLIENT_ID;
+
+        // TODO: FIX ME
+        $permaLink  = 'http://ilias.me/goto.php'.'?target='.$type.'_'.$ref_id.'&client_id='.CLIENT_ID;
 
         return $permaLink;
     }
@@ -425,7 +428,7 @@ class RESTLib {
      *  Should be used whenever someone wants to emulate
      *  $app->success(...) or $app->halt(...) response
      *  without actually transmitting and terminating
-     *  said response. 
+     *  said response.
      */
     public static function responseObject($data, $status) {
         // Add a status-code to response object?
