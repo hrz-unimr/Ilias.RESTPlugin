@@ -49,24 +49,30 @@ class Objects extends Libs\RESTModel {
       function($value) { return !is_null($value); }
     );
   }
-  protected static function getIlObjCourseOrGroupData($ilObjectCourse) {
+  protected static function getIlObjCourseData($ilObjectCourse) {
     // Fetch basic ilObject information
     $result = self::getIlObjData($ilObjectCourse);
 
-    // Add course/group calendar (if available)
-    require_once('./Services/Calendar/classes/class.ilCalendarCategory.php');
-    $cat = \ilCalendarCategory::_getInstanceByObjId($result['obj_id']);
-    if ($cat && $cat->getCategoryID())
-      $result['calendar_id'] = intval($cat->getCategoryID());
+    // Add course/group calendar
+    $result['calendar_id'] = self::getCalender($result['obj_id']);
 
-    if (is_a($ilObjectCourse, 'ilObjCourse') == true) {
-      $crs_model = new Courses\CoursesModel();
-      $include_tutors_and_admins = true;
-      $result['members'] = $crs_model->getCourseMembers($result['ref_id'], $include_tutors_and_admins);
-    } else if (is_a($ilObjectCourse, 'ilObjGroup') == true) {
-      $grp_model = new Groups\GroupsModel();
-      $result['members'] = $grp_model->getGroupMembers($result['ref_id']);
-    }
+    // Fetch participants
+    $result['participants'] = self::getCourseParticipants($ilObjectCourse);
+
+    // Return object-information
+    return $result;
+  }
+  protected static function getIlObjGroupData($ilObjectGroup) {
+    // Fetch basic ilObject information
+    $result = self::getIlObjData($ilObjectGroup);
+
+    // Add course/group calendar
+    $result['calendar_id'] = self::getCalender($result['obj_id']);
+
+    // Fetch participants
+    $result['participants'] = self::getGroupParticipants($ilObjectGroup);
+
+    // Return object-information
     return $result;
   }
   protected static function getIlObjFileData($ilObjectFile) {
@@ -78,6 +84,7 @@ class Objects extends Libs\RESTModel {
     $result['file_size'] = $ilObjectFile->getFileSize();
     $result['version']   = $ilObjectFile->getVersion();
 
+    // Return object-information
     return $result;
   }
 
@@ -106,6 +113,55 @@ class Objects extends Libs\RESTModel {
   /**
    *
    */
+  protected static function getCourseParticipants($ilObjectCourse) {
+    // Only add participants if enabled
+    if ($ilObjectCourse->getShowMembers() == true) {
+      // Fetch participants by group
+      $participants = $ilObjectCourse->getMembersObject();
+
+      // Return participants
+      return array(
+        'members' => $participants->getMembers(),
+        'admins'  => $participants->getAdmins(),
+        'tutors'  => $participants->getTutors(),
+      );
+    }
+
+    // Not allowed to see participants
+    return null;
+  }
+  protected static function getGroupParticipants($ilObjectGroup) {
+    // Fetch for calculating difference (admins are in members, unlike with courses) [*sarcastic slow-clap*]
+    $members = $ilObjectGroup->getGroupMemberIds();
+    $admins  = $ilObjectGroup->getGroupAdminIds();
+
+    // Return members and admins (cleanly!)
+    return array(
+      'members'  => array_diff($members, $admins),
+      'admins'   => $admins,
+    );
+  }
+
+
+  /**
+   *
+   */
+  protected static function getCalender($objectId) {
+    // Add course/group calendar (if available)
+    require_once('./Services/Calendar/classes/class.ilCalendarCategory.php');
+    $category = \ilCalendarCategory::_getInstanceByObjId($objectId);
+    if ($category && $category->getCategoryID())
+      return intval($category->getCategoryID());
+
+    // No calender for the given object-id
+    return null;
+  }
+
+
+
+  /**
+   *
+   */
   protected static function getDataForId($accessToken, $refId) {
     // User for access checking
     global $rbacsystem;
@@ -125,10 +181,11 @@ class Objects extends Libs\RESTModel {
     if(!$rbacsystem->checkAccess('read', $refId))
       throw new Exceptions\Objects(sprintf(self::MSG_NO_ACCESS, $refId), self::ID_NO_ACCESS);
 
-    // Fetch Object data for different object-types
     // Object: Course or Group
-    if (is_a($ilObject, 'ilObjCourse') || is_a($ilObject, 'ilObjGroup'))
-      return self::getIlObjCourseOrGroupData($ilObject);
+    if (is_a($ilObject, 'ilObjCourse'))
+      return self::getIlObjCourseData($ilObject);
+    if (is_a($ilObject, 'ilObjGroup'))
+      return self::getIlObjGroupData($ilObject);
     // Object: File
     elseif (is_a($ilObject, 'ilObjFile'))
       return self::getIlObjFileData($ilObject);
