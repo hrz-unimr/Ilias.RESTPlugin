@@ -38,12 +38,12 @@ class Objects extends Libs\RESTModel {
         'obj_id'      => intval($ilObject->getId()),
         'ref_id'      => intval($ilObject->getRefId()),
         'owner'       => intval($ilObject->getOwner()),
+        'owner_name'  => \ilObjUser::_lookupFullname($ilObject->getOwner()),
         'type'        => $ilObject->getType(),
         'title'       => $ilObject->getTitle(),
         'desc'        => $ilObject->getDescription(),
-        'long_desc'   => $ilObject->getLongDescription(),
-        'create_date' => $ilObject->getCreateDate(),
-        'last_update' => $ilObject->getLastUpdateDate(),
+        'create_date' => substr_replace($ilObject->getCreateDate(), 'T', 10, 1),
+        'last_update' => substr_replace($ilObject->getLastUpdateDate(), 'T', 10, 1),
         'children'    => self::getChildren($ilObject)
       ),
       function($value) { return !is_null($value); }
@@ -95,10 +95,9 @@ class Objects extends Libs\RESTModel {
 
     // Fetch child-items (ref_id only)
     $children = array();
-    if (count($subItems) == 0) return null;
-
-    foreach($subItems['_all'] as $child)
-      $children[] = intval($child['ref_id']);
+    if ($subItems && $subItems['_all'])
+      foreach($subItems['_all'] as $child)
+        $children[] = intval($child['ref_id']);
 
     return $children;
   }
