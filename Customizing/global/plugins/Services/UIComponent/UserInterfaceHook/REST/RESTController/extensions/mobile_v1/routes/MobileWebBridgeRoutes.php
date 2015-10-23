@@ -60,7 +60,7 @@ $app->group('/v1/m', function () use ($app) {
         $startfile =  \ilObjFileBasedLMAccess::$startfile[(string)$obj_id];
         if ($startfile != "")
         {
-            $lmurl.= Libs\RESTLib::getWebDir()."/lm_data"."/lm_".$obj_id;
+            $lmurl.= MobileWebBridgeModel::getWebDir()."/lm_data"."/lm_".$obj_id;
             $lmurl.='/'.$startfile;
             $app->log->debug('redirect to : '.$lmurl);
             header("Location: ".$lmurl, true, 301);
@@ -82,8 +82,8 @@ $app->group('/v1/m', function () use ($app) {
         $auth = new Auth\Util();
         $user_id = $auth->getAccessToken()->getUserId();
 
-        $permaLink = Libs\RESTLib::getPermanentLink($ref_id);;
-        Libs\RESTLib::initSession($user_id);
+        $permaLink = MobileWebBridgeModel::getPermanentLink($ref_id);;
+        MobileWebBridgeModel::initSession($user_id);
 
 
         if ($permaLink!="") {

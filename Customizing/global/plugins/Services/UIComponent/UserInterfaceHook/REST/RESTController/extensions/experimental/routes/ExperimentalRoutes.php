@@ -170,11 +170,4 @@ $app->group('/dev', function () use ($app) {
         $app->halt(42, $result);
     });
 
-    // -------------------------------------------------------------------
-    $app->get('/getPermaLink/:ref_id', function ($ref_id) use ($app) {
-        $result = array();
-        $result['permaLink'] = Libs\RESTLib::getPermanentLink($ref_id);
-        $app->success($result);
-    });
-
 });

@@ -208,6 +208,7 @@ class RESTLib {
 
         return $checked_in;
     }
+    // TODO: Move into a core-auth model
 
 
     /**
@@ -273,26 +274,6 @@ class RESTLib {
 
 
     /**
-     * Returns the perma link of a repository object specified by its ref_id.
-     * @param $ref_id
-     * @return string
-     * @throws \Exception
-     */
-    public static function getPermanentLink($ref_id) {
-        global $ilObjDataCache;
-
-        $obj_id     = self::getObjIdFromRef($ref_id);
-        $type       = $ilObjDataCache->lookupType($obj_id);
-        //$permaLink  = self::getBaseUrl().'goto.php'.'?target='.$type.'_'.$ref_id.'&client_id='.CLIENT_ID;
-
-        // TODO: FIX ME
-        $permaLink  = 'http://ilias.me/goto.php'.'?target='.$type.'_'.$ref_id.'&client_id='.CLIENT_ID;
-
-        return $permaLink;
-    }
-
-
-    /**
      * Given a user id, this function returns the ilias login name of a user.
      *
      * @param $user_id
@@ -326,54 +307,6 @@ class RESTLib {
         if ($row)
             return $row['usr_id'];
     }
-
-
-    /**
-     * Returns the web directory, where e.g. learning modules are located.
-     * In contrast to ilUtil::getWebDir() this functions  returns the
-     * dir path without any prefix.
-     * @return string
-     */
-    public static function getWebDir()
-    {
-        return ILIAS_WEB_DIR."/".CLIENT_ID;
-    }
-
-
-    /**
-     * Initiates an ILIAS Session for a user specified by $user_id.
-     * (Requires ILIAS >5.0)
-     * @param $user_id
-     */
-    public static function initSession($user_id)
-    {
-        global $ilLog;
-        $user_name = RESTLib::getUserNameFromUserId($user_id);
-
-        require_once('Auth/Auth.php');
-        require_once('Services/Authentication/classes/class.ilSession.php');
-        require_once('Services/Authentication/classes/class.ilSessionControl.php');
-        require_once('Services/AuthShibboleth/classes/class.ilShibboleth.php');
-        require_once('Services/Authentication/classes/class.ilAuthUtils.php');
-
-        \ilAuthUtils::_initAuth();
-
-        global $ilAuth;
-        $ilAuth->setAuth($user_name);
-        $ilAuth->start();
-        $checked_in = $ilAuth->getAuth();
-
-        $ilLog->write('Custom session via REST initiated. Check in value: '.$checked_in);
-
-        \ilSession::set("AccountId", $user_id);
-        \ilSession::set('orig_request_target', '');
-
-        header_remove('Set-Cookie');
-        \ilUtil::setCookie("ilClientId", CLIENT_ID);
-
-        \ilInitialisation::setSessionHandler(); // will put an entry in usr_session table
-    }
-
 
 
     /**
@@ -421,6 +354,8 @@ class RESTLib {
         // Return ids (array of integers)
         return $ids;
     }
+    // TODO: Move to RESTRequest
+    // Also fix outstanding github bug...
 
 
     /**
