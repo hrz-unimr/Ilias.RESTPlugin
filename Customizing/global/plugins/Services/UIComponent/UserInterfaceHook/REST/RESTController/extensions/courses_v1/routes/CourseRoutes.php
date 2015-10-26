@@ -8,6 +8,7 @@
 namespace RESTController\extensions\courses_v1;
 
 // This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 use \RESTController\extensions\users_v1 as Users;
@@ -18,7 +19,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Retrieves a list of all courses of the authenticated user and meta-information about them (no content).
      */
-   $app->get('/courses', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+   $app->get('/courses', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user_id = $accessToken->getUserId();
@@ -38,7 +39,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Retrieves the content and a description of a course specified by ref_id.
      */
-    $app->get('/courses/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
+    $app->get('/courses/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($ref_id) use ($app) {
         $auth = new Auth\Util();
         //$accessToken = $auth->getAccessToken();
         //$user = $accessToken->getUserName();
@@ -63,7 +64,7 @@ $app->group('/v1', function () use ($app) {
     });
 
 
-    $app->post('/courses', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function() use ($app) {
+    $app->post('/courses', AuthFactory::checkAccess(AuthFactory::PERMISSION), function() use ($app) {
         try {
             $request = $app->request();
             $ref_id = $request->params('ref_id', null, true);
@@ -89,7 +90,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Deletes the course specified by ref_id.
      */
-    $app->delete('/courses/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
+    $app->delete('/courses/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($ref_id) use ($app) {
         $request = $app->request();
 
         $auth = new Auth\Util();
@@ -127,7 +128,7 @@ $app->group('/v1', function () use ($app) {
      * If "mode" is "by_id", the parameter "usr_id" is used for the lookup.
      * The user is then enrolled in the course with "crs_ref_id".
      */
-    $app->post('/courses/enroll', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function() use ($app) {
+    $app->post('/courses/enroll', AuthFactory::checkAccess(AuthFactory::ADMIN), function() use ($app) {
         $request = $app->request();
         $mode = $request->params("mode");
 
@@ -167,7 +168,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Assigns the authenticated user to a course specified by the GET parameter ref_id.
      */
-    $app->get('/courses/join/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
+    $app->get('/courses/join/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($ref_id) use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
@@ -191,7 +192,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Removes the authenticated user from a course speicifed by the GET parameter "ref_id".
      */
-    $app->get('/courses/leave/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
+    $app->get('/courses/leave/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($ref_id) use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $authorizedUserId = $accessToken->getUserId();

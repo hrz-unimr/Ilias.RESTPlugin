@@ -10,6 +10,7 @@ namespace RESTController\extensions\umr_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires: $app to be \RESTController\RESTController::getInstance()
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\core\auth as Auth;
 
 
@@ -21,7 +22,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/personaldesktop', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+  $app->get('/personaldesktop', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
     // Fetch userId & userName
     $auth         = new Auth\Util();
     $accessToken  = $auth->getAccessToken();
@@ -40,7 +41,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->post('/personaldesktop', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->post('/personaldesktop', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
 
   /**
@@ -49,7 +50,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->delete('/personaldesktop', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->delete('/personaldesktop', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
 // End of '/v1/umr/' URI-Group
 });

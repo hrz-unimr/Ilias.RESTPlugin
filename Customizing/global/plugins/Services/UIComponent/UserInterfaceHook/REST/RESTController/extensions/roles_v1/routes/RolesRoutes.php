@@ -8,10 +8,11 @@
 namespace RESTController\extensions\roles_v1;
 
 // This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\core\auth as Auth;
 
 
-$app->get('/v1/roles', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
+$app->get('/v1/roles', AuthFactory::checkAccess(AuthFactory::ADMIN), function () use ($app) {
     try {
         // Fetch authorized user
         $auth = new Auth\Util();

@@ -8,6 +8,7 @@
 namespace RESTController\extensions\users_v1;
 
 // This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\core\auth as Auth;
 use \RESTController\libs as Libs;
 use \RESTController\libs\Exceptions as LibExceptions;
@@ -15,7 +16,7 @@ use \RESTController\libs\Exceptions as LibExceptions;
 /**
  * Retrieves user information on a limited number of users.
  */
-$app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
+$app->get('/v1/users', AuthFactory::checkAccess(AuthFactory::ADMIN), function () use ($app) {
         $limit = 10;
         $offset = 0;
 
@@ -55,7 +56,7 @@ $app->get('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', 
  * Supported search criteria:
  *  - ldapext with extname: search for users that have authmode ldap and query (extname) matches with ext_account
  */
-$app->get('/v1/search/user','\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
+$app->get('/v1/search/user',AuthFactory::checkAccess(AuthFactory::ADMIN), function () use ($app) {
     $result = array();
     $request = $app->request();
     if ($request->params('mode')) {
@@ -93,7 +94,7 @@ $app->get('/v1/search/user','\RESTController\libs\OAuth2Middleware::TokenAdminAu
 /**
  * Retrieves data of a user specified by its id.
  */
-$app->get('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($user_id) use ($app) {
+$app->get('/v1/users/:user_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($user_id) use ($app) {
         $id = $user_id;
         if ($user_id == "mine") {
             $auth = new Auth\Util();
@@ -112,7 +113,7 @@ $app->get('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRou
 /**
  * Creates a user entry.
  */
-$app->post('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { // create
+$app->post('/v1/users', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) { // create
 
         $request = $app->request();
         $attribs = array("login", "passwd", "firstname", "lastname", "email", "gender", "auth_mode");
@@ -137,7 +138,7 @@ $app->post('/v1/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',
  * Note: it is important to provide all fields not just those which need to be changed. Otherwise
  * all fields except the login field will be overwritten with default values.
  */
-$app->put('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($user_id) use ($app){ // update
+$app->put('/v1/users/:user_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($user_id) use ($app){ // update
     try {
         $request = $app->request();
         $attribs = array("login", "passwd", "firstname", "lastname", "email", "gender", "auth_mode");
@@ -159,13 +160,13 @@ $app->put('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRou
 /**
  * Deletes a user entry.
  */
-$app->delete('/v1/users/:user_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($user_id) use ($app) {
+$app->delete('/v1/users/:user_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($user_id) use ($app) {
     try {
         $result = array();
 
         Libs\RestLib::loadIlUser();
         Libs\RestLib::initAccessHandling();
-        
+
         $usr_model = new UsersModel();
         $status = $usr_model->deleteUser($user_id);
 

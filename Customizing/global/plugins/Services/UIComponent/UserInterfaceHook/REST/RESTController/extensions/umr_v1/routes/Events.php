@@ -10,6 +10,7 @@ namespace RESTController\extensions\umr_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires: $app to be \RESTController\RESTController::getInstance()
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 
@@ -24,7 +25,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/events', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+  $app->get('/events', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
     // Fetch userId & userName
     $auth         = new Auth\Util();
     $accessToken  = $auth->getAccessToken();
@@ -63,7 +64,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/events/:eventId', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($eventId) use ($app) {
+  $app->get('/events/:eventId', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($eventId) use ($app) {
     // Fetch userId & userName
     $auth         = new Auth\Util();
     $accessToken  = $auth->getAccessToken();
@@ -89,7 +90,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->post('/events', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->post('/events', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
 
   /**
@@ -98,7 +99,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->put('/events', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->put('/events', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
 
   /**
@@ -107,7 +108,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->delete('/events', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->delete('/events', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
 // End of '/v1/umr/' URI-Group
 });

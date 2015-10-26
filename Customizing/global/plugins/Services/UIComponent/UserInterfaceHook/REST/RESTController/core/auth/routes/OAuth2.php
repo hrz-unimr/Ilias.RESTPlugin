@@ -8,10 +8,11 @@
 namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
+// Requires <$app = \RESTController\RESTController::getInstance()>
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\libs as Libs;
 use \RESTController\libs\Exceptions as LibExceptions;
 use \RESTController\core\auth\Exceptions as AuthExceptions;
-// Requires <$app = \RESTController\RESTController::getInstance()>
 
 
 // Group as version-1 implementation

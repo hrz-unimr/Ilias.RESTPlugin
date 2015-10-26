@@ -8,6 +8,7 @@
 namespace RESTController\extensions\contacts_v1;
 
 // This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 use \RESTController\libs\Exceptions as LibExceptions;
@@ -17,7 +18,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the personal ILIAS contacts for a user specified by id.
      */
-    $app->get('/contacts/:id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($id) use ($app) {
+    $app->get('/contacts/:id', AuthFactory::checkAccess(AuthFactory::ADMIN), function ($id) use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
@@ -42,7 +43,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the personal ILIAS contacts of the authenticated user.
      */
-    $app->get('/contacts', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+    $app->get('/contacts', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();

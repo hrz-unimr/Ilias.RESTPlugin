@@ -8,11 +8,12 @@
 namespace RESTController\core\clients;
 
 // This allows us to use shortcuts instead of full quantifier
+// Requires <$app = \RESTController\RESTController::getInstance()>
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\libs as Libs;
 use \RESTController\libs\Exceptions as LibExceptions;
 use \RESTController\core\clients\Exceptions as ClientExceptions;
 use \RESTController\core\auth as Auth;
-// Requires <$app = \RESTController\RESTController::getInstance()>
 
 
 /**
@@ -56,7 +57,7 @@ use \RESTController\core\auth as Auth;
  *    status: "<Success or Failure>"
  *  }
  */
- $app->get('/clients', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+ $app->get('/clients', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
     // Fetch authorized user
     $auth = new Auth\Util();
     $user = $auth->getAccessToken()->getUserName();
@@ -118,7 +119,7 @@ use \RESTController\core\auth as Auth;
  *    status: "<Success or Failure>"
  *  }
  */
-$app->put('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($id) use ($app) {
+$app->put('/clients/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($id) use ($app) {
     // Fetch authorized user
     $auth = new Auth\Util();
     $user = $auth->getAccessToken()->getUserName();
@@ -221,7 +222,7 @@ $app->put('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth
  *    status: "<Success or Failure>"
  *  }
  */
-$app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+$app->post('/clients/', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
     // Fetch authorized user
     $auth = new Auth\Util();
     $user = $auth->getAccessToken()->getUserName();
@@ -300,7 +301,7 @@ $app->post('/clients/', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',
  *    status: "<Success or Failure>"
  *  }
  */
-$app->delete('/clients/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($id) use ($app) {
+$app->delete('/clients/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION),  function ($id) use ($app) {
     // Fetch authorized user
     $auth = new Auth\Util();
     $user = $auth->getAccessToken()->getUserName();

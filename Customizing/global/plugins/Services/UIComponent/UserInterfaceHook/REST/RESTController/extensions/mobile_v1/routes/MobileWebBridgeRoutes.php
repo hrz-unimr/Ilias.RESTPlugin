@@ -8,6 +8,7 @@
 namespace RESTController\extensions\mobile_v1;
 
 // This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 use \RESTController\extensions\admin as Admin;
@@ -29,7 +30,7 @@ $app->group('/v1/m', function () use ($app) {
      * This can be done e.g. with "https://<hostname>/restplugin.php/v1/m/htlm/145?access_token=cm9v..."
      *
      */
-    $app->get('/htlm/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($ref_id) use ($app) {
+    $app->get('/htlm/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION),  function ($ref_id) use ($app) {
         $auth = new Auth\Util();
         $user_id = $auth->getAccessToken()->getUserId();
 
@@ -78,7 +79,7 @@ $app->group('/v1/m', function () use ($app) {
      * cookies will be set and be required due to the access checker. The bearer token has to be submitted via a GET payload.
      * This can be done e.g. with "https://<hostname>/restplugin.php/v1/m/permabridge/145?access_token=cm9v..."
      */
-    $app->get('/permabridge/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($ref_id) use ($app) {
+    $app->get('/permabridge/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($ref_id) use ($app) {
         $auth = new Auth\Util();
         $user_id = $auth->getAccessToken()->getUserId();
 

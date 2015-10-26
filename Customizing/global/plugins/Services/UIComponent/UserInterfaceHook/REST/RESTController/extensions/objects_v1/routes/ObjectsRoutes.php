@@ -6,9 +6,10 @@
  * Since 2014
  */
 namespace RESTController\extensions\objects_v1;
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 
 
-$app->get('/v1/object/:ref', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($ref) use ($app) {
+$app->get('/v1/object/:ref', AuthFactory::checkAccess(AuthFactory::ADMIN), function ($ref) use ($app) {
     try {
         $model = new ObjectsModel();
         $result = $model->getObject($ref);

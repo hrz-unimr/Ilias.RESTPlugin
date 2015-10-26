@@ -13,13 +13,103 @@ use \RESTController\libs as Libs;
 
 
 /**
- * Class GotoLink
+ * Class Redirect
  *  This model provides methods to generate permanent-links
  *  to ILIAS-Objects as well as functions to creat new
  *  ILIAS-Sessions on the server while also fetching
  *  the authentification-cookies usable by a web-client.
  */
-class GotoLink extends Libs\RESTModel {
+class Redirect extends Libs\RESTModel {
+  // Variables to controll the short-lived access-token
+  const shortTTL       = 30;
+  const challengeSize  = 25;
+
+
+  /**
+   * Function: checkClientResponse($cr, $cc, $sc)
+   *  Checks the response given by the client to the request
+   *  asked by the server.
+   *
+   * Parameters:
+   *  $cr <String> - Client-Response (to server-challange)
+   *  $cc <String> - Original Client-Challenge
+   *  $sc <String> - Original Server-Challange
+   *
+   * Returns:
+   *  <Boolean> - True if challenge was answered correctly by client
+   */
+  public static function checkClientResponse($cr, $cc, $sc) {
+    // Fetch refresh-token
+    $authModel    = new Auth\RefreshEndpoint();
+    $refreshToken = $authModel->getRefreshToken($accessToken, false);
+
+    // Reconstruct own version of client-response
+    $cr_test  = hash('sha256', $cc . $sc . $refreshToken->getTokenString());
+
+    // Compare client-repsonse with expected response
+    return (strcmp($cr, $cr_test) == 0);
+  }
+
+
+  /**
+   * Function: updateAccessToken($accessToken)
+   *  Generates a short-live access-token from the
+   *  initial access-token. This will only last
+   *  for a few seconds.
+   *
+   * Parameters:
+   *  $accessToken <AcessToken> - Original Access-Token
+   *
+   * Returns:
+   *  <AcessToken> - Updated Access-Token
+   */
+  public static function updateAccessToken($accessToken) {
+    // Modify token
+    $accessToken->setEntry('ttl',  strval(time() + self::shortTTL));
+    $accessToken->setEntry('type', 'short-token');
+    $accessToken->setEntry('misc',  $_SERVER['REMOTE_ADDR']);
+
+    // Return modified access-token
+    return $accessToken;
+  }
+
+
+  /**
+   * Function: answerClientChallange($cc)
+   *  Generates a server-challenge and a server-response
+   *  for the client-challenge.
+   *
+   * Parameters:
+   *  $cc <String> - Client-Challenge to answer
+   *
+   * Returns:
+   *  server_challenge <String> - The challange that needs to be answered by the client to authenticate
+   *  server_response <String> - The response for the client-challenge by the server
+   */
+  public static function answerClientChallange($cc) {
+    // Fetch refresh-token
+    $authModel    = new Auth\RefreshEndpoint();
+    $refreshToken = $authModel->getRefreshToken($accessToken, false);
+
+    // Generate server-challenge and server response
+    $sc     = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 5)), 0, self::challengeSize);
+    $sr     = hash('sha256', $sc . $cc . $refreshToken->getTokenString());
+
+    /*
+     * Note:
+     *  The server SHOULD store $cr and $sc into the database.
+     *  Otherwise he has to trust the client to re-send him
+     *  those values unmodified.
+     */
+
+    // Answer client-challenge
+    return array(
+      'server_challenge'  => $sc,
+      'server_response'   => $sr,
+    );
+  }
+
+
   /**
    * Function: getLink($refId, $type)
    *  Generate a permanent-link from given Reference-Id and Object-Type.

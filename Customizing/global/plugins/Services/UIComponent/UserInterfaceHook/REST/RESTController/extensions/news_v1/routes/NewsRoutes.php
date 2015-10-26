@@ -8,6 +8,7 @@
 namespace RESTController\extensions\news_v1;
 
 // This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 
@@ -20,7 +21,7 @@ $app->group('/v1/news', function () use ($app) {
     /**
      * Gets the personal desktop (pd) news items of the authenticated user.
      */
-    $app->get('/pdnews', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth' ,  function () use ($app) {
+    $app->get('/pdnews', AuthFactory::checkAccess(AuthFactory::PERMISSION) ,  function () use ($app) {
         //$request = $app->request();
 
         $auth = new Auth\Util();
@@ -39,7 +40,7 @@ $app->group('/v1/news', function () use ($app) {
     /**
      * Admin: Gets the personal desktop (pd) news items of any user.
      */
-    $app->get('/pdnews/:user_id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth' ,  function ($user_id) use ($app) {
+    $app->get('/pdnews/:user_id', AuthFactory::checkAccess(AuthFactory::ADMIN) ,  function ($user_id) use ($app) {
         $model = new NewsModel();
         $pdnews = $model->getPDNewsForUser($user_id);
 

@@ -18,7 +18,7 @@ use RESTController\core\auth\Exceptions as TokenExceptions;
  *
  *  This middleware can be included in a route signature as follows:
  *  $app->get('/users', function () use ($app) { ... })
- *  $app->get('/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { ... })
+ *  $app->get('/users', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) { ... })
  *  $app->get('/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthTokenOnly', function () use ($app) { ... })
  *  $app->get('/users', '\RESTController\libs\OAuth2Middleware::TokenRouteAuthILIASAdminRole', function () use ($app) { ... })
  */

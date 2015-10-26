@@ -8,6 +8,7 @@
 namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\libs as Libs;
 
 
@@ -16,7 +17,7 @@ $app->group('/admin', function () use ($app) {
      * Returns a subtree of the current repository object, where the root node's ref_id must be specified.
      * In the extreme case, the complete repository (tree) will be retrieved.
      */
-    $app->get('/repository/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($ref_id) use ($app) {
+    $app->get('/repository/:ref_id', AuthFactory::checkAccess(AuthFactory::ADMIN), function ($ref_id) use ($app) {
         $maxDepth = 1000;
         $maxAge = 24; // 24 month
         $maxDepth = $request->params("depth");
@@ -33,7 +34,7 @@ $app->group('/admin', function () use ($app) {
     /**
      * Get subtree of categories.
      */
-    $app->get('/repository/categories/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($ref_id) use ($app) {
+    $app->get('/repository/categories/:ref_id', AuthFactory::checkAccess(AuthFactory::ADMIN), function ($ref_id) use ($app) {
         $repModel = new RepositoryAdminModel();
         $data = $repModel->getRekNode($ref_id, 0, array('cat'), 0, 1000);
 
@@ -43,7 +44,7 @@ $app->group('/admin', function () use ($app) {
     /**
      * Return the number of read events of an object given its reference id.
      */
-    $app->get('/repository/analytics/:ref_id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($ref_id) use ($app) {
+    $app->get('/repository/analytics/:ref_id', AuthFactory::checkAccess(AuthFactory::ADMIN), function ($ref_id) use ($app) {
         $repModel = new RepositoryAdminModel();
         //  $data = $repModel->getSubTree($ref_id);
         $data = $repModel->getRepositoryReadEvents($ref_id);
@@ -55,7 +56,7 @@ $app->group('/admin', function () use ($app) {
     /**
      * Creates a new category within the repository container object specfied by ref_id
      */
-    $app->post('/categories', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
+    $app->post('/categories', AuthFactory::checkAccess(AuthFactory::ADMIN), function () use ($app) {
         $repModel = new RepositoryAdminModel();
         $parent_ref_id = $request->params("ref_id");
         $title = $request->params("title");

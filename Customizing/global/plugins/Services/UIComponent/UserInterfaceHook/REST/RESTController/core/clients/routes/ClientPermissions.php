@@ -8,11 +8,12 @@
 namespace RESTController\core\clients;
 
 // This allows us to use shortcuts instead of full quantifier
+// Requires <$app = \RESTController\RESTController::getInstance()>
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\libs as Libs;
 use \RESTController\libs\Exceptions as LibExceptions;
 use \RESTController\core\clients\Exceptions as ClientExceptions;
 use \RESTController\core\auth as Auth;
-// Requires <$app = \RESTController\RESTController::getInstance()>
 
 /**
  * Route clientpermissions
@@ -32,7 +33,7 @@ use \RESTController\core\auth as Auth;
  *    status: "<Success or Failure>"
  *  }
  */
- $app->get('/clientpermissions', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+ $app->get('/clientpermissions', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
     // Fetch authorized user
     $auth = new Auth\Util();
     $user = $auth->getAccessToken()->getUserName();
@@ -83,7 +84,7 @@ use \RESTController\core\auth as Auth;
  *    status: "<Success or Failure>"
  *  }
  */
-$app->post('/clientpermissions/', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+$app->post('/clientpermissions/', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
     // Fetch authorized user
     $auth = new Auth\Util();
     $user = $auth->getAccessToken()->getUserName();
@@ -131,7 +132,7 @@ $app->post('/clientpermissions/', '\RESTController\libs\OAuth2Middleware::TokenR
  *    status: "<Success or Failure>"
  *  }
  */
-$app->delete('/clientpermissions/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($id) use ($app) {
+$app->delete('/clientpermissions/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION),  function ($id) use ($app) {
     // Fetch authorized user
     $auth = new Auth\Util();
     $user = $auth->getAccessToken()->getUserName();

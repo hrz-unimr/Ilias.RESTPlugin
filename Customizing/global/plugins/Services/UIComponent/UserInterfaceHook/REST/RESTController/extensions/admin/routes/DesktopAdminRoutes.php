@@ -8,6 +8,7 @@
 namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 use \RESTController\libs\Exceptions as LibExceptions;
@@ -17,7 +18,7 @@ $app->group('/admin', function () use ($app) {
     /**
      * Retrieves all items from the personal desktop of a user specified by its id.
      */
-    $app->get('/desktop/overview/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth' , function ($id) use ($app) {
+    $app->get('/desktop/overview/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION) , function ($id) use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
@@ -37,7 +38,7 @@ $app->group('/admin', function () use ($app) {
     /**
      * Deletes an item specified by ref_id from the personal desktop of the user specified by $id.
      */
-    $app->delete('/desktop/overview/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($id) use ($app) {
+    $app->delete('/desktop/overview/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION),  function ($id) use ($app) {
         $request = $app->request();
         try {
             $ref_id = $request->params("ref_id");
@@ -54,7 +55,7 @@ $app->group('/admin', function () use ($app) {
     /**
      * Adds an item specified by ref_id to the users's desktop. The user must be the owner or at least has read access of the item.
      */
-    $app->post('/desktop/overview/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth',  function ($id) use ($app) {
+    $app->post('/desktop/overview/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION),  function ($id) use ($app) {
         $request = $app->request();
         try {
             $ref_id = $request->params("ref_id");

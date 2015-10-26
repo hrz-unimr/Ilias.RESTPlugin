@@ -7,6 +7,7 @@
  */
 ?>
 
+
 <#1>
 <?php
     global $ilLog;
@@ -36,6 +37,7 @@
 
     $ilLog->write('Plugin REST -> Database updated to #1');
 ?>
+
 
 <#2>
 <?php
@@ -140,6 +142,7 @@
     $ilLog->write('Plugin REST -> Database updated to #2');
 ?>
 
+
 <#3>
 <?php
     global $ilLog;
@@ -167,6 +170,7 @@
     $ilLog->write('Plugin REST -> Database updated to #3');
 ?>
 
+
 <#4>
 <?php
     global $ilLog;
@@ -177,6 +181,7 @@
 
     $ilLog->write('Plugin REST -> Database updated to #4');
 ?>
+
 
 <#5>
 <?php
@@ -198,6 +203,7 @@
 
     $ilLog->write('Plugin REST -> Database updated to #5');
 ?>
+
 
 <#6>
 <?php
@@ -234,6 +240,7 @@
     $ilLog->write('Plugin REST -> Database updated to #6');
 ?>
 
+
 <#7>
 <?php
     global $ilLog;
@@ -254,6 +261,7 @@
 
     $ilLog->write('Plugin REST -> Database updated to #7');
 ?>
+
 
 <#8>
 <?php
@@ -294,6 +302,7 @@
 
     $ilLog->write('Plugin REST -> Database updated to #8');
 ?>
+
 
 <#9>
 <?php
@@ -373,6 +382,7 @@
     $ilLog->write('Plugin REST -> Database updated to #9');
 ?>
 
+
 <#10>
 <?php
     global $ilLog;
@@ -385,6 +395,7 @@
 
     $ilLog->write('Plugin REST -> Database updated to #10');
 ?>
+
 
 <#11>
 <?php
@@ -412,4 +423,40 @@ $ilDB->addPrimaryKey("ui_uihk_rest_key2ip", array("id"));
 $ilDB->manipulate('ALTER TABLE ui_uihk_rest_key2ip CHANGE id id INT NOT NULL AUTO_INCREMENT');
 
 $ilLog->write('Plugin REST -> Database updated to #11');
+?>
+
+
+<#12>
+<?php
+// If we'd like to log debug-information
+global $ilLog;
+
+// Create a new table for challenge-response authentification
+$fields = array(
+  'user_id' => array(
+    'type' => 'integer',
+    'length' => 4,
+    'notnull' => true
+  ),
+  'client_challenge' => array(
+    'type' => 'text',
+    'length' => 25,
+    'notnull' => true
+  ),
+  'server_challenge' => array(
+    'type' => 'text',
+    'length' => 25,
+    'notnull' => true
+  )
+);
+$ilDB->createTable('ui_uihk_rest_challenge',    $fields, true);
+$ilDB->addPrimaryKey('ui_uihk_rest_challenge',  array('user_id'));
+?>
+
+
+<#13>
+<?php
+// Load extension-databases
+foreach (glob(realpath(__DIR__).'/extensions/*/sql/dbupdate.php') as $filename)
+    include_once($filename);
 ?>

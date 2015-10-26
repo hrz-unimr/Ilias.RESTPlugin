@@ -8,6 +8,7 @@
 namespace RESTController\extensions\calendar_v1;
 
 // This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 
@@ -16,7 +17,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the calendar events of a user specified by its user_id.
      */
-    $app->get('/cal/events/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($id) use ($app) {
+    $app->get('/cal/events/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($id) use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
@@ -35,7 +36,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the ICAL Url of the desktop calendar of a user specified by its user_id.
      */
-    $app->get('/cal/icalurl/:id', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth' , function ($id) use ($app) {
+    $app->get('/cal/icalurl/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION) , function ($id) use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
@@ -55,7 +56,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the calendar events of the authenticated user.
      */
-    $app->get('/cal/events', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+    $app->get('/cal/events', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();
@@ -76,7 +77,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the ICAL Url of the desktop calendar of the authenticated user.
      */
-    $app->get('/cal/icalurl', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth' , function () use ($app) {
+    $app->get('/cal/icalurl', AuthFactory::checkAccess(AuthFactory::PERMISSION) , function () use ($app) {
         $auth = new Auth\Util();
         $accessToken = $auth->getAccessToken();
         $user = $accessToken->getUserName();

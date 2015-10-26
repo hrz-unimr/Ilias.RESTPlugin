@@ -222,11 +222,11 @@ class RESTController extends \Slim\Slim {
         // Make $this available in all included models/routes
         $app = self::getInstance();
 
-        // Load core models & routes
+        // Load core routes
         foreach (glob(realpath(__DIR__).'/core/*/routes/*.php') as $filename)
             include_once($filename);
 
-        // Load extension models & routes
+        // Load extension routes
         foreach (glob(realpath(__DIR__).'/extensions/*/routes/*.php') as $filename)
             include_once($filename);
 

@@ -9,7 +9,8 @@ namespace RESTController\extensions\umr_v1;
 
 
 // This allows us to use shortcuts instead of full quantifier
-// Requires: $app to be \RESTController\RESTController::getInstance()
+// Requires: $app to be \RESTController\RESTController::getInstance();
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\core\auth as Auth;
 
 
@@ -24,7 +25,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/bulkrequest', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+  $app->get('/bulkrequest', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
     // Fetch userId & userName
     $auth         = new Auth\Util();
     $accessToken  = $auth->getAccessToken();

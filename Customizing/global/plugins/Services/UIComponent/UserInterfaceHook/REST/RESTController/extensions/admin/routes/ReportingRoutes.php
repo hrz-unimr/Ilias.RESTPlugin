@@ -8,6 +8,7 @@
 namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\libs as Libs;
 
 /**
@@ -17,7 +18,7 @@ $app->group('/admin/reporting', function () use ($app) {
     /**
      * Returns a list of active user sessions.
      */
-    $app->get('/active_sessions', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
+    $app->get('/active_sessions', AuthFactory::checkAccess(AuthFactory::ADMIN), function () use ($app) {
 
         $app->log->debug('Calling reporting/active_sessions route');
 
@@ -38,7 +39,7 @@ $app->group('/admin/reporting', function () use ($app) {
     /**
      * Returns statistics about user sessions.
      */
-    $app->get('/session_stats', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function () use ($app) {
+    $app->get('/session_stats', AuthFactory::checkAccess(AuthFactory::ADMIN), function () use ($app) {
 
         $app->log->debug('Calling reporting/sessions_stats route');
 

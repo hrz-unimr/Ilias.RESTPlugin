@@ -8,6 +8,7 @@
 namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\libs as Libs;
 
 /**
@@ -24,7 +25,7 @@ $app->group('/admin', function () use ($app) {
      *
      * Supported types: obj_id, ref_id, usr_id and file_id
      */
-    $app->get('/describe/:id', '\RESTController\libs\OAuth2Middleware::TokenAdminAuth', function ($id) use ($app) {
+    $app->get('/describe/:id', AuthFactory::checkAccess(AuthFactory::ADMIN), function ($id) use ($app) {
         $request = $app->request();
         $id_type = $request->params('id_type', 'ref_id');
 

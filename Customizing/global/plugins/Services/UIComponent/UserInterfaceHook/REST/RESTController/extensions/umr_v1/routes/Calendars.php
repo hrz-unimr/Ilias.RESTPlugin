@@ -10,6 +10,7 @@ namespace RESTController\extensions\umr_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires: $app to be \RESTController\RESTController::getInstance()
+use \RESTController\libs\RESTAuthFactory as AuthFactory;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 
@@ -24,7 +25,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/calendars', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+  $app->get('/calendars', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
     // Fetch userId & userName
     $auth         = new Auth\Util();
     $accessToken  = $auth->getAccessToken();
@@ -63,7 +64,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/calendars/:calendarId', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($calendarId) use ($app) {
+  $app->get('/calendars/:calendarId', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($calendarId) use ($app) {
     // Fetch userId & userName
     $auth         = new Auth\Util();
     $accessToken  = $auth->getAccessToken();
@@ -90,7 +91,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/calendar/events', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) {
+  $app->get('/calendar/events', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
 
     // Fetch userId & userName
     $auth         = new Auth\Util();
@@ -128,7 +129,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/calendar/:calendarId/events', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function ($calendarId) use ($app) {
+  $app->get('/calendar/:calendarId/events', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($calendarId) use ($app) {
     // Fetch userId & userName
     $auth         = new Auth\Util();
     $accessToken  = $auth->getAccessToken();
@@ -154,7 +155,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->post('/calendars', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->post('/calendars', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
 
   /**
@@ -163,7 +164,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->put('/calendars', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->put('/calendars', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
 
   /**
@@ -172,7 +173,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->delete('/calendars', '\RESTController\libs\OAuth2Middleware::TokenRouteAuth', function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->delete('/calendars', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
 // End of '/v1/umr/' URI-Group
 });
