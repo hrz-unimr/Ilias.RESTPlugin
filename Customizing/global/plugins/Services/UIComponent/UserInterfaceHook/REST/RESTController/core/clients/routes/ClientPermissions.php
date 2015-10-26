@@ -51,8 +51,7 @@ use \RESTController\core\auth as Auth;
      }
 
     // Use the model class to fetch data
-    $model = new Clients();
-    $data = $model->getPermissionsForApiKey($api_key);
+    $data = Clients::getPermissionsForApiKey($api_key);
 
     // Prepare data
     $result = array();
@@ -107,8 +106,7 @@ $app->post('/clientpermissions/', AuthFactory::checkAccess(AuthFactory::PERMISSI
     $verb = $request->params('verb', '');
 
     // Supply data to model which processes it further
-    $model = new Clients();
-    $new_id = $model->addPermission($api_key, $pattern, $verb);
+    $new_id = Clients::addPermission($api_key, $pattern, $verb);
 
     // Send affirmation status
     $result = array();
@@ -141,8 +139,7 @@ $app->delete('/clientpermissions/:id', AuthFactory::checkAccess(AuthFactory::PER
 
     try {
         // Use the model class to update databse
-        $model = new Clients();
-        $aff_rows = $model->deletePermission($id);
+        $aff_rows = Clients::deletePermission($id);
 
         // Send affirmation status
         $result = array('NumItemsDeleted'=>$aff_rows);

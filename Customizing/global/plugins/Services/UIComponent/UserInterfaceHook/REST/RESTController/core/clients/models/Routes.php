@@ -29,7 +29,7 @@ class Routes extends Libs\RESTModel {
      * @param $includeAllRoutes: display all routes or only those that are protected by an auth middleware
      * @return array
      */
-    public function parseRoutes($routes, $includeAllRoutes) {
+    public static function parseRoutes($routes, $includeAllRoutes) {
         // Build up response data
         $resultRoutes = array();
         foreach($routes as $route) {
@@ -71,7 +71,7 @@ class Routes extends Libs\RESTModel {
      * @param $includeUnrestrictedRoutes
      * @return mixed
      */
-    public function filterApiRoutes($apiRoutes, $allRoutes, $includeUnrestrictedRoutes)
+    public static function filterApiRoutes($apiRoutes, $allRoutes, $includeUnrestrictedRoutes)
     {
         $resultRoutes = array();
         /*$apiPatterns = array();
@@ -135,7 +135,7 @@ class Routes extends Libs\RESTModel {
      * @param $value2
      * @return array
      */
-    private function int_assoc_search($array, $key1, $value1,$key2, $value2)
+    private static function int_assoc_search($array, $key1, $value1,$key2, $value2)
     {
         $results = array();
         $this->int_assoc_search_r($array, $key1, $value1, $key2, $value2, $results);
@@ -151,7 +151,7 @@ class Routes extends Libs\RESTModel {
      * @param $value2
      * @param $results
      */
-    private function int_assoc_search_r($array, $key1, $value1, $key2, $value2, &$results)
+    private static function int_assoc_search_r($array, $key1, $value1, $key2, $value2, &$results)
     {
         if (!is_array($array)) {
             return;
@@ -170,7 +170,7 @@ class Routes extends Libs\RESTModel {
      * Generate URL to config-gui given the RESTControllers
      * app.php directory.
      */
-    public function getConfigURL($appDir) {
+    public static function getConfigURL($appDir) {
         // Find plugin directory (REST)
         $pluginDir = dirname($appDir);
 

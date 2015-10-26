@@ -35,9 +35,6 @@ use \RESTController\libs as Libs;
  *  }
  */
 $app->get('/routes', function () use ($app) {
-    // Create model and inject $app
-    $model = new Routes();
-
     $includeAllRoutes = true;
     $request = $app->request();
     if ($request->params('middleware')) {
@@ -51,7 +48,7 @@ $app->get('/routes', function () use ($app) {
 
     // Wrap routes into array
     $result = array();
-    $result['routes'] = $model->parseRoutes($routes,$includeAllRoutes);
+    $result['routes'] = Routes::parseRoutes($routes,$includeAllRoutes);
 
     // Send data
     $app->success($result);
@@ -70,21 +67,16 @@ $app->get('/apiroutes', AuthFactory::checkAccess(AuthFactory::TOKEN), function (
         $includeUnrestrictedRoutes = true;
     }
     $api_key = Auth\Util::getAccessToken()->getApiKey();
-    $clientModel = new Clients();
-    $apiRoutes = $clientModel->getPermissionsForApiKey($api_key);
+    $apiRoutes = Clients::getPermissionsForApiKey($api_key);
 
+    // Fetch all available routes
+    $allRoutes = $app->router()->getRoutes();
 
-
-    $allRoutes = $app->router()->getRoutes();      // Fetch all available routes
-    $routeModel = new Routes();
-    //$isAdmin =  Libs\RESTLib::isAdminByUserId(Auth\Util::getAccessToken()->getUserId());
-
-    $filteredRoutes = $routeModel->filterApiRoutes($apiRoutes, $allRoutes, $includeUnrestrictedRoutes);
+    $filteredRoutes = Routes::filterApiRoutes($apiRoutes, $allRoutes, $includeUnrestrictedRoutes);
 
     $result = array();
     $result['permissions'] = $filteredRoutes;
-//    $result['permissions'] = $apiRoutes;
-    // Send data
+
     $app->success($result);
 });
 
@@ -101,12 +93,9 @@ $app->get('/apiroutes', AuthFactory::checkAccess(AuthFactory::TOKEN), function (
  *  <Sends http-redirect to config-gui>
  */
 $app->get('/rest/config', function () use ($app) {
-    // Create model and inject $app
-    $model = new Routes();
-
     // Fetch for app_directory
     $env = $app->environment();
 
     // Redirect
-    $app->redirect($model->getConfigURL($env['app_directory']));
+    $app->redirect(Routes::getConfigURL($env['app_directory']));
 });

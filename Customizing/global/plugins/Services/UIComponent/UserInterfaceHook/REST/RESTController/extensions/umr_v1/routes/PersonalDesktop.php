@@ -27,7 +27,7 @@ $app->group('/v1/umr', function () use ($app) {
     $accessToken  = Auth\Util::getAccessToken();
 
     // Fetch user-information
-    $personelDesktop     = PersonalDesktop::getPersonalDesktop($accessToken);
+    $personelDesktop = PersonalDesktop::getPersonalDesktop($accessToken);
 
     // Output result
     $app->success($personelDesktop);

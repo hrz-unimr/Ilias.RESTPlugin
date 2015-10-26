@@ -35,9 +35,8 @@ $app->group('/dev', function () use ($app) {
     });
 
     $app->get('/clientcheck', function () use ($app) {
-        $model = new Clients\Clients();
-        $data1 = $model->getAllowedUsersForApiKey('9065710a-16b9-4b4c-9230-f76dc72d2a2d');
-        $data2 = $model->getClientCredentialsUser('9065710a-16b9-4b4c-9230-f76dc72d2a2d');
+        $data1 = Clients\Clients::getAllowedUsersForApiKey('9065710a-16b9-4b4c-9230-f76dc72d2a2d');
+        $data2 = Clients\Clients::getClientCredentialsUser('9065710a-16b9-4b4c-9230-f76dc72d2a2d');
 
         global $ilLog;
         $ilLog->write('Hello from REST Plugin - Experimental');

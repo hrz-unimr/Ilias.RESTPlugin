@@ -73,12 +73,12 @@ class Util extends EndpointBase {
      * @return bool
      */
     public static function checkScope($route, $operation, $api_key) {
-        if (!$this->client) {
+        if (!$this->client)
             $this->client = new RESTClient($api_key);
-        }
-        if ($this->client->hasAPIKey($api_key) == true) {
+
+        if ($this->client->hasAPIKey($api_key) == true)
             return $this->client->checkScope($route, $operation);
-        }
+
         return false;
     }
 
@@ -88,16 +88,12 @@ class Util extends EndpointBase {
      * @return bool
      */
     public static function checkIPAccess($api_key) {
-        if (!$this->client) {
+        if (!$this->client)
             $this->client = new RESTClient($api_key);
-        }
+
         if ($this->client->hasAPIKey($api_key) == true) {
-            if(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
-                $request_ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
-            }
-            else{
-                $request_ip=$_SERVER['REMOTE_ADDR'];
-            }
+            $request_ip=$_SERVER['REMOTE_ADDR'];
+
             self::$app->log->debug('Util: Checking IP address for access: '.$request_ip);
             return $this->client->checkIPAccess($request_ip);
         }

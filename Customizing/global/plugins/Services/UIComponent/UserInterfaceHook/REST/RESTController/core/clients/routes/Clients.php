@@ -66,8 +66,7 @@ use \RESTController\core\auth as Auth;
         $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
 
     // Use the model class to fetch data
-    $model = new Clients();
-    $data = $model->getClients();
+    $data = Clients::getClients();
 
     // Prepare data
     $result = array();
@@ -148,7 +147,6 @@ $app->put('/clients/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION), fun
     );
 
     // Try to fetch each fields data and update its db-entry
-    $model = new Clients();
     $request = $app->request;
 
     $failed = array();
@@ -159,7 +157,7 @@ $app->put('/clients/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION), fun
 
             // Update client
             try {
-                $model->updateClient($id, $field, $newVal);
+                Clients::updateClient($id, $field, $newVal);
             } catch(ClientExceptions\PutFailed $e) {
                 $failed[] = $e->getMessage();
             }
@@ -257,8 +255,7 @@ $app->post('/clients/', AuthFactory::checkAccess(AuthFactory::PERMISSION), funct
     $oauth2_resource_refresh_active = $request->params('oauth2_resource_refresh_active', 0);
 
     // Supply data to model which processes it further
-    $model = new Clients();
-    $new_id = $model->createClient(
+    $new_id = Clients::createClient(
         $api_key,
         $api_secret,
         $client_oauth2_redirect_url,
@@ -308,8 +305,7 @@ $app->delete('/clients/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION), 
 
     try {
         // Use the model class to update databse
-        $model = new Clients();
-        $model->deleteClient($id);
+        Clients::deleteClient($id);
 
         // Send affirmation status
         $result = array();

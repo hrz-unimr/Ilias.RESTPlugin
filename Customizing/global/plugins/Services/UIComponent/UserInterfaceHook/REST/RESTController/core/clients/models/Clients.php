@@ -27,7 +27,7 @@ class Clients extends Libs\RESTModel {
      *
      * @return NULL
      */
-    protected function setPermissions($id, $perm)
+    protected static function setPermissions($id, $perm)
     {
         // Remove old entries
         $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_perm WHERE api_id = %d', $id);
@@ -69,7 +69,7 @@ class Clients extends Libs\RESTModel {
      * @return int
      * @throws Exceptions\MissingApiKey
      */
-    public function addPermission($api_key, $route_pattern, $verb)
+    public static function addPermission($api_key, $route_pattern, $verb)
     {
         $route_pattern = rtrim($route_pattern, '/');
         // Sanity check, prevent double entries
@@ -96,7 +96,7 @@ class Clients extends Libs\RESTModel {
      * @param $perm_id
      * @return mixed
      */
-    public function deletePermission($perm_id)
+    public static function deletePermission($perm_id)
     {
         $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_perm WHERE id = %d', $perm_id);
         $numAffRows = self::$sqlDB->manipulate($sql);
@@ -109,7 +109,7 @@ class Clients extends Libs\RESTModel {
      * @param $perm_id
      * @return array
      */
-    public function getPermissionByPermId($perm_id)
+    public static function getPermissionByPermId($perm_id)
     {
         $sql = Libs\RESTLib::safeSQL("SELECT * FROM ui_uihk_rest_perm WHERE id = %d", $perm_id);
         $query = self::$sqlDB->query($sql);
@@ -127,7 +127,7 @@ class Clients extends Libs\RESTModel {
      * @return array
      * @throws Exceptions\MissingApiKey
      */
-    public function getPermissionsForApiKey($api_key)
+    public static function getPermissionsForApiKey($api_key)
     {
         $api_key_id = $this->getApiIdFromKey($api_key);
         $sql = Libs\RESTLib::safeSQL("SELECT * FROM ui_uihk_rest_perm WHERE api_id = %d", $api_key_id);
@@ -146,7 +146,7 @@ class Clients extends Libs\RESTModel {
      * @param $api_key_id
      * @param $a_user_csv
      */
-    protected function fillApikeyUserMap($api_key_id, $a_user_csv = NULL)
+    protected static function fillApikeyUserMap($api_key_id, $a_user_csv = NULL)
     {
         // Remove old entries
         $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_key2user WHERE api_id = %d', $api_key_id);
@@ -170,7 +170,7 @@ class Clients extends Libs\RESTModel {
      * @param $api_key_id
      * @param $a_ip_csv
      */
-    protected function fillApikeyIpMap($api_key_id, $a_ip_csv = NULL)
+    protected static function fillApikeyIpMap($api_key_id, $a_ip_csv = NULL)
     {
         // Remove old entries
         $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_key2ip WHERE api_id = %d', $api_key_id);
@@ -195,7 +195,7 @@ class Clients extends Libs\RESTModel {
      * @param $grant_type
      * @return bool
      */
-    protected function is_oauth2_grant_type_enabled($api_key, $grant_type)
+    protected static function is_oauth2_grant_type_enabled($api_key, $grant_type)
     {
         // Check if given grant_type is enabled
         // TODO: remove sprintf after safeSQL is fixed
@@ -215,7 +215,7 @@ class Clients extends Libs\RESTModel {
      *
      * @return bool
      */
-    public function getClients()
+    public static  function getClients()
     {
         // Will store result
         $res = array();
@@ -271,7 +271,7 @@ class Clients extends Libs\RESTModel {
     /**
      * Creates a new REST client entry
      */
-    public function createClient(
+    public static function createClient(
         $api_key,
         $api_secret,
         $oauth2_redirection_uri,
@@ -344,7 +344,7 @@ class Clients extends Libs\RESTModel {
      * @return mixed
      * @throws Exceptions\UpdateFailed
      */
-    public function updateClient($id, $fieldname, $newval)  {
+    public static function updateClient($id, $fieldname, $newval)  {
 
         if (strtolower($fieldname) == 'permissions') {
             $this->setPermissions($id, $newval);
@@ -394,7 +394,7 @@ class Clients extends Libs\RESTModel {
      * @return mixed
      * @throws Exceptions\DeleteFailed
      */
-    public function deleteClient($id)
+    public static  function deleteClient($id)
     {
         // Delete acutal client
         $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_keys WHERE id = %d', $id);
@@ -423,7 +423,7 @@ class Clients extends Libs\RESTModel {
      * @param $api_key
      * @return mixed
      */
-    public function getClientCredentialsUser($api_key)
+    public static  function getClientCredentialsUser($api_key)
     {
         // Fetch client-credentials for api-key
         $sql = Libs\RESTLib::safeSQL('SELECT id, oauth2_gt_client_user FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
@@ -440,7 +440,7 @@ class Clients extends Libs\RESTModel {
      * @param $api_key
      * @return array
      */
-    public function getAllowedUsersForApiKey($api_key)
+    public static function getAllowedUsersForApiKey($api_key)
     {
         // Fetch api_id for api-key
         $sql = Libs\RESTLib::safeSQL('SELECT id, oauth2_user_restriction_active FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
@@ -474,7 +474,7 @@ class Clients extends Libs\RESTModel {
      * @param $api_key
      * @return bool
      */
-    public function is_oauth2_gt_resourceowner_enabled($api_key)
+    public static function is_oauth2_gt_resourceowner_enabled($api_key)
     {
         return $this->is_oauth2_grant_type_enabled($api_key, 'oauth2_gt_resourceowner_active');
     }
@@ -486,7 +486,7 @@ class Clients extends Libs\RESTModel {
      * @param $api_key
      * @return bool
      */
-    public function is_oauth2_gt_implicit_enabled($api_key)
+    public static function is_oauth2_gt_implicit_enabled($api_key)
     {
         return $this->is_oauth2_grant_type_enabled($api_key, 'oauth2_gt_implicit_active');
     }
@@ -510,7 +510,7 @@ class Clients extends Libs\RESTModel {
      * @param $api_key
      * @return bool
      */
-    public function is_oauth2_gt_clientcredentials_enabled($api_key)
+    public static function is_oauth2_gt_clientcredentials_enabled($api_key)
     {
         return $this->is_oauth2_grant_type_enabled($api_key, 'oauth2_gt_client_active');
     }
@@ -523,7 +523,7 @@ class Clients extends Libs\RESTModel {
      * @param $api_key
      * @return bool
      */
-    public function is_oauth2_consent_message_enabled($api_key)
+    public static function is_oauth2_consent_message_enabled($api_key)
     {
         // Query if client with this aki-key has an oauth2 consent-message set
         $sql = Libs\RESTLib::safeSQL('SELECT oauth2_consent_message_active FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
@@ -543,7 +543,7 @@ class Clients extends Libs\RESTModel {
      * @param $api_key
      * @return string
      */
-    public function getOAuth2ConsentMessage($api_key)
+    public static function getOAuth2ConsentMessage($api_key)
     {
         // Fetch ouath2 consent-message for client with given api-key
         $sql = Libs\RESTLib::safeSQL('SELECT oauth2_consent_message FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
@@ -562,7 +562,7 @@ class Clients extends Libs\RESTModel {
      * @param $api_key
      * @return bool
      */
-    public function is_authcode_refreshtoken_enabled($api_key)
+    public static function is_authcode_refreshtoken_enabled($api_key)
     {
         // Query if client with this aki-key has oauth2 refresh-tokens enabled (for authentification-code)
         $sql = Libs\RESTLib::safeSQL('SELECT oauth2_authcode_refresh_active FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
@@ -582,7 +582,7 @@ class Clients extends Libs\RESTModel {
      * @param $api_key
      * @return bool
      */
-    public function is_resourceowner_refreshtoken_enabled($api_key)
+    public static function is_resourceowner_refreshtoken_enabled($api_key)
     {
         // Query if client with this aki-key has oauth2 refresh-tokens enabled (for resource-owner)
         $sql = Libs\RESTLib::safeSQL('SELECT oauth2_resource_refresh_active FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
@@ -602,7 +602,7 @@ class Clients extends Libs\RESTModel {
      * @return int
      * @throws Exceptions\MissingApiKey
      */
-    public function getApiIdFromKey($api_key)
+    public static function getApiIdFromKey($api_key)
     {
         $sql = Libs\RESTLib::safeSQL('SELECT id FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
         $query = self::$sqlDB->query($sql);
@@ -620,7 +620,7 @@ class Clients extends Libs\RESTModel {
      * @return string
      * @throws Exceptions\MissingApiKey
      */
-    public function getApiKeyFromId($api_id)
+    public static function getApiKeyFromId($api_id)
     {
         $sql = Libs\RESTLib::safeSQL('SELECT api_key FROM ui_uihk_rest_keys WHERE id = %d', $api_id);
         $query = self::$sqlDB->query($sql);
