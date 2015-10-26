@@ -40,8 +40,7 @@ $app->group('/v1/m', function () use ($app) {
         $t_start = microtime();
         $result = array();
 
-        $auth = new Auth\Util();
-        $user_id = $auth->getAccessToken()->getUserId();
+        $user_id = Auth\Util::getAccessToken()->getUserId();
 
         Libs\RESTLib::initAccessHandling();
 

@@ -97,8 +97,7 @@ $app->get('/v1/search/user',AuthFactory::checkAccess(AuthFactory::ADMIN), functi
 $app->get('/v1/users/:user_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($user_id) use ($app) {
         $id = $user_id;
         if ($user_id == "mine") {
-            $auth = new Auth\Util();
-            $accessToken = $auth->getAccessToken();
+            $accessToken = Auth\Util::getAccessToken();
             $user = $accessToken->getUserName();
             $id = $accessToken->getUserId();
         }

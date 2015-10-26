@@ -26,8 +26,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/objects', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
       // Fetch userId & userName
-      $auth         = new Auth\Util();
-      $accessToken  = $auth->getAccessToken();
+      $accessToken  = Auth\Util::getAccessToken();
 
       try {
         // Fetch refIds
@@ -64,8 +63,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/objects/:refId', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($refId) use ($app) {
     // Fetch userId & userName
-    $auth         = new Auth\Util();
-    $accessToken  = $auth->getAccessToken();
+    $accessToken  = Auth\Util::getAccessToken();
 
     try {
       // RefId needs to be numeric (integer preferably)

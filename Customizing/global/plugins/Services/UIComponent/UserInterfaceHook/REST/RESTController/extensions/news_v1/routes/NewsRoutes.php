@@ -24,8 +24,7 @@ $app->group('/v1/news', function () use ($app) {
     $app->get('/pdnews', AuthFactory::checkAccess(AuthFactory::PERMISSION) ,  function () use ($app) {
         //$request = $app->request();
 
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
+        $accessToken = Auth\Util::getAccessToken();
         $uid = $accessToken->getUserId();
         $uname = $accessToken->getUserName();
 

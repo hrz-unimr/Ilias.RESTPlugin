@@ -24,8 +24,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/personaldesktop', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
     // Fetch userId & userName
-    $auth         = new Auth\Util();
-    $accessToken  = $auth->getAccessToken();
+    $accessToken  = Auth\Util::getAccessToken();
 
     // Fetch user-information
     $personelDesktop     = PersonalDesktop::getPersonalDesktop($accessToken);

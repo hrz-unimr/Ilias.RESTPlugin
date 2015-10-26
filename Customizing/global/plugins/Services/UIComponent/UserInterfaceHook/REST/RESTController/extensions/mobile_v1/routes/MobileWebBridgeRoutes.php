@@ -31,8 +31,7 @@ $app->group('/v1/m', function () use ($app) {
      *
      */
     $app->get('/htlm/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION),  function ($ref_id) use ($app) {
-        $auth = new Auth\Util();
-        $user_id = $auth->getAccessToken()->getUserId();
+        $user_id = Auth\Util::getAccessToken()->getUserId();
 
         if (isset($_SERVER['HTTPS']) &&
             ($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1) ||
@@ -80,8 +79,7 @@ $app->group('/v1/m', function () use ($app) {
      * This can be done e.g. with "https://<hostname>/restplugin.php/v1/m/permabridge/145?access_token=cm9v..."
      */
     $app->get('/permabridge/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($ref_id) use ($app) {
-        $auth = new Auth\Util();
-        $user_id = $auth->getAccessToken()->getUserId();
+        $user_id = Auth\Util::getAccessToken()->getUserId();
 
         $permaLink = MobileWebBridgeModel::getPermanentLink($ref_id);;
         MobileWebBridgeModel::initSession($user_id);

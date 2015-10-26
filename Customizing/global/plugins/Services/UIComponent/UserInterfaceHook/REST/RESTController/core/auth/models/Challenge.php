@@ -100,8 +100,7 @@ class Challenge extends EndpointBase {
    */
   public static function checkClientResponse($accessToken, $cr) {
     // Fetch refresh-token
-    $authModel    = new RefreshEndpoint();
-    $refreshToken = $authModel->getRefreshToken($accessToken, false);
+    $refreshToken = RefreshEndpoint::getRefreshToken($accessToken, false);
 
     // Load sc,cc from DB
     $challenges = self::getChallenges($accessToken->getUserId());
@@ -151,8 +150,7 @@ class Challenge extends EndpointBase {
    */
   public static function answerClientChallange($accessToken, $cc) {
     // Fetch refresh-token
-    $authModel    = new RefreshEndpoint();
-    $refreshToken = $authModel->getRefreshToken($accessToken, false);
+    $refreshToken = RefreshEndpoint::getRefreshToken($accessToken, false);
 
     //
     if (!$refreshToken)

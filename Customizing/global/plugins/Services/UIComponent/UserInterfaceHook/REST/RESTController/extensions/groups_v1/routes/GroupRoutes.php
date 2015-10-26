@@ -25,9 +25,7 @@ $app->group('/v1', function () use ($app) {
     $app->get('/groups4user', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
 
         $result = array();
-
-        $auth = new Auth\Util();
-        $user_id = $auth->getAccessToken()->getUserId();
+        $user_id = Auth\Util::getAccessToken()->getUserId();
 
         try {
             Libs\RESTLib::initAccessHandling();
@@ -42,9 +40,7 @@ $app->group('/v1', function () use ($app) {
 
     $app->get('/groups/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($ref_id) use ($app) {
         $result = array();
-
-        $auth = new Auth\Util();
-        $user_id = $auth->getAccessToken()->getUserId();
+        $user_id = Auth\Util::getAccessToken()->getUserId();
 
         try {
             Libs\RESTLib::initAccessHandling();

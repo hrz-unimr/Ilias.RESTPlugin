@@ -8,9 +8,9 @@
 namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs as Libs;
-use \RESTController\core\auth\Token as Token;
 use \RESTController\core\clients\RESTClient as RESTClient;
+use \RESTController\libs as Libs;
+
 
 /**
  *
@@ -36,7 +36,7 @@ class Util extends EndpointBase {
      * @param  api_key
      * @return bool
      */
-    public function checkClient($api_key) {
+    public static function checkClient($api_key) {
         // Fetch client with given api-key (checks existance)
         $sql = Libs\RESTLib::safeSQL('SELECT id FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
         $query = self::$sqlDB->query($sql);
@@ -54,7 +54,7 @@ class Util extends EndpointBase {
      * @param string api_secret
      * @return bool
      */
-    public function checkClientCredentials($api_key, $api_secret) {
+    public static function checkClientCredentials($api_key, $api_secret) {
         // Fetch client with given api-key (checks existance)
         $sql = Libs\RESTLib::safeSQL('SELECT id FROM ui_uihk_rest_keys WHERE api_key = %s AND api_secret = %s', $api_key, $api_secret);
         $query = self::$sqlDB->query($sql);
@@ -72,7 +72,7 @@ class Util extends EndpointBase {
      * @param api_key
      * @return bool
      */
-    public function checkScope($route, $operation, $api_key) {
+    public static function checkScope($route, $operation, $api_key) {
         if (!$this->client) {
             $this->client = new RESTClient($api_key);
         }
@@ -87,7 +87,7 @@ class Util extends EndpointBase {
      * @param $api_key
      * @return bool
      */
-    public function checkIPAccess($api_key) {
+    public static function checkIPAccess($api_key) {
         if (!$this->client) {
             $this->client = new RESTClient($api_key);
         }
@@ -116,7 +116,7 @@ class Util extends EndpointBase {
      * @param $session_id
      * @return bool
      */
-    public function checkSession($user_id, $rtoken, $session_id) {
+    public static function checkSession($user_id, $rtoken, $session_id) {
         $rtokenValid = false;
         $sessionValid = false;
 
@@ -158,7 +158,7 @@ class Util extends EndpointBase {
      * @param $file - This file will be included inside <body></body> tags
      * @param $data - Optional data (may be an array) that is passed to the template
      */
-    public function renderWebsite($title, $file, $data) {
+    public static function renderWebsite($title, $file, $data) {
         // Build absolute-path (relative to document-root)
         $sub_dir = 'core/auth/views';
         $rel_path = self::$plugin->getPluginObject(IL_COMP_SERVICE, 'UIComponent', 'uihk', 'REST')->getDirectory();
@@ -181,30 +181,9 @@ class Util extends EndpointBase {
      *
      * NOTE: May throw TokenInvalid!
      */
-    public function getAccessToken() {
-        /*
-        // Authentication by client certificate
-        // (see: http://cweiske.de/tagebuch/ssl-client-certificates.htm)
-        $client = ($_SERVER['SSL_CLIENT_VERIFY'] && $_SERVER['SSL_CLIENT_S_DN_CN'] && $_SERVER['SSL_CLIENT_I_DN_O']) ? $_SERVER['SSL_CLIENT_S_DN_CN'] : NULL;
-        $secret = NULL;
-        if ($client) {
-            // ToDo: no secret is needed, its just the organisation name
-            $secret = $_SERVER['SSL_CLIENT_I_DN_O'];
-            $ret = Auth\Util::checkClientCredentials($client, $secret);
-
-            // Stops everything and returns 401 response
-            if (!$ret)
-                $app->halt(401, self::MSG_INVALID_SSL, self::ID_INVALID_SSL);
-
-            // Setup slim environment
-            $env = $app->environment();
-            $env['client_id'] = $client;
-        }
-        */
-
-
+    public static function getAccessToken($force = false) {
         // Return stored acces token
-        if (!$this->accessToken) {
+        if (!$this->accessToken || $force) {
             // Fetch token from body GET/POST (json or plain)
             $request = self::$app->request();
             $tokenString = $request->params('token');

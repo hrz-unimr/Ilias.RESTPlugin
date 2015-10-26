@@ -46,8 +46,7 @@ class OAuth2Middleware {
         try {
             // Fetch token
             $app = \RESTController\RESTController::getInstance();
-            $util = new Auth\Util();
-            $accessToken = $util->getAccessToken();
+            $accessToken = Auth\Util::getAccessToken();
 
             // Authenticate token
             self::checkAccessToken($app, $accessToken);
@@ -71,8 +70,7 @@ class OAuth2Middleware {
         try {
             // Fetch token
             $app = \RESTController\RESTController::getInstance();
-            $util = new Auth\Util();
-            $accessToken = $util->getAccessToken();
+            $accessToken = Auth\Util::getAccessToken();
 
             // Authentication by token
             self::checkAccessToken($app, $accessToken);
@@ -102,8 +100,7 @@ class OAuth2Middleware {
         try {
             // Fetch token
             $app = \RESTController\RESTController::getInstance();
-            $util = new Auth\Util();
-            $accessToken = $util->getAccessToken();
+            $accessToken = Auth\Util::getAccessToken();
 
             // Fetch and check token
             self::checkAccessToken($app, $accessToken);
@@ -136,8 +133,7 @@ class OAuth2Middleware {
 
         // Check IP (if option is enabled)
         $api_key = $accessToken->getApiKey();
-        $util = new Auth\Util();
-        $allowed = $util->checkIPAccess($api_key);
+        $allowed = Auth\Util::checkIPAccess($api_key);
         if (!$allowed) {
             $app->halt(401, RESTLib::MSG_IP_NOT_ALLOWED, RESTLib::ID_IP_NOT_ALLOWED);
         }
@@ -152,9 +148,8 @@ class OAuth2Middleware {
         $api_key = $accessToken->getApiKey();
         $pattern = $route->getPattern();
         $verb = $app->request->getMethod();
-        $util = new Auth\Util();
         // Check route access rights given route, method and api-key
-        if (!$util->checkScope($pattern, $verb, $api_key)) {
+        if (!Auth\Util::checkScope($pattern, $verb, $api_key)) {
             $app->halt(401, self::MSG_NO_PERMISSION, self::ID_NO_PERMISSION);
         }
     }

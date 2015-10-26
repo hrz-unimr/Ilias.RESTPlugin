@@ -8,8 +8,8 @@
 namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs as Libs;
 use \RESTController\core\clients\Clients as Clients;
+use \RESTController\libs as Libs;
 
 
 /**
@@ -23,18 +23,15 @@ class AuthEndpoint extends EndpointBase {
     /**
      *
      */
-    public function allGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticityToken) {
-        // Client-Model required
-        $clients = new Clients();
-
+    public static function allGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticityToken) {
         // Check input
         if ($response_type != 'code' && $response_type != 'token')
             throw new Exceptions\ResponseType(self::MSG_RESPONSE_TYPE);
 
         // Client (api-key) is not allowed to use this grant-type or doesn't exist
-        if ($response_type == 'code' && !$clients->is_oauth2_gt_authcode_enabled($api_key))
+        if ($response_type == 'code' && !Clients::is_oauth2_gt_authcode_enabled($api_key))
             throw new Exceptions\LoginFailed(Util::MSG_AC_DISABLED);
-        if ($response_type == 'token' && !$clients->is_oauth2_gt_implicit_enabled($api_key))
+        if ($response_type == 'token' && !Clients::is_oauth2_gt_implicit_enabled($api_key))
             throw new Exceptions\LoginFailed(Util::MSG_I_DISABLED);
 
         // Login-data (username/password) is provided, try to authenticate
@@ -66,10 +63,10 @@ class AuthEndpoint extends EndpointBase {
                 );
 
             // Need to show grant-permission site?
-            if($clients->is_oauth2_consent_message_enabled($api_key)) {
+            if(Clients::is_oauth2_consent_message_enabled($api_key)) {
                 // Generate a temporary token that can be exchanged for bearer-token
                 $tempAuthenticityToken = Token\Generic::fromFields(self::tokenSettings('access'), $username, $api_key, 'temporary', '', 10);
-                $oauth2_consent_message = $clients->getOAuth2ConsentMessage($api_key);
+                $oauth2_consent_message = Clients::getOAuth2ConsentMessage($api_key);
 
                 // Return data to route/other model
                 return array(

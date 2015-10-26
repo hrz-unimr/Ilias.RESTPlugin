@@ -23,10 +23,6 @@ class RESTAuthFactory {
    *
    */
   public static function checkAccess($level = null) {
-    // No authorization required
-    if (!$level)
-      return function($route) { };
-
     // Only a valid token is required
     if ($level & self::TOKEN)
       return '\RESTController\libs\OAuth2Middleware::TokenAuth';
@@ -38,5 +34,8 @@ class RESTAuthFactory {
     // Only a valid token is required
     if ($level & self::ADMIN)
       return '\RESTController\libs\OAuth2Middleware::TokenRouteAuth';
+
+    // No authorization required
+    return function() {};
   }
 }

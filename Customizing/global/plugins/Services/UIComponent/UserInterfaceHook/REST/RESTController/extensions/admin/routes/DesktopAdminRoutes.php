@@ -19,8 +19,7 @@ $app->group('/admin', function () use ($app) {
      * Retrieves all items from the personal desktop of a user specified by its id.
      */
     $app->get('/desktop/overview/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION) , function ($id) use ($app) {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
+        $accessToken = Auth\Util::getAccessToken();
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 

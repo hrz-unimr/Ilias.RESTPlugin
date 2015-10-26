@@ -21,9 +21,7 @@ $app->group('/v1', function () use ($app) {
      * @param id - the ref or obj_id of the file.
      */
     $app->get('/files/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION),  function ($id) use ($app) {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
-        //$user = $accessToken->getUserName();
+        $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
 
 

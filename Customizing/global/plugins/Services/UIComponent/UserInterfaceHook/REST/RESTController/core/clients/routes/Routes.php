@@ -62,8 +62,6 @@ $app->get('/routes', function () use ($app) {
  * The result furthermore indicates if the user has capabilities to access admin routes.
  */
 $app->get('/apiroutes', AuthFactory::checkAccess(AuthFactory::TOKEN), function () use ($app) {
-    $auth = new Auth\Util();
-
     $includeUnrestrictedRoutes = false;
     $request = $app->request();
     if ($request->params('view')) {
@@ -71,7 +69,7 @@ $app->get('/apiroutes', AuthFactory::checkAccess(AuthFactory::TOKEN), function (
         //if ($view_status == 'all') ...
         $includeUnrestrictedRoutes = true;
     }
-    $api_key = $auth->getAccessToken()->getApiKey();
+    $api_key = Auth\Util::getAccessToken()->getApiKey();
     $clientModel = new Clients();
     $apiRoutes = $clientModel->getPermissionsForApiKey($api_key);
 
@@ -79,7 +77,7 @@ $app->get('/apiroutes', AuthFactory::checkAccess(AuthFactory::TOKEN), function (
 
     $allRoutes = $app->router()->getRoutes();      // Fetch all available routes
     $routeModel = new Routes();
-    //$isAdmin =  Libs\RESTLib::isAdminByUserId($auth->getAccessToken()->getUserId());
+    //$isAdmin =  Libs\RESTLib::isAdminByUserId(Auth\Util::getAccessToken()->getUserId());
 
     $filteredRoutes = $routeModel->filterApiRoutes($apiRoutes, $allRoutes, $includeUnrestrictedRoutes);
 

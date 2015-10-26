@@ -37,8 +37,7 @@ $app->group('/v1/challenge', function () use ($app) {
    */
   $app->post('/client', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
     // Fetch userId & userName
-    $auth         = new Util();
-    $accessToken  = $auth->getAccessToken();
+    $accessToken  = Util::getAccessToken();
 
     // Fetch client-challenge or client-response
     $request    = $app->request;
@@ -80,8 +79,7 @@ $app->group('/v1/challenge', function () use ($app) {
    */
   $app->get('/server', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
     // Fetch userId & userName
-    $auth         = new Util();
-    $accessToken  = $auth->getAccessToken();
+    $accessToken  = Util::getAccessToken();
 
     // Fetch client-challenge or client-response
     $request    = $app->request;

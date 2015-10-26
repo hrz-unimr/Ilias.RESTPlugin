@@ -36,8 +36,7 @@ $app->group('/v1/umr', function () use ($app) {
        */
       $app->get('/advanced/:type/:refId', AuthFactory::checkAccess(AuthFactory::SHORT), function ($type, $refId) use ($app) {
         // Fetch userId & userName
-        $auth         = new Auth\Util();
-        $accessToken  = $auth->getAccessToken();
+        $accessToken  = Auth\Util::getAccessToken();
         $userName     = $accessToken->getUserName();
 
         // Test if token is a short (ttl) one and ip does match
@@ -75,8 +74,7 @@ $app->group('/v1/umr', function () use ($app) {
        */
       $app->get('/simple/:type/:refId', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($type, $refId) use ($app) {
         // Fetch userId & userName
-        $auth         = new Auth\Util();
-        $accessToken  = $auth->getAccessToken();
+        $accessToken  = Auth\Util::getAccessToken();
         $userName     = $accessToken->getUserName();
 
         // Login user (since token is valid, should not fail)

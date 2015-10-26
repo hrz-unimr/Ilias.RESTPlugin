@@ -35,8 +35,7 @@ use \RESTController\core\auth as Auth;
  */
  $app->get('/clientpermissions', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
     // Fetch authorized user
-    $auth = new Auth\Util();
-    $user = $auth->getAccessToken()->getUserName();
+    $user = Auth\Util::getAccessToken()->getUserName();
 
     // Check if user has admin role
     if (!Libs\RESTLib::isAdminByUserName($user)) {
@@ -86,8 +85,7 @@ use \RESTController\core\auth as Auth;
  */
 $app->post('/clientpermissions/', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
     // Fetch authorized user
-    $auth = new Auth\Util();
-    $user = $auth->getAccessToken()->getUserName();
+    $user = Auth\Util::getAccessToken()->getUserName();
 
     // Check if authorized user has admin role
     if (!Libs\RESTLib::isAdminByUserName($user)) {
@@ -134,8 +132,7 @@ $app->post('/clientpermissions/', AuthFactory::checkAccess(AuthFactory::PERMISSI
  */
 $app->delete('/clientpermissions/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION),  function ($id) use ($app) {
     // Fetch authorized user
-    $auth = new Auth\Util();
-    $user = $auth->getAccessToken()->getUserName();
+    $user = Auth\Util::getAccessToken()->getUserName();
 
     // Check if authorized user has admin role
     if (!Libs\RESTLib::isAdminByUserName($user)) {

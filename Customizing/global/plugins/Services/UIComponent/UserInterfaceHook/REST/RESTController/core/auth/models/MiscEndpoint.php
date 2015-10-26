@@ -23,7 +23,7 @@ class MiscEndpoint extends EndpointBase {
     /**
      *
      */
-    public function tokenInfo($accessToken) {
+    public static function tokenInfo($accessToken) {
         // Check token
         if (!$accessToken->isValid())
             throw new Exceptions\TokenInvalid(Libs\Generic::MSG_INVALID);
@@ -48,10 +48,9 @@ class MiscEndpoint extends EndpointBase {
      * This is used for administration purposes.
      * @param $app
      */
-    public function rToken2Bearer($api_key, $user_id, $rtoken, $session_id) {
-        $utils = new Util();
+    public static function rToken2Bearer($api_key, $user_id, $rtoken, $session_id) {
         // Check login-data
-        if (!$utils->checkSession($user_id, $rtoken, $session_id)) {
+        if (!Util::checkSession($user_id, $rtoken, $session_id)) {
             throw new Exceptions\TokenInvalid(self::MSG_RTOKEN_AUTH_FAILED);
         }
 

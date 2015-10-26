@@ -27,8 +27,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/events', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
     // Fetch userId & userName
-    $auth         = new Auth\Util();
-    $accessToken  = $auth->getAccessToken();
+    $accessToken  = Auth\Util::getAccessToken();
 
     try {
       $request        = $app->request;
@@ -66,8 +65,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/events/:eventId', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($eventId) use ($app) {
     // Fetch userId & userName
-    $auth         = new Auth\Util();
-    $accessToken  = $auth->getAccessToken();
+    $accessToken  = Auth\Util::getAccessToken();
 
     try {
       // Fetch user-information

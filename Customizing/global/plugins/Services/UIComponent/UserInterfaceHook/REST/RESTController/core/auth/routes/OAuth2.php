@@ -17,8 +17,6 @@ use \RESTController\core\auth\Exceptions as AuthExceptions;
 
 // Group as version-1 implementation
 $app->group('/v1', function () use ($app) {
-
-
     // Group as oauth2 implementation
     $app->group('/oauth2', function () use ($app) {
 
@@ -51,20 +49,15 @@ $app->group('/v1', function () use ($app) {
                 $authenticity_token = $request->params('authenticity_token');
 
                 // Proccess with OAuth2-Model
-                $model = new AuthEndpoint();
                 if ($authenticity_token)
                     $authenticityToken = Token\Generic::fromMixed($model->tokenSettings('access'), $authenticity_token);
-                $result = $model->allGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticityToken);
+                $result = AuthEndpoint::allGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticityToken);
 
                 // Process results (send response)
-                if ($result['status'] == 'showLogin') {
-                    $render = new Util();
-                    $render->renderWebsite('REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', $result['data']);
-                }
-                elseif ($result['status'] == 'showPermission') {
-                    $render = new Util();
-                    $render->renderWebsite('REST OAuth - Client autorisieren', 'oauth2grantpermissionform.php', $result['data']);
-                }
+                if ($result['status'] == 'showLogin')
+                    Util::renderWebsite('REST OAuth - Login für Tokengenerierung', 'oauth2loginform.php', $result['data']);
+                elseif ($result['status'] == 'showPermission')
+                    Util::renderWebsite('REST OAuth - Client autorisieren', 'oauth2grantpermissionform.php', $result['data']);
                 elseif ($result['status'] == 'redirect')
                     $app->redirect($result['data']);
             }
@@ -113,8 +106,7 @@ $app->group('/v1', function () use ($app) {
                     throw new Exceptions\ResponseType(Exceptions\ResponseType::MSG);
 
                 // Display login form
-                $render = new Util();
-                $render->renderWebsite(
+                Util::renderWebsite(
                     'REST OAuth - Login für Tokengenerierung',
                     'oauth2loginform.php',
                     array(
@@ -150,7 +142,6 @@ $app->group('/v1', function () use ($app) {
             try {
                 // Get Request & OAuth-Model objects
                 $request =  $app->request();
-                $model = new TokenEndpoint();
                 $grant_type = $request->params('grant_type', null, true);
 
                 // Resource Owner (User) grant type
@@ -162,7 +153,7 @@ $app->group('/v1', function () use ($app) {
                     $new_refresh = $request->params('new_refresh');
 
                     // Invoke OAuth2-Model with data
-                    $result = $model->userCredentials($api_key, $user, $password, $new_refresh);
+                    $result = TokenEndpoint::userCredentials($api_key, $user, $password, $new_refresh);
 
                     // Send result
                     $app->response()->disableCache();
@@ -175,7 +166,7 @@ $app->group('/v1', function () use ($app) {
                     $api_secret = $request->params('api_secret', null, true);
 
                     // Invoke OAuth2-Model with data
-                    $result = $model->clientCredentials($api_key, $api_secret);
+                    $result = TokenEndpoint::clientCredentials($api_key, $api_secret);
                     $app->response()->disableCache();
                     $app->success($result);
                 }
@@ -192,7 +183,7 @@ $app->group('/v1', function () use ($app) {
 
                     // Invoke OAuth2-Model with data
                     $authCodeToken = Token\Generic::fromMixed($model->tokenSettings('access'), $code);
-                    $result = $model->authorizationCode($api_key, $api_secret, $authCodeToken, $redirect_uri, $new_refresh);
+                    $result = TokenEndpoint::authorizationCode($api_key, $api_secret, $authCodeToken, $redirect_uri, $new_refresh);
 
                     // Send result
                     $app->response()->disableCache();
@@ -206,7 +197,7 @@ $app->group('/v1', function () use ($app) {
 
                     // Invoke OAuth2-Model with data
                     $refreshToken = Token\Refresh::fromMixed($model->tokenSettings('refresh'), $refresh_token);
-                    $result = $model->refresh2Access($refreshToken, $new_refresh);
+                    $result = TokenEndpoint::refresh2Access($refreshToken, $new_refresh);
 
                     // Send result to client
                     if ($result) {
@@ -248,18 +239,17 @@ $app->group('/v1', function () use ($app) {
             try {
                 // Get Request & OAuth-Model objects
                 $request = $app->request();
-                $model = new RefreshEndpoint();
 
                 // Fetch request data
                 $refresh_token = $request->params('refresh_token', null, true);
 
                 // Extract data
-                $refreshToken = Token\Refresh::fromMixed($model->tokenSettings('refresh'), $refresh_token);
+                $refreshToken = Token\Refresh::fromMixed(RefreshEndpoint::tokenSettings('refresh'), $refresh_token);
                 $user_id = $refreshToken->getUserId();
                 $api_key = $refreshToken->getApiKey();
 
                 // Invoke OAuth2-Model with data
-                $result = $model->deleteToken($user_id, $api_key);
+                $result = RefreshEndpoint::deleteToken($user_id, $api_key);
 
                 // Send response
                 if ($result > 0)
@@ -293,12 +283,10 @@ $app->group('/v1', function () use ($app) {
         $app->get('/tokeninfo', function () use ($app) {
             try {
                 // Fetch token
-                $util = new Util();
-                $accessToken = $util->getAccessToken();
+                $accessToken = Util::getAccessToken();
 
                 // Generate token-information
-                $model = new MiscEndpoint();
-                $result = $model->tokenInfo($accessToken);
+                $result = MiscEndpoint::tokenInfo($accessToken);
 
                 // Return status-data
                 $app->success($result);
@@ -333,8 +321,7 @@ $app->group('/v1', function () use ($app) {
             $session_id = $request->params('session_id', null, true);
 
             // Convert userId, rToken and sessionId to bearer-token (using api-key)
-            $model = new MiscEndpoint();
-            $result = $model->rToken2Bearer($api_key, $user_id, $rtoken, $session_id);
+            $result = MiscEndpoint::rToken2Bearer($api_key, $user_id, $rtoken, $session_id);
 
             // Return status-data
             $app->response()->disableCache();

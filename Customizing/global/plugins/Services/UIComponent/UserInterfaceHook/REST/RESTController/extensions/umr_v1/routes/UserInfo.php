@@ -24,8 +24,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/userinfo', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
     // Fetch userId & userName
-    $auth         = new Auth\Util();
-    $accessToken  = $auth->getAccessToken();
+    $accessToken  = Auth\Util::getAccessToken();
 
     try {
       // Fetch user-information

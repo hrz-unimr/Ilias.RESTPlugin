@@ -40,8 +40,7 @@ class Redirect extends Libs\RESTModel {
    */
   public static function checkClientResponse($cr, $cc, $sc) {
     // Fetch refresh-token
-    $authModel    = new Auth\RefreshEndpoint();
-    $refreshToken = $authModel->getRefreshToken($accessToken, false);
+    $refreshToken = Auth\RefreshEndpoint::getRefreshToken($accessToken, false);
 
     // Reconstruct own version of client-response
     $cr_test  = hash('sha256', $cc . $sc . $refreshToken->getTokenString());
@@ -88,8 +87,7 @@ class Redirect extends Libs\RESTModel {
    */
   public static function answerClientChallange($cc) {
     // Fetch refresh-token
-    $authModel    = new Auth\RefreshEndpoint();
-    $refreshToken = $authModel->getRefreshToken($accessToken, false);
+    $refreshToken = Auth\RefreshEndpoint::getRefreshToken($accessToken, false);
 
     // Generate server-challenge and server response
     $sc     = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 5)), 0, self::challengeSize);

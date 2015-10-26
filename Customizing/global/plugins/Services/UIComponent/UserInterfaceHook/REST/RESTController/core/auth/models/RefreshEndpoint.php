@@ -24,7 +24,7 @@ class RefreshEndpoint extends EndpointBase {
     /**
      *
      */
-    public function isTokenActive($refreshToken) {
+    public static function isTokenActive($refreshToken) {
         //
         $sql = Libs\RESTLib::safeSQL('
             SELECT id
@@ -41,7 +41,7 @@ class RefreshEndpoint extends EndpointBase {
     /**
      *
      */
-    public function hasRefreshKey($refreshToken) {
+    public static function hasRefreshKey($refreshToken) {
         //
         $user_id = $refreshToken->getUserId();
         $api_key = $refreshToken->GetApiKey();
@@ -65,7 +65,7 @@ class RefreshEndpoint extends EndpointBase {
 
     /**
      */
-    public function getRefreshToken($accessToken, $renewToken) {
+    public static function getRefreshToken($accessToken, $renewToken) {
         // Check token
         if (!$accessToken->isValid())
             throw new Exceptions\TokenInvalid(Token\Generic::MSG_INVALID);
@@ -112,7 +112,7 @@ class RefreshEndpoint extends EndpointBase {
 
     /**
      */
-    private function getNewRefreshToken($accessToken) {
+    private static function getNewRefreshToken($accessToken) {
         //
         $user_name = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
@@ -140,10 +140,9 @@ class RefreshEndpoint extends EndpointBase {
      * @param $refresh_token
      * @return mixed the insertion id
      */
-    public function createToken($user_id, $api_key, $refreshToken) {
+    public static function createToken($user_id, $api_key, $refreshToken) {
         //
-        $clientsModel = new Clients();
-        $api_id =  $clientsModel->getApiIdFromKey($api_key);
+        $api_id =  Clients::getApiIdFromKey($api_key);
         $refresh_token = $refreshToken->getTokenString();
         $now = date(self::DATE_FORMAT, time());
 

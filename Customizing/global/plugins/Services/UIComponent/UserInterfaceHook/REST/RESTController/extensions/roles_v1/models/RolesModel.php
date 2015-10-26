@@ -18,8 +18,7 @@ class RolesModel {
         // TODO: c/p aus users/bulkImport
         // TODO: do it here or in route?
 
-        $auth    = new Auth\Util();
-        $userId  = $auth->getAccessToken()->getUserId();
+        $userId  = Auth\Util::getAccessToken()->getUserId();
 
         Libs\RESTLib::loadIlUser($userId);
         Libs\RESTLib::initAccessHandling();

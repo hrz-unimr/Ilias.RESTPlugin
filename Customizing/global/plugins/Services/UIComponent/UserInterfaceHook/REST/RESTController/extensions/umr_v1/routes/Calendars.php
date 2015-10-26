@@ -27,8 +27,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/calendars', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
     // Fetch userId & userName
-    $auth         = new Auth\Util();
-    $accessToken  = $auth->getAccessToken();
+    $accessToken  = Auth\Util::getAccessToken();
 
     try {
       $request          = $app->request;
@@ -66,8 +65,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/calendars/:calendarId', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($calendarId) use ($app) {
     // Fetch userId & userName
-    $auth         = new Auth\Util();
-    $accessToken  = $auth->getAccessToken();
+    $accessToken  = Auth\Util::getAccessToken();
 
     try {
       // Fetch user-information
@@ -94,8 +92,7 @@ $app->group('/v1/umr', function () use ($app) {
   $app->get('/calendar/events', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
 
     // Fetch userId & userName
-    $auth         = new Auth\Util();
-    $accessToken  = $auth->getAccessToken();
+    $accessToken  = Auth\Util::getAccessToken();
 
     try {
       $request          = $app->request;
@@ -131,8 +128,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/calendar/:calendarId/events', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($calendarId) use ($app) {
     // Fetch userId & userName
-    $auth         = new Auth\Util();
-    $accessToken  = $auth->getAccessToken();
+    $accessToken  = Auth\Util::getAccessToken();
 
     try {
       // Fetch user-information

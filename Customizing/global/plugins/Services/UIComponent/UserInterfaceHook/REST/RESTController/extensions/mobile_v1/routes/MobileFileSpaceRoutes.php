@@ -23,8 +23,7 @@ $app->group('/v1/m', function () use ($app) {
      * a special area within the global repository is used which is protected by role permissions. Therefore we use the placeholder 'myfilespace'.
      */
     $app->get('/myfilespace', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
+        $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
 
         Libs\RESTLib::initAccessHandling();
@@ -42,8 +41,7 @@ $app->group('/v1/m', function () use ($app) {
      * file_id (as obtainable by the /myfilespace endpoint) and a ref_id of the target container.
      */
     $app->get('/myfilespacecopy',AuthFactory::checkAccess(AuthFactory::PERMISSION), function() use ($app) {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
+        $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
         $request = $app->request();
 
@@ -71,8 +69,7 @@ $app->group('/v1/m', function () use ($app) {
      * see GET /myfilespacecopy
      */
     $app->post('/myfilespacecopy',AuthFactory::checkAccess(AuthFactory::PERMISSION), function() use ($app) {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
+        $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
         $request = $app->request();
 
@@ -110,8 +107,7 @@ $app->group('/v1/m', function () use ($app) {
     $app->post('/myfilespaceupload',AuthFactory::checkAccess(AuthFactory::PERMISSION), function() use ($app) {
         $app->log->debug('Myfilespace upload via POST');
 
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
+        $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
 
         $errorCode = $_FILES['uploadfile']['error'];
@@ -140,8 +136,7 @@ $app->group('/v1/m', function () use ($app) {
     $app->delete('/myfilespacedelete', AuthFactory::checkAccess(AuthFactory::PERMISSION), function() use ($app) {
         $app->log->debug('Myfilespace delete');
 
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
+        $accessToken = Auth\Util::getAccessToken();
         $user = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
 

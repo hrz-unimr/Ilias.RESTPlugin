@@ -43,9 +43,8 @@ $app->group('/dev', function () use ($app) {
         $ilLog->write('Hello from REST Plugin - Experimental');
         $app->response()->header('Content-Type', 'application/json');
 
-        $model = new Auth\TokenEndpoint();
         $refreshToken = Token\Refresh::fromMixed($model->tokenSettings('refresh'), $refresh_token);
-        $bearer_token = $model->refresh2Access($refreshToken);
+        $bearer_token = Auth\TokenEndpoint::refresh2Access($refreshToken);
 
         $result = array('token' => $bearer_token->getEntry('access_token'));
         $app->success($result);
@@ -59,8 +58,7 @@ $app->group('/dev', function () use ($app) {
      * Status: DONE
      */
     $app->get('/refresh', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
+        $accessToken = Auth\Util::getAccessToken();
         $user = $accessToken->getUserName();
         $uid = $accessToken->getUserId();
 
@@ -69,8 +67,7 @@ $app->group('/dev', function () use ($app) {
         //RESTLib::initAccessHandling();
 
         // Create new refresh token
-        $model = new Auth\RefreshEndpoint();
-        $refreshToken = $model->getRefreshToken($accessToken);
+        $refreshToken = Auth\RefreshEndpoint::getRefreshToken($accessToken);
 
         $result = array(
             'allowed_users' => $data1,

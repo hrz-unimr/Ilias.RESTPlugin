@@ -19,9 +19,7 @@ $app->group('/v1', function () use ($app) {
      * Returns the personal ILIAS contacts for a user specified by id.
      */
     $app->get('/contacts/:id', AuthFactory::checkAccess(AuthFactory::ADMIN), function ($id) use ($app) {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
-        $user = $accessToken->getUserName();
+        $accessToken = Auth\Util::getAccessToken();
         $authorizedUserId = $accessToken->getUserId();
 
         if ($authorizedUserId == $id || Libs\RESTLib::isAdminByUserId($authorizedUserId)) { // only the user or the admin is allowed to access the data
@@ -44,10 +42,8 @@ $app->group('/v1', function () use ($app) {
      * Returns the personal ILIAS contacts of the authenticated user.
      */
     $app->get('/contacts', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
-        $user = $accessToken->getUserName();
-        $authorizedUserId =  Libs\RESTLib::getUserIdFromUserName($user);
+        $accessToken = Auth\Util::getAccessToken();
+        $authorizedUserId =  $accessToken->getUserId();
 
         if ($authorizedUserId > -1) { // only the user is allowed to access the data
             $id = $authorizedUserId;

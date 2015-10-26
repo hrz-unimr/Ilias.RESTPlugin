@@ -20,8 +20,7 @@ $app->group('/v1', function () use ($app) {
      * Retrieves a list of all courses of the authenticated user and meta-information about them (no content).
      */
    $app->get('/courses', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
+        $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
         try {
         $crs_model = new CoursesModel();
@@ -40,10 +39,6 @@ $app->group('/v1', function () use ($app) {
      * Retrieves the content and a description of a course specified by ref_id.
      */
     $app->get('/courses/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($ref_id) use ($app) {
-        $auth = new Auth\Util();
-        //$accessToken = $auth->getAccessToken();
-        //$user = $accessToken->getUserName();
-        //$id = $accessToken->getUserId();
         $app->log->debug('in course get ref_id= '.$ref_id);
         try {
             $crs_model = new CoursesModel();
@@ -93,9 +88,7 @@ $app->group('/v1', function () use ($app) {
     $app->delete('/courses/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($ref_id) use ($app) {
         $request = $app->request();
 
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
-        $user = $accessToken->getUserName();
+        $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
         global $ilUser;
         Libs\RestLib::loadIlUser();
@@ -169,9 +162,7 @@ $app->group('/v1', function () use ($app) {
      * Assigns the authenticated user to a course specified by the GET parameter ref_id.
      */
     $app->get('/courses/join/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($ref_id) use ($app) {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
-        $user = $accessToken->getUserName();
+        $accessToken = Auth\Util::getAccessToken();
         $authorizedUserId = $accessToken->getUserId();
 
         $request = $app->request();
@@ -193,8 +184,7 @@ $app->group('/v1', function () use ($app) {
      * Removes the authenticated user from a course speicifed by the GET parameter "ref_id".
      */
     $app->get('/courses/leave/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($ref_id) use ($app) {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
+        $accessToken = Auth\Util::getAccessToken();
         $authorizedUserId = $accessToken->getUserId();
 
         try {

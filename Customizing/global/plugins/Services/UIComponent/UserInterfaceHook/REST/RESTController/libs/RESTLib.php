@@ -79,8 +79,7 @@ class RESTLib {
 
         // Fetch user-id from token if non is given
         if ($userId == null) {
-          $auth         = new Auth\Util();
-          $accessToken  = $auth->getAccessToken();
+          $accessToken  = Auth\Util::getAccessToken();
           $userId       = $accessToken->getUserId();
         }
 

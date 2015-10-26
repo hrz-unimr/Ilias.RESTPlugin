@@ -18,8 +18,7 @@ $app->group('/v1', function () use ($app) {
      * Returns the calendar events of a user specified by its user_id.
      */
     $app->get('/cal/events/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($id) use ($app) {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
+        $accessToken = Auth\Util::getAccessToken();
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 
@@ -37,8 +36,7 @@ $app->group('/v1', function () use ($app) {
      * Returns the ICAL Url of the desktop calendar of a user specified by its user_id.
      */
     $app->get('/cal/icalurl/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION) , function ($id) use ($app) {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
+        $accessToken = Auth\Util::getAccessToken();
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 
@@ -57,8 +55,7 @@ $app->group('/v1', function () use ($app) {
      * Returns the calendar events of the authenticated user.
      */
     $app->get('/cal/events', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
+        $accessToken = Auth\Util::getAccessToken();
         $user = $accessToken->getUserName();
         $authorizedUserId =  Libs\RESTLib::getUserIdFromUserName($user);
 
@@ -78,8 +75,7 @@ $app->group('/v1', function () use ($app) {
      * Returns the ICAL Url of the desktop calendar of the authenticated user.
      */
     $app->get('/cal/icalurl', AuthFactory::checkAccess(AuthFactory::PERMISSION) , function () use ($app) {
-        $auth = new Auth\Util();
-        $accessToken = $auth->getAccessToken();
+        $accessToken = Auth\Util::getAccessToken();
         $user = $accessToken->getUserName();
         $authorizedUserId =  Libs\RESTLib::getUserIdFromUserName($user);
 

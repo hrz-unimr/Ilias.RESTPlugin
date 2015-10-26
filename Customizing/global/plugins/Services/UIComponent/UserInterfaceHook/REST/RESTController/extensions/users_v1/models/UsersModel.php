@@ -174,8 +174,7 @@ class UsersModel extends Libs\RESTModel
         require_once('./Services/Authentication/classes/class.ilAuthUtils.php');
 
        // Fetch authorized user
-       $auth    = new Auth\Util();
-       $userId  = $auth->getAccessToken()->getUserId();
+       $userId  = Auth\Util::getAccessToken()->getUserId();
 
         // TODO: do it here or in route?
         Libs\RESTLib::loadIlUser($userId);
