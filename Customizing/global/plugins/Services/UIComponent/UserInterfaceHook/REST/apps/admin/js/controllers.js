@@ -245,7 +245,7 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
      * Mainly used for <select> -> <option> formatting.
      */
     $scope.formatPermissionOption = function(route, verb, middleware) {
-        if ( middleware.indexOf("TokenAdminAuth") > -1) {
+        if ( middleware.indexOf("ILIAS::ADMIN") > -1) {
           return '['+verb+"] "+route+" (Admin)";
         }
         return '['+verb+"] "+route;

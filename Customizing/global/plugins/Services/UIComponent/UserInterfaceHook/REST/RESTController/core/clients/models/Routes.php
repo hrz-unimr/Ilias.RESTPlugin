@@ -43,7 +43,7 @@ class Routes extends Libs\RESTModel {
                 $includeEntry = true;
             } else {
                 if (isset($middle[0]) == true ) {
-                    if (strpos($middle[0],'TokenRouteAuth') || strpos($middle[0],'TokenAdminAuth')) {
+                    if (strpos($middle[0],'OAuth2::PERMISSION') || strpos($middle[0],'ILIAS::ADMIN')) {
                         $includeEntry = true;
                     }
                 }
