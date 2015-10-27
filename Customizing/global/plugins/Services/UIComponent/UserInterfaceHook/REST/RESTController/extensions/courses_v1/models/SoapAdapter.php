@@ -5,9 +5,9 @@
  * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * Since 2014
  */
-namespace RESTController\libs;
- 
+namespace RESTController\extensions\courses_v1;
 
+use \RESTController\libs as Libs;
 // Requires <ilContext>, <$ilDB>, <ilObjUser>, <ilAuthUtils>, <ilIniFile>, <$ilAuth>
 
 require_once('Services/Authentication/classes/class.ilAuthUtils.php');
@@ -18,16 +18,16 @@ require_once('Services/Authentication/classes/class.ilAuthUtils.php');
  * Its purpose is to provide utilities to enable REST models
  * to use the ILIAS SOAP webservice.
  */
-class RESTSoapAdapter {
+class SoapAdapter {
     //protected static $instance = null;
     public $SID = "";
 
     /**
-     * Replaces the SOAP login method. 
+     * Replaces the SOAP login method.
      * Creates a valid session, which can be used for SOAP calls.
      */
     public function loginSOAP() {
-        RESTLib::initAccessHandling();
+        Libs\RESTLib::initAccessHandling();
         $ilDB = $GLOBALS['ilDB'];
 
         define ("IL_SOAPMODE", IL_SOAPMODE_INTERNAL);
@@ -37,7 +37,7 @@ class RESTSoapAdapter {
         // Load username/password from DB
         $query = 'SELECT setting_name, setting_value FROM ui_uihk_rest_config WHERE setting_name IN ("rest_soap_user", "rest_soap_pass")';
         $set = $ilDB->query($query);
-        while ($row = $ilDB->fetchAssoc($set)) 
+        while ($row = $ilDB->fetchAssoc($set))
             switch ($row['setting_name']) {
                 case "rest_soap_user":
                     $username = $row['setting_value'];
@@ -65,7 +65,7 @@ class RESTSoapAdapter {
         }
 
         global $ilUser;
-        RESTLib::loadIlUser();
+        Libs\RESTLib::loadIlUser();
         $ilUser->setId($user_id);
         $ilUser->read();
 
@@ -78,9 +78,9 @@ class RESTSoapAdapter {
         include_once("Services/Authentication/classes/class.ilSessionControl.php");
         require_once("./Services/AuthShibboleth/classes/class.ilShibboleth.php");
         include_once("./Services/Authentication/classes/class.ilAuthUtils.php");
-        
+
         \ilAuthUtils::_initAuth();
-        
+
         global $ilAuth;
         $ilAuth->start();
 
@@ -93,7 +93,7 @@ class RESTSoapAdapter {
         return true;
     }
 
-    
+
     /**
      * Execute a SOAP command on the server
      * a return the produced result.
@@ -108,9 +108,9 @@ class RESTSoapAdapter {
         return $result;
     }
 
-    
+
     /**
-     * Replaces the SOAP logout method. 
+     * Replaces the SOAP logout method.
      * Destroys existing session.
      */
     public function logoutSOAP() {

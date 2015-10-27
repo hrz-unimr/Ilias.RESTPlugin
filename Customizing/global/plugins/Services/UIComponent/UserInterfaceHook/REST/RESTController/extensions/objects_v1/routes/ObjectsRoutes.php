@@ -6,10 +6,10 @@
  * Since 2014
  */
 namespace RESTController\extensions\objects_v1;
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 
 
-$app->get('/v1/object/:ref', AuthFactory::checkAccess(AuthFactory::ADMIN), function ($ref) use ($app) {
+$app->get('/v1/object/:ref', RESTAuth::checkAccess(RESTAuth::ADMIN), function ($ref) use ($app) {
     try {
         $model = new ObjectsModel();
         $result = $model->getObject($ref);

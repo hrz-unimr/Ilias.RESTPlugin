@@ -34,8 +34,8 @@ class MobileFeedbackModel extends Libs\RESTModel {
             "userid" => array("text", $user_id),
             "message" => array("text", $message),
             "environment" => array("text", $environment));
-        self::$sqlDB->insert(self::TABLE, $a_columns);
-        return self::$sqlDB->getLastInsertId();
+        self::getDB()->insert(self::TABLE, $a_columns);
+        return self::getDB()->getLastInsertId();
     }
 
     /**
@@ -45,12 +45,12 @@ class MobileFeedbackModel extends Libs\RESTModel {
     function getFeedbackItems()
     {
         $sql = Libs\RESTLib::safeSQL("SELECT * FROM ".self::TABLE);
-        $set = self::$sqlDB->query($sql);
+        $set = self::getDB()->query($sql);
 
         if ($set == null) {
             return array();
         }
-        while($row = self::$sqlDB->fetchAssoc($set))
+        while($row = self::getDB()->fetchAssoc($set))
         {
             $res[] = $row;
         }
@@ -64,9 +64,9 @@ class MobileFeedbackModel extends Libs\RESTModel {
     function getFeedbackItem($item_id)
     {
         $sql = Libs\RESTLib::safeSQL('SELECT * FROM '.self::TABLE.' WHERE id = %d', $item_id);
-        $set = self::$sqlDB->query($sql);
+        $set = self::getDB()->query($sql);
 
-        if ($set != null && $row = self::$sqlDB->fetchAssoc($set)) {
+        if ($set != null && $row = self::getDB()->fetchAssoc($set)) {
             return $row;
         }
     }
@@ -80,7 +80,7 @@ class MobileFeedbackModel extends Libs\RESTModel {
     public function updateFeedbackItem($id, $fieldname, $newval)
     {
         $sql = Libs\RESTLib::safeSQL('UPDATE '.self::TABLE.' SET %s = %s WHERE id = %d', $fieldname, $newval, $id);
-        $numAffRows = self::$sqlDB->manipulate($sql);
+        $numAffRows = self::getDB()->manipulate($sql);
         return $numAffRows;
     }
 
@@ -92,7 +92,7 @@ class MobileFeedbackModel extends Libs\RESTModel {
     public function deleteFeedbackItem($id)
     {
         $sql = Libs\RESTLib::safeSQL('DELETE FROM '.self::TABLE.' WHERE id = %d', $id);
-        $numAffRows = self::$sqlDB->manipulate($sql);
+        $numAffRows = self::getDB()->manipulate($sql);
         return $numAffRows;
     }
 
@@ -102,7 +102,7 @@ class MobileFeedbackModel extends Libs\RESTModel {
      */
     function createMobileFeedbackDatabaseTable()
     {
-        if (self::$sqlDB->tableExists(self::TABLE) == false) { // TODO better throw special exception here
+        if (self::getDB()->tableExists(self::TABLE) == false) { // TODO better throw special exception here
 
             $fields = array(
                 'id' => array(
@@ -128,9 +128,9 @@ class MobileFeedbackModel extends Libs\RESTModel {
                     'notnull' => true
                 )
             );
-            self::$sqlDB->createTable(self::TABLE, $fields, false);
-            self::$sqlDB->addPrimaryKey(self::TABLE, array("id"));
-            self::$sqlDB->manipulate('ALTER TABLE ' . self::TABLE . ' CHANGE id id INT NOT NULL AUTO_INCREMENT');
+            self::getDB()->createTable(self::TABLE, $fields, false);
+            self::getDB()->addPrimaryKey(self::TABLE, array("id"));
+            self::getDB()->manipulate('ALTER TABLE ' . self::TABLE . ' CHANGE id id INT NOT NULL AUTO_INCREMENT');
             return true;
         } else {
             return false;

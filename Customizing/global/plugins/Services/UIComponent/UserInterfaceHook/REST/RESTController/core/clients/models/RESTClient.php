@@ -34,13 +34,44 @@ class RESTClient extends Libs\RESTModel {
     function __construct($api_key) {
         Libs\RESTModel::__construct();
         $sql = Libs\RESTLib::safeSQL("SELECT * FROM ui_uihk_rest_keys WHERE api_key = %s", $api_key);
-        $query = self::$sqlDB->query($sql);
+        $query = self::getDB()->query($sql);
 
-        if (self::$sqlDB->numRows($query) > 0) {
-            $this->client_fields = self::$sqlDB->fetchAssoc($query);
-        } else {
-            $this->client_fields = array();
-        }
+        if (self::getDB()->numRows($query) > 0)
+            $this->client_fields = self::getDB()->fetchAssoc($query);
+        else
+            throw new Exceptions\MissingApiKey(Exceptions\MissingApiKey::MSG_API_KEY);
+    }
+
+    /**
+     * Checks if provided OAuth2 - client (aka api_key) does exist.
+     *
+     * @param  api_key
+     * @return bool
+     */
+    public static function checkClient($api_key) {
+        // Fetch client with given api-key (checks existance)
+        $sql = Libs\RESTLib::safeSQL('SELECT id FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
+        $query = self::getDB()->query($sql);
+        if (self::getDB()->numRows($query) > 0)
+            return true;
+        return false;
+    }
+
+    /**
+     * Checks if provided OAuth2 client credentials are valid.
+     * Compare with http://tools.ietf.org/html/rfc6749#section-4.4 (client credentials grant type).
+     *
+     * @param int api_key
+     * @param string api_secret
+     * @return bool
+     */
+    public static function checkClientCredentials($api_key, $api_secret) {
+        // Fetch client with given api-key (checks existance)
+        $sql = Libs\RESTLib::safeSQL('SELECT id FROM ui_uihk_rest_keys WHERE api_key = %s AND api_secret = %s', $api_key, $api_secret);
+        $query = self::getDB()->query($sql);
+        if (self::getDB()->numRows($query) > 0)
+            return true;
+        return false;
     }
 
     /**
@@ -99,10 +130,10 @@ class RESTClient extends Libs\RESTModel {
     function getAllowedIPAddresses() {
         if (!$this->allowedIPs) {
             $sql = Libs\RESTLib::safeSQL("SELECT * FROM ui_uihk_rest_key2ip WHERE api_id = %d", $this->client_fields['id']);
-            $query = self::$sqlDB->query($sql);
-            if (self::$sqlDB->numRows($query) > 0) {
+            $query = self::getDB()->query($sql);
+            if (self::getDB()->numRows($query) > 0) {
                 $this->allowedIPs = array();
-                while($row = self::$sqlDB->fetchAssoc($query)) {
+                while($row = self::getDB()->fetchAssoc($query)) {
                     $this->allowedIPs[] = $row['ip'];
                 }
                 return $this->allowedIPs;
@@ -119,10 +150,10 @@ class RESTClient extends Libs\RESTModel {
     function getAllowedUsers() {
         if (!$this->allowedUsers) {
             $sql = Libs\RESTLib::safeSQL("SELECT * FROM ui_uihk_rest_key2user WHERE api_id = %d", $this->client_fields['id']);
-            $query = self::$sqlDB->query($sql);
-            if (self::$sqlDB->numRows($query) > 0) {
+            $query = self::getDB()->query($sql);
+            if (self::getDB()->numRows($query) > 0) {
                 $this->allowedUsers = array();
-                while($row = self::$sqlDB->fetchAssoc($query)) {
+                while($row = self::getDB()->fetchAssoc($query)) {
                     $this->allowedUsers[] = $row['user_id'];
                 }
                 return $this->allowedUsers;
@@ -153,8 +184,8 @@ class RESTClient extends Libs\RESTModel {
             $route,
             $operation
         );
-        $query = self::$sqlDB->query($sql);
-        if (self::$sqlDB->fetchAssoc($query))
+        $query = self::getDB()->query($sql);
+        if (self::getDB()->fetchAssoc($query))
             return true;
         return false;
     }
@@ -165,7 +196,7 @@ class RESTClient extends Libs\RESTModel {
      * @return bool
      */
     public function checkIPAccess($request_ip) {
-        //self::$app->log->debug('in checkIPAccess : '.$request_ip);
+        //self::getApp()->log->debug('in checkIPAccess : '.$request_ip);
         if (!$this->hasIpRestrictions() == true) {
             return true;
         } else {

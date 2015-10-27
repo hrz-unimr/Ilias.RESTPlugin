@@ -8,7 +8,6 @@
 namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\core\clients\RESTClient as RESTClient;
 use \RESTController\libs as Libs;
 
 
@@ -22,83 +21,6 @@ class Util extends EndpointBase {
     const MSG_CC_DISABLED = 'Client-credentials grant-type is disabled for this client.';
     const MSG_AC_DISABLED = 'Authorization-code grant-type is disabled for this client.';
     const MSG_I_DISABLED = 'Implicit grant-type is disabled for this client.';
-
-
-    // Store token and fetch it only once per execution
-    protected $accessToken;
-
-    // Store requesting client model and fetch it only once per execution
-    protected $client;
-
-    /**
-     * Checks if provided OAuth2 - client (aka api_key) does exist.
-     *
-     * @param  api_key
-     * @return bool
-     */
-    public static function checkClient($api_key) {
-        // Fetch client with given api-key (checks existance)
-        $sql = Libs\RESTLib::safeSQL('SELECT id FROM ui_uihk_rest_keys WHERE api_key = %s', $api_key);
-        $query = self::$sqlDB->query($sql);
-        if (self::$sqlDB->numRows($query) > 0)
-            return true;
-        return false;
-    }
-
-
-    /**
-     * Checks if provided OAuth2 client credentials are valid.
-     * Compare with http://tools.ietf.org/html/rfc6749#section-4.4 (client credentials grant type).
-     *
-     * @param int api_key
-     * @param string api_secret
-     * @return bool
-     */
-    public static function checkClientCredentials($api_key, $api_secret) {
-        // Fetch client with given api-key (checks existance)
-        $sql = Libs\RESTLib::safeSQL('SELECT id FROM ui_uihk_rest_keys WHERE api_key = %s AND api_secret = %s', $api_key, $api_secret);
-        $query = self::$sqlDB->query($sql);
-        if (self::$sqlDB->numRows($query) > 0)
-            return true;
-        return false;
-    }
-
-
-    /**
-     * Checks if a rest client is allowed to enter a route (aka REST endpoint).
-     *
-     * @param route
-     * @param operation
-     * @param api_key
-     * @return bool
-     */
-    public static function checkScope($route, $operation, $api_key) {
-        if (!$this->client)
-            $this->client = new RESTClient($api_key);
-
-        if ($this->client->hasAPIKey($api_key) == true)
-            return $this->client->checkScope($route, $operation);
-
-        return false;
-    }
-
-    /**
-     * Checks if the requesting client is allowed to make this request by IP address.
-     * @param $api_key
-     * @return bool
-     */
-    public static function checkIPAccess($api_key) {
-        if (!$this->client)
-            $this->client = new RESTClient($api_key);
-
-        if ($this->client->hasAPIKey($api_key) == true) {
-            $request_ip=$_SERVER['REMOTE_ADDR'];
-
-            self::$app->log->debug('Util: Checking IP address for access: '.$request_ip);
-            return $this->client->checkIPAccess($request_ip);
-        }
-        return false;
-    }
 
     /**
      * Checks if an ILIAS session is valid and belongs to a particular user.
@@ -125,8 +47,8 @@ class Util extends EndpointBase {
             $rtoken,
             $session_id
         );
-        $queryToken = self::$sqlDB->query($sqlToken);
-        if (self::$sqlDB->numRows($queryToken) > 0)
+        $queryToken = self::getDB()->query($sqlToken);
+        if (self::getDB()->numRows($queryToken) > 0)
             $rtokenValid = true;
 
         $sqlSession = Libs\RESTLib::safeSQL('
@@ -136,8 +58,8 @@ class Util extends EndpointBase {
             $user_id,
             $session_id
         );
-        $querySession = self::$sqlDB->query($sqlSession);
-        if ($row = self::$sqlDB->fetchAssoc($querySession))
+        $querySession = self::getDB()->query($sqlSession);
+        if ($row = self::getDB()->fetchAssoc($querySession))
             if ($row['expires'] > time())
                 $sessionValid = true;
 
@@ -157,14 +79,14 @@ class Util extends EndpointBase {
     public static function renderWebsite($title, $file, $data) {
         // Build absolute-path (relative to document-root)
         $sub_dir = 'core/auth/views';
-        $rel_path = self::$plugin->getPluginObject(IL_COMP_SERVICE, 'UIComponent', 'uihk', 'REST')->getDirectory();
+        $rel_path = Libs\RESTLib::getPluginDir();
         $scriptName = dirname($_SERVER['SCRIPT_NAME']);
         $scriptName = str_replace('\\', '/', $scriptName);
         $scriptName = ($scriptName == '/' ? '' : $scriptName);
         $abs_path = $scriptName.'/'.$rel_path.'/RESTController/'.$sub_dir;
 
         // Supply data to slim application
-        self::$app->render($sub_dir.'/core.php', array(
+        self::getApp()->render($sub_dir.'/core.php', array(
             'tpl_path' => $abs_path,
             'tpl_title' => $title,
             'tpl_file' => $file,
@@ -177,39 +99,62 @@ class Util extends EndpointBase {
      *
      * NOTE: May throw TokenInvalid!
      */
-    public static function getAccessToken($force = false) {
-        // Return stored acces token
-        if (!$this->accessToken || $force) {
-            // Fetch token from body GET/POST (json or plain)
-            $request = self::$app->request();
-            $tokenString = $request->params('token');
+    public static function getAccessToken() {
+        // Fetch token from body GET/POST (json or plain)
+        $request = self::getApp()->request();
+        $tokenString = $request->params('token');
 
-            // Fetch access_token from GET/POST (json or plain)
-            if (is_null($tokenString))
-                $tokenString = $request->params('access_token');
+        // Fetch access_token from GET/POST (json or plain)
+        if (is_null($tokenString))
+            $tokenString = $request->params('access_token');
 
-            // Fetch token from request header
-            if (is_null($tokenString)) {
-                // Fetch Authorization-Header
-                $authHeader = $request->headers('Authorization');
+        // Fetch token from request header
+        if (is_null($tokenString)) {
+            // Fetch Authorization-Header
+            $authHeader = $request->headers('Authorization');
 
-                // Found Authorization header?
-                if ($authHeader != null) {
-                    $a_auth = explode(' ', $authHeader);
-                    $tokenString = $a_auth[1];        // With "Bearer"-Prefix
-                    if ($tokenString == null)
-                        $tokenString = $a_auth[0];    // Without "Bearer"-Prefix
-                }
+            // Found Authorization header?
+            if ($authHeader != null) {
+                $a_auth = explode(' ', $authHeader);
+                $tokenString = $a_auth[1];        // With "Bearer"-Prefix
+                if ($tokenString == null)
+                    $tokenString = $a_auth[0];    // Without "Bearer"-Prefix
             }
-
-            // Decode token (Throws Exception if token is invalid/missing)
-            $accessToken = Token\Generic::fromMixed(self::tokenSettings('access'), $tokenString);
-
-            // Store access token
-            $this->accessToken = $accessToken;
         }
 
-        // return token
-        return $this->accessToken;
+        // Decode token (Throws Exception if token is invalid/missing)
+        $accessToken = Token\Generic::fromMixed(self::tokenSettings('access'), $tokenString);
+
+        // Store access token
+        return $accessToken;
+    }
+
+
+    /**
+     * Authentication via the ILIAS Auth mechanisms.
+     * This method is used as backend for OAuth2.
+     *
+     * @param $username - ILIAS user-id
+     * @param $password - ILIS user-password
+     * @return bool - True if authentication was successfull, false otherwise
+     */
+    public static function authenticateViaIlias($username, $password) {
+        Libs\RESTLib::initAccessHandling();
+
+        $_POST['username'] = $username;
+        $_POST['password'] = $password;
+
+        require_once('Services/Authentication/classes/class.ilAuthUtils.php');
+        \ilAuthUtils::_initAuth();
+
+        global $ilAuth;
+        $ilAuth->start();
+        $checked_in = $ilAuth->getAuth();
+
+        $ilAuth->logout();
+        session_destroy();
+        header_remove('Set-Cookie');
+
+        return $checked_in;
     }
 }

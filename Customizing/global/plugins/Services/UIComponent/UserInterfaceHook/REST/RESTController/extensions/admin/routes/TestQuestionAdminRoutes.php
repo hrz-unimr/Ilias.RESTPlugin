@@ -8,14 +8,14 @@
 namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 
 
 $app->group('/admin', function () use ($app) {
     /*
      // TODO: support for querying test question pools
-    $app->get('/testpool', AuthFactory::checkAccess(AuthFactory::ADMIN), function () use ($app) {
+    $app->get('/testpool', RESTAuth::checkAccess(RESTAuth::ADMIN), function () use ($app) {
         $app->halt(500, 'There be dragons!');
     });
     */
@@ -23,7 +23,7 @@ $app->group('/admin', function () use ($app) {
     /**
      * Returns a (json) representation of a test question given its question_id.
      */
-    $app->get('/testquestion/:question_id', AuthFactory::checkAccess(AuthFactory::ADMIN), function ($question_id) use ($app) {
+    $app->get('/testquestion/:question_id', RESTAuth::checkAccess(RESTAuth::ADMIN), function ($question_id) use ($app) {
         $model = new TestQuestionModel();
         $data = $model->getQuestion($question_id);
 

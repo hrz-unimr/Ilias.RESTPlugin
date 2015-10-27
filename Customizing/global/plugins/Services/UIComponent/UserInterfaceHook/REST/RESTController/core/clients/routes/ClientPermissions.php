@@ -9,7 +9,7 @@ namespace RESTController\core\clients;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires <$app = \RESTController\RESTController::getInstance()>
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 use \RESTController\libs\Exceptions as LibExceptions;
 use \RESTController\core\clients\Exceptions as ClientExceptions;
@@ -33,13 +33,13 @@ use \RESTController\core\auth as Auth;
  *    status: "<Success or Failure>"
  *  }
  */
- $app->get('/clientpermissions', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
+ $app->get('/clientpermissions', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
     // Fetch authorized user
     $user = Auth\Util::getAccessToken()->getUserName();
 
     // Check if user has admin role
     if (!Libs\RESTLib::isAdminByUserName($user)) {
-        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
+        $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
     }
 
      $request = $app->request;
@@ -82,13 +82,13 @@ use \RESTController\core\auth as Auth;
  *    status: "<Success or Failure>"
  *  }
  */
-$app->post('/clientpermissions/', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
+$app->post('/clientpermissions/', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
     // Fetch authorized user
     $user = Auth\Util::getAccessToken()->getUserName();
 
     // Check if authorized user has admin role
     if (!Libs\RESTLib::isAdminByUserName($user)) {
-        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
+        $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
     }
 
     // Shortcut for request object
@@ -128,13 +128,13 @@ $app->post('/clientpermissions/', AuthFactory::checkAccess(AuthFactory::PERMISSI
  *    status: "<Success or Failure>"
  *  }
  */
-$app->delete('/clientpermissions/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION),  function ($id) use ($app) {
+$app->delete('/clientpermissions/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION),  function ($id) use ($app) {
     // Fetch authorized user
     $user = Auth\Util::getAccessToken()->getUserName();
 
     // Check if authorized user has admin role
     if (!Libs\RESTLib::isAdminByUserName($user)) {
-        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
+        $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
     }
 
     try {

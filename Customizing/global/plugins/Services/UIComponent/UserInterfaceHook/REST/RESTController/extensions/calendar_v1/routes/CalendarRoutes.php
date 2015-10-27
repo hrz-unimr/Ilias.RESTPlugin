@@ -8,7 +8,7 @@
 namespace RESTController\extensions\calendar_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 
@@ -17,7 +17,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the calendar events of a user specified by its user_id.
      */
-    $app->get('/cal/events/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($id) use ($app) {
+    $app->get('/cal/events/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($id) use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
@@ -28,14 +28,14 @@ $app->group('/v1', function () use ($app) {
             $app->success($data);
         }
         else
-            $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
+            $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
     });
 
 
     /**
      * Returns the ICAL Url of the desktop calendar of a user specified by its user_id.
      */
-    $app->get('/cal/icalurl/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION) , function ($id) use ($app) {
+    $app->get('/cal/icalurl/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION) , function ($id) use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
@@ -47,14 +47,14 @@ $app->group('/v1', function () use ($app) {
             $app->success($data);
         }
         else
-            $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
+            $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
     });
 
 
     /**
      * Returns the calendar events of the authenticated user.
      */
-    $app->get('/cal/events', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
+    $app->get('/cal/events', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user = $accessToken->getUserName();
         $authorizedUserId =  Libs\RESTLib::getUserIdFromUserName($user);
@@ -67,14 +67,14 @@ $app->group('/v1', function () use ($app) {
             $app->success($data);
         }
         else
-            $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
+            $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
     });
 
 
     /**
      * Returns the ICAL Url of the desktop calendar of the authenticated user.
      */
-    $app->get('/cal/icalurl', AuthFactory::checkAccess(AuthFactory::PERMISSION) , function () use ($app) {
+    $app->get('/cal/icalurl', RESTAuth::checkAccess(RESTAuth::PERMISSION) , function () use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user = $accessToken->getUserName();
         $authorizedUserId =  Libs\RESTLib::getUserIdFromUserName($user);
@@ -87,6 +87,6 @@ $app->group('/v1', function () use ($app) {
             $app->success($data);
         }
         else
-            $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
+            $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
     });
 });

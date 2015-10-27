@@ -245,7 +245,7 @@ class CoursesModel extends Libs\RESTModel
      */
     public function deleteCourse($ref_id)
     {
-        $adapter = new Libs\RESTSoapAdapter();
+        $adapter = new SoapAdapter();
         $success = $adapter->loginSOAP();
         if ($success == true) {
             $result = $adapter->executeSOAPFunction('deleteCourse', array($adapter->SID, $ref_id));
@@ -260,7 +260,7 @@ class CoursesModel extends Libs\RESTModel
 
     /*public function soapTest()
     {
-        $adapter = new Libs\RESTSoapAdapter();
+        $adapter = new SoapAdapter();
         $adapter->loginSOAP();
         //echo $adapter->SID;
        // $result = $adapter->executeSOAPFunction('',array());

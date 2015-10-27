@@ -6,10 +6,10 @@
  * Since 2014
  */
 namespace RESTController\extensions\mobile_v1;
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 
 
-$app->group('v1/m',AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
+$app->group('v1/m',RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
     $app->get('/search/',  function () use ($app) {
         $response = $app->request();
 
@@ -25,7 +25,7 @@ $app->group('v1/m',AuthFactory::checkAccess(AuthFactory::PERMISSION), function (
         $app->success($searchResults);
     });
 
-    $app->post('/search/', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
+    $app->post('/search/', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
         $response = $app->request();
 
         try {

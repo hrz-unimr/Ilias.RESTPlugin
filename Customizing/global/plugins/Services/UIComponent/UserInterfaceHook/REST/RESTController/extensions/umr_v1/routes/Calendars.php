@@ -10,7 +10,7 @@ namespace RESTController\extensions\umr_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires: $app to be \RESTController\RESTController::getInstance()
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 
@@ -25,7 +25,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/calendars', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
+  $app->get('/calendars', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
     // Fetch userId & userName
     $accessToken  = Auth\Util::getAccessToken();
 
@@ -63,7 +63,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/calendars/:calendarId', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($calendarId) use ($app) {
+  $app->get('/calendars/:calendarId', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($calendarId) use ($app) {
     // Fetch userId & userName
     $accessToken  = Auth\Util::getAccessToken();
 
@@ -89,7 +89,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/calendar/events', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
+  $app->get('/calendar/events', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
 
     // Fetch userId & userName
     $accessToken  = Auth\Util::getAccessToken();
@@ -126,7 +126,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/calendar/:calendarId/events', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($calendarId) use ($app) {
+  $app->get('/calendar/:calendarId/events', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($calendarId) use ($app) {
     // Fetch userId & userName
     $accessToken  = Auth\Util::getAccessToken();
 
@@ -151,7 +151,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->post('/calendars', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->post('/calendars', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
 
   /**
@@ -160,7 +160,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->put('/calendars', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->put('/calendars', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
 
   /**
@@ -169,7 +169,7 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->delete('/calendars', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->delete('/calendars', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
 // End of '/v1/umr/' URI-Group
 });

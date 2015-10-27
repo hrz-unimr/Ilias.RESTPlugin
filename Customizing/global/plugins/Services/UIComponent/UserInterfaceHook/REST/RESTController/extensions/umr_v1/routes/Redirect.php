@@ -10,7 +10,7 @@ namespace RESTController\extensions\umr_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires: $app to be \RESTController\RESTController::getInstance()
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\core\auth as Auth;
 
 
@@ -33,7 +33,7 @@ $app->group('/v1/umr', function () use ($app) {
        *
        * @See docs/api.pdf
        */
-      $app->get('/advanced/:type/:refId', AuthFactory::checkAccess(AuthFactory::SHORT), function ($type, $refId) use ($app) {
+      $app->get('/advanced/:type/:refId', RESTAuth::checkAccess(RESTAuth::SHORT), function ($type, $refId) use ($app) {
         // Fetch userId & userName
         $accessToken  = Auth\Util::getAccessToken();
         $userName     = $accessToken->getUserName();
@@ -52,8 +52,12 @@ $app->group('/v1/umr', function () use ($app) {
         foreach ($cookies as $cookie)
           $app->setCookie($cookie['key'], $cookie['value'], $cookie['expires'], $cookie['path']);
 
+        // Convert refId to numer (unless its something else)
+        if (is_numeric($refId))
+          $refId = intval($refId);
+
         // Fetch permanent-link
-        $link = Redirect::getLink(intval($refId), $type);
+        $link = Redirect::getLink($refId, $type);
 
         // Output result
         $app->response->redirect($link, 303);
@@ -71,7 +75,7 @@ $app->group('/v1/umr', function () use ($app) {
        *
        * @See docs/api.pdf
        */
-      $app->get('/simple/:type/:refId', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($type, $refId) use ($app) {
+      $app->get('/simple/:type/:refId', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($type, $refId) use ($app) {
         // Fetch userId & userName
         $accessToken  = Auth\Util::getAccessToken();
         $userName     = $accessToken->getUserName();
@@ -84,8 +88,12 @@ $app->group('/v1/umr', function () use ($app) {
         foreach ($cookies as $cookie)
           $app->setCookie($cookie['key'], $cookie['value'], $cookie['expires'], $cookie['path']);
 
+        // Convert refId to numer (unless its something else)
+        if (is_numeric($refId))
+          $refId = intval($refId);
+
         // Fetch permanent-link
-        $link = Redirect::getLink(intval($refId), $type);
+        $link = Redirect::getLink($refId, $type);
 
         // Output result
         $app->response->redirect($link, 303);
@@ -106,8 +114,12 @@ $app->group('/v1/umr', function () use ($app) {
      * @See docs/api.pdf
      */
     $app->get('/link/:type/:refId', function ($type, $refId) use ($app) {
+      // Convert refId to numer (unless its something else)
+      if (is_numeric($refId))
+        $refId = intval($refId);
+
       // Fetch permanent-link
-      $link = Redirect::getLink(intval($refId), $type);
+      $link = Redirect::getLink($refId, $type);
 
       // Output result
       $app->response->redirect($link, 303);

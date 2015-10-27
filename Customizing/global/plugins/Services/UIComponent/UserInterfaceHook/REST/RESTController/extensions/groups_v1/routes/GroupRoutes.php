@@ -8,7 +8,7 @@
 namespace RESTController\extensions\mobile_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 use \RESTController\libs\Exceptions as LibExceptions;
 use \RESTController\core\auth as Auth;
@@ -22,7 +22,7 @@ $app->group('/v1', function () use ($app) {
      *
      *  Version 15.7.08
      */
-    $app->get('/groups4user', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
+    $app->get('/groups4user', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
 
         $result = array();
         $user_id = Auth\Util::getAccessToken()->getUserId();
@@ -38,7 +38,7 @@ $app->group('/v1', function () use ($app) {
         }
     });
 
-    $app->get('/groups/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($ref_id) use ($app) {
+    $app->get('/groups/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         $result = array();
         $user_id = Auth\Util::getAccessToken()->getUserId();
 

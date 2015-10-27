@@ -9,7 +9,7 @@ namespace RESTController\core\clients;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires <$app = \RESTController\RESTController::getInstance()>
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\core\auth as Auth;
 use \RESTController\libs as Libs;
 
@@ -58,7 +58,7 @@ $app->get('/routes', function () use ($app) {
  * Returns the routes that can be accessed with the API-Key provided by the current token.
  * The result furthermore indicates if the user has capabilities to access admin routes.
  */
-$app->get('/apiroutes', AuthFactory::checkAccess(AuthFactory::TOKEN), function () use ($app) {
+$app->get('/apiroutes', RESTAuth::checkAccess(RESTAuth::TOKEN), function () use ($app) {
     $includeUnrestrictedRoutes = false;
     $request = $app->request();
     if ($request->params('view')) {

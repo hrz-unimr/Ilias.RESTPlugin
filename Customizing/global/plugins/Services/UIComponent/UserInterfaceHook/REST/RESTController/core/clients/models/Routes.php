@@ -101,7 +101,7 @@ class Routes extends Libs\RESTModel {
 
             $includeCurrentRoute = false;
 
-            $search_result = $this->int_assoc_search($apiRoutes, 'pattern', $ct_pattern, 'verb', $ct_verb);
+            $search_result = self::int_assoc_search($apiRoutes, 'pattern', $ct_pattern, 'verb', $ct_verb);
             if (count($search_result) > 0) {
                 $includeCurrentRoute = true;
             }
@@ -138,7 +138,7 @@ class Routes extends Libs\RESTModel {
     private static function int_assoc_search($array, $key1, $value1,$key2, $value2)
     {
         $results = array();
-        $this->int_assoc_search_r($array, $key1, $value1, $key2, $value2, $results);
+        self::int_assoc_search_r($array, $key1, $value1, $key2, $value2, $results);
         return $results;
     }
 
@@ -162,7 +162,7 @@ class Routes extends Libs\RESTModel {
         }
 
         foreach ($array as $subarray) {
-            $this->int_assoc_search_r($subarray, $key1, $value1, $key2, $value2, $results);
+            self::int_assoc_search_r($subarray, $key1, $value1, $key2, $value2, $results);
         }
     }
 

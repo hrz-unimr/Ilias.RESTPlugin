@@ -29,13 +29,9 @@ class RESTLib {
      *  Extensions are allowed to create their own error-codes.
      *  Using a unique string seems to be an easier solution than assigning unique numbers.
      */
-    const ID_IP_NOT_ALLOWED   = 'RESTController\libs\RESTLib::ID_IP_NOT_ALLOWED';
-    const ID_NO_ADMIN         = 'RESTController\libs\RESTLib::ID_NO_ADMIN';
     const ID_PARSE_ISSUE      = 'RESTController\libs\RESTLib::ID_PARSE_ISSUE';
 
     // Allow to re-use status-strings
-    const MSG_IP_NOT_ALLOWED  = 'Access denied for client IP address.';
-    const MSG_NO_ADMIN        = 'Access denied. Administrator permissions required.';
     const MSG_PARSE_ISSUE     = 'Could not parse id(s) %s from %s.';
 
     /**
@@ -93,6 +89,14 @@ class RESTLib {
         return $ilUser;
     }
 
+
+    /**
+     * Returns the path to the RESTPlugin folder
+     */
+    public static function getPluginDir() {
+      global $ilPluginAdmin;
+      return $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, 'UIComponent', 'uihk', 'REST')->getDirectory();
+    }
 
     /**
     * Use this (or  $ilDB-quote(<value>, <type>) directly) to make sure
@@ -173,41 +177,6 @@ class RESTLib {
         }
         return false;
     }
-
-
-    /**
-     * Authentication via the ILIAS Auth mechanisms.
-     * This method is used as backend for OAuth2.
-     *
-     * @param $username - ILIAS user-id
-     * @param $password - ILIS user-password
-     * @return bool - True if authentication was successfull, false otherwise
-     */
-    public static function authenticateViaIlias($username, $password) {
-        RESTLib::initAccessHandling();
-
-        $_POST['username'] = $username;
-        $_POST['password'] = $password;
-
-        require_once('Auth/Auth.php');
-        require_once('Services/Authentication/classes/class.ilSession.php');
-        require_once('Services/Authentication/classes/class.ilSessionControl.php');
-        require_once('Services/AuthShibboleth/classes/class.ilShibboleth.php');
-        require_once('Services/Authentication/classes/class.ilAuthUtils.php');
-
-        \ilAuthUtils::_initAuth();
-
-        global $ilAuth;
-        $ilAuth->start();
-        $checked_in = $ilAuth->getAuth();
-
-        $ilAuth->logout();
-        session_destroy();
-        header_remove('Set-Cookie');
-
-        return $checked_in;
-    }
-    // TODO: Move into a core-auth model
 
 
     /**

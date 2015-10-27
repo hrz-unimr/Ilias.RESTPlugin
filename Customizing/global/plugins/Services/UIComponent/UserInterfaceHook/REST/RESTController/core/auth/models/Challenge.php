@@ -19,6 +19,7 @@ class Challenge extends EndpointBase {
   // Variables to controll the short-lived access-token
   const shortTTL       = 30;
   const challengeSize  = 25;
+  const type           = 'short-token';
 
 
   /**
@@ -42,10 +43,10 @@ class Challenge extends EndpointBase {
       WHERE user_id = %d',
       $userId
     );
-    $query = self::$sqlDB->query($sql);
+    $query = self::getDB()->query($sql);
 
     // Fetch entry from database
-    if ($query != null && $entry = self::$sqlDB->fetchAssoc($query))
+    if ($query != null && $entry = self::getDB()->fetchAssoc($query))
       return $entry;
   }
 
@@ -81,7 +82,7 @@ class Challenge extends EndpointBase {
       $sc,
       $cc
     );
-    self::$sqlDB->manipulate($sql);
+    self::getDB()->manipulate($sql);
   }
 
 
@@ -128,8 +129,8 @@ class Challenge extends EndpointBase {
   public static function updateAccessToken($accessToken) {
     // Modify token
     $accessToken->setEntry('ttl',  strval(time() + self::shortTTL));
-    $accessToken->setEntry('type', 'short-token');
-    $accessToken->setEntry('misc',  $_SERVER['REMOTE_ADDR']);
+    $accessToken->setEntry('type', self::type);
+    $accessToken->setEntry('misc', $_SERVER['REMOTE_ADDR']);
 
     // Return modified access-token
     return $accessToken;

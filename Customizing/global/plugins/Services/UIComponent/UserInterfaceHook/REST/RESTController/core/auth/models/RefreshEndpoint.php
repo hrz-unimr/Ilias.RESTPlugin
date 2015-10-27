@@ -32,7 +32,7 @@ class RefreshEndpoint extends EndpointBase {
             WHERE refresh_token=%s',
             $refreshToken->getTokenString()
         );
-        $numAffRows = self::$sqlDB->manipulate($sql);
+        $numAffRows = self::getDB()->manipulate($sql);
 
         return ($numAffRows > 0);
     }
@@ -57,7 +57,7 @@ class RefreshEndpoint extends EndpointBase {
             $user_id,
             $api_key
         );
-        $numAffRows = self::$sqlDB->manipulate($sql);
+        $numAffRows = self::getDB()->manipulate($sql);
 
         return ($numAffRows > 0);
     }
@@ -73,7 +73,7 @@ class RefreshEndpoint extends EndpointBase {
             throw new Exceptions\TokenInvalid(Token\Generic::MSG_EXPIRED);
 
         // Reset key if existing
-        if ($this->hasRefreshKey($accessToken) && !$renewToken) {
+        if (self::hasRefreshKey($accessToken) && !$renewToken) {
             //
             $user_id = $accessToken->getUserId();
             $api_key = $accessToken->getApiKey();
@@ -89,16 +89,16 @@ class RefreshEndpoint extends EndpointBase {
                 $user_id,
                 $api_key
             );
-            $query = self::$sqlDB->query($sql);
+            $query = self::getDB()->query($sql);
 
             //
-            if ($query != null && $entry = self::$sqlDB->fetchAssoc($query)) {
+            if ($query != null && $entry = self::getDB()->fetchAssoc($query)) {
                 // Convert refresh-token string to object
                 $refresh_token = $entry['refresh_token'];
                 $refreshToken = Token\Refresh::fromMixed(self::tokenSettings('refresh'), $refresh_token);
 
                 // Update timestamp
-                $this->updateTimestamp($user_id, $api_key);
+                self::updateTimestamp($user_id, $api_key);
 
                 return $refreshToken;
             }
@@ -106,7 +106,7 @@ class RefreshEndpoint extends EndpointBase {
 
         // Fallback solution (update/create new one)
         if ($renewToken)
-          return $this->getNewRefreshToken($accessToken);
+          return self::getNewRefreshToken($accessToken);
     }
 
 
@@ -120,11 +120,11 @@ class RefreshEndpoint extends EndpointBase {
         $refreshToken = Token\Refresh::fromFields(self::tokenSettings('refresh'), $user_name, $api_key);
 
         // Reset key if existing
-        if ($this->hasRefreshKey($accessToken))
-            $this->resetToken($user_id, $api_key, $refreshToken);
+        if (self::hasRefreshKey($accessToken))
+            self::resetToken($user_id, $api_key, $refreshToken);
         // Create a key without replacing existing one
         else
-            $this->createToken($user_id, $api_key, $refreshToken);
+            self::createToken($user_id, $api_key, $refreshToken);
 
         //
         return $refreshToken;
@@ -155,10 +155,10 @@ class RefreshEndpoint extends EndpointBase {
             'init_timestamp'            => array('date',        $now),
             'num_resets'                => array('integer',     0)
         );
-        self::$sqlDB->insert('ui_uihk_rest_oauth2', $a_columns);
+        self::getDB()->insert('ui_uihk_rest_oauth2', $a_columns);
 
         //
-        return self::$sqlDB->getLastInsertId();
+        return self::getDB()->getLastInsertId();
     }
 
 
@@ -180,7 +180,7 @@ class RefreshEndpoint extends EndpointBase {
             $user_id,
             $api_key
         );
-        $numAffRows = self::$sqlDB->manipulate($sql);
+        $numAffRows = self::getDB()->manipulate($sql);
 
         return $numAffRows;
     }
@@ -214,7 +214,7 @@ class RefreshEndpoint extends EndpointBase {
             $now,
             $now
         );
-        $numAffRows = self::$sqlDB->manipulate($sql);
+        $numAffRows = self::getDB()->manipulate($sql);
 
         return $numAffRows;
     }
@@ -239,7 +239,7 @@ class RefreshEndpoint extends EndpointBase {
             $api_key,
             $now
         );
-        $numAffRows = self::$sqlDB->manipulate($sql);
+        $numAffRows = self::getDB()->manipulate($sql);
 
         return $numAffRows;
     }

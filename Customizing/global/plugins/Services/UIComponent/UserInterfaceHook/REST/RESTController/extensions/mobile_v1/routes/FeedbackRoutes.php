@@ -8,7 +8,7 @@
 namespace RESTController\extensions\mobile_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 
@@ -22,7 +22,7 @@ $app->group('/v1/m', function () use ($app) {
     /**
      * Allows for submission of a new feedback entry via GET.
      */
-    $app->get('/feedbackdrop/', AuthFactory::checkAccess(AuthFactory::PERMISSION) ,  function () use ($app) {
+    $app->get('/feedbackdrop/', RESTAuth::checkAccess(RESTAuth::PERMISSION) ,  function () use ($app) {
         $request = $app->request();
         try {
             $s_msg = $request->params('message','',true);
@@ -42,7 +42,7 @@ $app->group('/v1/m', function () use ($app) {
     /**
      * Allows for submission of a new feedback entry via POST.
      */
-     $app->post('/feedbackdrop/', AuthFactory::checkAccess(AuthFactory::PERMISSION),  function () use ($app) {
+     $app->post('/feedbackdrop/', RESTAuth::checkAccess(RESTAuth::PERMISSION),  function () use ($app) {
          $request = $app->request();
          try {
              $s_msg = $request->params('message','',true);
@@ -64,7 +64,7 @@ $app->group('/v1/m', function () use ($app) {
     /**
      * Allows for retrieval of single feedback entries.
      */
-     $app->get('/feedbackread/:id', AuthFactory::checkAccess(AuthFactory::ADMIN),  function ($id) use ($app) {
+     $app->get('/feedbackread/:id', RESTAuth::checkAccess(RESTAuth::ADMIN),  function ($id) use ($app) {
          $model = new MobileFeedbackModel();
          $data = $model->getFeedbackItem($id);
          $app->success($data);
@@ -73,7 +73,7 @@ $app->group('/v1/m', function () use ($app) {
     /**
      * Allows for deletion of single feedback entries.
      */
-    $app->delete('/feedbackdel/:id', AuthFactory::checkAccess(AuthFactory::ADMIN),  function ($id) use ($app) {
+    $app->delete('/feedbackdel/:id', RESTAuth::checkAccess(RESTAuth::ADMIN),  function ($id) use ($app) {
         $model = new MobileFeedbackModel();
         $model->deleteFeedbackItem($id);
         $app->success(array("msg"=>"Sucessfully deleted item ","id"=>$id));
@@ -83,7 +83,7 @@ $app->group('/v1/m', function () use ($app) {
     /**
      * Initializes the feedback extension, i.e. creates the database tables.
      */
-    $app->get('/feedbackinit', AuthFactory::checkAccess(AuthFactory::ADMIN), function () use ($app) {
+    $app->get('/feedbackinit', RESTAuth::checkAccess(RESTAuth::ADMIN), function () use ($app) {
         $model = new MobileFeedbackModel();
         $hasCreated = $model->createMobileFeedbackDatabaseTable();
         if ($hasCreated == true) {

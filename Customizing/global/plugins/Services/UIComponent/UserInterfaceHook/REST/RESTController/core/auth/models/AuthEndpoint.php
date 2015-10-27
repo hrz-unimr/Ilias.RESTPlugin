@@ -8,7 +8,7 @@
 namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\core\clients\Clients as Clients;
+use \RESTController\core\clients as Clients;
 use \RESTController\libs as Libs;
 
 
@@ -29,15 +29,15 @@ class AuthEndpoint extends EndpointBase {
             throw new Exceptions\ResponseType(self::MSG_RESPONSE_TYPE);
 
         // Client (api-key) is not allowed to use this grant-type or doesn't exist
-        if ($response_type == 'code' && !Clients::is_oauth2_gt_authcode_enabled($api_key))
+        if ($response_type == 'code' && !Clients\Clients::is_oauth2_gt_authcode_enabled($api_key))
             throw new Exceptions\LoginFailed(Util::MSG_AC_DISABLED);
-        if ($response_type == 'token' && !Clients::is_oauth2_gt_implicit_enabled($api_key))
+        if ($response_type == 'token' && !Clients\Clients::is_oauth2_gt_implicit_enabled($api_key))
             throw new Exceptions\LoginFailed(Util::MSG_I_DISABLED);
 
         // Login-data (username/password) is provided, try to authenticate
         if ($username && $password) {
             // Provided wrong API-Key?
-            $clientValid = Util::checkClient($api_key);
+            $clientValid = Clients\RESTClient::checkClient($api_key);
             if (!$clientValid)
                 return array(
                     'status' => 'showLogin',
@@ -50,7 +50,7 @@ class AuthEndpoint extends EndpointBase {
                 );
 
             // Provided wrong username/password
-            $isAuth = Libs\RESTLib::authenticateViaIlias($username, $password);
+            $isAuth = Util::authenticateViaIlias($username, $password);
             if (!$isAuth)
                 return array(
                     'status' => 'showLogin',
@@ -63,10 +63,10 @@ class AuthEndpoint extends EndpointBase {
                 );
 
             // Need to show grant-permission site?
-            if(Clients::is_oauth2_consent_message_enabled($api_key)) {
+            if(Clients\Clients::is_oauth2_consent_message_enabled($api_key)) {
                 // Generate a temporary token that can be exchanged for bearer-token
                 $tempAuthenticityToken = Token\Generic::fromFields(self::tokenSettings('access'), $username, $api_key, 'temporary', '', 10);
-                $oauth2_consent_message = Clients::getOAuth2ConsentMessage($api_key);
+                $oauth2_consent_message = Clients\Clients::getOAuth2ConsentMessage($api_key);
 
                 // Return data to route/other model
                 return array(

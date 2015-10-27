@@ -8,7 +8,7 @@
 namespace RESTController\extensions\experimental;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 use \RESTController\core\clients as Clients;
@@ -56,7 +56,7 @@ $app->group('/dev', function () use ($app) {
      * von REFRESH tokens bleibt eine eigene route und der zugriff wird über api-key geregelt.
      * Status: DONE
      */
-    $app->get('/refresh', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
+    $app->get('/refresh', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user = $accessToken->getUserName();
         $uid = $accessToken->getUserId();
@@ -76,7 +76,7 @@ $app->group('/dev', function () use ($app) {
     });
 
     // -------------------------------------------------------------------
-    $app->get('/hello', AuthFactory::checkAccess(AuthFactory::TOKEN), function () use ($app) {
+    $app->get('/hello', RESTAuth::checkAccess(RESTAuth::TOKEN), function () use ($app) {
         $msg = 'Hello @ '.time();
         $referer = $_SERVER['HTTP_REFERER'];
         $host = $_SERVER['HTTP_HOST'];

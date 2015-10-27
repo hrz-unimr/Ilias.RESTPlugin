@@ -120,9 +120,40 @@ class Redirect extends Libs\RESTModel {
    *  <String> - Permament-link to resource given by Reference-Id
    */
   public static function getLink($refId, $type) {
+    // Check for special requests (so called root-objects)
+    if (is_string($refId) && $refId == $type) {
+      switch(strtolower($type)) {
+        case 'desktop':
+          return ILIAS_HTTP_PATH . '/ilias.php?baseClass=ilPersonalDesktopGUI&cmd=jumpToSelectedItems';
+        case 'courses-groups':
+        case 'courses':
+        case 'groups':
+          return ILIAS_HTTP_PATH . '/ilias.php?baseClass=ilPersonalDesktopGUI&cmd=jumpToMemberships';
+        case 'bookmarks':
+          return ILIAS_HTTP_PATH . '/ilias.php?baseClass=ilPersonalDesktopGUI&cmdClass=ilbookmarkadministrationgui&cmdNode=tn:j';
+        case 'notes-comments':
+        case 'notes':
+        case 'comments':
+          return ILIAS_HTTP_PATH . '/ilias.php?baseClass=ilPersonalDesktopGUI&cmdClass=ilpdnotesgui&cmdNode=tn:6u';
+        case 'workspace':
+          return ILIAS_HTTP_PATH . '/ilias.php?baseClass=ilPersonalDesktopGUI&cmdClass=ilpersonalworkspacegui&cmdNode=tn:oe';
+        case 'calendar':
+          return ILIAS_HTTP_PATH . '/ilias.php?baseClass=ilPersonalDesktopGUI&cmdClass=ilcalendarpresentationgui&cmdNode=tn:73';
+        case 'mail':
+          return ILIAS_HTTP_PATH . '/ilias.php?baseClass=ilMailGUI&cmdClass=ilmailfoldergui&cmdNode=83:85';
+        case 'contacts':
+          return ILIAS_HTTP_PATH . '/ilias.php?baseClass=ilPersonalDesktopGUI&cmdClass=ilmailaddressbookgui&cmdNode=tn:4w';
+        case 'profile':
+          return ILIAS_HTTP_PATH . '/ilias.php?baseClass=ilPersonalDesktopGUI&cmdClass=ilpersonalprofilegui&cmdNode=tn:pv';
+        case 'settings':
+          return ILIAS_HTTP_PATH . '/ilias.php?baseClass=ilPersonalDesktopGUI&cmdClass=ilpersonalsettingsgui&cmdNode=tn:q0';
+      }
+    }
     // Generate link from refId and object-type
-    include_once './Services/Link/classes/class.ilLink.php';
-    return \ilLink::_getLink($refId, $type);
+    else {
+      include_once './Services/Link/classes/class.ilLink.php';
+      return \ilLink::_getLink($refId, $type);
+    }
   }
 
 

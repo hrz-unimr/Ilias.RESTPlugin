@@ -8,7 +8,7 @@
 namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\core\clients\Clients as Clients;
+use \RESTController\core\clients as Clients;
 use \RESTController\libs as Libs;
 
 
@@ -38,28 +38,28 @@ class TokenEndpoint extends EndpointBase {
      */
     public function userCredentials($api_key, $username, $password, $new_refresh = null) {
         // [All] Client (api-key) is not allowed to use this grant-type or doesn't exist
-        if (!Util::checkClient($api_key))
+        if (!Clients\RESTClient::checkClient($api_key))
             throw new Exceptions\LoginFailed(self::MSG_NO_CLIENT_KEY);
 
         // Is this option enabled for this api-key?
-        if (!Clients::is_oauth2_gt_resourceowner_enabled($api_key))
+        if (!Clients\Clients::is_oauth2_gt_resourceowner_enabled($api_key))
             throw new Exceptions\LoginFailed(Util::MSG_UC_DISABLED);
 
         // Check wether user is allowed to use this api-key
-        $allowed_users = Clients::getAllowedUsersForApiKey($api_key);
+        $allowed_users = Clients\Clients::getAllowedUsersForApiKey($api_key);
         $iliasUserId = (int) Libs\RESTLib::getUserIdFromUserName($username);
         if (!in_array(-1, $allowed_users) && !in_array($iliasUserId, $allowed_users))
             throw new Exceptions\LoginFailed(self::MSG_RESTRICTED_USERS);
 
         // Provided wrong username/password
-        $isAuth = Libs\RESTLib::authenticateViaIlias($username, $password);
+        $isAuth = Util::authenticateViaIlias($username, $password);
         if (!$isAuth)
             throw new Exceptions\LoginFailed(self::MSG_AUTH_FAILED);
 
         // [All] Generate bearer & refresh-token (if enabled)
         $bearerToken = Token\Bearer::fromFields(self::tokenSettings('access'), $username, $api_key);
         $accessToken = $bearerToken->getEntry('access_token');
-        if (Clients::is_resourceowner_refreshtoken_enabled($api_key))
+        if (Clients\Clients::is_resourceowner_refreshtoken_enabled($api_key))
             $refreshToken = RefreshEndpoint::getRefreshToken($accessToken, $new_refresh);
 
         // [All] Return generated tokens
@@ -78,17 +78,17 @@ class TokenEndpoint extends EndpointBase {
      */
     public function clientCredentials($api_key, $api_secret) {
         // [All] Client (api-key) is not allowed to use this grant-type or doesn't exist
-        if (!Util::checkClientCredentials($api_key, $api_secret))
+        if (!Clients\RESTClient::checkClientCredentials($api_key, $api_secret))
             throw new Exceptions\LoginFailed(self::MSG_NO_CLIENT_SECRET);
 
         // Is this option enabled for this api-key?
-        if (!Clients::is_oauth2_gt_clientcredentials_enabled($api_key))
+        if (!Clients\Clients::is_oauth2_gt_clientcredentials_enabled($api_key))
             throw new Exceptions\LoginFailed(Util::MSG_CC_DISABLED);
 
         // -- [no] Check wether user is allowed to use this api-key --
 
         // Fetch username from api-key
-        $uid = Clients::getClientCredentialsUser($api_key);
+        $uid = Clients\Clients::getClientCredentialsUser($api_key);
         $username = Libs\RESTLib::getUserNameFromUserId($uid);
 
         // [All] Generate bearer & refresh-token (if enabled)
@@ -112,11 +112,11 @@ class TokenEndpoint extends EndpointBase {
      */
     public function authorizationCode($api_key, $api_secret, $authCodeToken, $redirect_uri, $new_refresh = null) {
         // [All] Client (api-key) is not allowed to use this grant-type or doesn't exist
-        if (!Util::checkClientCredentials($api_key, $api_secret))
+        if (!Clients\RESTClient::checkClientCredentials($api_key, $api_secret))
             throw new Exceptions\LoginFailed(self::MSG_NO_CLIENT_SECRET);
 
         // Is this option enabled for this api-key?
-        if (!Clients::is_oauth2_gt_authcode_enabled($api_key))
+        if (!Clients\Clients::is_oauth2_gt_authcode_enabled($api_key))
             throw new Exceptions\LoginFailed(Util::MSG_AC_DISABLED);
 
         // Check token
@@ -130,7 +130,7 @@ class TokenEndpoint extends EndpointBase {
             throw new Exceptions\LoginFailed(self::MSG_TOKEN_MISMATCH);
 
         // Check wether user is allowed to use this api-key
-        $allowed_users = Clients::getAllowedUsersForApiKey($api_key);
+        $allowed_users = Clients\Clients::getAllowedUsersForApiKey($api_key);
         $userName = $authCodeToken->getUserName();
         $userId = $authCodeToken->getUserId();
         if (!in_array(-1, $allowed_users) && !in_array($userId, $allowed_users))
@@ -139,7 +139,7 @@ class TokenEndpoint extends EndpointBase {
         // [All] Generate bearer & refresh-token (if enabled)
         $bearerToken = Token\Bearer::fromFields(self::tokenSettings('access'), $userName, $api_key);
         $accessToken = $bearerToken->getEntry('access_token');
-        if (Clients::is_authcode_refreshtoken_enabled($api_key))
+        if (Clients\Clients::is_authcode_refreshtoken_enabled($api_key))
             $refreshToken = RefreshEndpoint::getRefreshToken($accessToken, $new_refresh);
 
         // [All] Return generated tokens
@@ -184,7 +184,7 @@ class TokenEndpoint extends EndpointBase {
         if ($new_refresh)
             $refreshToken = RefreshEndpoint::getNewRefreshToken($accessToken);
         else
-            $model->updateTimestamp($user_id, $api_key);
+            RefreshEndpoint::updateTimestamp($user_id, $api_key);
 
         //
         return array(

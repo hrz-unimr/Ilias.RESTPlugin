@@ -8,7 +8,7 @@
 namespace RESTController\extensions\contacts_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 use \RESTController\libs\Exceptions as LibExceptions;
@@ -18,7 +18,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the personal ILIAS contacts for a user specified by id.
      */
-    $app->get('/contacts/:id', AuthFactory::checkAccess(AuthFactory::ADMIN), function ($id) use ($app) {
+    $app->get('/contacts/:id', RESTAuth::checkAccess(RESTAuth::ADMIN), function ($id) use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $authorizedUserId = $accessToken->getUserId();
 
@@ -33,7 +33,7 @@ $app->group('/v1', function () use ($app) {
             }
         }
         else
-            $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
+            $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
 
     });
 
@@ -41,7 +41,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the personal ILIAS contacts of the authenticated user.
      */
-    $app->get('/contacts', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
+    $app->get('/contacts', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $authorizedUserId =  $accessToken->getUserId();
 
@@ -54,7 +54,7 @@ $app->group('/v1', function () use ($app) {
 
         }
         else {
-            $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
+            $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
         }
     });
 });

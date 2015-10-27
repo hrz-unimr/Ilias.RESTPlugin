@@ -8,7 +8,7 @@
 namespace RESTController\extensions\files_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\core\auth as Auth;
 use \RESTController\libs as Libs;
 
@@ -20,7 +20,7 @@ $app->group('/v1', function () use ($app) {
      * @param id_type - (optional) "ref_id" or "obj_id", if omitted the type ref_id is assumed.
      * @param id - the ref or obj_id of the file.
      */
-    $app->get('/files/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION),  function ($id) use ($app) {
+    $app->get('/files/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION),  function ($id) use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
 

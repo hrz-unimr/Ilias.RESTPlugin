@@ -9,7 +9,7 @@ namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires: $app to be \RESTController\RESTController::getInstance()
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 
 
@@ -35,7 +35,7 @@ $app->group('/v1/challenge', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->post('/client', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
+  $app->post('/client', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
     // Fetch userId & userName
     $accessToken  = Util::getAccessToken();
 
@@ -77,7 +77,7 @@ $app->group('/v1/challenge', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->get('/server', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
+  $app->get('/server', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
     // Fetch userId & userName
     $accessToken  = Util::getAccessToken();
 

@@ -8,7 +8,7 @@
 namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 use \RESTController\libs\Exceptions as LibExceptions;
@@ -18,7 +18,7 @@ $app->group('/admin', function () use ($app) {
     /**
      * Retrieves all items from the personal desktop of a user specified by its id.
      */
-    $app->get('/desktop/overview/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION) , function ($id) use ($app) {
+    $app->get('/desktop/overview/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION) , function ($id) use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
@@ -30,14 +30,14 @@ $app->group('/admin', function () use ($app) {
             $app->success($data);
         }
         else
-            $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
+            $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
     });
 
 
     /**
      * Deletes an item specified by ref_id from the personal desktop of the user specified by $id.
      */
-    $app->delete('/desktop/overview/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION),  function ($id) use ($app) {
+    $app->delete('/desktop/overview/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION),  function ($id) use ($app) {
         $request = $app->request();
         try {
             $ref_id = $request->params("ref_id");
@@ -54,7 +54,7 @@ $app->group('/admin', function () use ($app) {
     /**
      * Adds an item specified by ref_id to the users's desktop. The user must be the owner or at least has read access of the item.
      */
-    $app->post('/desktop/overview/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION),  function ($id) use ($app) {
+    $app->post('/desktop/overview/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION),  function ($id) use ($app) {
         $request = $app->request();
         try {
             $ref_id = $request->params("ref_id");

@@ -8,7 +8,7 @@
 namespace RESTController\extensions\experimental;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 use \RESTController\core\clients as Clients;
@@ -16,7 +16,7 @@ use \RESTController\extensions\surveys_v1 as Surveys;
 
 $app->group('/v1', function () use ($app) {
 
-    $app->get('/surveys', AuthFactory::checkAccess(AuthFactory::ADMIN), function() use ($app) {
+    $app->get('/surveys', RESTAuth::checkAccess(RESTAuth::ADMIN), function() use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
 
@@ -29,7 +29,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns a json representation of the survey ref_id.
      */
-    $app->get('/surveys/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function($ref_id) use ($app) {
+    $app->get('/surveys/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function($ref_id) use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
 
@@ -43,7 +43,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the answers of a survey (ref_id) of the authenticated user.
      */
-    $app->get('/survey_answers/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function($ref_id) use ($app) {
+    $app->get('/survey_answers/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function($ref_id) use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
 
@@ -55,7 +55,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Deletes answers of all users of a survey (ref_id).
      */
-    $app->delete('/survey_answers/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function($ref_id) use ($app) {
+    $app->delete('/survey_answers/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function($ref_id) use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
         $model = new Surveys\SurveyModel();
@@ -70,7 +70,7 @@ $app->group('/v1', function () use ($app) {
      * Post-data:
      * {'nQuestions' => '5', 'q1_id'=>'1', 'q1_answer'=>'2,3',...}
      */
-    $app->post('/survey_answers/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function($ref_id) use ($app) {
+    $app->post('/survey_answers/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function($ref_id) use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
 
@@ -104,7 +104,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * (Admin) Assigns random answers to the question of survey (ref_id) for user (user_id).
      */
-    $app->post('/survey_answers_randfill/:ref_id', AuthFactory::checkAccess(AuthFactory::ADMIN), function ($ref_id) use ($app) {
+    $app->post('/survey_answers_randfill/:ref_id', RESTAuth::checkAccess(RESTAuth::ADMIN), function ($ref_id) use ($app) {
         $request = $app->request();
         $user_id = $request->params("user_id");
         $model = new Surveys\SurveyModel();

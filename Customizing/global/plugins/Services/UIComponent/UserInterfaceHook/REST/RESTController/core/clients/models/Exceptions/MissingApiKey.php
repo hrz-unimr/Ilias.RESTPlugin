@@ -17,7 +17,7 @@ use \RESTController\libs\Exceptions as LibExceptions;
  * the client does not provide the correct response_type
  * value with his query.
  */
-class MissingApiKey extends RESTException {
+class MissingApiKey extends LibExceptions\RESTException {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.

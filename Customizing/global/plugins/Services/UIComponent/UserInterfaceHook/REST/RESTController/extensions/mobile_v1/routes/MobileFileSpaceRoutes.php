@@ -8,7 +8,7 @@
 namespace RESTController\extensions\mobile_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\core\auth as Auth;
 use \RESTController\libs as Libs;
 use \RESTController\libs\Exceptions as Exceptions;
@@ -22,7 +22,7 @@ $app->group('/v1/m', function () use ($app) {
      * In this version, the user file space is indeed the 'workspace'. In a future version it could be imagined, that
      * a special area within the global repository is used which is protected by role permissions. Therefore we use the placeholder 'myfilespace'.
      */
-    $app->get('/myfilespace', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
+    $app->get('/myfilespace', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
 
@@ -40,7 +40,7 @@ $app->group('/v1/m', function () use ($app) {
      * The user needs write permission to copy the specified file to a chosen destination. The following parameters are required:
      * file_id (as obtainable by the /myfilespace endpoint) and a ref_id of the target container.
      */
-    $app->get('/myfilespacecopy',AuthFactory::checkAccess(AuthFactory::PERMISSION), function() use ($app) {
+    $app->get('/myfilespacecopy',RESTAuth::checkAccess(RESTAuth::PERMISSION), function() use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
         $request = $app->request();
@@ -68,7 +68,7 @@ $app->group('/v1/m', function () use ($app) {
     /**
      * see GET /myfilespacecopy
      */
-    $app->post('/myfilespacecopy',AuthFactory::checkAccess(AuthFactory::PERMISSION), function() use ($app) {
+    $app->post('/myfilespacecopy',RESTAuth::checkAccess(RESTAuth::PERMISSION), function() use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
         $request = $app->request();
@@ -95,7 +95,7 @@ $app->group('/v1/m', function () use ($app) {
     /**
      * see POST /myfilespaceupload
      */
-    $app->get('/myfilespaceupload', AuthFactory::checkAccess(AuthFactory::PERMISSION), function() use ($app) {
+    $app->get('/myfilespaceupload', RESTAuth::checkAccess(RESTAuth::PERMISSION), function() use ($app) {
         $app->log->debug('Myfilespace upload via GET');
         $app->halt(422, 'Pls use the POST method', 'RESTController\\extensions\\mobile_v1\\MyFileSpaceRoutes::ID_USE_GET');
     });
@@ -104,7 +104,7 @@ $app->group('/v1/m', function () use ($app) {
     /**
      * Uploads a single file via POST into the user's 'myfilespace'.
      */
-    $app->post('/myfilespaceupload',AuthFactory::checkAccess(AuthFactory::PERMISSION), function() use ($app) {
+    $app->post('/myfilespaceupload',RESTAuth::checkAccess(RESTAuth::PERMISSION), function() use ($app) {
         $app->log->debug('Myfilespace upload via POST');
 
         $accessToken = Auth\Util::getAccessToken();
@@ -133,7 +133,7 @@ $app->group('/v1/m', function () use ($app) {
     /**
      * Deletes a file from a user's filespace.
      */
-    $app->delete('/myfilespacedelete', AuthFactory::checkAccess(AuthFactory::PERMISSION), function() use ($app) {
+    $app->delete('/myfilespacedelete', RESTAuth::checkAccess(RESTAuth::PERMISSION), function() use ($app) {
         $app->log->debug('Myfilespace delete');
 
         $accessToken = Auth\Util::getAccessToken();

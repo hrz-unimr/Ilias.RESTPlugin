@@ -8,7 +8,7 @@
 namespace RESTController\extensions\courses_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 use \RESTController\extensions\users_v1 as Users;
@@ -19,7 +19,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Retrieves a list of all courses of the authenticated user and meta-information about them (no content).
      */
-   $app->get('/courses', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
+   $app->get('/courses', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
         try {
@@ -38,7 +38,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Retrieves the content and a description of a course specified by ref_id.
      */
-    $app->get('/courses/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($ref_id) use ($app) {
+    $app->get('/courses/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         $app->log->debug('in course get ref_id= '.$ref_id);
         try {
             $crs_model = new CoursesModel();
@@ -59,7 +59,7 @@ $app->group('/v1', function () use ($app) {
     });
 
 
-    $app->post('/courses', AuthFactory::checkAccess(AuthFactory::PERMISSION), function() use ($app) {
+    $app->post('/courses', RESTAuth::checkAccess(RESTAuth::PERMISSION), function() use ($app) {
         try {
             $request = $app->request();
             $ref_id = $request->params('ref_id', null, true);
@@ -85,7 +85,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Deletes the course specified by ref_id.
      */
-    $app->delete('/courses/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($ref_id) use ($app) {
+    $app->delete('/courses/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         $request = $app->request();
 
         $accessToken = Auth\Util::getAccessToken();
@@ -121,7 +121,7 @@ $app->group('/v1', function () use ($app) {
      * If "mode" is "by_id", the parameter "usr_id" is used for the lookup.
      * The user is then enrolled in the course with "crs_ref_id".
      */
-    $app->post('/courses/enroll', AuthFactory::checkAccess(AuthFactory::ADMIN), function() use ($app) {
+    $app->post('/courses/enroll', RESTAuth::checkAccess(RESTAuth::ADMIN), function() use ($app) {
         $request = $app->request();
         $mode = $request->params("mode");
 
@@ -161,7 +161,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Assigns the authenticated user to a course specified by the GET parameter ref_id.
      */
-    $app->get('/courses/join/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($ref_id) use ($app) {
+    $app->get('/courses/join/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $authorizedUserId = $accessToken->getUserId();
 
@@ -183,7 +183,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Removes the authenticated user from a course speicifed by the GET parameter "ref_id".
      */
-    $app->get('/courses/leave/:ref_id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($ref_id) use ($app) {
+    $app->get('/courses/leave/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $authorizedUserId = $accessToken->getUserId();
 

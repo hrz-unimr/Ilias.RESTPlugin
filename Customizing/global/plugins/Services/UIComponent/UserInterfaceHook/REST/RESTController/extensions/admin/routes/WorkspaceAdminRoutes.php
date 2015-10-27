@@ -8,7 +8,7 @@
 namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 
 
@@ -16,7 +16,7 @@ $app->group('/admin', function () use ($app) {
     /**
      * Queries the content of a the workspaces from a limited amount of users.
      */
-    $app->get('/workspaces', AuthFactory::checkAccess(AuthFactory::ADMIN), function () use ($app) {
+    $app->get('/workspaces', RESTAuth::checkAccess(RESTAuth::ADMIN), function () use ($app) {
         try {
             $request = $app->request;
             $limit = $request->params('limit', 25);
@@ -43,7 +43,7 @@ $app->group('/admin', function () use ($app) {
     /**
      * Returns the content of the workspace from a user specified by her/his user id.
      */
-    $app->get('/workspaces/:user_id', AuthFactory::checkAccess(AuthFactory::ADMIN), function ($user_id) use ($app) {
+    $app->get('/workspaces/:user_id', RESTAuth::checkAccess(RESTAuth::ADMIN), function ($user_id) use ($app) {
         try {
             $t_start = microtime();
             $result = array();

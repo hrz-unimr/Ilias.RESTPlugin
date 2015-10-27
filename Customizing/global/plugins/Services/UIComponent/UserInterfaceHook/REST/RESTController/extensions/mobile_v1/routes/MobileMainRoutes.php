@@ -8,7 +8,7 @@
 namespace RESTController\extensions\mobile_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 use \RESTController\extensions\admin as Admin;
@@ -36,7 +36,7 @@ $app->group('/v1/m', function () use ($app) {
      *
      *  Version 15.6.15
      */
-    $app->get('/desktop', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
+    $app->get('/desktop', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
         $t_start = microtime();
         $result = array();
 

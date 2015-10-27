@@ -9,7 +9,7 @@ namespace RESTController\core\clients;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires <$app = \RESTController\RESTController::getInstance()>
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 use \RESTController\libs\Exceptions as LibExceptions;
 use \RESTController\core\clients\Exceptions as ClientExceptions;
@@ -57,13 +57,13 @@ use \RESTController\core\auth as Auth;
  *    status: "<Success or Failure>"
  *  }
  */
- $app->get('/clients', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
+ $app->get('/clients', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
     // Fetch authorized user
     $user = Auth\Util::getAccessToken()->getUserName();
 
     // Check if user has admin role
     if (!Libs\RESTLib::isAdminByUserName($user))
-        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
+        $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
 
     // Use the model class to fetch data
     $data = Clients::getClients();
@@ -117,13 +117,13 @@ use \RESTController\core\auth as Auth;
  *    status: "<Success or Failure>"
  *  }
  */
-$app->put('/clients/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION), function ($id) use ($app) {
+$app->put('/clients/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($id) use ($app) {
     // Fetch authorized user
     $user = Auth\Util::getAccessToken()->getUserName();
 
     // Check if authorized user has admin role
     if (!Libs\RESTLib::isAdminByUserName($user))
-        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
+        $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
 
     // This fields will be updated (and nothing more!)
     $fields = array(
@@ -218,13 +218,13 @@ $app->put('/clients/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION), fun
  *    status: "<Success or Failure>"
  *  }
  */
-$app->post('/clients/', AuthFactory::checkAccess(AuthFactory::PERMISSION), function () use ($app) {
+$app->post('/clients/', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
     // Fetch authorized user
     $user = Auth\Util::getAccessToken()->getUserName();
 
     // Check if authorized user has admin role
     if (!Libs\RESTLib::isAdminByUserName($user))
-        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
+        $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
 
     // Shortcut for request object
     $request = $app->request();
@@ -295,13 +295,13 @@ $app->post('/clients/', AuthFactory::checkAccess(AuthFactory::PERMISSION), funct
  *    status: "<Success or Failure>"
  *  }
  */
-$app->delete('/clients/:id', AuthFactory::checkAccess(AuthFactory::PERMISSION),  function ($id) use ($app) {
+$app->delete('/clients/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION),  function ($id) use ($app) {
     // Fetch authorized user
     $user = Auth\Util::getAccessToken()->getUserName();
 
     // Check if authorized user has admin role
     if (!Libs\RESTLib::isAdminByUserName($user))
-        $app->halt(401, Libs\RESTLib::MSG_NO_ADMIN, Libs\RESTLib::ID_NO_ADMIN);
+        $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
 
     try {
         // Use the model class to update databse

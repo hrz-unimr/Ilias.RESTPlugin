@@ -8,7 +8,7 @@
 namespace RESTController\extensions\admin;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 use \RESTController\extensions\files_v1 as Files;
 
@@ -16,7 +16,7 @@ $app->group('/admin', function () use ($app) {
     /*
      * File Download
      */
-    $app->get('/files/:id', AuthFactory::checkAccess(AuthFactory::ADMIN), function ($id) use ($app) {
+    $app->get('/files/:id', RESTAuth::checkAccess(RESTAuth::ADMIN), function ($id) use ($app) {
         $request = $app->request();
         try {
             $meta_data = $request->params('meta_data');
@@ -58,7 +58,7 @@ $app->group('/admin', function () use ($app) {
     /*
      * File Upload
      */
-    $app->post('/files', AuthFactory::checkAccess(AuthFactory::ADMIN), function () use ($app) { // create
+    $app->post('/files', RESTAuth::checkAccess(RESTAuth::ADMIN), function () use ($app) { // create
         $request = $app->request();
         $repository_ref_id = $request->params("ref_id");
         $title = $request->params("title");

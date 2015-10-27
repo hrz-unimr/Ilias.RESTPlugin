@@ -121,7 +121,7 @@ class SurveyModel extends Libs\RESTModel
                     $res_cats = array();
                     for ($i = 0; $i < $nCats; $i++) {
                         $cat =$cats->getCategory($i);
-                        //self::$app->log->debug('Category data: '.print_r($cat, true));
+                        //self::getApp()->log->debug('Category data: '.print_r($cat, true));
                         $res_cats[] = array("title" => $cat->title, "scale" => $cat->scale, 'id'=>($i+1)); // todo: check if allocation of ids is correct this way
                     }
                     $q['categories'] = $res_cats;

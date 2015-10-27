@@ -15,7 +15,7 @@ use \RESTController\libs\Exceptions as LibExceptions;
 /**
  *
  */
-class UpdateFailed extends RESTException {
+class UpdateFailed extends LibExceptions\RESTException {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.

@@ -9,7 +9,7 @@ namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires <$app = \RESTController\RESTController::getInstance()>
-use \RESTController\libs\RESTAuthFactory as AuthFactory;
+use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 use \RESTController\libs\Exceptions as LibExceptions;
 use \RESTController\core\auth\Exceptions as AuthExceptions;
@@ -50,7 +50,7 @@ $app->group('/v1', function () use ($app) {
 
                 // Proccess with OAuth2-Model
                 if ($authenticity_token)
-                    $authenticityToken = Token\Generic::fromMixed($model->tokenSettings('access'), $authenticity_token);
+                    $authenticityToken = Token\Generic::fromMixed(AuthEndpoint::tokenSettings('access'), $authenticity_token);
                 $result = AuthEndpoint::allGrantTypes($api_key, $redirect_uri, $username, $password, $response_type, $authenticityToken);
 
                 // Process results (send response)
@@ -182,7 +182,7 @@ $app->group('/v1', function () use ($app) {
                     $new_refresh = $request->params('new_refresh');
 
                     // Invoke OAuth2-Model with data
-                    $authCodeToken = Token\Generic::fromMixed($model->tokenSettings('access'), $code);
+                    $authCodeToken = Token\Generic::fromMixed(TokenEndpoint::tokenSettings('access'), $code);
                     $result = TokenEndpoint::authorizationCode($api_key, $api_secret, $authCodeToken, $redirect_uri, $new_refresh);
 
                     // Send result
@@ -196,7 +196,7 @@ $app->group('/v1', function () use ($app) {
                     $new_refresh = $request->params('new_refresh');
 
                     // Invoke OAuth2-Model with data
-                    $refreshToken = Token\Refresh::fromMixed($model->tokenSettings('refresh'), $refresh_token);
+                    $refreshToken = Token\Refresh::fromMixed(TokenEndpoint::tokenSettings('refresh'), $refresh_token);
                     $result = TokenEndpoint::refresh2Access($refreshToken, $new_refresh);
 
                     // Send result to client

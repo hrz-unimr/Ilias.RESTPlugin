@@ -43,14 +43,26 @@ class RESTModel {
     public function __construct() {
         // Inject RESTController
         if (!self::$app)
-            self::$app = \RESTController\RESTController::getInstance();
+            $app = self::getApp();
 
         // Inject $ilDB
         if (!self::$sqlDB)
-            self::$sqlDB = $GLOBALS['ilDB'];
+            self::$sqlDB = self::getDB();
+    }
 
-        // Inject $ilPluginAdmin
-        if (!self::$plugin)
-            self::$plugin = $GLOBALS['ilPluginAdmin'];
+
+    /**
+     *
+     */
+    public static function getApp() {
+      return \RESTController\RESTController::getInstance();
+    }
+
+
+    /**
+     *
+     */
+    public static function getDB() {
+      return $GLOBALS['ilDB'];
     }
 }
