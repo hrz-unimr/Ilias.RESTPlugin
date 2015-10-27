@@ -65,8 +65,12 @@ class BulkRequest extends Libs\RESTModel {
     // Fetch data for refIds
     $refIds     = array_merge($cag['group_ids'], $cag['course_ids'], $desktop['ref_ids']);
     $refIds     = array_unique($refIds, SORT_NUMERIC);
-    $objects    = Objects::getData($accessToken, $refIds);
-    $objects    = self::fetchDataRecursive($accessToken, $objects);
+    if (count($refIds)>0) {
+      $objects = Objects::getData($accessToken, $refIds);
+      $objects = self::fetchDataRecursive($accessToken, $objects);
+    } else {
+      $objects = array();
+    }
 
     // Output result
     return array(
