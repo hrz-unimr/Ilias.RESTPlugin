@@ -40,11 +40,14 @@ $app->group('/admin', function () use ($app) {
                 $obj_id = Libs\RESTLib::getObjIdFromRef($id);
                 $app->log->debug('in route id: '.$obj_id);
                 $id_type = 'obj_id';
+            } else {
+                $obj_id = $id;
             }
 
             if (!is_numeric($obj_id))
                 $result['status'] = 'Object does not exist.';
 
+            $app->log->debug('describe object with obj_id= '.$obj_id);
             $a_descr = $model->describeIliasObject($obj_id);
 
             $result['object_description'] = $a_descr;
