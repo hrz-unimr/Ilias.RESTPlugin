@@ -129,11 +129,11 @@ class UserInfo extends Libs\RESTModel {
       im_voip                 =>
         (self::allowedToView($usingToken, $ilObj, 'public_im_voip'))                 ? $ilObj->im_voip : null,
       interests_general       =>
-        (self::allowedToView($usingToken, $ilObj, 'public_interests_general'))       ? $ilObj->getGeneralInterests() : null,
+        (self::allowedToView($usingToken, $ilObj, 'public_interests_general'))       ? self::applyObjectMethodSafely($ilObj,'getGeneralInterests') : null,
       interests_help_offered  =>
-        (self::allowedToView($usingToken, $ilObj, 'public_interests_help_offered'))  ? $ilObj->getOfferingHelp() : null,
+        (self::allowedToView($usingToken, $ilObj, 'public_interests_help_offered'))  ? self::applyObjectMethodSafely($ilObj,'getOfferingHelp') : null,
       interests_help_looking  =>
-        (self::allowedToView($usingToken, $ilObj, 'public_interests_help_looking'))  ? $ilObj->getLookingForHelp() : null,
+        (self::allowedToView($usingToken, $ilObj, 'public_interests_help_looking'))  ? self::applyObjectMethodSafely($ilObj,'getLookingForHelp') : null,
       avatar                  =>
         (self::allowedToView($usingToken, $ilObj, 'public_upload'))                  ? self::getAvatar($ilObj) : null
     );
@@ -145,6 +145,18 @@ class UserInfo extends Libs\RESTModel {
     return $userInfo;
   }
 
+  /**
+   * For compatibility reasons, this utility function prevents accessing non-existing methods.
+   * @param $obj
+   * @param $methodName
+   * @return string
+   */
+  static function applyObjectMethodSafely($obj, $methodName) {
+    if (method_exists ( $obj , $methodName ) == true) {
+      return $obj->$methodName;
+    }
+    return "";
+  }
 
   /**
    *
