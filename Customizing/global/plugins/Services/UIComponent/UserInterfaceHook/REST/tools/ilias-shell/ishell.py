@@ -301,8 +301,8 @@ class IShell:
         self.get('/v1/users');
         self.show();
 
-	def toDate(self, timestamp):
-    """ Converts a timestamp string into date format """
+    def toDate(self, timestamp):
+    	""" Converts a timestamp string into date format """
         print(
             datetime.datetime.fromtimestamp(int(timestamp)).strftime('%Y-%m-%d %H:%M:%S')
         )
