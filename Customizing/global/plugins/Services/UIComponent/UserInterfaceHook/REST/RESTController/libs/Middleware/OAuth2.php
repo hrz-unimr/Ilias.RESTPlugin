@@ -63,7 +63,7 @@ class OAuth2 {
 
     // Delete permission-check
     $request = $app->request;
-    self::checkRoutePermissions($accessToken, $route, $request);
+    self::checkRoutePermissions($app, $accessToken, $route, $request);
   }
 
 
@@ -79,7 +79,7 @@ class OAuth2 {
     $accessToken = self::checkAccessToken($app);
 
     // Delete short-token test
-    self::checkShort($accessToken);
+    self::checkShort($app, $accessToken);
   }
 
 
@@ -121,7 +121,7 @@ class OAuth2 {
   /**
    * Checks the permission for the current client to access a route with a certain action.
    */
-  public static function checkRoutePermissions($accessToken, $route, $request) {
+  public static function checkRoutePermissions($app, $accessToken, $route, $request) {
     // Fetch data to check route access
     $api_key  = $accessToken->getApiKey();
     $pattern  = $route->getPattern();
@@ -137,7 +137,7 @@ class OAuth2 {
   /**
    * Checks if the given access-token is a special short-lived access-token
    */
-  public static function checkShort($accessToken) {
+  public static function checkShort($app, $accessToken) {
     // Test if token is a short (ttl) one and ip does match
     if ($accessToken->getEntry('type') != Auth\Challenge::type)
       $app->halt(401, 'This route requires a special short-lived access-token.');
