@@ -105,8 +105,7 @@ class RefreshEndpoint extends EndpointBase {
         }
 
         // Fallback solution (update/create new one)
-        if ($renewToken)
-          return self::getNewRefreshToken($accessToken);
+        return self::getNewRefreshToken($accessToken);
     }
 
 
