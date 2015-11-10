@@ -125,6 +125,9 @@ lang_en_us.config(function($translateProvider) {
         EDIT_CONSENT_SCOPE: 'Enable an additional page for the OAuth2 grant types "authcode" and "implicit grant" to inform the user about the scope of the application.',
         EDIT_ALLOWED_IPS: 'IP Restriction',
         EDIT_IP_ACCESS_TEXT: 'Usage of this client/API-Key can be restricted to IP addresses. Specify a comma separated list of ip addresses here.',
+        EDIT_DESCRIPTION: 'Description',
+        EDIT_DESCRIPTION_TEXT: ''
+
 
     });
     

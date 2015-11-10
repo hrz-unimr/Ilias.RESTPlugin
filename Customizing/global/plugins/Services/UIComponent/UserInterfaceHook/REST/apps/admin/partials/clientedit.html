@@ -47,6 +47,13 @@
             </div>
 
             <div class="form-group">
+                <label for="inputDescription">{{'EDIT_DESCRIPTION' | translate}}</label>
+                {{'EDIT_DESCRIPTION_TEXT' | translate}}
+                <textarea id="inputDescription" class="form-control" rows="3" data-ng-model="current.description"></textarea>
+            </div>
+
+
+            <div class="form-group">
                 <label for="permissions">{{'EDIT_PERMISSIONS' | translate}}</label>
                         <div class="checkbox" id="permissions">
                             <button class="btn btn-default btn-sm" type="button" data-ng-click="addAllPermissions()">Add all available routes</button>
