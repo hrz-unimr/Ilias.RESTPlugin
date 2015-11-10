@@ -135,6 +135,13 @@
             'notnull' => true,
             'default' => 0
         ),
+        'description' => array(
+            'type' => 'text',
+            'length' => 1000,
+            'fixed' => false,
+            'notnull' => false,
+            'default' => ""
+        ),
     );
     $ilDB->createTable("ui_uihk_rest_keys", $fields, true);
     $ilDB->addPrimaryKey("ui_uihk_rest_keys", array("id"));

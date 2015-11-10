@@ -140,6 +140,7 @@ $app->put('/clients/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function 
         'oauth2_authcode_refresh_active',
         'oauth2_resource_refresh_active',
         'ip_restriction_active',
+        'description',
         'access_user_csv',
         'access_ip_csv',
         'api_secret',
