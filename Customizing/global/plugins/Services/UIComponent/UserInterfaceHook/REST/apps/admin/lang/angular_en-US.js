@@ -73,6 +73,7 @@ lang_en_us.config(function($translateProvider) {
         LIST_ID: 'ID',
         LIST_API_KEY: 'API-Key',
         LIST_API_SECRET: 'API-Secret',
+        LIST_API_DESCRIPTION: 'Description',
         LIST_GRANT_TYPES: 'Grant-Types',
         LIST_PERMISSION: 'Route-Permissions',
         LIST_MODIFY: 'Modify',

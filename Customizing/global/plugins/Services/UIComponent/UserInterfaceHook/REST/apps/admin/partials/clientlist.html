@@ -6,7 +6,7 @@
             <tr >
                 <th style="vertical-align: middle; width:1px;"><div class="text-center">{{'LIST_ID' | translate}}</div></th>
                 <th style="vertical-align: middle;"><div class="text-center">{{'LIST_API_KEY' | translate}}</div></th>
-                <th style="vertical-align: middle;"><div class="text-center">{{'LIST_API_SECRET' | translate}}</div></th>
+                <th style="vertical-align: middle;"><div class="text-center">{{'LIST_API_DESCRIPTION' | translate}}</div></th>
                 <th style="vertical-align: middle; width:1px;"><div class="text-center">{{'LIST_GRANT_TYPES' | translate}}</div></th>
                 <th style="vertical-align: middle;"><div class="text-center">{{'LIST_PERMISSION' | translate}}</div></th>
                 <th style="vertical-align: middle;"><div class="text-center">{{'LIST_IP_RESTRICTION' | translate}}</div></th>
@@ -18,7 +18,7 @@
             <tr data-ng-repeat="client in clients">
                 <td style="width:1px;"><div class="text-center">{{client.id}}</div></td>
                 <td>{{client.api_key}}</td>
-                <td>{{client.api_secret}}</td>
+                <td>{{client.description}}</td>
                 <td>
                     <div data-ng-show="{{client.oauth2_gt_authcode_active}}"><span class="label label-granttype">{{'LIST_GRANT_AC' | translate}}</span><br/></div> 
                     <div data-ng-show="{{client.oauth2_gt_implicit_active}}"><span class="label label-granttype">{{'LIST_GRANT_I' | translate}}</span><br/></div>
