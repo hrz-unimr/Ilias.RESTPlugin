@@ -85,11 +85,11 @@ class Routes extends Libs\RESTModel {
 
             $middle = $route->getMiddleware();
             if (isset($middle[0]) == true) {
+                //self::getApp()->log->debug('Route info: middle = '.$middle[0]);
                 $parts1 = explode('\\', $middle[0]);
                 $parts2 = explode('::', $parts1[3]);
-                if ($parts2[0] == 'OAuth2Middleware') {
-                    $auth_type = 'OAuth2';
-                }
+
+                $auth_type = $parts2[0];
                 $access_level = $parts2[1];
                 if ($access_level == "TokenAuth") {
                 }
