@@ -24,7 +24,8 @@ services.provider('authentication', function() {
         autoLogin: (postVars.userId.length > 0 && postVars.sessionId.length > 0 && postVars.rtoken.length > 0),
         error: null,
         apiKey: "",
-        ip: postVars.ip
+        ip: postVars.ip,
+        iliasClient: null,
     };
 
     // Return object containing login-related functions.
@@ -48,6 +49,10 @@ services.provider('authentication', function() {
             return data.apiKey;
         };
 
+        handler.getIliasClient = function() {
+            return data.iliasClient;
+        };
+
         handler.getIp = function() {
             return data.ip;
         }
@@ -63,12 +68,13 @@ services.provider('authentication', function() {
         // given by username (mostly for display purpose)
         // and the bearer-token, which is required to talk
         // to the REST interface.
-        handler.login = function(userName, token, apiKey) {
+        handler.login = function(userName, token, apiKey, iliasClient) {
             // Store login data
             data.userName = userName;
             data.token = token;
             data.isAuthenticated = true;
             data.apiKey = apiKey;
+            data.iliasClient = iliasClient;
 
             // Reset any (login-related) error-messages
             handler.setError(null);

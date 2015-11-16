@@ -229,7 +229,7 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
             function (response) {
                 // Authorisation success (Login internally and redirect)
                 if (response.token_type == "bearer") {
-                    $scope.authentication.login($scope.formData.userName, response.access_token, $scope.formData.apiKey);
+                    $scope.authentication.login($scope.formData.userName, response.access_token, $scope.formData.apiKey, response.ilias_client);
                     $location.url("/checkout");
                     $scope.$emit('loginPerformed');
                 // Authorisation failed  (Logout internally and redirdct)
