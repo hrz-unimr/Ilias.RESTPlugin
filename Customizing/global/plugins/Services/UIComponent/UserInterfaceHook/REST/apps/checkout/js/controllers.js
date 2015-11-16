@@ -74,7 +74,7 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
 });
 
 
-ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $resource, dialogs, clientStorage, restClient, restClients, authentication, restEndpoint, $window) {
+ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $resource, dialogs, restApiRoutes, authentication, restEndpoint, $window) {
     /*
      * Called during (every) instantiation of this controller.
      *
@@ -82,7 +82,7 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
      * doing it directly inside the controller.
      */
     $scope.init = function() {
-
+        //$scope.loadApiRoutes();
     };
 
     var jsonPrettyPrint = {
@@ -106,6 +106,25 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
         }
     };
 
+
+    $scope.loadApiRoutes = function() {
+        // Perform REST call
+        restApiRoutes.query(
+            // Data
+            {},
+            // Success
+            function(response) {
+                // Enough access rights
+                //console.log(response);
+                $scope.permissions = response.permissions;
+                console.log($scope.permissions);
+            },
+            // Failure
+            function(response) {
+                $scope.warning = $filter('restInfo')($filter('translate')('NO_CLIENTS'), response.status, response.data);
+            }
+        );
+    }
 
     $scope.checkout = function() {
         if ($scope.current.openNewWindow == 1) {

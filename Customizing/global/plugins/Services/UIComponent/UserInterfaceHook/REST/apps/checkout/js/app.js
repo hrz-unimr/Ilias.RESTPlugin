@@ -37,6 +37,7 @@ app.constant('restTokenURL',        '/v1/oauth2/token');                  // Bea
 app.constant('restClientsURL',      '/clients');                          // Client-list Endpoint
 app.constant('restClientURL',       '/clients/:id');                      // View / Edit client Endpoint
 app.constant('restRoutesURL',       '/routes');                           // Routes Endpoint
+app.constant('restApiRoutesURL',    '/apiroutes');                        // API Routes
 
 
 /*

@@ -334,11 +334,11 @@ services.service('restClient', function($resource, restClientURL, restEndpoint, 
 
 
 /*
- * REST routes endpoint service. List all available routes.
+ * REST API routes endpoint service. List all available routes callable with the API key.
  *  Use .query({}, successFunction, failureFunction);
  */
-services.service('restRoutes', function($resource, restRoutesURL, restEndpoint) {
-    return $resource(restEndpoint.getEndpoint() + restRoutesURL, {}, {
-        query: { method: 'GET', params: {} }
+services.service('restApiRoutes', function($resource, restApiRoutesURL, restEndpoint, authentication) {
+    return $resource(restEndpoint.getEndpoint() + restApiRoutesURL, {}, {
+        query: { method: 'GET', headers: { 'Authorization': 'Bearer '+authentication.getToken() } }
     });
 });
