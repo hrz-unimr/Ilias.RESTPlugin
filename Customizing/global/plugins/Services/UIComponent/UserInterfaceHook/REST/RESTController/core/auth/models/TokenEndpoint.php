@@ -58,7 +58,7 @@ class TokenEndpoint extends EndpointBase {
             throw new Exceptions\LoginFailed(self::MSG_AUTH_FAILED);
 
         // [All] Generate bearer & refresh-token (if enabled)
-        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('access'), $username, $api_key);
+        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('access'), $username, $api_key, null, $ilias_client);
         $accessToken = $bearerToken->getEntry('access_token');
         if (Clients\Clients::is_resourceowner_refreshtoken_enabled($api_key))
             $refreshToken = RefreshEndpoint::getRefreshToken($accessToken, $new_refresh);
@@ -78,7 +78,7 @@ class TokenEndpoint extends EndpointBase {
     /**
      *
      */
-    public function clientCredentials($api_key, $api_secret) {
+    public function clientCredentials($api_key, $api_secret, $ilias_client) {
         // [All] Client (api-key) is not allowed to use this grant-type or doesn't exist
         if (!Clients\RESTClient::checkClientCredentials($api_key, $api_secret))
             throw new Exceptions\LoginFailed(self::MSG_NO_CLIENT_SECRET);
@@ -94,7 +94,7 @@ class TokenEndpoint extends EndpointBase {
         $username = Libs\RESTLib::getUserNameFromUserId($uid);
 
         // [All] Generate bearer & refresh-token (if enabled)
-        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('access'), $username, $api_key);
+        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('access'), $username, $api_key, null, $ilias_client);
         $accessToken = $bearerToken->getEntry('access_token');
         // -- [no] Refresh-token --
 
@@ -105,6 +105,7 @@ class TokenEndpoint extends EndpointBase {
             'token_type' => $bearerToken->getEntry('token_type'),
             'scope' => $bearerToken->getEntry('scope'),
             // -- [no] Refresh-token --
+            'ilias_client' => $ilias_client,
         );
     }
 
@@ -139,7 +140,7 @@ class TokenEndpoint extends EndpointBase {
             throw new Exceptions\LoginFailed(self::MSG_RESTRICTED_USERS);
 
         // [All] Generate bearer & refresh-token (if enabled)
-        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('access'), $userName, $api_key);
+        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('access'), $userName, $api_key, null, "");
         $accessToken = $bearerToken->getEntry('access_token');
         if (Clients\Clients::is_authcode_refreshtoken_enabled($api_key))
             $refreshToken = RefreshEndpoint::getRefreshToken($accessToken, $new_refresh);
@@ -173,9 +174,10 @@ class TokenEndpoint extends EndpointBase {
         $user = $refreshToken->getUserName();
         $user_id = $refreshToken->getUserId();
         $api_key = $refreshToken->GetApiKey();
+        $ilias_client = $refreshToken->getIliasClient();
 
         //
-        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('bearer'), $user, $api_key);
+        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('bearer'), $user, $api_key, null, $ilias_client);
         $accessToken = $bearerToken->getEntry('access_token');
 
 

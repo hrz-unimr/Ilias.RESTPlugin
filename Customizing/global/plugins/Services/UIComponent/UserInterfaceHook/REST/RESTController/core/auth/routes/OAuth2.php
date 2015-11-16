@@ -166,9 +166,9 @@ $app->group('/v1', function () use ($app) {
                     // Fetch request data
                     $api_key = $request->params('api_key', null, true);
                     $api_secret = $request->params('api_secret', null, true);
-
+                    $ilias_client = $request->params('ilias_client', CLIENT_ID);
                     // Invoke OAuth2-Model with data
-                    $result = TokenEndpoint::clientCredentials($api_key, $api_secret);
+                    $result = TokenEndpoint::clientCredentials($api_key, $api_secret, $ilias_client);
                     $app->response()->disableCache();
                     $app->success($result);
                 }
@@ -321,9 +321,10 @@ $app->group('/v1', function () use ($app) {
             $user_id = $request->params('user_id', null, true);
             $rtoken = $request->params('rtoken', null, true);
             $session_id = $request->params('session_id', null, true);
+            $ilias_client = $request->params('ilias_client', CLIENT_ID);
 
             // Convert userId, rToken and sessionId to bearer-token (using api-key)
-            $result = MiscEndpoint::rToken2Bearer($api_key, $user_id, $rtoken, $session_id);
+            $result = MiscEndpoint::rToken2Bearer($api_key, $user_id, $rtoken, $session_id, $ilias_client);
 
             // Return status-data
             $app->response()->disableCache();

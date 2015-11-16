@@ -48,7 +48,7 @@ class MiscEndpoint extends EndpointBase {
      * This is used for administration purposes.
      * @param $app
      */
-    public static function rToken2Bearer($api_key, $user_id, $rtoken, $session_id) {
+    public static function rToken2Bearer($api_key, $user_id, $rtoken, $session_id, $ilias_client) {
         // Check login-data
         if (!Util::checkSession($user_id, $rtoken, $session_id)) {
             throw new Exceptions\TokenInvalid(self::MSG_RTOKEN_AUTH_FAILED);
@@ -56,7 +56,7 @@ class MiscEndpoint extends EndpointBase {
 
         // Generate token for user (via given api-key)
         $user = Libs\RESTLib::getUserNameFromUserId($user_id);
-        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('bearer'), $user, $api_key);
+        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('bearer'), $user, $api_key, null, $ilias_client);
         $accessToken = $bearerToken->getEntry('access_token');
 
         //
@@ -64,7 +64,8 @@ class MiscEndpoint extends EndpointBase {
             'access_token' => $accessToken->getTokenString(),
             'expires_in' => $bearerToken->getEntry('expires_in'),
             'token_type' => $bearerToken->getEntry('token_type'),
-            'scope' => $bearerToken->getEntry('scope')
+            'scope' => $bearerToken->getEntry('scope'),
+            'ilias_client' => $ilias_client,
         );
     }
 }

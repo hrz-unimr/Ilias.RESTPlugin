@@ -17,7 +17,8 @@ class Bearer extends Base {
         'access_token',
         'expires_in',
         'token_type',
-        'scope'
+        'scope',
+        'ilias_client'
     );
 
 
@@ -31,9 +32,9 @@ class Bearer extends Base {
         if ($bearerToken->getTokenArray())
             return $bearerToken;
     }
-    public static function fromFields($tokenSettings, $user, $api_key, $scope = null) {
+    public static function fromFields($tokenSettings, $user, $api_key, $scope = null, $ilias_client) {
         $bearerToken = new self($tokenSettings);
-        $tokenArray = $bearerToken->generateTokenArray($user, $api_key, $scope);
+        $tokenArray = $bearerToken->generateTokenArray($user, $api_key, $scope, $ilias_client);
         $bearerToken->setToken($tokenArray);
 
         if ($bearerToken->getTokenArray())
@@ -44,17 +45,18 @@ class Bearer extends Base {
     /**
      *
      */
-    protected function generateTokenArray($user, $api_key, $scope = null) {
+    protected function generateTokenArray($user, $api_key, $scope = null, $ilias_client) {
         // Generate generic token containing user and api-key
         $token_type = 'bearer';
-        $accessToken = Generic::fromFields($this->tokenSettings, $user, $api_key, $token_type, '', $this->tokenSettings->getTTL());
+        $accessToken = Generic::fromFields($this->tokenSettings, $user, $api_key, $token_type, '', $this->tokenSettings->getTTL(), $ilias_client);
 
         // Generate bearer-token containing the generic token and additional information
         return array(
             'access_token'  => $accessToken,
             'expires_in'    => $accessToken->getRemainingTime(),
             'token_type'    => $token_type,
-            'scope'         => $scope
+            'scope'         => $scope,
+            'ilias_client'  => $ilias_client,
         );
     }
 }

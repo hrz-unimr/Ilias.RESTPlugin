@@ -116,7 +116,8 @@ class RefreshEndpoint extends EndpointBase {
         $user_name = $accessToken->getUserName();
         $user_id = $accessToken->getUserId();
         $api_key = $accessToken->getApiKey();
-        $refreshToken = Token\Refresh::fromFields(self::tokenSettings('refresh'), $user_name, $api_key);
+        $ilias_client = $accessToken->getIliasClient();
+        $refreshToken = Token\Refresh::fromFields(self::tokenSettings('refresh'), $user_name, $api_key, $ilias_client);
 
         // Reset key if existing
         if (self::hasRefreshKey($accessToken))

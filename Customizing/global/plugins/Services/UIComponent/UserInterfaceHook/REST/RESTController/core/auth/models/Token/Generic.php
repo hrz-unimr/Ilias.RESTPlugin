@@ -34,6 +34,7 @@ class Generic extends Base {
     protected static $fields = array(
         'user',
         'api_key',
+        'ilias_client',
         'type',
         'misc',
         'ttl',
@@ -54,7 +55,7 @@ class Generic extends Base {
         if ($token->getTokenArray())
             return $token;
     }
-    public static function fromFields($tokenSettings, $user, $api_key, $type, $misc = null, $lifetime = null) {
+    public static function fromFields($tokenSettings, $user, $api_key, $type, $misc = null, $lifetime = null, $ilias_client) {
         $token = new self($tokenSettings);
         $tokenArray = $token->generateTokenArray($user, $api_key, $type, $misc, $lifetime);
         $token->setToken($tokenArray);
@@ -116,6 +117,9 @@ class Generic extends Base {
         return $this->tokenArray['api_key'];
     }
 
+    public function getIliasClient() {
+         return $this->tokenArray['ilias_client'];
+    }
 
     /**
      * Checks if the generic token is valid by comparing its hash with its stored hash.
@@ -173,11 +177,12 @@ class Generic extends Base {
         //
         $user = $this->tokenArray['user'];
         $api_key = $this->tokenArray['api_key'];
+        $ilias_client = $this->tokenArray['ilias_client'];
         $type = $this->tokenArray['type'];
         $misc = $this->tokenArray['misc'];
 
         //
-        $token = $this->generateTokenArray($user, $api_key, $type, $misc, null);
+        $token = $this->generateTokenArray($user, $api_key, $type, $misc, null, $ilias_client);
         $this->setToken($token);
     }
 
@@ -185,7 +190,7 @@ class Generic extends Base {
     /**
      *
      */
-    protected function generateTokenArray($user, $api_key, $type, $misc = null, $lifetime = null) {
+    protected function generateTokenArray($user, $api_key, $type, $misc = null, $lifetime = null, $ilias_client = "") {
         if (!$lifetime)
             $lifetime = $this->tokenSettings->getTTL();
         if (!$misc)
@@ -196,12 +201,13 @@ class Generic extends Base {
 
         // Generate token (Examples: bearer, generic, refresh)
         $tokenArray = array(
-            'user'      => $user,
-            'api_key'   => $api_key,
-            'type'      => $type,
-            'misc'      => $misc,
-            'ttl'       => strval(time() + ($lifetime * 60)),
-            's'         => $randomStr
+            'user'          => $user,
+            'api_key'       => $api_key,
+            'ilias_client'  => $ilias_client,
+            'type'          => $type,
+            'misc'          => $misc,
+            'ttl'           => strval(time() + ($lifetime * 60)),
+            's'             => $randomStr
         );
 
         // Generate hash for token
@@ -222,6 +228,7 @@ class Generic extends Base {
      protected function getHash($tokenArray) {
         $tokenHashStr = $tokenArray['user'] . '/' .
                         $tokenArray['api_key'] . '/' .
+                        $tokenArray['ilias_client'] . '/' .
                         $tokenArray['type'] . '/' .
                         $tokenArray['misc'] . '/' .
                         $tokenArray['ttl'] . '/'.
@@ -249,9 +256,10 @@ class Generic extends Base {
      * @return string
      */
      public static function serializeToken($tokenArray) {
-        // Note: Potential attacker could try to slip a "," into any $token value (best candidate seems to be 'api_key'), thus making deserializeToken vunerable!
+        // Note: Potential attacker could try to slip a "," into any $token value (best candidate seems to be 'api_key'), thus making deserializeToken vulnerable!
         $tokenStr = $tokenArray['user'].",".
                     $tokenArray['api_key'].",".
+                    $tokenArray['ilias_client'].",".
                     $tokenArray['type'].",".
                     $tokenArray['misc'].",".
                     $tokenArray['ttl'].",".
@@ -275,13 +283,14 @@ class Generic extends Base {
         // Note: Potential attacker could have slipped a "," into any $token value, thus making this vunerable without at least a simple check! ...
         if (count($tokenPartArray) == count(self::$fields)) {
             return array(
-                'user'      =>  $tokenPartArray[0],
-                'api_key'   =>  $tokenPartArray[1],
-                'type'      =>  $tokenPartArray[2],
-                'misc'      =>  $tokenPartArray[3],
-                'ttl'       =>  $tokenPartArray[4],
-                's'         =>  $tokenPartArray[5],
-                'h'         =>  $tokenPartArray[6]
+                'user'          =>  $tokenPartArray[0],
+                'api_key'       =>  $tokenPartArray[1],
+                'ilias_client'  =>  $tokenPartArray[2],
+                'type'          =>  $tokenPartArray[3],
+                'misc'          =>  $tokenPartArray[4],
+                'ttl'           =>  $tokenPartArray[5],
+                's'             =>  $tokenPartArray[6],
+                'h'             =>  $tokenPartArray[7]
             );
         }
 
