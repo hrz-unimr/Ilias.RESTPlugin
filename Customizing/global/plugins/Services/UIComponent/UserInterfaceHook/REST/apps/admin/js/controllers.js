@@ -447,13 +447,14 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
                 session_id: $scope.postVars.sessionId,
                 rtoken: $scope.postVars.rtoken,
                 userName: $scope.postVars.userName,
+                ilias_client: $scope.postVars.iliasClient
             },
             // Success
             function (response) {
                 // Login return OK (Login internally and redirect)
                 if (response.access_token) {
                     //console.log(JSON.stringify(response));
-                    $scope.authentication.login($scope.postVars.userName, response.access_token);
+                    $scope.authentication.login($scope.postVars.userName, response.access_token,  response.ilias_client);
                     $scope.postVars = {};
                     $location.url("/clientlist");
                     $scope.$emit('loginPerformed');
@@ -485,13 +486,14 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
                 grant_type: 'password',
                 username: $scope.formData.userName,
                 password: $scope.formData.password,
-                api_key: apiKey
+                api_key: apiKey,
+               // ilias_client: $scope.formData.iliasClient
             },
             // Success
             function (response) {
                 // Authorisation success (Login internally and redirect)
                 if (response.token_type == "bearer") {
-                    $scope.authentication.login($scope.formData.userName, response.access_token);
+                    $scope.authentication.login($scope.formData.userName, response.access_token, response.ilias_client);
                     $location.url("/clientlist");
                     $scope.$emit('loginPerformed');
                 // Authorisation failed  (Logout internally and redirdct)

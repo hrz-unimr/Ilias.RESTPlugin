@@ -29,13 +29,14 @@
     <script type="text/javascript" src="libs/js/modernizr.js"></script>
     <script>
         <?php
-        // Fetch POST data userName
+        // Fetch POST data
         $userName = isset($_POST['userName']) ? $_POST['userName'] : '';
         $apiKey = isset($_POST['apiKey']) ? $_POST['apiKey'] : '';
         $userId =  isset($_POST['userId']) ? $_POST['userId'] : '';
         $sessionId = isset($_POST['sessionId']) ? $_POST['sessionId'] : '';
         $rtoken = isset($_POST['rtoken']) ? $_POST['rtoken'] : '';
         $restEndpoint = isset($_POST['restEndpoint']) ? $_POST['restEndpoint'] : '';
+        $iliasClient = isset($_POST['iliasClient']) ? $_POST['iliasClient'] : CLIENT_ID;
         
         // Make it save
         $userName = addslashes (htmlspecialchars($userName, ENT_COMPAT));
@@ -44,6 +45,7 @@
         $sessionId = addslashes (htmlspecialchars($sessionId, ENT_COMPAT)); 
         $rtoken = addslashes (htmlspecialchars($rtoken, ENT_COMPAT));
         $restEndpoint = addslashes (htmlspecialchars($restEndpoint, ENT_COMPAT));
+        $iliasClient = addslashes (htmlspecialchars($iliasClient, ENT_COMPAT));
         ?>
     
         var postVars = {
@@ -52,7 +54,8 @@
             sessionId: "<?php echo $sessionId; ?>",
             rtoken: "<?php echo $rtoken;  ?>",
             restEndpoint: "<?php echo $restEndpoint; ?>",
-            apiKey: "<?php echo $apiKey; ?>"
+            apiKey: "<?php echo $apiKey; ?>",
+            iliasClient: "<?php echo $iliasClient; ?>"
         };
     </script>
 </head>

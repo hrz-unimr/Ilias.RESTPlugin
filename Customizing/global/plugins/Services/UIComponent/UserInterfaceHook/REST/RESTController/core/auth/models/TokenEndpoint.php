@@ -34,9 +34,10 @@ class TokenEndpoint extends EndpointBase {
     const MSG_NOT_ACTIVE = 'This token does not match any active refresh-token, try requesting a new one.';
 
     /**
-     *
+     * Creates a bearer token for OAuth2 "user credentials" auth type.
+     * TODO: encode ilias_client into the bearer token
      */
-    public function userCredentials($api_key, $username, $password, $new_refresh = null) {
+    public function userCredentials($api_key, $username, $password, $new_refresh = null, $ilias_client) {
         // [All] Client (api-key) is not allowed to use this grant-type or doesn't exist
         if (!Clients\RESTClient::checkClient($api_key))
             throw new Exceptions\LoginFailed(self::MSG_NO_CLIENT_KEY);
@@ -45,7 +46,7 @@ class TokenEndpoint extends EndpointBase {
         if (!Clients\Clients::is_oauth2_gt_resourceowner_enabled($api_key))
             throw new Exceptions\LoginFailed(Util::MSG_UC_DISABLED);
 
-        // Check wether user is allowed to use this api-key
+        // Check whether user is allowed to use this api-key
         $allowed_users = Clients\Clients::getAllowedUsersForApiKey($api_key);
         $iliasUserId = (int) Libs\RESTLib::getUserIdFromUserName($username);
         if (!in_array(-1, $allowed_users) && !in_array($iliasUserId, $allowed_users))
@@ -68,7 +69,8 @@ class TokenEndpoint extends EndpointBase {
             'expires_in' => $bearerToken->getEntry('expires_in'),
             'token_type' => $bearerToken->getEntry('token_type'),
             'scope' => $bearerToken->getEntry('scope'),
-            'refresh_token' => ($refreshToken) ? $refreshToken->getTokenString() : null
+            'refresh_token' => ($refreshToken) ? $refreshToken->getTokenString() : null,
+            'ilias_client' => $ilias_client,
         );
     }
 
@@ -182,7 +184,7 @@ class TokenEndpoint extends EndpointBase {
 
         // Generate new token or refresh old token
         if ($new_refresh)
-            $refreshToken = RefreshEndpoint::getNewRefreshToken($accessToken);
+            $refreshToken = RefreshEndpoint::getNewRefreshToken($accessToken); // TODO: Check "member has private access" IDE msg
         else
             RefreshEndpoint::updateTimestamp($user_id, $api_key);
 

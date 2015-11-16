@@ -10,7 +10,7 @@ namespace RESTPlugin {
 
 /**
  * Class: Bootstrap
- *  This class is used to boottrap
+ *  This class is used to bootstrap
  *  the core of ILIAS and the RESTPlugin.
  */
 class Bootstrap {

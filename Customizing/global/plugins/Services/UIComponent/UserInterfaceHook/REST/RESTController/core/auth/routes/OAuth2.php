@@ -151,9 +151,11 @@ $app->group('/v1', function () use ($app) {
                     $user = $request->params('username', null, true);
                     $password = $request->params('password', null, true);
                     $new_refresh = $request->params('new_refresh');
+                    $ilias_client = $request->params('ilias_client', CLIENT_ID);
+                    //$app->log->debug('Oauth2 Login constant CLIENT_ID = '.CLIENT_ID);
 
                     // Invoke OAuth2-Model with data
-                    $result = TokenEndpoint::userCredentials($api_key, $user, $password, $new_refresh);
+                    $result = TokenEndpoint::userCredentials($api_key, $user, $password, $new_refresh, $ilias_client);
 
                     // Send result
                     $app->response()->disableCache();

@@ -22,6 +22,7 @@ services.provider('authentication', function() {
         userName: null,
         token: null,
         autoLogin: (postVars.userId.length > 0 && postVars.sessionId.length > 0 && postVars.rtoken.length > 0),
+        iliasClient: null,
         error: null,
     };
 
@@ -42,6 +43,10 @@ services.provider('authentication', function() {
             return data.userName;
         };
 
+        handler.getIliasClient = function() {
+            return data.iliasClient;
+        }
+
         // Function that returns the current login-state
         // of the user. If this returns true then getToken
         // and getUserName should return valid data.
@@ -53,11 +58,12 @@ services.provider('authentication', function() {
         // given by username (mostly for display purpose)
         // and the bearer-token, which is required to talk
         // to the REST interface.
-        handler.login = function(userName, token) {
+        handler.login = function(userName, token, iliasClient) {
             // Store login data
             data.userName = userName;
             data.token = token;
             data.isAuthenticated = true;
+            data.iliasClient = iliasClient;
 
             // Reset any (login-related) error-messages
             handler.setError(null);
