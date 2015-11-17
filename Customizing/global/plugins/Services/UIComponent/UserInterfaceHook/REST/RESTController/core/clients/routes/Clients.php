@@ -249,6 +249,7 @@ $app->post('/clients/', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ()
     $oauth2_gt_authcode_active = $request->params('oauth2_gt_authcode_active', 0);
     $oauth2_gt_implicit_active = $request->params('oauth2_gt_implicit_active', 0);
     $ip_restriction_active = $request->params('ip_restriction_active', 0);
+    $description = $request->params('description', '');
     $oauth2_gt_resourceowner_active = $request->params('oauth2_gt_resourceowner_active', 0);
     $oauth2_user_restriction_active = $request->params('oauth2_user_restriction_active', 0);
     $oauth2_consent_message_active = $request->params('oauth2_consent_message_active', 0);
@@ -271,6 +272,7 @@ $app->post('/clients/', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ()
         $oauth2_gt_client_user,
         $access_user_csv,
         $ip_restriction_active,
+        $description,
         $access_ip_csv,
         $oauth2_authcode_refresh_active,
         $oauth2_resource_refresh_active
