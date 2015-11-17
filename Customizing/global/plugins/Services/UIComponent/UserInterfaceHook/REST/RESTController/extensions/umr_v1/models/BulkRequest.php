@@ -81,7 +81,8 @@ class BulkRequest extends Libs\RESTModel {
       'user'       => $user,
       'cag'        => $cag,
       'desktop'    => $desktop,
-      'objects'    => $objects
+      'objects'    => $objects,
+      'news'       => $news
     );
   }
 }
