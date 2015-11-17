@@ -24,8 +24,9 @@ $app->group('/v1/umr', function () use ($app) {
         // Fetch userId & userName
         $accessToken  = Auth\Util::getAccessToken();
         try {
-            $user_id = $accessToken->getUserId();
-            $news       = News::getPDNewsForUser($user_id);
+            $news  = News::getAllNews($accessToken);
+            //$user_id = $accessToken->getUserId();
+            //$news       = News::getPDNewsForUser($user_id);
 
             // Output result
             $app->success($news);

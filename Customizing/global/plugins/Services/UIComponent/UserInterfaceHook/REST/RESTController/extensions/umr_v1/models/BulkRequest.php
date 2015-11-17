@@ -61,6 +61,7 @@ class BulkRequest extends Libs\RESTModel {
     $user       = UserInfo::getUserInfo($accessToken);
     $cag        = MyCoursesAndGroups::getMyCoursesAndGroups($accessToken);
     $desktop    = PersonalDesktop::getPersonalDesktop($accessToken);
+    $news       = News::getAllNews($accessToken);
 
     // Fetch data for refIds
     $refIds     = array_merge($cag['group_ids'], $cag['course_ids'], $desktop['ref_ids']);

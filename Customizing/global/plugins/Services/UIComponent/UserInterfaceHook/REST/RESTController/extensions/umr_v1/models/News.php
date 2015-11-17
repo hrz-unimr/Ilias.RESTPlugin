@@ -16,13 +16,30 @@ use \RESTController\libs as Libs;
  * News-stream model
  */
 class News extends Libs\RESTModel {
+
     /**
-     * Retrieves the ilias personal desktop news for a user.
-     * Note: code heavily inspired by Services/News/classes/ilPDNewsGUI.php
+     * Returns any type of news items for a user.
+     * For ilias internal news the user
+     * @param $accessToken
+     * @return array
+     */
+    public static function getAllNews($accessToken)
+    {
+        $result = array();
+        // Extract user name
+        $userId       = $accessToken->getUserId();
+
+        $result["cag"] = self::getCaGNewsForUser($userId);
+        return $result;
+    }
+
+    /**
+     * Returns all course and group (CaG) related news for a user.
+     * Note: only a subset of news properties are chosen.
      * @param $user_id
      * @return array
      */
-    public static function getPDNewsForUser($user_id)
+    public static function getCaGNewsForUser($user_id)
     {
         Libs\RESTLib::loadIlUser();
         global $ilUser;
@@ -30,70 +47,35 @@ class News extends Libs\RESTModel {
         $ilUser->read();
         Libs\RESTLib::initAccessHandling();
 
-        $ref_ids = array();
-        $obj_ids = array();
-        $pd_items = $ilUser->getDesktopItems();
-        foreach($pd_items as $item)
-        {
-            $ref_ids[] = $item["ref_id"];
-            $obj_ids[] = $item["obj_id"];
-        }
-
-        $sel_ref_id = ($_GET["news_ref_id"] > 0)
-            ? $_GET["news_ref_id"]
-            : $ilUser->getPref("news_sel_ref_id");
-
         include_once("./Services/News/classes/class.ilNewsItem.php");
-        $per = ($_SESSION["news_pd_news_per"] != "")
-            ? $_SESSION["news_pd_news_per"]
-            : \ilNewsItem::_lookupUserPDPeriod($ilUser->getId());
-        $news_obj_ids = \ilNewsItem::filterObjIdsPerNews($obj_ids, $per);
+        $per = \ilNewsItem::_lookupUserPDPeriod($ilUser->getId());
 
-        // related objects (contexts) of news
-        //$contexts[0] = $lng->txt("news_all_items");
-        $contexts[0] = "news_all_items";
+        $nitem = new \ilNewsItem();
+        $news_items = $nitem->_getNewsItemsOfUser($ilUser->getId(), false, true, $per);
 
-        $conts = array();
-        $sel_has_news = false;
-        foreach ($ref_ids as $ref_id)
-        {
-            $obj_id = \ilObject::_lookupObjId($ref_id);
-            $title = \ilObject::_lookupTitle($obj_id);
+        // filter
+        $cag_news_fields = array("id","title","content","content_is_lang_var", "content_text_is_lang_var","content_long","creation_date","update_date","ref_id","user_id");
+        $filtered_news_items = array();
 
-            $conts[$ref_id] = $title;
-            if ($sel_ref_id == $ref_id)
-            {
-                $sel_has_news = true;
+        $nNewsLimit = 100;
+        $cnt = 0;
+        foreach ($news_items as $news_id => $news_array) {
+            //self::getApp()->log->debug('news items key value : '.$key);
+            $item = array();
+            foreach ($news_array as $key => $value) {
+                if (in_array($key, $cag_news_fields) == true) {
+                    $item[$key] = $value;
+                }
+            }
+            $filtered_news_items[$news_id] = $item;
+            $cnt++;
+
+            if ($cnt >= $nNewsLimit) {
+                self::getApp()->log->debug('nNews limit exceeded. cnt = '.$cnt);
+                break;
             }
         }
-
-        $cnt = array();
-        $nitem = new \ilNewsItem();
-        $news_items = $nitem->_getNewsItemsOfUser($ilUser->getId(), false,
-            true, $per, $cnt);
-
-        // reset selected news ref id, if no news are given for id
-        if (!$sel_has_news)
-        {
-            $sel_ref_id = "";
-        }
-        asort($conts);
-        foreach($conts as $ref_id => $title)
-        {
-            $contexts[$ref_id] = $title." (".(int) $cnt[$ref_id].")";
-        }
-
-
-        if ($sel_ref_id > 0)
-        {
-            $obj_id = \ilObject::_lookupObjId($sel_ref_id);
-            $obj_type = \ilObject::_lookupType($obj_id);
-            $nitem->setContextObjId($obj_id);
-            $nitem->setContextObjType($obj_type);
-            $news_items = $nitem->getNewsForRefId($sel_ref_id, false,
-                false, $per, true);
-        }
-
-        return $news_items;
+        return $filtered_news_items;
     }
+
 }
