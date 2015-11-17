@@ -134,14 +134,7 @@
             'length' => 1,
             'notnull' => true,
             'default' => 0
-        ),
-        'description' => array(
-            'type' => 'text',
-            'length' => 1000,
-            'fixed' => false,
-            'notnull' => false,
-            'default' => ""
-        ),
+        )
     );
     $ilDB->createTable("ui_uihk_rest_keys", $fields, true);
     $ilDB->addPrimaryKey("ui_uihk_rest_keys", array("id"));
@@ -466,4 +459,11 @@ $ilDB->addPrimaryKey('ui_uihk_rest_challenge',  array('user_id'));
 // Load extension-databases
 foreach (glob(realpath(__DIR__).'/extensions/*/sql/dbupdate.php') as $filename)
     include_once($filename);
+?>
+
+<#14>
+<?php
+    global $ilLog;
+    global $ilDB;
+    $ilDB->manipulate('ALTER TABLE  ui_uihk_rest_keys ADD description VARCHAR( 1000 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL');
 ?>
