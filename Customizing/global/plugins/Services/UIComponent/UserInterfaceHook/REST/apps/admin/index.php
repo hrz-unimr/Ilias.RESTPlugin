@@ -36,7 +36,7 @@
         $sessionId = isset($_POST['sessionId']) ? $_POST['sessionId'] : '';
         $rtoken = isset($_POST['rtoken']) ? $_POST['rtoken'] : '';
         $restEndpoint = isset($_POST['restEndpoint']) ? $_POST['restEndpoint'] : '';
-        $iliasClient = isset($_POST['iliasClient']) ? $_POST['iliasClient'] : CLIENT_ID;
+        $iliasClient = isset($_POST['iliasClient']) ? $_POST['iliasClient'] : '';
         
         // Make it save
         $userName = addslashes (htmlspecialchars($userName, ENT_COMPAT));

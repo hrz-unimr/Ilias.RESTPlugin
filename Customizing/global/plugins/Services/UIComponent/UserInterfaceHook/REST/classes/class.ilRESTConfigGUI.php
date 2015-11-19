@@ -66,6 +66,7 @@ class ilRESTConfigGUI extends ilPluginConfigGUI {
         $configHTML .= '<p>'.$pl->txt("welcome_adminpanel").'</p>';
         $configHTML .= '
             <form action="' . $pl->getDirectory() . '/apps/admin/index.php" method="post" target="_blank" id="redirectForm">
+		<input type="hidden" name="iliasClient" value="'.CLIENT_ID.'" />
                 <input type="hidden" name="userId" value="'.$ilUser->getId().'" />
                 <input type="hidden" name="userName" value="'.$ilUser->getLogin().'" />
                 <input type="hidden" name="sessionId" value="'.session_id().'" />
