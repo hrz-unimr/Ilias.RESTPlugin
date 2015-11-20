@@ -99,8 +99,8 @@ class News extends Libs\RESTModel {
           'user_id'       => intval($newsItem['user_id']),
           'title'         => $newsItem['title'],
           'is_title'      => $newsItem['content_is_lang_var'] != 1,
-          'creation_date' => $newsItem['creation_date'],
-          'update_date'   => $newsItem['update_date'],
+          'creation_date' => substr_replace($newsItem['creation_date'], 'T', 10, 1),
+          'update_date'   => substr_replace($newsItem['update_date'], 'T', 10, 1),
           'content'       => $newsItem['content'],
           'is_content'    => ($newsItem['content']) ? $newsItem['content_text_is_lang_var'] != 1 : null,
           'content_long'  => $newsItem['content_long']
