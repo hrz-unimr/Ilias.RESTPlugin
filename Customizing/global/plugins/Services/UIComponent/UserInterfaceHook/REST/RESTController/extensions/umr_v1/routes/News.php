@@ -14,30 +14,34 @@ use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 
-$app->group('/v1/umr', function () use ($app) {
-    /**
-     * Route: GET /v1/umr/news
-     *  [Without HTTP-GET Parameters] Gets all news for the user encoded by the access-token.
-     * @See docs/api.pdf
-     */
-    $app->get('/news', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
-        // Fetch userId & userName
-        $accessToken  = Auth\Util::getAccessToken();
-        try {
-            $news  = News::getAllNews($accessToken);
-            //$user_id = $accessToken->getUserId();
-            //$news       = News::getPDNewsForUser($user_id);
 
-            // Output result
-            $app->success($news);
-        }
-        catch (Libs\Exceptions\IdParseProblem $e) {
-            $app->halt(422, $e->getMessage(), $e->getRESTCode());
-        }
-        catch (Exceptions\Events $e) {
-            $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
-            $responseObject['data'] = $e->getData();
-            $app->halt(500, $responseObject);
-        }
-    });
+$app->group('/v1/umr', function () use ($app) {
+  /**
+   * Route: GET /v1/umr/news
+   *  [Without HTTP-GET Parameters] Gets all news for the user encoded by the access-token.
+   * @See docs/api.pdf
+   */
+  $app->get('/news', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
+    // Fetch userId & userName
+    $accessToken  = Auth\Util::getAccessToken();
+
+    // Load additional (optional) parameters
+    $request  = $app->request;
+    $period   = $request->params('period', null);
+    $offset   = $request->params('offset', null);
+    $lastid   = $request->params('lastid', null);
+    $limit    = $request->params('limit', null);
+    $settings = array_filter(array(
+      'period'  => $period  ? intval($period) : null,
+      'offset'  => $offset  ? intval($offset) : null,
+      'limit'   => $limit   ? intval($limit)  : null,
+      'lastid'  => $lastid  ? intval($lastid) : null,
+    ), function($value) { return !is_null($value); });
+
+    // Fecth news
+    $news  = News::getAllNews($accessToken, $settings);
+
+    // Output result
+    $app->success($news);
+  });
 });

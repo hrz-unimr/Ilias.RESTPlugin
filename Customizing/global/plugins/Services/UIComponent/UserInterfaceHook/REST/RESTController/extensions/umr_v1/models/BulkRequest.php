@@ -22,28 +22,30 @@ class BulkRequest extends Libs\RESTModel {
   protected static function fetchDataRecursive($accessToken, $objects) {
     // Iterate over all objects (to find all children refIds)
     $children = array();
-    foreach ($objects as $object)
-      // Fetch all children with yet unknown refIds
-      if ($object['children']) {
-        $newChildren  = array_diff($object['children'], $objects);
-        $children     = array_unique(array_merge($children, $newChildren), SORT_NUMERIC);
-      }
 
-    // Fetch data for all (new) children
-    if (count($children) > 0) {
-      try {
-        $childrenData = Objects::getData($accessToken, $children);
-        $newData      = self::fetchDataRecursive($accessToken, $childrenData);
-      }
-      // Fail silently (but use errorObjects as data)
-      catch (Exceptions\Object $e) {
-        $newData = $e->getData();
-      }
+    if (count($objects) > 0) 
+      foreach ($objects as $object)
+        // Fetch all children with yet unknown refIds
+        if ($object['children']) {
+          $newChildren  = array_diff($object['children'], $objects);
+          $children     = array_unique(array_merge($children, $newChildren), SORT_NUMERIC);
+        }
 
-      // Append data
-      if (is_array($newData))
-        $objects  = $objects + $newData;
-    }
+      // Fetch data for all (new) children
+      if (count($children) > 0) {
+        try {
+          $childrenData = Objects::getData($accessToken, $children);
+          $newData      = self::fetchDataRecursive($accessToken, $childrenData);
+        }
+        // Fail silently (but use errorObjects as data)
+        catch (Exceptions\Object $e) {
+          $newData = $e->getData();
+        }
+
+        // Append data
+        if (is_array($newData))
+          $objects  = $objects + $newData;
+      }
 
     // Return complete data
     return $objects;
@@ -64,13 +66,12 @@ class BulkRequest extends Libs\RESTModel {
     $news       = News::getAllNews($accessToken);
 
     // Fetch data for refIds
+    $objects    = array();
     $refIds     = array_merge($cag['group_ids'], $cag['course_ids'], $desktop['ref_ids']);
     $refIds     = array_unique($refIds, SORT_NUMERIC);
-    if (count($refIds)>0) {
+    if (count($refIds) > 0) {
       $objects = Objects::getData($accessToken, $refIds);
       $objects = self::fetchDataRecursive($accessToken, $objects);
-    } else {
-      $objects = array();
     }
 
     // Output result

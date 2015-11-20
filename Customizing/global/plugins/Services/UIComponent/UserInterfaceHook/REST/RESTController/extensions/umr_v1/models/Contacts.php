@@ -61,7 +61,7 @@ class Contacts extends Libs\RESTModel {
     $userId       = $accessToken->getUserId();
 
     // Fetch contacts of user
-    require_once("Services/Contact/classes/class.ilAddressbook.php");
+    require_once('Services/Contact/classes/class.ilAddressbook.php');
     $adressbook = new \ilAddressbook($userId);
     $contacts   = $adressbook->getEntries();
 
@@ -90,7 +90,7 @@ class Contacts extends Libs\RESTModel {
     $userId       = $accessToken->getUserId();
 
     // Fetch contacts of user
-    require_once("Services/Contact/classes/class.ilAddressbook.php");
+    require_once('Services/Contact/classes/class.ilAddressbook.php');
     $adressbook = new \ilAddressbook($userId);
 
     // Fetch each contact from list

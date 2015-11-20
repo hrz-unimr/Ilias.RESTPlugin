@@ -46,7 +46,7 @@ class Events extends Libs\RESTModel {
     }
 
     // Each recurrence on a new line (mimicking ICS-formated)
-    $recurrenceString = (sizeof($recurrenceStrings) > 0) ? implode("\\n", $recurrenceStrings) : null;
+    $recurrenceString = (sizeof($recurrenceStrings) > 0) ? implode('\\n', $recurrenceStrings) : null;
 
     // Return final result as string
     return $recurrenceString;
