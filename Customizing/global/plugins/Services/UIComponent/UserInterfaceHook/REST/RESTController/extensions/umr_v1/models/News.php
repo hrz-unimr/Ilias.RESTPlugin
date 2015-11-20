@@ -96,6 +96,7 @@ class News extends Libs\RESTModel {
         array(
           'id'            => $id,
           'ref_id'        => intval($newsItem['ref_id']),
+          'ref_type'      => $newsItem['context_obj_type'],
           'user_id'       => intval($newsItem['user_id']),
           'title'         => $newsItem['title'],
           'is_title'      => $newsItem['content_is_lang_var'] != 1,
