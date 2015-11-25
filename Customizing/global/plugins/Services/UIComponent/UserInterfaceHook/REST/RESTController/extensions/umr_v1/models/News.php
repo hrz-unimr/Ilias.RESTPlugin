@@ -96,6 +96,7 @@ class News extends Libs\RESTModel {
         array(
           'id'            => $id,
           'ref_id'        => intval($newsItem['ref_id']),
+          'sub_id'        => ($newsItem['context_sub_obj_id'] != 0) ? intval($newsItem['context_sub_obj_id']) : null,
           'ref_type'      => $newsItem['context_obj_type'],
           'user_id'       => intval($newsItem['user_id']),
           'title'         => $newsItem['title'],

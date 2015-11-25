@@ -23,7 +23,7 @@ class BulkRequest extends Libs\RESTModel {
     // Iterate over all objects (to find all children refIds)
     $children = array();
 
-    if (count($objects) > 0) 
+    if (count($objects) > 0)
       foreach ($objects as $object)
         // Fetch all children with yet unknown refIds
         if ($object['children']) {
@@ -57,29 +57,73 @@ class BulkRequest extends Libs\RESTModel {
    */
   public static function getBulk($accessToken) {
     // Use models to fetch data
-    $calendars  = Calendars::getAllCalendars($accessToken);
-    $contacts   = Contacts::getAllContacts($accessToken);
-    $events     = Events::getAllEvents($accessToken);
-    $user       = UserInfo::getUserInfo($accessToken);
-    $cag        = MyCoursesAndGroups::getMyCoursesAndGroups($accessToken);
-    $desktop    = PersonalDesktop::getPersonalDesktop($accessToken);
-    $news       = News::getAllNews($accessToken);
+    $calendars    = Calendars::getAllCalendars($accessToken);
+    $contacts     = Contacts::getAllContacts($accessToken);
+    $events       = Events::getAllEvents($accessToken);
+    $user         = UserInfo::getUserInfo($accessToken);
+    $cag          = MyCoursesAndGroups::getMyCoursesAndGroups($accessToken);
+    $desktop      = PersonalDesktop::getPersonalDesktop($accessToken);
+    $news         = News::getAllNews($accessToken);
+
+    // Contact-Information will be stored inside users-element, while contatcs only contains their user-ids
+    $users        = $contacts;
+    $contactIds   = array();
+    foreach ($contacts as $contact)
+      $contactIds[] = $contact['id'];
+
+    // Also fetch Objects and users attached to news
+    $newsRefIds = array();
+    foreach ($news as $item) {
+      // Make sure all objects attached to news will be fetched
+      $newsRefIds[] = $item['ref_id'];
+
+      // Add information for all news-owners
+      $userId       = $item['user_id'];
+      if ($userId && !$users[$userId])
+        $users[$userId] = UserInfo::getUserInfo($userId);
+    }
 
     // Fetch data for refIds
     $objects    = array();
-    $refIds     = array_merge($cag['group_ids'], $cag['course_ids'], $desktop['ref_ids']);
+    $refIds     = array_merge($newsRefIds, $cag['group_ids'], $cag['course_ids'], $desktop['ref_ids']);
     $refIds     = array_unique($refIds, SORT_NUMERIC);
     if (count($refIds) > 0) {
       $objects = Objects::getData($accessToken, $refIds);
       $objects = self::fetchDataRecursive($accessToken, $objects);
     }
 
+    // Fetch user-information of all object owners and members
+    $users[$user['id']] = $user;
+    foreach($objects as $object) {
+      // Fetch all owner user-information
+      $userId       = $object['owner'];
+      if ($userId && !$users[$userId])
+        $users[$userId] = UserInfo::getUserInfo($userId);
+
+      // Fetch all member user-information
+      if ($object['participants'] && $object['participants']['members'])
+        foreach($object['participants']['members'] as $userId)
+          if (!$users[$userId])
+            $users[$userId] = UserInfo::getUserInfo($userId);
+
+      if ($object['participants'] && $object['participants']['admins'])
+        foreach($object['participants']['admins'] as $userId)
+          if (!$users[$userId])
+            $users[$userId] = UserInfo::getUserInfo($userId);
+
+      if ($object['participants'] && $object['participants']['tutors'])
+        foreach($object['participants']['tutors'] as $userId)
+          if (!$users[$userId])
+            $users[$userId] = UserInfo::getUserInfo($userId);
+    }
+
     // Output result
     return array(
       'calendars'  => $calendars,
-      'contacts'   => $contacts,
+      'contacts'   => $contactIds,
       'events'     => $events,
-      'user'       => $user,
+      'users'      => $users,
+      'user'       => $user['id'],
       'cag'        => $cag,
       'desktop'    => $desktop,
       'objects'    => $objects,

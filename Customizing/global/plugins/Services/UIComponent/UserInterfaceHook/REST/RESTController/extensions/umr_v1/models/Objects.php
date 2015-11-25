@@ -81,8 +81,8 @@ class Objects extends Libs\RESTModel {
 
     // Add additional file information
     $result['file_type'] = $ilObjectFile->getFileType();
-    $result['file_size'] = $ilObjectFile->getFileSize();
-    $result['version']   = $ilObjectFile->getVersion();
+    $result['file_size'] = intval($ilObjectFile->getFileSize());
+    $result['version']   = intval($ilObjectFile->getVersion());
 
     // Return object-information
     return $result;
@@ -119,11 +119,22 @@ class Objects extends Libs\RESTModel {
       // Fetch participants by group
       $participants = $ilObjectCourse->getMembersObject();
 
+      // Convert to array (containing integer values)
+      $members = array();
+      foreach($participants->getMembers() as $member)
+        $members[] = intval($member);
+      $admins = array();
+      foreach($participants->getAdmins() as $admin)
+        $admins[] = intval($admin);
+      $tutors = array();
+      foreach($participants->getTutors() as $tutor)
+        $tutors[] = intval($tutor);
+
       // Return participants
       return array(
-        'members' => $participants->getMembers(),
-        'admins'  => $participants->getAdmins(),
-        'tutors'  => $participants->getTutors(),
+        'members' => $members,
+        'admins'  => $admins,
+        'tutors'  => $tutors,
       );
     }
 
@@ -132,12 +143,17 @@ class Objects extends Libs\RESTModel {
   }
   protected static function getGroupParticipants($ilObjectGroup) {
     // Fetch for calculating difference (admins are in members, unlike with courses) [*sarcastic slow-clap*]
-    $members = $ilObjectGroup->getGroupMemberIds();
-    $admins  = $ilObjectGroup->getGroupAdminIds();
+    $admins  = array();
+    foreach($ilObjectGroup->getGroupAdminIds() as $admin)
+      $admins[] = intval($admin);
+    $members = array();
+    foreach($ilObjectGroup->getGroupMemberIds() as $member)
+      if (!in_array(intval($member), $admins))
+        $members[] = intval($member);
 
     // Return members and admins (cleanly!)
     return array(
-      'members'  => array_diff($members, $admins),
+      'members'  => $members,
       'admins'   => $admins,
     );
   }
