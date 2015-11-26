@@ -23,12 +23,14 @@ class OAuth2 {
    *  Extensions are allowed to create their own error-codes.
    *  Using a unique string seems to be an easier solution than assigning unique numbers.
    */
-  const ID_IP_NOT_ALLOWED   = 'RESTController\libs\RESTLib::ID_IP_NOT_ALLOWED';
-  const ID_NO_PERMISSION    = 'RESTController\libs\OAuth2Middleware::ID_NO_PERMISSION';
+  const ID_IP_NOT_ALLOWED   = 'RESTController\\libs\\OAuth2Middleware::ID_IP_NOT_ALLOWED';
+  const ID_NO_PERMISSION    = 'RESTController\\libs\\OAuth2Middleware::ID_NO_PERMISSION';
+  const ID_NO_TOKEN         = 'RESTController\\libs\\OAuth2Middleware::ID_NO_TOKEN';
 
   // Allow to re-use status-strings
   const MSG_IP_NOT_ALLOWED  = 'Access denied for client IP address.';
   const MSG_NO_PERMISSION   = 'No permission to access this route.';
+  const MSG_NO_TOKEN        = 'No access-token provided or using invalid format.';
 
 
   /**
@@ -93,15 +95,15 @@ class OAuth2 {
 
       // Check token for common problems: Non given or invalid format
       if (!$accessToken)
-          $app->halt(401, Auth\Token\Base::MSG_NO_TOKEN, Auth\Token\Base::ID_NO_TOKEN);
+          $app->halt(401, self::MSG_NO_TOKEN, self::ID_NO_TOKEN);
 
       // Check token for common problems: Invalid format
       if (!$accessToken->isValid())
-          $app->halt(401, Auth\Token\Generic::MSG_INVALID, Auth\Token\Generic::ID_INVALID);
+          $app->halt(401, Auth\Tokens\Generic::MSG_INVALID, Auth\Tokens\Generic::ID_INVALID);
 
       // Check token for common problems: Invalid format
       if ($accessToken->isExpired())
-          $app->halt(401, Auth\Token\Generic::MSG_EXPIRED, Auth\Token\Generic::ID_EXPIRED);
+          $app->halt(401, Auth\Tokens\Generic::MSG_EXPIRED, Auth\Tokens\Generic::ID_EXPIRED);
 
       // Check IP (if option is enabled)
       $api_key  = $accessToken->getApiKey();
@@ -113,7 +115,7 @@ class OAuth2 {
       return $accessToken;
     }
     catch (TokenExceptions\TokenInvalid $e) {
-        $app->halt(401, $e->getMessage(), $e::ID);
+        $app->halt(401, $e->getMessage(), $e->getRestCode());
     }
   }
 

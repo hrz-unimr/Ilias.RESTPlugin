@@ -26,9 +26,9 @@ class MiscEndpoint extends EndpointBase {
     public static function tokenInfo($accessToken) {
         // Check token
         if (!$accessToken->isValid())
-            throw new Exceptions\TokenInvalid(Libs\Generic::MSG_INVALID);
+            throw new Exceptions\TokenInvalid(Libs\Generic::MSG_INVALID, Libs\Generic::ID_INVALID);
         if ($accessToken->isExpired())
-            throw new Exceptions\TokenInvalid(Libs\Generic::MSG_EXPIRED);
+            throw new Exceptions\TokenInvalid(Libs\Generic::MSG_EXPIRED, Libs\Generic::ID_EXPIRED);
 
         // Generate info for (valid) token
         return array(
@@ -56,7 +56,7 @@ class MiscEndpoint extends EndpointBase {
 
         // Generate token for user (via given api-key)
         $user = Libs\RESTLib::getUserNameFromUserId($user_id);
-        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('bearer'), $user, $api_key, null, $ilias_client);
+        $bearerToken = Tokens\Bearer::fromFields(self::tokenSettings('bearer'), $user, $api_key, null, $ilias_client);
         $accessToken = $bearerToken->getEntry('access_token');
 
         //

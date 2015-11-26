@@ -41,13 +41,13 @@ class RESTAuth {
     // Select auth that matches given security-level
     switch($level) {
       case self::TOKEN:
-        return 'RESTController\libs\Middleware\OAuth2::TOKEN';
+        return 'RESTController\\libs\\Middleware\\OAuth2::TOKEN';
       case self::PERMISSION:
-        return 'RESTController\libs\Middleware\OAuth2::PERMISSION';
+        return 'RESTController\\libs\\Middleware\\OAuth2::PERMISSION';
       case self::ADMIN:
-        return 'RESTController\libs\Middleware\ILIAS::ADMIN';
+        return 'RESTController\\libs\\Middleware\\ILIAS::ADMIN';
       case self::SHORT:
-        return 'RESTController\libs\Middleware\OAuth2::SHORT';
+        return 'RESTController\\libs\\Middleware\\OAuth2::SHORT';
     }
 
     // No check required

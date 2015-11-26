@@ -68,9 +68,9 @@ class RefreshEndpoint extends EndpointBase {
     public static function getRefreshToken($accessToken, $renewToken) {
         // Check token
         if (!$accessToken->isValid())
-            throw new Exceptions\TokenInvalid(Token\Generic::MSG_INVALID);
+            throw new Exceptions\TokenInvalid(Tokens\Generic::MSG_INVALID, Tokens\Generic::ID_INVALID);
         if ($accessToken->isExpired())
-            throw new Exceptions\TokenInvalid(Token\Generic::MSG_EXPIRED);
+            throw new Exceptions\TokenInvalid(Tokens\Generic::MSG_EXPIRED, Tokens\Generic::ID_EXPIRED);
 
         // Reset key if existing
         if (self::hasRefreshKey($accessToken) && !$renewToken) {
@@ -95,7 +95,7 @@ class RefreshEndpoint extends EndpointBase {
             if ($query != null && $entry = self::getDB()->fetchAssoc($query)) {
                 // Convert refresh-token string to object
                 $refresh_token = $entry['refresh_token'];
-                $refreshToken = Token\Refresh::fromMixed(self::tokenSettings('refresh'), $refresh_token);
+                $refreshToken = Tokens\Refresh::fromMixed(self::tokenSettings('refresh'), $refresh_token);
 
                 // Update timestamp
                 self::updateTimestamp($user_id, $api_key);
@@ -117,7 +117,7 @@ class RefreshEndpoint extends EndpointBase {
         $user_id = $accessToken->getUserId();
         $api_key = $accessToken->getApiKey();
         $ilias_client = $accessToken->getIliasClient();
-        $refreshToken = Token\Refresh::fromFields(self::tokenSettings('refresh'), $user_name, $api_key, $ilias_client);
+        $refreshToken = Tokens\Refresh::fromFields(self::tokenSettings('refresh'), $user_name, $api_key, $ilias_client);
 
         // Reset key if existing
         if (self::hasRefreshKey($accessToken))

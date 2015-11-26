@@ -157,7 +157,7 @@ class UserInfo extends Libs\RESTModel {
         $userName     = Libs\RESTLib::getUserNameFromUserId($userId);
       }
       // Parse input: Using an access-token
-      elseif (is_a($accessToken_OR_userId, '\RESTController\core\auth\Token\Generic')) {
+      elseif (is_a($accessToken_OR_userId, '\RESTController\core\auth\Tokens\Generic')) {
         $usingToken   = true;
         $accessToken  = $accessToken_OR_userId;
         $userName     = $accessToken->getUserName();

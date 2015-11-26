@@ -9,13 +9,13 @@ namespace RESTController\core\clients\Exceptions;
 
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\Exceptions as LibExceptions;
+use \RESTController\libs as Libs;
 
 
 /**
  *
  */
-class Delete extends LibExceptions\RESTException {
+class Delete extends Libs\RESTException {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.

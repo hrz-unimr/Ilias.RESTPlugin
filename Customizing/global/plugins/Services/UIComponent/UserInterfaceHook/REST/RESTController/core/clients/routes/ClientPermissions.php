@@ -47,7 +47,7 @@ use \RESTController\core\auth as Auth;
      try {
          $api_key = $request->params('api_key', null, true);
      } catch(LibExceptions\MissingParameter $e) {
-         $app->halt(400, $e->getFormatedMessage(), $e::ID);
+         $app->halt(400, $e->getFormatedMessage(), $e->getRestCode());
      }
 
     // Use the model class to fetch data
@@ -98,7 +98,7 @@ $app->post('/clientpermissions/', RESTAuth::checkAccess(RESTAuth::PERMISSION), f
     try {
         $api_key = $request->params('api_key', null, true);
     } catch(LibExceptions\MissingParameter $e) {
-        $app->halt(400, $e->getFormatedMessage(), $e::ID);
+        $app->halt(400, $e->getFormatedMessage(), $e->getRestCode());
     }
 
     // Get optional inputs
@@ -145,6 +145,6 @@ $app->delete('/clientpermissions/:id', RESTAuth::checkAccess(RESTAuth::PERMISSIO
         $result = array('NumItemsDeleted'=>$aff_rows);
         $app->success($result);
     } catch(ClientExceptions\DeleteFailed $e) {
-        $app->halt(500, $e->getFormatedMessage(), $e::ID);
+        $app->halt(500, $e->getFormatedMessage(), $e->getRestCode());
     }
 });

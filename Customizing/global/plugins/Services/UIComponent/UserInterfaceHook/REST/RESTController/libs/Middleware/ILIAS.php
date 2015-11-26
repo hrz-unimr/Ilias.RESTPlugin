@@ -23,7 +23,7 @@ class ILIAS {
      *  Extensions are allowed to create their own error-codes.
      *  Using a unique string seems to be an easier solution than assigning unique numbers.
      */
-    const ID_NO_ADMIN         = 'RESTController\libs\OAuth2Middleware::ID_NO_ADMIN';
+    const ID_NO_ADMIN         = 'RESTController\\libs\\OAuth2Middleware::ID_NO_ADMIN';
 
     // Allow to re-use status-strings
     const MSG_NO_ADMIN        = 'Access denied. Administrator permissions required.';
@@ -46,7 +46,7 @@ class ILIAS {
       // Check if user is admin in ILIAS
       self::checkAdmin($accessToken);
     }
-    
+
 
     /**
      * Function: checkAdmin($accessToken)

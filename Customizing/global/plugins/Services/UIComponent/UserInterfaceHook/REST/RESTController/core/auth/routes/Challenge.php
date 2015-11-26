@@ -8,9 +8,8 @@
 namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
-// Requires: $app to be \RESTController\RESTController::getInstance()
 use \RESTController\libs\RESTAuth as RESTAuth;
-use \RESTController\libs as Libs;
+use \RESTController\core\auth\io as IO;
 
 
 // Put implementation into own URI-Group
@@ -21,7 +20,7 @@ $app->group('/v1/challenge', function () use ($app) {
    *  (the refresh-token) without actually revealing the secret itself,
    *  but using challenge-response authentication:
    *
-   * Authentification-Flow:
+   * Authentification-Flow: (Client-Challange)
    *  Client sends a unique challenge value cc to the Server
    *  Server generates unique challenge value sc
    *  Server computes sr = hash(sc + cc + secret)
@@ -31,30 +30,13 @@ $app->group('/v1/challenge', function () use ($app) {
    *  Client sends cr
    *  Server calculates the expected value of cr and ensures the Client responded correctly
    *
-   * This part manages the initial client_challenge.
+   * Parameters:
    *
-   * @See docs/api.pdf
+   *
+   * Response:
+   *
    */
-  $app->post('/client', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
-    // Fetch userId & userName
-    $accessToken  = Util::getAccessToken();
-
-    // Fetch client-challenge or client-response
-    $request    = $app->request;
-    $cc         = $request->params('client_challenge');
-
-    // Answer client-challenge?
-    if ($cc) {
-      // Verify input
-      if (strlen($cc) != Challenge::challengeSize)
-        $app->halt(422, sprintf('Client-Challenge does not have correct size. (Was: %d / Should: %d)', strlen($cc), Challenge::challengeSize));
-
-      // Answer client-challenge
-      $app->success(Challenge::answerClientChallange($accessToken, $cc));
-    }
-    else
-      $app->halt(401, 'No Client-Challenge was given.');
-  });
+  $app->post('/client', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) { IO\Challenge::ClientChallenge($app); });
 
 
   /**
@@ -63,7 +45,7 @@ $app->group('/v1/challenge', function () use ($app) {
    *  (the refresh-token) without actually revealing the secret itself,
    *  but using challenge-response authentication:
    *
-   * Authentification-Flow:
+   * Authentification-Flow: (Server-Challenge)
    *  Client sends a unique challenge value cc to the Server
    *  Server generates unique challenge value sc
    *  Server computes sr = hash(sc + cc + secret)
@@ -73,36 +55,12 @@ $app->group('/v1/challenge', function () use ($app) {
    *  Client sends cr
    *  Server calculates the expected value of cr and ensures the Client responded correctly
    *
-   * This part manages the server_challenge after the initial client_challenge.
+   * Parameters:
    *
-   * @See docs/api.pdf
+   *
+   * Response:
+   *
    */
-  $app->get('/server', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
-    // Fetch userId & userName
-    $accessToken  = Util::getAccessToken();
-
-    // Fetch client-challenge or client-response
-    $request    = $app->request;
-    $cr         = $request->params('client_response');
-
-    // Verify client-response
-    if ($cr) {
-     // Compare client-repsonse with expected response
-     if (Challenge::checkClientResponse($accessToken, $cr))
-       $app->success(array(
-         'short_token' => Challenge::updateAccessToken($accessToken)->getTokenString()
-       ));
-     else
-       $app->halt(401, 'Server-Challenge was not answered correctly.');
-    }
-    else
-      $app->halt(401, 'No Client-Response was given.');
- });
-
-
+  $app->get('/server', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) { IO\Challenge::ServerChallenge($app); });
 // End of '/v1/challenge/' URI-Group
 });
-
-/*
-
-  */

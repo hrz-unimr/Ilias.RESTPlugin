@@ -9,10 +9,11 @@ namespace RESTController\libs;
 
 
 /**
- * Baseclass for all models.
- * Implements some common functionality, like
- * injecting the RESTController into the model.
- * Offering easier logging, etc.
+ * Class: RESTModel
+ *  Base class for all ('non-io') 'models'. Models should contain only program
+ *  logic and are not allowed to parse input parameters and send
+ *  responses via SLIM in order to be as reusable as possible, while 'io models'
+ *  should doing the input parsing and reesponse sending.
  */
 class RESTModel {
     /*

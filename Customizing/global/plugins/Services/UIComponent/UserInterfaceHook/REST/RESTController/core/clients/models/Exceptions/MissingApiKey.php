@@ -9,7 +9,7 @@ namespace RESTController\core\clients\Exceptions;
 
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\Exceptions as LibExceptions;
+use \RESTController\libs as Libs;
 
 
 /**
@@ -17,7 +17,7 @@ use \RESTController\libs\Exceptions as LibExceptions;
  * the client does not provide the correct response_type
  * value with his query.
  */
-class MissingApiKey extends LibExceptions\RESTException {
+class MissingApiKey extends Libs\RESTException {
     /**
      * List of default REST error-codes
      *  Extensions are allowed to create their own error-codes.

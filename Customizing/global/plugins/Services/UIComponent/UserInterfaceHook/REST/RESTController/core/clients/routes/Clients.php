@@ -234,7 +234,7 @@ $app->post('/clients/', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ()
     try {
         $api_key = $request->params('api_key', null, true);
     } catch(LibExceptions\MissingParameter $e) {
-        $app->halt(400, $e->getFormatedMessage(), $e::ID);
+        $app->halt(400, $e->getFormatedMessage(), $e->getRestCode());
     }
 
     // Get optional inputs
@@ -314,6 +314,6 @@ $app->delete('/clients/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION),  funct
         $result = array();
         $app->success($result);
     } catch(ClientExceptions\DeleteFailed $e) {
-        $app->halt(500, $e->getFormatedMessage(), $e::ID);
+        $app->halt(500, $e->getFormatedMessage(), $e->getRestCode());
     }
 });

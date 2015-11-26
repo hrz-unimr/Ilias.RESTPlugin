@@ -5,11 +5,14 @@
  * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * Since 2014
  */
-namespace RESTController\libs\Exceptions;
+namespace RESTController\libs;
 
 
 /**
  *
+ *  $message <String> - A human-readable message about the cause of the exception
+ *  $restCode <String> - [Optional] A machine-readable identifier for the cause of the exception
+ *  $previous <Exception> - [Optional] Attach previous exception that caused this exception
  */
 class RESTException extends \Exception {
   //

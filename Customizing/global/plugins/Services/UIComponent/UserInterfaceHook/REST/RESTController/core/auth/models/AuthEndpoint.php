@@ -65,7 +65,7 @@ class AuthEndpoint extends EndpointBase {
             // Need to show grant-permission site?
             if(Clients\Clients::is_oauth2_consent_message_enabled($api_key)) {
                 // Generate a temporary token that can be exchanged for bearer-token
-                $tempAuthenticityToken = Token\Generic::fromFields(self::tokenSettings('access'), $username, $api_key, 'temporary', '', 10);
+                $tempAuthenticityToken = Tokens\Generic::fromFields(self::tokenSettings('access'), $username, $api_key, 'temporary', '', 10);
                 $oauth2_consent_message = Clients\Clients::getOAuth2ConsentMessage($api_key);
 
                 // Return data to route/other model
@@ -84,11 +84,11 @@ class AuthEndpoint extends EndpointBase {
             else {
                 // Generate a temporary token that can be exchanged for bearer-token
                 if ($response_type == 'code') {
-                    $authorizationToken = Token\Generic::fromFields(self::tokenSettings('access'), $username, $api_key, 'code', $redirect_uri, 10);
+                    $authorizationToken = Tokens\Generic::fromFields(self::tokenSettings('access'), $username, $api_key, 'code', $redirect_uri, 10);
                     $url = $redirect_uri . '?code='.$authorizationToken->getTokenString();
                 }
                 elseif ($response_type == 'token') {
-                    $bearerToken = Token\Bearer::fromFields(self::tokenSettings('access'), $username, $api_key);
+                    $bearerToken = Tokens\Bearer::fromFields(self::tokenSettings('access'), $username, $api_key);
                     $accessToken = $bearerToken->getEntry('access_token');
                     $url = $redirect_uri . '#access_token='.$accessToken->getTokenString().'&token_type=bearer'.'&expires_in='.$bearerToken->getEntry('expires_in').'&state=xyz';
                 }
@@ -104,18 +104,18 @@ class AuthEndpoint extends EndpointBase {
         elseif ($authenticityToken) {
             // Check if token is still valid
             if (!$authenticityToken->isValid())
-                throw new Exceptions\TokenInvalid(Token\Generic::MSG_INVALID);
+                throw new Exceptions\TokenInvalid(Tokens\Generic::MSG_INVALID, Tokens\Generic::ID_INVALID);
             if ($authenticityToken->isExpired())
-                throw new Exceptions\TokenInvalid(Token\Generic::MSG_EXPIRED);
+                throw new Exceptions\TokenInvalid(Tokens\Generic::MSG_EXPIRED, Tokens\Generic::ID_EXPIRED);
 
             // Generate a temporary token that can be exchanged for bearer-token
             $tokenUser = $authenticityToken->getUserName();
             if ($response_type == 'code') {
-                $authorizationToken = Token\Generic::fromFields(self::tokenSettings('access'), $tokenUser, $api_key, 'code', $redirect_uri, 10);
+                $authorizationToken = Tokens\Generic::fromFields(self::tokenSettings('access'), $tokenUser, $api_key, 'code', $redirect_uri, 10);
                 $url = $redirect_uri . '?code='.$authorizationToken->getTokenString();
             }
             elseif ($response_type == 'token') {
-                $bearerToken = Token\Bearer::fromFields(self::tokenSettings('access'), $tokenUser, $api_key);
+                $bearerToken = Tokens\Bearer::fromFields(self::tokenSettings('access'), $tokenUser, $api_key);
                 $accessToken = $bearerToken->getEntry('access_token');
                 $url = $redirect_uri . '#access_token='.$accessToken->getTokenString().'&token_type=bearer'.'&expires_in='.$bearerToken->getEntry('expires_in').'&state=xyz';
             }

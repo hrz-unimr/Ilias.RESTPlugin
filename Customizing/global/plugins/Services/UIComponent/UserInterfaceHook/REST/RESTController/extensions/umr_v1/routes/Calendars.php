@@ -109,7 +109,7 @@ $app->group('/v1/umr', function () use ($app) {
       $app->halt(422, $e->getMessage(), $e->getRESTCode());
     }
     catch (Libs\Exceptions\MissingParameter $e) {
-        $app->halt(400, $e->getFormatedMessage(), $e::ID);
+        $app->halt(400, $e->getFormatedMessage(), $e->getRestCode());
     }
     catch (Exceptions\Calendars $e) {
       $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());

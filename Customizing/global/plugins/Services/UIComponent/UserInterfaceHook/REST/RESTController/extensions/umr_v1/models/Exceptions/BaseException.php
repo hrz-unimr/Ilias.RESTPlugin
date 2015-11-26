@@ -9,13 +9,13 @@ namespace RESTController\extensions\umr_v1\Exceptions;
 
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\Exceptions as LibExceptions;
+use \RESTController\libs as Libs;
 
 
 /**
  *
  */
-class BaseException extends LibExceptions\RESTException {
+class BaseException extends Libs\RESTException {
   // Used to store additional data for this exception
   protected $data = null;
 

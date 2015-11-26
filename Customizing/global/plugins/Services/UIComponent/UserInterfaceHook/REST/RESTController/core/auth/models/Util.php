@@ -123,7 +123,7 @@ class Util extends EndpointBase {
         }
 
         // Decode token (Throws Exception if token is invalid/missing)
-        $accessToken = Token\Generic::fromMixed(self::tokenSettings('access'), $tokenString);
+        $accessToken = Tokens\Generic::fromMixed(self::tokenSettings('access'), $tokenString);
 
         // Store access token
         return $accessToken;

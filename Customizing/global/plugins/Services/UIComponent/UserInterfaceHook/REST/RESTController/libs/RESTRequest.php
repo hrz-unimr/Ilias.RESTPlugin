@@ -7,6 +7,9 @@
  */
 namespace RESTController\libs;
 
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs\Exceptions as Exceptions;
+
 
 /**
  *

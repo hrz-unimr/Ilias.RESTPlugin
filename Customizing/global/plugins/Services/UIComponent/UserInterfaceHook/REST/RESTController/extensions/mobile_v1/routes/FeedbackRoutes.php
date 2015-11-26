@@ -27,7 +27,7 @@ $app->group('/v1/m', function () use ($app) {
         try {
             $s_msg = $request->params('message','',true);
             $s_env = $request->params('env','',true);
-            
+
             $accessToken = Auth\Util::getAccessToken();
             $s_uid = $accessToken->getTokenString();
 
@@ -35,7 +35,7 @@ $app->group('/v1/m', function () use ($app) {
             $id = $model->createFeedbackItem($s_uid, $s_msg, $s_env);
             $app->success(array("msg"=>"Created new feedback entry.", "id"=>$id));
         } catch (Libs\Exceptions\MissingParameter $e) {
-            $app->halt(400, $e->getMessage(), $e::ID);
+            $app->halt(400, $e->getMessage(), $e->getRestCode());
         }
     });
 
@@ -55,7 +55,7 @@ $app->group('/v1/m', function () use ($app) {
              $id = $model->createFeedbackItem($s_uid, $s_msg, $s_env);
              $app->success(array("msg"=>"Created new feedback entry.", "id"=>$id));
          } catch (Libs\Exceptions\MissingParameter $e) {
-             $app->halt(400, $e->getMessage(), $e::ID);
+             $app->halt(400, $e->getMessage(), $e->getRestCode());
          }
 
      });

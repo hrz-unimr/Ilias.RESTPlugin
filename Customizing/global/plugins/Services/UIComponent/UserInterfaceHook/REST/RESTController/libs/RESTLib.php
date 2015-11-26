@@ -29,7 +29,7 @@ class RESTLib {
      *  Extensions are allowed to create their own error-codes.
      *  Using a unique string seems to be an easier solution than assigning unique numbers.
      */
-    const ID_PARSE_ISSUE      = 'RESTController\libs\RESTLib::ID_PARSE_ISSUE';
+    const ID_PARSE_ISSUE      = 'RESTController\\libs\\RESTLib::ID_PARSE_ISSUE';
 
     // Allow to re-use status-strings
     const MSG_PARSE_ISSUE     = 'Could not parse id(s) %s from %s.';

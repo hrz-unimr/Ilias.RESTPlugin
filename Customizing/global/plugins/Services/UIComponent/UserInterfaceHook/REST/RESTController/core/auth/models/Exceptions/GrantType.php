@@ -9,30 +9,16 @@ namespace RESTController\core\auth\Exceptions;
 
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\Exceptions as LibExceptions;
+use \RESTController\libs as Libs;
 
 
 /**
- * This exception should be thrown when
- * the client does not provide the correct response_type
- * value with his query.
+ * Exception: LoginFailed($message, $restCode, $previous)
+ *  This exception should be thrown when
+ *  the client does not provide the correct response_type
+ *  value with his query.
+ *
+ * Parameters:
+ *  @See Libs\RESTException for parameter description
  */
-class GrantType extends LibExceptions\RESTException {
-    /**
-     * List of default REST error-codes
-     *  Extensions are allowed to create their own error-codes.
-     *  Using a unique string seems to be an easier solution than assigning unique numbers.
-     */
-    const ID = 'RESTController\\core\\auth\\Exceptions\\GrantType::ID';
-
-    // Allow to reuse status message
-    const MSG = 'Parameter "grant_type" needs to match "password", "client_credentials", "authorization_code" or "refresh_token".';
-
-
-    /**
-     * Constructor
-     */
-    public function __construct ($message, $restCode = 0, $previous = NULL) {
-        parent::__construct ($message, ($restCode == 0) ? self::ID : $restCode, $previous);
-    }
-}
+class GrantType extends Libs\RESTException { }

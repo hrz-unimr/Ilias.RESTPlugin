@@ -42,7 +42,7 @@ $app->group('/dev', function () use ($app) {
         $ilLog->write('Hello from REST Plugin - Experimental');
         $app->response()->header('Content-Type', 'application/json');
 
-        $refreshToken = Token\Refresh::fromMixed($model->tokenSettings('refresh'), $refresh_token);
+        $refreshToken = Tokens\Refresh::fromMixed($model->tokenSettings('refresh'), $refresh_token);
         $bearer_token = Auth\TokenEndpoint::refresh2Access($refreshToken);
 
         $result = array('token' => $bearer_token->getEntry('access_token'));

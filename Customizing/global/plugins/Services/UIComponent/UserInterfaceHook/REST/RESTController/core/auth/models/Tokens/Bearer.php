@@ -5,16 +5,16 @@
  * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * Since 2014
  */
-namespace RESTController\core\auth\Token;
+namespace RESTController\core\auth\Tokens;
 
 
 /**
- * Class: BearerToken
+ * Class: Bearer (-Token)
  *  Contains both access- and refresh-tokens as type bearer
  *  with additional information about contained tokens.
  *  See: https://tools.ietf.org/html/rfc6750
  */
-class BearerToken extends Base {
+class Bearer extends Base {
   // List of fields (keys) for this kind of token
   protected static $fields = array(
     'access_token',
@@ -119,8 +119,8 @@ class BearerToken extends Base {
    */
   protected function generateTokenArray($user_id, $ilias_client, $api_key, $scope = null) {
     // Generate generic token containing user and api-key
-    $accessToken  = AccessToken::fromFields( $this->tokenSettings, $user_id, $ilias_client, $api_key, 'Bearer');
-    $refreshToken = RefreshToken::fromFields($this->tokenSettings, $user_id, $ilias_client, $api_key, 'Bearer');
+    $accessToken  = Access::fromFields( $this->tokenSettings, $user_id, $ilias_client, $api_key, 'Bearer');
+    $refreshToken = Refresh::fromFields($this->tokenSettings, $user_id, $ilias_client, $api_key, 'Bearer');
 
     // Generate bearer-token containing the generic token and additional information
     return array(

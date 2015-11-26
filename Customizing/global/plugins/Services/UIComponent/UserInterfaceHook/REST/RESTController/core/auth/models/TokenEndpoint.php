@@ -58,7 +58,7 @@ class TokenEndpoint extends EndpointBase {
             throw new Exceptions\LoginFailed(self::MSG_AUTH_FAILED);
 
         // [All] Generate bearer & refresh-token (if enabled)
-        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('access'), $username, $api_key, null, $ilias_client);
+        $bearerToken = Tokens\Bearer::fromFields(self::tokenSettings('access'), $username, $api_key, null, $ilias_client);
         $accessToken = $bearerToken->getEntry('access_token');
         if (Clients\Clients::is_resourceowner_refreshtoken_enabled($api_key))
             $refreshToken = RefreshEndpoint::getRefreshToken($accessToken, $new_refresh);
@@ -94,7 +94,7 @@ class TokenEndpoint extends EndpointBase {
         $username = Libs\RESTLib::getUserNameFromUserId($uid);
 
         // [All] Generate bearer & refresh-token (if enabled)
-        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('access'), $username, $api_key, null, $ilias_client);
+        $bearerToken = Tokens\Bearer::fromFields(self::tokenSettings('access'), $username, $api_key, null, $ilias_client);
         $accessToken = $bearerToken->getEntry('access_token');
         // -- [no] Refresh-token --
 
@@ -124,9 +124,9 @@ class TokenEndpoint extends EndpointBase {
 
         // Check token
         if (!$authCodeToken->isValid())
-            throw new Exceptions\TokenInvalid(Token\Generic::MSG_INVALID);
+            throw new Exceptions\TokenInvalid(Tokens\Generic::MSG_INVALID, Tokens\Generic::ID_INVALID);
         if ($authCodeToken->isExpired())
-            throw new Exceptions\TokenInvalid(Token\Generic::MSG_EXPIRED);
+            throw new Exceptions\TokenInvalid(Tokens\Generic::MSG_EXPIRED, Tokens\Generic::ID_EXPIRED);
 
         // Compare token content to other request data
         if ($authCodeToken->getEntry('misc') != $redirect_uri || $authCodeToken->getApiKey() != $api_key)
@@ -140,7 +140,7 @@ class TokenEndpoint extends EndpointBase {
             throw new Exceptions\LoginFailed(self::MSG_RESTRICTED_USERS);
 
         // [All] Generate bearer & refresh-token (if enabled)
-        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('access'), $userName, $api_key, null, "");
+        $bearerToken = Tokens\Bearer::fromFields(self::tokenSettings('access'), $userName, $api_key, null, "");
         $accessToken = $bearerToken->getEntry('access_token');
         if (Clients\Clients::is_authcode_refreshtoken_enabled($api_key))
             $refreshToken = RefreshEndpoint::getRefreshToken($accessToken, $new_refresh);
@@ -162,9 +162,9 @@ class TokenEndpoint extends EndpointBase {
     public function refresh2Access($refreshToken, $new_refresh = null) {
         // Check token
         if (!$refreshToken->isValid())
-            throw new Exceptions\TokenInvalid(Token\Generic::MSG_INVALID);
+            throw new Exceptions\TokenInvalid(Tokens\Generic::MSG_INVALID, Tokens\Generic::ID_INVALID);
         if ($refreshToken->isExpired())
-            throw new Exceptions\TokenInvalid(Token\Generic::MSG_EXPIRED);
+            throw new Exceptions\TokenInvalid(Tokens\Generic::MSG_EXPIRED, Tokens\Generic::ID_EXPIRED);
 
         // Check if present in DB
         if (!RefreshEndpoint::isTokenActive($refreshToken))
@@ -177,7 +177,7 @@ class TokenEndpoint extends EndpointBase {
         $ilias_client = $refreshToken->getIliasClient();
 
         //
-        $bearerToken = Token\Bearer::fromFields(self::tokenSettings('bearer'), $user, $api_key, null, $ilias_client);
+        $bearerToken = Tokens\Bearer::fromFields(self::tokenSettings('bearer'), $user, $api_key, null, $ilias_client);
         $accessToken = $bearerToken->getEntry('access_token');
 
 

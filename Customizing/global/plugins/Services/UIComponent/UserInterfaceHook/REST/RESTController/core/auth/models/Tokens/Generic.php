@@ -5,7 +5,7 @@
  * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * Since 2014
  */
-namespace RESTController\core\auth\Token;
+namespace RESTController\core\auth\Tokens;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
@@ -17,17 +17,12 @@ use \RESTController\core\auth\Exceptions as Exceptions;
  *  (Convieved) Abstract class for common access- and refresh-token code.
  */
 class Generic extends Base {
-  /**
-   * List of default REST error-codes
-   *  Extensions are allowed to create their own error-codes.
-   *  Using a unique string seems to be an easier solution than assigning unique numbers.
-   */
-  const ID_EXPIRED = 'RESTController\core\auth\Generic::ID_EXPIRED';
-  const ID_INVALID = 'RESTController\core\auth\Generic::ID_INVALID';
-
-  // Allow to re-use status-strings
+  // Allow to re-use status messages and codes
+  const ID_EXPIRED  = 'RESTController\core\auth\Generic::ID_EXPIRED';
+  const ID_INVALID  = 'RESTController\core\auth\Generic::ID_INVALID';
   const MSG_EXPIRED = 'Token has expired.';
   const MSG_INVALID = 'Token is invalid.';
+
 
   // List of fields (keys) for this kind of token
   protected static $fields = array(
@@ -78,6 +73,7 @@ class Generic extends Base {
    *  $ilias_client <String> - ILIAS Client-Id that should be attached to the token
    *  $api_key <String> - API-Key that should be attached to the token
    *  $type <String> - Type that should be attached to token
+   *  $misc <String> - Misc data that should be attached to token
    *  $lifetime <Integer> - Lifetime that should be attached to token (get invalid after expiration)
    *
    * Return:
@@ -90,7 +86,7 @@ class Generic extends Base {
     $genericToken->setToken($tokenArray);
 
     // Return new object
-    return $token;
+    return $genericToken;
   }
 
 
@@ -248,13 +244,18 @@ class Generic extends Base {
 
   /**
    * Function: generateTokenArray($user_id, $ilias_client, $api_key, $type, $misc, $lifetime)
-   *
+   *  Generates a token-array for the given input parameters, for internal use only.
    *
    * Parameters:
-   *
+   *  $user_id <String> - User-Id that should be attached to the token
+   *  $ilias_client <String> - ILIAS Client-Id that should be attached to the token
+   *  $api_key <String> - API-Key that should be attached to the token
+   *  $type <String> - Type that should be attached to token
+   *  $misc <String> - Misc data that should be attached to token
+   *  $lifetime <Integer> - Lifetime that should be attached to token (get invalid after expiration)
    *
    * Return:
-   *  <Array[Mixed]> - 
+   *  <Array[Mixed]> - Generated token-array (Eg. for internal storage)
    */
   protected function generateTokenArray($user_id, $ilias_client = null, $api_key, $type = null, $misc = null, $lifetime = null) {
     // Apply default values
@@ -285,66 +286,78 @@ class Generic extends Base {
 
 
   /**
-   * Function:
-   *
+   * Function: getHash($tokenArray)
+   *  Generates a unique, non-reverseable hash that can only
+   *  be generated knowing the secret salt.
    *
    * Parameters:
-   *
+   *  $tokenArray <Array[Mixed]> - Token-array for which to generate hash
    *
    * Return:
-   *  <> -
+   *  <String> - Hash generated for this token
    */
   protected function getHash($tokenArray) {
     // Concat all token-array keys to string
-    $tokenHashStr = $tokenArray['user_id'] . '/' .
-                    $tokenArray['ilias_client'] . '/' .
-                    $tokenArray['api_key'] . '/' .
-                    $tokenArray['type'] . '/' .
-                    $tokenArray['misc'] . '/' .
-                    $tokenArray['ttl'] . '/'.
-                    $tokenArray['s'];
+    $hashStr = sprintf(
+      '%s%s%s%s%s%s%s%s',
+      $this->tokenSettings->getSalt(),
+      $tokenArray['user_id'],
+      $tokenArray['ilias_client'],
+      $tokenArray['api_key'],
+      $tokenArray['type'],
+      $tokenArray['misc'],
+      $tokenArray['ttl'],
+      $tokenArray['s']
+    );
 
     // Add additional salt and generate non-invertable hash
-    return hash('sha256', $this->tokenSettings->getSalt() . $tokenHashStr);
+    return hash('sha256', $hashStr);
   }
 
 
   /**
-   * Function:
-   *
+   * Function: isValidTokenArray($tokenArray)
+   *  Utility-Function used to check correctness of data in token-array.
+   *  It compares the hash stored inside token-array with the hash generated
+   *  from token-array.
    *
    * Parameters:
-   *
+   *  $tokenArray <Array[Mixed]> - Token-array which should be checked
    *
    * Return:
-   *  <> -
+   *  <Boolean> - True if token is valid (or at least consistent)
    */
   protected function isValidTokenArray($tokenArray) {
-    return ($this->getHash($tokenArray) == $tokenArray["h"]);
+    return (count($tokenArray) == count(self::$fields) && $this->getHash($tokenArray) == $tokenArray["h"]);
   }
 
 
   /**
-   * Function:
-   *
+   * Function: serializeToken($tokenArray)
+   *  Converts the token-array into a token-string.
+   *  Both represent the same token object, but have different use-cases.
+   *   array - internal storage
+   *   string - data transmission
    *
    * Parameters:
-   *
+   *  $tokenArray <Array[Mixed]> - Token-array which should be converted to string
    *
    * Return:
-   *  <> -
+   *  <String> - Converted token-array
    */
   public static function serializeToken($tokenArray) {
     // Concat all token-array keys to string
-    // Note: Potential attacker could try to slip a "," into any $token value (best candidate seems to be 'api_key'), thus making deserializeToken vulnerable!
-    $tokenStr = $tokenArray['user_id'].",".
-                $tokenArray['ilias_client'].",".
-                $tokenArray['api_key'].",".
-                $tokenArray['type'].",".
-                $tokenArray['misc'].",".
-                $tokenArray['ttl'].",".
-                $tokenArray['s'].",".
-                $tokenArray['h'];
+    $tokenStr = sprintf(
+      '%s,%s,%s,%s,%s,%s,%s,%s',
+      str_replace(',', '', $tokenArray['user_id']),
+      str_replace(',', '', $tokenArray['ilias_client']),
+      str_replace(',', '', $tokenArray['api_key']),
+      str_replace(',', '', $tokenArray['type']),
+      str_replace(',', '', $tokenArray['misc']),
+      str_replace(',', '', $tokenArray['ttl']),
+      str_replace(',', '', $tokenArray['s']),
+      str_replace(',', '', $tokenArray['h'])
+    );
 
     // Return serialized token-array
     return urlencode(base64_encode($tokenStr));
@@ -352,21 +365,23 @@ class Generic extends Base {
 
 
   /**
-   * Function:
-   *
+   * Function: deserializeToken($tokenString)
+   *  Converts the token-string into a token-array.
+   *  Both represent the same token object, but have different use-cases.
+   *   array - internal storage
+   *   string - data transmission
    *
    * Parameters:
-   *
+   *  $tokenString <String> - Token-string that should be converted to an array
    *
    * Return:
-   *  <> -
+   *  <Array[Mixed]> - Converted token-string
    */
   public static function deserializeToken($tokenString) {
     // Deserialize token-string
-    $tokenPartArray = explode(",", base64_decode(urldecode($tokenString)));
+    $tokenPartArray = explode(',', base64_decode(urldecode($tokenString)));
 
     // Reconstruct token-array from exploded string
-    // Note: Potential attacker could have slipped a "," into any $token value, thus making this vunerable without at least a simple check! ...
     if (count($tokenPartArray) == count(self::$fields)) {
       return array(
         'user_id'       =>  $tokenPartArray[0],
@@ -379,8 +394,7 @@ class Generic extends Base {
         'h'             =>  $tokenPartArray[7]
       );
     }
-
-    // ... Returning a null-token should make any code trying to use this token error-out.
-    return null;
+    else
+      throw new Exceptions\TokenInvalid(self::MSG_INVALID_SIZE, self::ID_INVALID_SIZE);
   }
 }

@@ -37,7 +37,7 @@ class EndpointBase extends Libs\RESTModel {
               if (!self::$accessSettings)
                   self::$accessSettings = self::loadTokenSettings();
 
-              self::$refreshSettings = new Token\Settings(self::$accessSettings->getSalt(), 5256000);
+              self::$refreshSettings = new Tokens\Settings(self::$accessSettings->getSalt(), 5256000);
           }
 
           return self::$refreshSettings;
@@ -72,6 +72,6 @@ class EndpointBase extends Libs\RESTModel {
             $ttl = 30;
 
         // Create new settings object
-        return new Token\Settings($salt, $ttl);
+        return new Tokens\Settings($salt, $ttl);
     }
 }
