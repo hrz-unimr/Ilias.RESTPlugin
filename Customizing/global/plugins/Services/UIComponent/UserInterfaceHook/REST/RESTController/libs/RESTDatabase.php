@@ -9,15 +9,24 @@ namespace RESTController\libs;
 
 
 /**
- * Class: RESTDatabase
+ * Class: RESTDBTable
  *  Base-Class for all classes that represent/abstract
  *  a table (or table-entry) inside the SQL-Database.
  */
-class RESTDatabase {
-  /* TODO
-   *  - Löschen ohne query
-   *  - RESTConfig besser unterstützen
+abstract class RESTDatabase {
+
+
+  /**
+   * TODO:
+   *  - Kommentieren
    */
+
+
+  const MSG_WRONG_ROW_TYPE  = 'Constructor requires first parameter of type array, but it is: %s.';
+  const MSG_WRONG_ROW_SIZE  = 'Constructor requires first parameter to be an array of size %d, but it is %d.';
+  const MSG_NO_ENTRY        = 'Could not find entry for query: %s.';
+  const MSG_NO_KEY          = 'There is no key "%s" in table "%s".';
+  const MSG_NO_UNIQUE       = 'Operation not possible, missing value for unique-key (%s.%s).';
 
 
   protected static $uniqueKey;
@@ -26,7 +35,11 @@ class RESTDatabase {
 
 
   protected function __construct($row) {
-    $this->$row = array();
+    if (!is_array($row)) throw new Exceptions\Database(sprintf(self::MSG_WRONG_ROW_TYPE, gettype($row)));
+    if (!isset($row[static::$uniqueKey])) $row[static::$uniqueKey] = false;
+    if (count($row) != count(static::$tableKeys)) throw new Exceptions\Database(sprintf(self::MSG_WRONG_ROW_SIZE, count(static::$tableKeys), count($row)));
+
+    $this->row = array();
     foreach($row as $key => $value)
       $this->setKey($key, $value, false);
   }
@@ -37,131 +50,247 @@ class RESTDatabase {
   }
 
 
-  public static function fromUnique($value)  {
+  public static function fromUnique($value) {
     $key    = static::$uniqueKey;
     $where  = sprintf('%s = %d', $key, intval($value));
     return self::fromWhere($where);
   }
 
 
-  public static function fromWhere($where, $multiple = false)  {
-    $sql    = sprintf('SELECT * FROM %s WHERE %s', static::$tableName, $where);
+  public static function fromWhere($where, $joinWith = null, $multiple = false) {
+    $where = self::parseStaticSQL($where);
+
+    if (isset($joinWith)) {
+      $table      = static::getTableName();
+      $key        = static::getJoinKey($joinWith);
+      $joinTable  = call_user_func(array($joinWith, 'getTableName'));
+      $joinKey    = call_user_func(array($joinWith, 'getJoinKey'), get_called_class());
+      $sql        = sprintf(
+                      'SELECT %s.* FROM %s JOIN %s ON %s.%s = %s.%s WHERE %s',
+                      $table, $table, $joinTable, $table, $key, $joinTable, $joinKey, $where
+                    );
+    }
+    else
+      $sql  = sprintf('SELECT * FROM %s WHERE %s', static::$tableName, $where);
+
     $query  = self::getDB()->query($sql);
-    if ($query) {
-      if ($multiple){
+    if ($query)
+      if ($multiple) {
         $rows = array();
         while ($row = self::getDB()->fetchAssoc($query))
           $rows[] = new static($row);
         return $rows;
       }
 
-      else {
-        $row = self::getDB()->fetchAssoc($query);
+      elseif ($row = self::getDB()->fetchAssoc($query))
         return new static($row);
-      }
-    }
-    else
-      throw new \Exception('No entry in DB');
+
+    throw new Exceptions\Database(sprintf(self::MSG_NO_ENTRY, $sql));
   }
 
 
   public function getKey($key, $read = false) {
-    if (!array_key_exists($key, static::$tableKeys))
-      throw new \Exception('No key in table');
+    if (!array_key_exists($key, static::$tableKeys)) throw new Exceptions\Database(sprintf(self::MSG_NO_KEY, $key, static::$tableName));
 
-    if ($read)
-      $this->read();
+    if ($read) $this->read();
 
-    return $this->$row[$key];
+    return $this->row[$key];
   }
 
 
+  // Overwrite to ensure correct type
   public function setKey($key, $value, $write = false) {
-    if (!array_key_exists($key, static::$tableKeys))
-      throw new \Exception('No key in table');
+    if (!array_key_exists($key, static::$tableKeys)) throw new Exceptions\Database(sprintf(self::MSG_NO_KEY, $key, static::$tableName));
 
-    if ($key == static::$uniqueKey)
-      $value = intval($value);
+    if ($key == static::$uniqueKey && $value != false) $value = intval($value);
 
     $this->row[$key] = $value;
 
-    if ($write)
-      $this->write();
+    if ($write) return $this->write($key);
   }
 
 
+  // Requires $uniqueKey
   public function read() {
     $key    = static::$uniqueKey;
     $value  = $this->row[$key];
+
+    if ($value == false) throw new Exceptions\Database(sprintf(self::MSG_NO_UNIQUE, static::$tableName, static::$uniqueKey));
+
     $sql    = sprintf('SELECT * FROM %s WHERE %s = %d', static::$tableName, $key, intval($value));
     $query  = self::getDB()->query($sql);
-    if ($query) {
-      $this->row = self::getDB()->fetchAssoc($query);
-      return $this->row;
-    }
-    else
-      throw news \Exceptions('No entry in DB');
+    if ($query) return $this->row = self::getDB()->fetchAssoc($query);
+    else        throw new Exceptions\Database(sprintf(self::MSG_NO_ENTRY, $sql));
   }
 
 
-  public function write() {
-    if ($this->exists())
-      return $this->update();
-    else
-      return $this->write();
+  public function write($key = null) {
+    if ($this->exists())  return $this->update($key);
+    else                  return $this->insert();
   }
 
 
-  public function update() {
-    $row    = $this->getDBRow();
+  // Requires $uniqueKey
+  public function update($key = null) {
+    $row    = $this->getDBRow($key);
     $where  = $this->getDBWhere();
-    return self::getDB()->update(static::$table, $row, $where);
+    return self::getDB()->update(static::$tableName, $row, $where);
   }
 
 
-  public function insert() {
+  public function insert($newUnique = false) {
     $row = $this->getDBRow();
-    return self::getDB()->insert(static::$table, $row);
+
+    if ($newUnique || $row[static::$uniqueKey] == false) unset($row[static::$uniqueKey]);
+
+    $result = self::getDB()->insert(static::$tableName, $row);
+    $id     = self::getDB()->getLastInsertId();
+    $this->setKey(static::$uniqueKey, $id);
+
+    return $result;
   }
 
 
+  // Requires $uniqueKey
   public function exists() {
     $key    = static::$uniqueKey;
     $value  = $this->row[$key];
-    return self::existsUnique($value);
+
+    if ($value == false) throw new Exceptions\Database(sprintf(self::MSG_NO_UNIQUE, static::$tableName, static::$uniqueKey));
+
+    return self::existsByUnique($value);
   }
 
 
-  public static function existsUnique($value) {
+  public static function existsByUnique($value) {
     $key    = static::$uniqueKey;
-    $sql    = sprintf('SELECT count(1) FROM %s WHERE %s = %d', static::$tableName, $key, intval($value));
-    if (self::getDB()->query($sql))
-      return true;
+    $where  = sprintf('%s = %d', $key, intval($value));
+    return self::existsByWhere($where);
+  }
+
+
+  public static function existsByWhere($where) {
+    $sql    = sprintf('SELECT 1 FROM %s WHERE %s', static::$tableName, $where);
+    $query  = self::getDB()->query($sql);
+    return self::getDB()->numRows($query) > 0;
+  }
+
+
+  // Requires $uniqueKey
+  public function delete() {
+    $key    = static::$uniqueKey;
+    $value  = $this->row[$key];
+
+    if ($value == false) throw new Exceptions\Database(sprintf(self::MSG_NO_UNIQUE, static::$tableName, static::$uniqueKey));
+
+    return self::deleteByUnique($value);
+  }
+
+
+  public static function deleteByUnique($value) {
+    $key    = static::$uniqueKey;
+    $where  = sprintf('%s = %d', $key, intval($value));
+    return self::deleteByWhere($where);
+  }
+
+
+  public static function deleteByWhere($where) {
+    $sql    = sprintf('DELETE FROM %s WHERE %s', static::$tableName, $where);
+    return self::getDB()->manipulate($sql);
+  }
+
+
+  public function fetch($sql, $parse = true) {
+    if ($parse) $sql = $this->parseSQL($sql);
+
+    return self::fetchStatic($sql, false);
+  }
+
+
+  public static function fetchStatic($sql, $parse = true) {
+    if ($parse) $sql = self::parseStaticSQL($sql);
+
+    $query  = self::getDB()->query($sql);
+    if ($query) {
+      $rows = array();
+      while($row = self::getDB()->fetchAssoc($query))
+        $rows[] = $row;
+      return $rows;
+    }
+
     else
-      return false;
+     return $query;
   }
 
 
-  public function getRow() {
-    return $this->row;
+  public function manipulate($sql, $parse = true) {
+    if ($parse) $sql = $this->parseSQL($sql);
+
+    return self::manipulateStatic($sql, false);
   }
 
 
-  public function getDBRow() {
+  public static function manipulateStatic($sql, $parse = true) {
+    if ($parse) $sql = self::parseStaticSQL($sql);
+    var_dump($sql);
+    return self::getDB()->manipulate($sql);
+  }
+
+
+  public function parseSQL($sql) {
+    $sql = self::parseStaticSQL($sql);
+    $sql = preg_replace_callback(
+      '/{{%?([^}]+)}}/',
+      function($match) {
+        $key    = $match[1];
+        $value  = $this->row[$key];
+        $type   = static::$tableKeys[$key];
+        return self::getDB()->quote($value, $type);
+      },
+      $sql
+    );
+    return $sql;
+  }
+
+
+  protected static function parseStaticSQL($sql) {
+    $sql = str_replace('{{table}}',   static::$tableName, $sql);
+    $sql = str_replace('{{unique}}',  static::$uniqueKey, $sql);
+    return $sql;
+  }
+
+
+  public function getRow($key = null) {
+    if (isset($key))  return $this-getKey($key);
+    else              return $this->row;
+  }
+
+
+  public function getDBRow($key = null) {
     $row = array();
-    foreach($this->row as $key => $value) {
+    if (isset($key)) {
+      $value      = $this->row[$key];
       $type       = $this->keys[$key];
       $row[$key]  = array($type, $value);
     }
+    else
+      foreach($this->row as $key => $value) {
+        $type       = $this->keys[$key];
+        $row[$key]  = array($type, $value);
+      }
 
     return $row;
   }
 
 
+  // Requires $uniqueKey
   public function getDBWhere() {
     $key    = static::$uniqueKey;
     $value  = $this->row[$key];
     $type   = $this->keys[$key];
+
+    if ($value == false) throw new Exceptions\Database(sprintf(self::MSG_NO_UNIQUE, static::$tableName, static::$uniqueKey));
+
     return array(
       $key => array($type, $value)
     );
@@ -183,8 +312,13 @@ class RESTDatabase {
   }
 
 
+  public static function getJoinKey($joinWith) {
+    return static::$uniqueKey;
+  }
+
+
   /**
-   * Function: getDB() [STATIC]
+   * Function: [STATIC] getDB()
    *  Use this to inject global ILIAS-Database
    *  into this class.
    *

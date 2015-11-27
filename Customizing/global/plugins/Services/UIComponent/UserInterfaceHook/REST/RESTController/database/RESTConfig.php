@@ -26,6 +26,11 @@ class RESTConfig extends Libs\RESTDatabase {
 
 
   public function setKey($key, $value, $write = false) {
+    if (is_int($value))
+      $value = intval($value);
+    if (is_float($value))
+      $value = floatval($value);
+
     return parent::setKey($key, $value, $write);
   }
 }

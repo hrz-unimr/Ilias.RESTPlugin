@@ -7,7 +7,6 @@
  */
 namespace RESTController\core\auth\Exceptions;
 
-
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
 

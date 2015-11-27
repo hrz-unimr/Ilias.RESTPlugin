@@ -124,15 +124,9 @@ class RESTLib {
                 $value = sprintf('(%s)', implode(', ', $value));
                 $result[] = $value;
             }
-            elseif (is_int($value))
+            elseif (is_int($value) || is_integer($value))
                 $result[] = $ilDB->quote($value, 'integer');
-            elseif (is_integer($value))
-                $result[] = $ilDB->quote($value, 'integer');
-            elseif (is_float($value))
-                $result[] = $ilDB->quote($value, 'float');
-            elseif (is_double($value))
-                $result[] = $ilDB->quote($value, 'float');
-            elseif (is_numeric($value))
+            elseif (is_float($value) || is_double($value) || is_numeric($value))
                 $result[] = $ilDB->quote($value, 'float');
             elseif (is_string($value))
                 $result[] = $ilDB->quote($value, 'text');
