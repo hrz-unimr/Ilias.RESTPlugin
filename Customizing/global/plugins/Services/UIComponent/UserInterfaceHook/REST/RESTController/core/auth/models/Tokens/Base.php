@@ -15,10 +15,10 @@ namespace RESTController\core\auth\Tokens;
  */
 class Base {
   // Allow to re-use status messages and codes
-  const ID_INVALID_FIELDS   = 'RESTController\core\auth\Base::ID_INVALID_FIELDS';
-  const ID_INVALID_SIZE     = 'RESTController\core\auth\Base::ID_INVALID_SIZE';
   const MSG_INVALID_FIELDS  = 'Token contains invalid field: %s';
+  const ID_INVALID_FIELDS   = 'RESTController\\core\\auth\\Base::ID_INVALID_FIELDS';
   const MSG_INVALID_SIZE    = 'Token must contain exactly %d elements.';
+  const ID_INVALID_SIZE     = 'RESTController\\core\\auth\\Base::ID_INVALID_SIZE';
 
 
   // Stores the settings attached to this token (salt and default TTL)

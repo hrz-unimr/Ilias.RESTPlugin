@@ -21,8 +21,8 @@ use \RESTController\core\auth\Exceptions as Exceptions;
  */
 class Settings {
   // Allow to re-use status messages and codes
-  const ID_NO_SALT  = 'RESTController\core\auth\Tokens\Settings::ID_NO_SALT';
   const MSG_NO_SALT = 'Token-Settings require a valid salt.';
+  const ID_NO_SALT  = 'RESTController\\core\\auth\\Tokens\\Settings::ID_NO_SALT';
 
 
   // Internally stores the salt and time-to-live value

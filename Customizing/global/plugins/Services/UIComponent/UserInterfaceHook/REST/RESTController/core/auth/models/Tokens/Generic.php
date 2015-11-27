@@ -18,10 +18,10 @@ use \RESTController\core\auth\Exceptions as Exceptions;
  */
 class Generic extends Base {
   // Allow to re-use status messages and codes
-  const ID_EXPIRED  = 'RESTController\core\auth\Generic::ID_EXPIRED';
-  const ID_INVALID  = 'RESTController\core\auth\Generic::ID_INVALID';
   const MSG_EXPIRED = 'Token has expired.';
+  const ID_EXPIRED  = 'RESTController\\core\\auth\\Generic::ID_EXPIRED';
   const MSG_INVALID = 'Token is invalid.';
+  const ID_INVALID  = 'RESTController\\core\\auth\\Generic::ID_INVALID';
 
 
   // List of fields (keys) for this kind of token
