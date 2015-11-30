@@ -406,16 +406,23 @@ abstract class RESTDatabase {
 
 
   /**
-   * Function: exists()
-   *  Check wether the table-entry given by the internally stored primary-key
-   *  exists. This will ONLY check using the primary-key, use existsByWhere(...)
-   *  for more advanced queries.
+   * Function: exists($where)
+   *  By default the table-entry existance is checked via its internally stored primary-key.
+   *  Optionally a (instance-parsed) where-clause can be used to make the check
+   *  more flexible, see $this->parseSQL($sql) for more information.
    *
-   * Note:
+   * Note 1: (with $where)
+   *  The $where-Parameter can be exploited to generate malformed requests.
+   *  Each caller is responsible to make sure $where is a valid where-clause
+   *  using its own logic! (For example making sure all parameters are escaped correctly)
+   *
+   * Note 2: (without $where)
    *  Obviously this method will need to already know a valid primary-key
    *  for this table (either from one of the factories or via setKey(...))
-   *  to work properly, since it ONLY queires the existance of the table
-   *  entry via its primary-key.
+   *  to work properly, since it deletes table-entires ONLY via their primary-keys.
+   *
+   * Parameters:
+   *  $where <String> - [Optional] Valid SQL where-clause (Needs to be validated by the caller!)
    *
    * Return:
    *  <Boolean> - True if there already exists a table with the given primary-key, false otherwise
@@ -432,7 +439,6 @@ abstract class RESTDatabase {
     // Delegate actual query to generalized implementation
     return self::existsByPrimary($value);
   }
-  // TODO: Support existsByWhere with non-static sql-parse!
 
 
   /**
@@ -492,20 +498,28 @@ abstract class RESTDatabase {
 
 
   /**
-   * Function: delete()
-   *  Deletes the table-entry given by the internally stored primary-key.
-   *  This will select the table ONLY using the primary-key, use deleteByWhere(...)
-   *  for more advanced delete-requests.
+   * Function: delete($where)
+   *  By default the table-entry is deleted via its internally stored primary-key.
+   *  Optionally a (instance-parsed) where-clause can be used to make the deletion
+   *  more flexible, see $this->parseSQL($sql) for more information.
    *
-   * Note:
+   * Note 1: (with $where)
+   *  The $where-Parameter can be exploited to generate malformed requests.
+   *  Each caller is responsible to make sure $where is a valid where-clause
+   *  using its own logic! (For example making sure all parameters are escaped correctly)
+   *
+   * Note 2: (without $where)
    *  Obviously this method will need to already know a valid primary-key
    *  for this table (either from one of the factories or via setKey(...))
    *  to work properly, since it deletes table-entires ONLY via their primary-keys.
    *
+   * Parameters:
+   *  $where <String> - [Optional] Valid SQL where-clause (Needs to be validated by the caller!)
+   *
    * Return:
    *  <ilDB.query> - Same return value as given by an ilDB->manipulate() operation
    */
-  public function delete() {
+  public function delete($where = null) {
     // Fetch internally stored primary-key
     $key    = static::$primaryKey;
     $value  = $this->row[$key];
@@ -517,7 +531,6 @@ abstract class RESTDatabase {
     // Delegate actual query to generalized implementation
     return self::deleteByPrimary($value);
   }
-  // TODO: Support deleteByWhere with non-static sql-parse!
 
 
   /**
