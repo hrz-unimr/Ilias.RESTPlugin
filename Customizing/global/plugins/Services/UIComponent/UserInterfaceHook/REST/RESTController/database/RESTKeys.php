@@ -16,7 +16,7 @@ use \RESTController\libs as Libs;
  *
  */
 class RESTKeys extends Libs\RESTDatabase {
-  protected static $uniqueKey = 'id';
+  protected static $primaryKey = 'id';
   protected static $tableName = 'ui_uihk_rest_keys';
   protected static $tableKeys = array(
     'id'                              => 'integer',

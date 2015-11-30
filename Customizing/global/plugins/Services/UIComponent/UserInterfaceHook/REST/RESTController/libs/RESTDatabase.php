@@ -13,12 +13,12 @@ namespace RESTController\libs;
  *  Base-Class for all classes that represent/abstract
  *  a table (or table-entry) inside the SQL-Database.
  *  (Mostly usefull for the plugins own database tables,
- *  since ILIAS tables allready should have class
+ *  since ILIAS tables already should have class
  *  representations)
+ *
  * Note:
- *  This class depends on the assumption that each
- *  table /table-entry that it manages contains a
- *  unique-key (also called primary-key).
+ *  This class depends on the assumption that each table/table-entry
+ *  that it manages is (or can be) attached to a UNIQUE primary-key.
  */
 abstract class RESTDatabase {
   // Allow to re-use status messages and codes
@@ -30,12 +30,12 @@ abstract class RESTDatabase {
   const ID_NO_ENTRY         = 'RESTController\\libs\\RESTDatabase::ID_NO_ENTRY';
   const MSG_NO_KEY          = 'There is no key "%s" in table "%s".';
   const ID_NO_KEY           = 'RESTController\\libs\\RESTDatabase::ID_NO_KEY';
-  const MSG_NO_UNIQUE       = 'Operation not possible, missing value for unique-key (%s.%s).';
+  const MSG_NO_UNIQUE       = 'Operation not possible, missing value for primary-key (%s.%s).';
   const ID_NO_UNIQUE        = 'RESTController\\libs\\RESTDatabase::ID_NO_UNIQUE';
 
 
   // This three variables contain information about the table layout
-  protected static $uniqueKey;    // Unique- or primary-key of the table (This will always be treated as integer)
+  protected static $primaryKey;    // Primary- or primary-key of the table (This will always be treated as integer)
   protected static $tableName;    // Name of the table
   protected static $tableKeys;    // List (Associative-Array) of table keys (or fields) together
                                   // with the corresponding ilDB type (integer, float, boolean, text, etc.)
@@ -55,16 +55,16 @@ abstract class RESTDatabase {
    *
    * Parameters:
    *  $row <Array[Mixed]> - An array with the -exact- same keys as set by static::$tableKeys, only the
-   *                        unique-key is optional. (Without it, certain methods, like read() will not work!)
+   *                        primary-key is optional. (Without it, certain methods, like read() will not work!)
    */
   protected function __construct($row) {
     // Check that input is of correct type (array)
     if (!is_array($row))
       throw new Exceptions\Database(sprintf(self::MSG_WRONG_ROW_TYPE, gettype($row)), self::ID_WRONG_ROW_TYPE);
 
-    // Since the unique-key is optional, remember (via false) if it wasn't given
-    if (!isset($row[static::$uniqueKey]))
-      $row[static::$uniqueKey] = false;
+    // Since the primary-key is optional, remember (via false) if it wasn't given
+    if (!isset($row[static::$primaryKey]))
+      $row[static::$primaryKey] = false;
 
     // Check if input-data has correct number of keys
     if (count($row) != count(static::$tableKeys))
@@ -97,20 +97,20 @@ abstract class RESTDatabase {
 
 
   /**
-   * Factory-Method: RESTDatabase::fromUnique($value)
+   * Factory-Method: RESTDatabase::fromPrimary($value)
    *  Creates a new RESTDatabase-Instance from given input parameters.
    *  This method recieves the table-data by fetching the table
-   *  entry with unique-key matching the input parameter.
+   *  entry with primary-key matching the input parameter.
    *
    * Parameters:
-   *  $value <Integer> - Unique-Key value used to fetch table-data from the database
+   *  $value <Integer> - Primary-Key value used to fetch table-data from the database
    *
    * Return:
    *  <RESTDatabase> - New instance of RESTDatabase fetched via input parameters
    */
-  public static function fromUnique($value) {
-    // Generate a where-clase for the unique-key
-    $key    = static::$uniqueKey;
+  public static function fromPrimary($value) {
+    // Generate a where-clase for the primary-key
+    $key    = static::$primaryKey;
     $where  = sprintf('%s = %d', $key, intval($value));
 
     // Return table-data by way of a where-query as new instance
@@ -135,6 +135,7 @@ abstract class RESTDatabase {
    *  Unlike the other factory-methods the $where-Parameter can be exploited
    *  to generate malformed requests. Each caller is responsible to make
    *  sure $where is a valid where-clause using its own logic!
+   *  (For example making sure all parameters are escaped correctly)
    *
    * Parameters:
    *  $where <String> - Valid SQL where-clause (Needs to be validated by the caller!)
@@ -146,7 +147,7 @@ abstract class RESTDatabase {
    *  <RESTDatabase/Array[RESTDatabase]> - New instance(s) of RESTDatabase fetched via input parameters
    */
   public static function fromWhere($where, $joinWith = null, $limit = false, $offset = false) {
-    // Static-Parse the where-clause (replacing {{table}} and {{unique}})
+    // Static-Parse the where-clause (replacing {{table}} and {{primary}})
     $where = self::parseStaticSQL($where);
 
     // Optional additions to sql-query
@@ -164,12 +165,12 @@ abstract class RESTDatabase {
     // Generate JOIN sql sub-query
     $table        = static::getTableName();
     if (isset($joinWith)) {
-      // Fetch key which should be joined against
-      $key        = static::getJoinKey($joinWith);
-
       // Fetch table-name and table-key which should be joined against
       $joinTable  = call_user_func(array($joinWith, 'getTableName'));
-      $joinKey    = call_user_func(array($joinWith, 'getJoinKey'), get_called_class());
+      $joinKey    = call_user_func(array($joinWith, 'getJoinKey'), $table);
+
+      // Fetch key which should be joined against
+      $key        = static::getJoinKey($joinTable);
 
       // Build JOIN sub-query
       $joinSql    = sprintf('JOIN %s ON %s.%s = %s.%s', $joinTable, $table, $key, $joinTable, $joinKey);
@@ -245,7 +246,7 @@ abstract class RESTDatabase {
    *  $this->row storage.
    *  By default all data read from the database is of type
    *  String and should be converted to its desired format
-   *  here! Unique-Keys will be converted to integer by default.
+   *  here! Primary-Keys will be converted to integer by default.
    *
    * Parameters:
    *  $key <String> - The key that should have its data-value changed
@@ -260,9 +261,9 @@ abstract class RESTDatabase {
     if (!array_key_exists($key, static::$tableKeys))
       throw new Exceptions\Database(sprintf(self::MSG_NO_KEY, $key, static::$tableName), self::ID_NO_KEY);
 
-    // Convert unique-key to integer
+    // Convert primary-key to integer
     // Note: All further type-changes need to be managed by derived implementations!
-    if ($key == static::$uniqueKey && $value != false)
+    if ($key == static::$primaryKey && $value != false)
       $value = intval($value);
 
     // Update internal stored value for key
@@ -274,153 +275,426 @@ abstract class RESTDatabase {
   }
 
 
-  // Requires $uniqueKey
+  /**
+   * Function: read()
+   *  This method will read the db entry given by the internally
+   *  stored primary-key value and updates the internal storage
+   *  with the recieved data.
+   *
+   * Note:
+   *  Obviously this method will need to already know a valid primary-key
+   *  for this table (either from one of the factories or via setKey(...))
+   *  to work properly, since it ONLY looks for the table entry via its primary-key.
+   *
+   * Return:
+   *  <Array[Mixed]> - Updated table-data
+   */
   public function read() {
-    $key    = static::$uniqueKey;
+    // Fetch value of primary-key
+    $key    = static::$primaryKey;
     $value  = $this->row[$key];
 
+    // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
     if ($value == false)
-      throw new Exceptions\Database(sprintf(self::MSG_NO_UNIQUE, static::$tableName, static::$uniqueKey), self::ID_NO_UNIQUE);
+      throw new Exceptions\Database(sprintf(self::MSG_NO_UNIQUE, static::$tableName, static::$primaryKey), self::ID_NO_UNIQUE);
 
+    // Build sql-query to fetch table-entry data
     $sql    = sprintf('SELECT * FROM %s WHERE %s = %d', static::$tableName, $key, intval($value));
     $query  = self::getDB()->query($sql);
     if ($query) {
+      // Fetch and process first row (should be the only row, since primary-keys are unique)
       $row = self::getDB()->fetchAssoc($query);
+      if ($row) {
+        foreach($row as $key => $value)
+          $this->setKey($key, $value);
 
-      foreach($row as $key => $value)
-        $this->setKey($key, $value);
-
-      return $row;
+        // Return proccessed row
+        return $this->row;
+      }
     }
 
+    // If not returned by now, something must have gone wrong
     throw new Exceptions\Database(sprintf(self::MSG_NO_ENTRY, $sql), self::ID_NO_ENTRY);
   }
 
 
+  /**
+   * Function: write($key)
+   *  Writes the internally stored table-data, either inserting a new entry
+   *  into the table or updating an existing one.
+   *  If a table with the internally stored primary-key does already exist,
+   *  it will be updated, otherwise a new table-entry will be generated and
+   *  its (new) primary-key stored internally.
+   *  To allways do an update or insert, use those methods instead.
+   *
+   * Parameters:
+   *  $key <String> - [Optional] If this parameter is given, only the value
+   *                  stored under the given key will be updated. (No effect on insert)
+   *
+   * Return:
+   *  <ilDB.query> - Same return value as given by an ilDB->update() or ilDB->insert() operation
+   */
   public function write($key = null) {
+    // Update existing table-entry
     if ($this->exists())
       return $this->update($key);
+
+    // Insert new table-entry
     else
       return $this->insert();
   }
 
 
-  // Requires $uniqueKey
+  /**
+   * Function: update($key)
+   *  Tries to update the table which matches the internally stored
+   *  primary-key with the internally stored table-data.
+   *
+   * Note:
+   *  Obviously this method will need to already know a valid primary-key
+   *  for this table (either from one of the factories or via setKey(...))
+   *  to work properly, since it ONLY updates the table entry via its primary-key.
+   *
+   * Parameters:
+   *  $key <String> - [Optional] If this parameter is given, only the value
+   *                  stored under the given key will be updated.
+   *
+   * Return:
+   *  <ilDB.query> - Same return value as given by an ilDB->update() operation
+   */
   public function update($key = null) {
+    // Generate parameters required for ilDB update-query (see methods of details)
     $row    = $this->getDBRow($key);
     $where  = $this->getDBWhere();
+
+    // Invoke table-update via ilDB
     return self::getDB()->update(static::$tableName, $row, $where);
   }
 
 
-  public function insert($newUnique = false) {
+  /**
+   * Function: insert($newPrimary)
+   *  Inserts a new table-entry with the given internally stored
+   *  table-data. Unless explicitely requested a new primary-key
+   *  will be generated by the database and stored internally.
+   *  This behaviour can be changed by passing false as first paremeter
+   *  which will try to insert the table-entry with the internally stored
+   *  primary-key value.
+   *
+   * Parameters:
+   *  $newPrimary <Boolean> - [Optional] Ignore internal primary-key and let the database assign one (Default: True)
+   *
+   * Return:
+   *  <ilDB.query> - Same return value as given by an ilDB->insert() operation
+   */
+  public function insert($newPrimary = true) {
+    // Generate parameter required for ilDB update-query (see methods of details)
     $row = $this->getDBRow();
 
-    if ($newUnique || $row[static::$uniqueKey] == false)
-      unset($row[static::$uniqueKey]);
+    // Remove primary-key from query-parameter? ('FALSE' primary-key means: non was set in the first place)
+    if ($newPrimary || $row[static::$primaryKey] == false)
+      unset($row[static::$primaryKey]);
 
+    // Insert data into db table and update internal primary-key
     $result = self::getDB()->insert(static::$tableName, $row);
     $id     = self::getDB()->getLastInsertId();
-    $this->setKey(static::$uniqueKey, $id);
+    $this->setKey(static::$primaryKey, $id);
 
+    // Return ilDB result object
     return $result;
   }
 
 
-  // Requires $uniqueKey
+  /**
+   * Function: exists()
+   *  Check wether the table-entry given by the internally stored primary-key
+   *  exists. This will ONLY check using the primary-key, use existsByWhere(...)
+   *  for more advanced queries.
+   *
+   * Note:
+   *  Obviously this method will need to already know a valid primary-key
+   *  for this table (either from one of the factories or via setKey(...))
+   *  to work properly, since it ONLY queires the existance of the table
+   *  entry via its primary-key.
+   *
+   * Return:
+   *  <Boolean> - True if there already exists a table with the given primary-key, false otherwise
+   */
   public function exists() {
-    $key    = static::$uniqueKey;
+    // Fetch internally stored primary-key
+    $key    = static::$primaryKey;
     $value  = $this->row[$key];
 
+    // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
     if ($value == false)
-      throw new Exceptions\Database(sprintf(self::MSG_NO_UNIQUE, static::$tableName, static::$uniqueKey), self::ID_NO_UNIQUE);
+      throw new Exceptions\Database(sprintf(self::MSG_NO_UNIQUE, static::$tableName, static::$primaryKey), self::ID_NO_UNIQUE);
 
-    return self::existsByUnique($value);
+    // Delegate actual query to generalized implementation
+    return self::existsByPrimary($value);
   }
+  // TODO: Support existsByWhere with non-static sql-parse!
 
 
-  public static function existsByUnique($value) {
-    $key    = static::$uniqueKey;
+  /**
+   * Static-Function: existsByPrimary($value)
+   *  Checks wether the table-entry given by the parameter-value primary-key
+   *  exists. This will ONLY check using the primary-key, use existsByWhere(...)
+   *  for more advanced queries.
+   *
+   * Parameters:
+   *  $value <Integer> - Value of primary-key to check existance of a table-entry for
+   *
+   * Return:
+   *  <Boolean> - True if there already exists a table with the given primary-key, false otherwise
+   */
+  public static function existsByPrimary($value) {
+    // Generate a where-clause for the primary-key
+    $key    = static::$primaryKey;
     $where  = sprintf('%s = %d', $key, intval($value));
+
+    // Delegate actual query to generalized implementation
     return self::existsByWhere($where);
   }
 
 
+  /**
+   * Static-Function: existsByWhere($where)
+   *  Check wether the table-entry exists, by fetching number of affected
+   *  table-entries via a simple:
+   *    SELECT 1 FROM static::$tableName WHERE $where
+   *  Were the $where-clause is given as parameter. Furthermore $where
+   *  is static-parsed, see RESTDatabase::parseStaticSQL($sql) for
+   *  more information.
+   *
+   * Note:
+   *  Unlike the other exists*-methods the $where-Parameter can be exploited
+   *  to generate malformed requests. Each caller is responsible to make
+   *  sure $where is a valid where-clause using its own logic!
+   *  (For example making sure all parameters are escaped correctly)
+   *
+   * Parameters:
+   *  $where <String> - Valid SQL where-clause (Needs to be validated by the caller!)
+   *
+   * Return:
+   *  <Boolean> - True if there already exists a table with the given primary-key, false otherwise
+   */
   public static function existsByWhere($where) {
+    // Static-Parse the where-clause (replacing {{table}} and {{primary}})
+    $where = self::parseStaticSQL($where);
+
+    // Generate query
     $sql    = sprintf('SELECT 1 FROM %s WHERE %s', static::$tableName, $where);
     $query  = self::getDB()->query($sql);
+
+    // Fetch number of returned rows
     return self::getDB()->numRows($query) > 0;
   }
 
 
-  // Requires $uniqueKey
+  /**
+   * Function: delete()
+   *  Deletes the table-entry given by the internally stored primary-key.
+   *  This will select the table ONLY using the primary-key, use deleteByWhere(...)
+   *  for more advanced delete-requests.
+   *
+   * Note:
+   *  Obviously this method will need to already know a valid primary-key
+   *  for this table (either from one of the factories or via setKey(...))
+   *  to work properly, since it deletes table-entires ONLY via their primary-keys.
+   *
+   * Return:
+   *  <ilDB.query> - Same return value as given by an ilDB->manipulate() operation
+   */
   public function delete() {
-    $key    = static::$uniqueKey;
+    // Fetch internally stored primary-key
+    $key    = static::$primaryKey;
     $value  = $this->row[$key];
 
+    // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
     if ($value == false)
-      throw new Exceptions\Database(sprintf(self::MSG_NO_UNIQUE, static::$tableName, static::$uniqueKey), self::ID_NO_UNIQUE);
+      throw new Exceptions\Database(sprintf(self::MSG_NO_UNIQUE, static::$tableName, static::$primaryKey), self::ID_NO_UNIQUE);
 
-    return self::deleteByUnique($value);
+    // Delegate actual query to generalized implementation
+    return self::deleteByPrimary($value);
   }
+  // TODO: Support deleteByWhere with non-static sql-parse!
 
 
-  public static function deleteByUnique($value) {
-    $key    = static::$uniqueKey;
+  /**
+   * Static-Function: deleteByPrimary($value)
+   *  Deletes the table-entry given by the parameter-value primary-key.
+   *  This will select the table ONLY using the primary-key, use deleteByWhere(...)
+   *  for more advanced delete-requests.
+   *
+   * Parameters:
+   *  $value <Integer> - Value of primary-key to delete table-entry of
+   *
+   * Return:
+   *  <ilDB.query> - Same return value as given by an ilDB->manipulate() operation
+   */
+  public static function deleteByPrimary($value) {
+    // Generate a where-clause for the primary-key
+    $key    = static::$primaryKey;
     $where  = sprintf('%s = %d', $key, intval($value));
+
+    // Delegate actual query to generalized implementation
     return self::deleteByWhere($where);
   }
 
 
+  /**
+   * Static-Function: deleteByWhere($where)
+   *  Deletes the table-entries matching the given where-clause, via a simple:
+   *    DELETE FROM static::$tableName WHERE $where
+   *  Were the $where-clause is given as parameter. Furthermore $where
+   *  is static-parsed, see RESTDatabase::parseStaticSQL($sql) for
+   *  more information.
+   *
+   * Note:
+   *  Unlike the other exists*-methods the $where-Parameter can be exploited
+   *  to generate malformed requests. Each caller is responsible to make
+   *  sure $where is a valid where-clause using its own logic!
+   *  (For example making sure all parameters are escaped correctly)
+   *
+   * Parameters:
+   *  $where <String> - Valid SQL where-clause (Needs to be validated by the caller!)
+   *
+   * Return:
+   *  <Boolean> - True if there already exists a table with the given primary-key, false otherwise
+   */
   public static function deleteByWhere($where) {
+    // Static-Parse the where-clause (replacing {{table}} and {{primary}})
+    $where = self::parseStaticSQL($where);
+
+    // Generate and execute query (return ilDB result)
     $sql    = sprintf('DELETE FROM %s WHERE %s', static::$tableName, $where);
     return self::getDB()->manipulate($sql);
   }
 
 
+  /**
+   * Function: fetch($sql, $parse)
+   *  Convenience function for ilDB->fetchAssoc(...) that simplifies fetching
+   *  multiple rows (as Array of Array of String) from the attached table.
+   *  Furthermore $sql is instance-parsed, if not explicitely disabled, see
+   *  $this->parseSQL($sql) for more information.
+   *
+   * Note:
+   *  The $sql-Parameter can be exploited to generate malformed requests.
+   *  Each caller is responsible to make sure $sql is a valid sql-query that
+   *  does not contain any 'exploitable' sql-statements using its own logic!
+   *  (For example making sure all parameters are escaped correctly)
+   *
+   * Parameters:
+   *  $sql <String> - Valid SQL query, with optional parsing of internal table-data
+   *  $parse <Boolean> - [Optional] Pass false to disable parsing of {{}} entries in SQL query (Default: True)
+   *
+   * Return:
+   *  <Array[Array[String]]> - Array containing all rows affected by SQL query
+   */
   public function fetch($sql, $parse = true) {
+    // Instance-Parse sql-request, replacing {{'keys'}}, {{table}}, {{primary}}, etc.
     if ($parse)
       $sql = $this->parseSQL($sql);
 
+    // Delegate actual query to generalized implementation
     return self::fetchStatic($sql, false);
   }
 
 
+  /**
+   * Static-Function: fetchStatic($sql, $parse)
+   *  @See $this->fetch($sql, $parse), for detailed description.
+   *
+   *  Only static-parses the sql-query, see RESTDatabase::parseStaticSQL($sql)
+   *  for more information.
+   */
   public static function fetchStatic($sql, $parse = true) {
+    // Static-Parse sql-request, replacing {{table}}, {{primary}}, etc.
     if ($parse)
       $sql = self::parseStaticSQL($sql);
 
+    // Generate ilDB query object
+    $rows   = array();
     $query  = self::getDB()->query($sql);
     if ($query) {
-      $rows = array();
+      // Fetch all matching rows
       while($row = self::getDB()->fetchAssoc($query))
         $rows[] = $row;
-      return $rows;
     }
 
-    else
-     return $query;
+    // Return array containing all affected rows (or empty array on error)
+    return $rows;
   }
 
 
+  /**
+   * Function: manipulate($sql, $parse)
+   *  Convenience function for ilDB->manipulate(...) that simplifies executing
+   *  arbitrary sql queires on the attached table.
+   *  Furthermore $sql is instance-parsed, if not explicitely disabled, see
+   *  $this->parseSQL($sql) for more information.
+   *
+   * Note:
+   *  The $sql-Parameter can be exploited to generate malformed requests.
+   *  Each caller is responsible to make sure $sql is a valid sql-query that
+   *  does not contain any 'exploitable' sql-statements using its own logic!
+   *  (For example making sure all parameters are escaped correctly)
+   *
+   * Parameters:
+   *  $sql <String> - Valid SQL query, with optional parsing of internal table-data
+   *  $parse <Boolean> - [Optional] Pass false to disable parsing of {{}} entries in SQL query (Default: True)
+   *
+   * Return:
+   *  <ilDB.query> - Same return value as given by an ilDB->manipulate() operation
+   */
   public function manipulate($sql, $parse = true) {
+    // Instance-Parse sql-request, replacing {{'keys'}}, {{table}}, {{primary}}, etc.
     if ($parse)
       $sql = $this->parseSQL($sql);
 
+    // Delegate actual query to generalized implementation
     return self::manipulateStatic($sql, false);
   }
 
 
+  /**
+   * Static-Function: manipulateStatic($sql, $parse)
+   *  @See $this->manipulate($sql, $parse), for detailed description.
+   *
+   *  Only static-parses the sql-query, see RESTDatabase::parseStaticSQL($sql)
+   *  for more information.
+   */
   public static function manipulateStatic($sql, $parse = true) {
+    // Static-Parse sql-request, replacing {{table}}, {{primary}}, etc.
     if ($parse)
       $sql = self::parseStaticSQL($sql);
 
+    // Execute sql query and return query object
     return self::getDB()->manipulate($sql);
   }
 
 
+  /**
+   * Function: parseSQL($sql)
+   *  Replaces certain 'needles' inside the sql query (string) with internally stored values.
+   *  Currently supported needles are:
+   *   {{table}} - Will be replaced by static::$tableName (which should contain the name of the attached table)
+   *   {{primary}} - Will be replaced by static::$primaryKey /which should be the name of the tables primary-key)
+   *   {{KEY}} - Will be replaced by $this->getKey(KEY)
+   *   {{%KEY}} - Will be replaced by $this->getKey(KEY), usefull if table contains a key named after one of the above
+   *
+   * Parameters:
+   *  $sql <String> - SQL query that should be parsed
+   *
+   * Return:
+   *  <String> - Parsed SQL query
+   */
   public function parseSQL($sql) {
+    // Delegate parsing of static value to generalized implementation
     $sql = self::parseStaticSQL($sql);
+
+    // Replace {{KEY}} with the (correctly quoted) value of getKey(KEY)
     $sql = preg_replace_callback(
       '/{{%?([^}]+)}}/',
       function($match) {
@@ -431,81 +705,196 @@ abstract class RESTDatabase {
       },
       $sql
     );
+
+    // Return parsed sql query
     return $sql;
   }
 
 
+  /**
+   * Static-Function: parseStaticSQL($sql)
+   *  Replaces certain 'needles' inside the sql query (string) with internally stored values.
+   *  Currently supported needles are:
+   *   {{table}} - Will be replaced by static::$tableName (which should contain the name of the attached table)
+   *   {{primary}} - Will be replaced by static::$primaryKey /which should be the name of the tables primary-key)
+   *  Obviously the static method can not access instance information, such as getKey(...).
+   *
+   * Parameters:
+   *  $sql <String> - SQL query that should be parsed
+   *
+   * Return:
+   *  <String> - Parsed SQL query
+   */
   protected static function parseStaticSQL($sql) {
+    // Replace {{table}} and {{primary}} as described
     $sql = str_replace('{{table}}',   static::$tableName, $sql);
-    $sql = str_replace('{{unique}}',  static::$uniqueKey, $sql);
+    $sql = str_replace('{{primary}}',  static::$primaryKey, $sql);
+
+    // Return parsed sql query
     return $sql;
   }
 
 
+  /**
+   * Function: getRow($key)
+   *  Either returns the internally stored table-entry, aka the 'row'
+   *  representing the table-entry, or if an optional key is given,
+   *  only return this keys value in the internally stored table-entry.
+   *
+   * Parameters:
+   *  $key <String> - [Optional] Only fetch the value of given keys
+   *
+   * Return:
+   *  <Mixed>/<Array[Mixed]> - Returned row representation of internally stored table-entry (or value of single key)
+   */
   public function getRow($key = null) {
+    // Return single key?
     if (isset($key))
       return $this-getKey($key);
+
+    // ... or complete table-entry (aka row)
     else
       return $this->row;
   }
 
 
+  /**
+   * Function: getDBRow($key)
+   *  Returns the table-entry representation required by ilDB, eg.
+   *    array(
+   *      'id'      => array('integer', 10),
+   *      'content' => array('text',    'Hello World!')
+   *    )
+   *
+   * Parameters:
+   *  $key <String> - [Optional] Only fetch the ilDB (type, value) pair for given keys
+   *
+   * Return:
+   *  <Array[Array[String]]> - List (array) of ilDB (type, value) pairs used to query, insert or update table entries.
+   *                           See input of ilDB->insert(...) for additional details.
+   */
   public function getDBRow($key = null) {
+    // With a given key, only return (type, value) pair for given key
     $row = array();
     if (isset($key)) {
+      // Fetch type and value
       $value      = $this->row[$key];
       $type       = $this->keys[$key];
+
+      // Combine (type, value) into pair
       $row[$key]  = array($type, $value);
     }
+
+    // ... otherwise return (type, value) pair for all keys
     else
       foreach($this->row as $key => $value) {
+        // Fetch type and combine (type, value) into pair
         $type       = $this->keys[$key];
         $row[$key]  = array($type, $value);
       }
 
+    // Return ilDB table-entry (aka row) representation
     return $row;
   }
 
 
-  // Requires $uniqueKey
+  /**
+   * Function: getDBWhere()
+   *  Returns the where-clause (only containing the primary-key) representation required by ilDB.
+   *
+   * Note:
+   *  Obviously this method will need to already know a valid primary-key
+   *  for this table (either from one of the factories or via setKey(...))
+   *  to work properly, since it deletes table-entires ONLY via their primary-keys.
+   *
+   * Return:
+   *  <Array[Array[String]]> - List (array with one element) of ilDB (type, value) pairs used to query, insert or update
+   *                           table entries, unlike getDBRow() this only contains the primary-key.
+   *                           See input of ilDB->insert(...) for additional details.
+   */
   public function getDBWhere() {
-    $key    = static::$uniqueKey;
+    // Fetch type and value of the primary-key
+    $key    = static::$primaryKey;
     $value  = $this->row[$key];
     $type   = $this->keys[$key];
 
+    // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
     if ($value == false)
-      throw new Exceptions\Database(sprintf(self::MSG_NO_UNIQUE, static::$tableName, static::$uniqueKey), self::ID_NO_UNIQUE);
+      throw new Exceptions\Database(sprintf(self::MSG_NO_UNIQUE, static::$tableName, static::$primaryKey), self::ID_NO_UNIQUE);
 
+    // Combine (type, value) into pair and pack into associative array
     return array(
       $key => array($type, $value)
     );
   }
 
 
-  public static function getUniqueKey() {
-    return static::$uniqueKey;
+  /**
+   * Static-Function: getPrimaryKey()
+   *  Utility-function to return the primary-key used by the attached table.
+   *
+   * Return:
+   *  <String> - Name of primary-key of the attached table
+   */
+  public static function getPrimaryKey() {
+    return static::$primaryKey;
   }
 
 
+  /**
+   * Static-Function: getTableName()
+   *  Utility-function to return the name of the attached table.
+   *
+   * Return:
+   *  <String> - Name of the attached table
+   */
   public static function getTableName() {
     return static::$tableName;
   }
 
 
+  /**
+   * Static-Function: getTableKeys()
+   *  Utility-function to return a list of all keys (and their ilDB type) inside by the attached table.
+   *
+   * Return:
+   *  <String> - List of all keys (and their ilDB type) inside the attached table
+   */
   public static function getTableKeys() {
     return static::$tableKeys;
   }
 
 
-  public static function getJoinKey($joinWith) {
-    return static::$uniqueKey;
+  /**
+   * Static-Function: getJoinKey($joinTable)
+   *  This method should return the name of the OWN key
+   *  (not the key of the $joinTable) which should be used
+   *  to join with $joinTable ON.
+   *  For example:
+   *   IF 'ui_uihk_rest_keys' and 'ui_uihk_rest_perm' want to be joined,
+   *   ui_uihk_rest_keys should return 'id' (its primary-key) and
+   *   ui_uihk_rest_perm should return 'api_id' when given
+   *   each others table-name as input-parameter.
+   *   Obviously this means this method needs to be overwriten in
+   *   all derived classes that can be joined with another table.
+   *
+   * Parameters:
+   *  $joinTable <String> - Name of table to join with
+   *
+   * Return:
+   *  <String> - OWN Key used to join on with $joinTable
+   */
+  public static function getJoinKey($joinTable) {
+    // By default return own primary-key...
+    // Add conditional return values based on $joinTable in derived classes supporting joining
+    return static::$primaryKey;
   }
 
 
   /**
-   * Function: [STATIC] getDB()
-   *  Use this to inject global ILIAS-Database
-   *  into this class.
+   * Static-Function: getDB()
+   *  Use this to inject global ILIAS-Database into this class.
+   *  In a perfect world this would be done via DI instead... >_>
    *
    * Return:
    *  <ilDB> - ILIAS-Database Object
