@@ -291,7 +291,7 @@ class Objects extends Libs\RESTModel {
       }
       catch (Exceptions\Objects $e) {
         // Add error-response for failed refIds
-        $responseObject           = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+        $responseObject           = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
         $responseObject['ref_id'] = $refId;
         $result[$refId]           = $responseObject;
       }

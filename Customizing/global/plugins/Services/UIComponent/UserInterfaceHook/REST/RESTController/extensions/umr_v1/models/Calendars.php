@@ -179,7 +179,7 @@ class Calendars extends Libs\RESTModel {
       }
       // Add exception information if failure
       catch (Exceptions\Calendars $e) {
-        $result[$calendarId]                = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+        $result[$calendarId]                = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
         $result[$calendarId]['calendar_id'] = $calendarId;
       }
 

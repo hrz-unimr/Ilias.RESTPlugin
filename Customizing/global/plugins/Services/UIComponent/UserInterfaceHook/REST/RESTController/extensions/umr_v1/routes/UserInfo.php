@@ -35,7 +35,7 @@ $app->group('/v1/umr', function () use ($app) {
     }
     // Catch error thrown by getUserInfo(...)
     catch (Exceptions\UserInfo $e) {
-      $app->halt(500, $e->getMessage(), $e->getRestCode());
+      $app->halt(500, $e->getRESTMessage(), $e->getRESTCode());
     }
   });
 

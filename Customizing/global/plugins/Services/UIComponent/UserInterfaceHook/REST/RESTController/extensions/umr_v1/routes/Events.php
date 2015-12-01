@@ -46,10 +46,10 @@ $app->group('/v1/umr', function () use ($app) {
       $app->success($events);
     }
     catch (Libs\Exceptions\IdParseProblem $e) {
-      $app->halt(422, $e->getMessage(), $e->getRESTCode());
+      $app->halt(422, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (Exceptions\Events $e) {
-      $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+      $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
       $responseObject['data'] = $e->getData();
       $app->halt(500, $responseObject);
     }
@@ -75,7 +75,7 @@ $app->group('/v1/umr', function () use ($app) {
       $app->success($events);
     }
     catch (Exceptions\Events $e) {
-      $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+      $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
       $responseObject['data'] = $e->getData();
       $app->halt(500, $responseObject);
     }

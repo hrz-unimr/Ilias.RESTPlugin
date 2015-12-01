@@ -46,10 +46,10 @@ $app->group('/v1/umr', function () use ($app) {
       $app->success($calendars);
     }
     catch (Libs\Exceptions\IdParseProblem $e) {
-      $app->halt(422, $e->getMessage(), $e->getRESTCode());
+      $app->halt(422, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (Exceptions\Calendars $e) {
-      $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+      $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
       $responseObject['data'] = $e->getData();
       $app->halt(500, $responseObject);
     }
@@ -75,7 +75,7 @@ $app->group('/v1/umr', function () use ($app) {
       $app->success($calendars);
     }
     catch (Exceptions\Calendars $e) {
-      $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+      $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
       $responseObject['data'] = $e->getData();
       $app->halt(500, $responseObject);
     }
@@ -106,13 +106,13 @@ $app->group('/v1/umr', function () use ($app) {
       $app->success($calendars);
     }
     catch (Libs\Exceptions\IdParseProblem $e) {
-      $app->halt(422, $e->getMessage(), $e->getRESTCode());
+      $app->halt(422, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (Libs\Exceptions\MissingParameter $e) {
-        $app->halt(400, $e->getFormatedMessage(), $e->getRestCode());
+        $app->halt(400, $e->getFormatedMessage(), $e->getRESTCode());
     }
     catch (Exceptions\Calendars $e) {
-      $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+      $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
       $responseObject['data'] = $e->getData();
       $app->halt(500, $responseObject);
     }
@@ -138,7 +138,7 @@ $app->group('/v1/umr', function () use ($app) {
       $app->success($calendars);
     }
     catch (Exceptions\Calendars $e) {
-      $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+      $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
       $responseObject['data'] = $e->getData();
       $app->halt(500, $responseObject);
     }

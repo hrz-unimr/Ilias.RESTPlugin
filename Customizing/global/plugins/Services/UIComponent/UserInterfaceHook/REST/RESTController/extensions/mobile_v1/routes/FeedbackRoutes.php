@@ -35,7 +35,7 @@ $app->group('/v1/m', function () use ($app) {
             $id = $model->createFeedbackItem($s_uid, $s_msg, $s_env);
             $app->success(array("msg"=>"Created new feedback entry.", "id"=>$id));
         } catch (Libs\Exceptions\MissingParameter $e) {
-            $app->halt(400, $e->getMessage(), $e->getRestCode());
+            $app->halt(400, $e->getMessage(), $e->getRESTCode());
         }
     });
 
@@ -55,7 +55,7 @@ $app->group('/v1/m', function () use ($app) {
              $id = $model->createFeedbackItem($s_uid, $s_msg, $s_env);
              $app->success(array("msg"=>"Created new feedback entry.", "id"=>$id));
          } catch (Libs\Exceptions\MissingParameter $e) {
-             $app->halt(400, $e->getMessage(), $e->getRestCode());
+             $app->halt(400, $e->getMessage(), $e->getRESTCode());
          }
 
      });

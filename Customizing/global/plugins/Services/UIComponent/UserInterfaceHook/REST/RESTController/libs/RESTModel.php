@@ -16,54 +16,26 @@ namespace RESTController\libs;
  *  should doing the input parsing and reesponse sending.
  */
 class RESTModel {
-    /*
-     * Injected RESTController. Use with caution!
-     *  Do not use $app to do any "global-like"
-     *  stuff (eg. halt(), success(), environment())
-     *  with $app inside a model as much as possible.
-     */
-    protected static $app;
+  /**
+   * Static-Function: getApp()
+   *  Inject RESTController into model.
+   *
+   * Return:
+   *  <RESTController> - (Singleton-) Instance of the RESTController
+   */
+  public static function getApp() {
+    return \RESTController\RESTController::getInstance();
+  }
 
 
-    /*
-     * Inject ilDB. Should remove "global-like"
-     * nature of $ilDB.
-     */
-    protected static $sqlDB;
-
-    /**
-     * Inject ilPluginAdmin. Should remove "global-like"
-     * nature of $ilPluginAdmin.
-     */
-    protected static $plugin;
-
-
-    /**
-     * Create a new instance & inject RESTController
-     */
-    public function __construct() {
-        // Inject RESTController
-        if (!self::$app)
-            $app = self::getApp();
-
-        // Inject $ilDB
-        if (!self::$sqlDB)
-            self::$sqlDB = self::getDB();
-    }
-
-
-    /**
-     *
-     */
-    public static function getApp() {
-      return \RESTController\RESTController::getInstance();
-    }
-
-
-    /**
-     *
-     */
-    public static function getDB() {
-      return $GLOBALS['ilDB'];
-    }
+  /**
+   * Static-Function: getDB()
+   *  Inject ilDB into model.
+   *
+   * Return:
+   *  <ilDB> - (Singleton-) Instance of ilDB
+   */
+  public static function getDB() {
+    return $GLOBALS['ilDB'];
+  }
 }

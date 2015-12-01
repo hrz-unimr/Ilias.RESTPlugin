@@ -30,7 +30,7 @@ class oAuth2 extends Libs\RESTIO {
       // Fetch request data
       $request = $app->request();
 
-      // Mandatory parameters
+      // Mandatory parameters (api_key equals oauth2 client_id)
       $api_key = $request->params('api_key', null, true);
       $redirect_uri = $request->params('redirect_uri', null, true);
       $response_type = $request->params('response_type', null, true);
@@ -54,16 +54,16 @@ class oAuth2 extends Libs\RESTIO {
         $app->redirect($result['data']);
     }
     catch (Exceptions\ResponseType $e) {
-      $app->halt(422, $e->getMessage(), $e->getRestCode());
+      $app->halt(422, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (Exceptions\LoginFailed $e) {
-      $app->halt(401, $e->getMessage(), $e->getRestCode());
+      $app->halt(401, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (Exceptions\TokenInvalid $e) {
-      $app->halt(401, $e->getMessage(), $e->getRestCode());
+      $app->halt(401, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (LibExceptions\MissingParameter $e) {
-      $app->halt(400, $e->getFormatedMessage(), $e->getRestCode());
+      $app->halt(400, $e->getFormatedMessage(), $e->getRESTCode());
     }
   }
 
@@ -77,10 +77,8 @@ class oAuth2 extends Libs\RESTIO {
       // Fetch request data
       $request = $app->request();
 
-      // Mandatory parameters
-      $api_key = $request->params('client_id');
-      if (is_null($api_key))
-        $api_key = $request->params('api_key', null, true);
+      // Mandatory parameters (api_key equals oauth2 client_id)
+      $api_key = $request->params('api_key', null, true);
       $redirect_uri = $request->params('redirect_uri', null, true);
       $response_type = $request->params('response_type', null, true);
 
@@ -100,10 +98,10 @@ class oAuth2 extends Libs\RESTIO {
       );
     }
     catch (Exceptions\ResponseType $e) {
-      $app->halt(422, $e->getMessage(), $e->getRestCode());
+      $app->halt(422, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (LibExceptions\MissingParameter $e) {
-      $app->halt(400, $e->getFormatedMessage(), $e->getRestCode());
+      $app->halt(400, $e->getFormatedMessage(), $e->getRESTCode());
     }
   }
 
@@ -120,7 +118,7 @@ class oAuth2 extends Libs\RESTIO {
 
       // Resource Owner (User) grant type
       if ($grant_type == 'password') {
-        // Fetch request data
+        // Fetch request data (api_key equals oauth2 client_id)
         $api_key = $request->params('api_key', null, true);
         $user = $request->params('username', null, true);
         $password = $request->params('password', null, true);
@@ -131,25 +129,25 @@ class oAuth2 extends Libs\RESTIO {
         $result = Models\TokenEndpoint::userCredentials($api_key, $user, $password, $new_refresh, $ilias_client);
 
         // Send result
-        $app->response()->disableCache();
+        $app->response()->noCache();
         $app->success($result);
       }
       // grant type
       elseif ($grant_type == 'client_credentials') {
-        // Fetch request data
+        // Fetch request data (api_key equals oauth2 client_id)
         $api_key = $request->params('api_key', null, true);
         $api_secret = $request->params('api_secret', null, true);
         $ilias_client = $request->params('ilias_client', CLIENT_ID);
 
         // Invoke OAuth2-Model with data
         $result = Models\TokenEndpoint::clientCredentials($api_key, $api_secret, $ilias_client);
-        $app->response()->disableCache();
+        $app->response()->noCache();
         $app->success($result);
       }
       // grant type
       elseif ($grant_type == 'authorization_code') {
-        // Fetch request data (POST-Form instead of body)
-        $api_key = $_POST['api_key'];
+        // Fetch request data (api_key equals oauth2 client_id)
+        $api_key = $request->params('api_key', null, true);
 
         // Fetch request data
         $code = $request->params('code', null, true);
@@ -162,7 +160,7 @@ class oAuth2 extends Libs\RESTIO {
         $result = Models\TokenEndpoint::authorizationCode($api_key, $api_secret, $authCodeToken, $redirect_uri, $new_refresh);
 
         // Send result
-        $app->response()->disableCache();
+        $app->response()->noCache();
         $app->success($result);
       }
       // grant type
@@ -177,7 +175,7 @@ class oAuth2 extends Libs\RESTIO {
 
         // Send result to client
         if ($result) {
-          $app->response()->disableCache();
+          $app->response()->noCache();
           $app->success($result);
         }
         else
@@ -188,16 +186,16 @@ class oAuth2 extends Libs\RESTIO {
           throw new Exceptions\GrantType('Parameter "grant_type" needs to match "password", "client_credentials", "authorization_code" or "refresh_token".');
     }
     catch (Exceptions\GrantType $e) {
-      $app->halt(422, $e->getMessage(), $e->getRestCode());
+      $app->halt(422, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (Exceptions\LoginFailed $e) {
-      $app->halt(401, $e->getMessage(), $e->getRestCode());
+      $app->halt(401, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (Exceptions\TokenInvalid $e) {
-      $app->halt(401, $e->getMessage(), $e->getRestCode());
+      $app->halt(401, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (LibExceptions\MissingParameter $e) {
-      $app->halt(400, $e->getFormatedMessage(), $e->getRestCode());
+      $app->halt(400, $e->getFormatedMessage(), $e->getRESTCode());
     }
   }
 
@@ -229,13 +227,13 @@ class oAuth2 extends Libs\RESTIO {
         $app->halt(500, 'Refresh-Token could not be deleted, try requesting a new one instead.');
     }
     catch (Exceptions\LoginFailed $e) {
-      $app->halt(401, $e->getMessage(), $e->getRestCode());
+      $app->halt(401, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (Exceptions\TokenInvalid $e) {
-      $app->halt(401, $e->getMessage(), $e->getRestCode());
+      $app->halt(401, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (LibExceptions\MissingParameter $e) {
-      $app->halt(400, $e->getFormatedMessage(), $e->getRestCode());
+      $app->halt(400, $e->getFormatedMessage(), $e->getRESTCode());
     }
   }
 
@@ -256,7 +254,7 @@ class oAuth2 extends Libs\RESTIO {
       $app->success($result);
     }
     catch (Exceptions\TokenInvalid $e) {
-      $app->halt(401, $e->getMessage(), $e->getRestCode());
+      $app->halt(401, $e->getRESTMessage(), $e->getRESTCode());
     }
   }
 
@@ -269,6 +267,8 @@ class oAuth2 extends Libs\RESTIO {
     try {
       // Fetch parameters
       $request = $app->request();
+
+      // Mandatory parameters (api_key equals oauth2 client_id)
       $api_key = $request->params('api_key', null, true);
       $user_id = $request->params('user_id', null, true);
       $rtoken = $request->params('rtoken', null, true);
@@ -279,14 +279,14 @@ class oAuth2 extends Libs\RESTIO {
       $result = Models\MiscEndpoint::rToken2Bearer($api_key, $user_id, $rtoken, $session_id, $ilias_client);
 
       // Return status-data
-      $app->response()->disableCache();
+      $app->response()->noCache();
       $app->success($result);
     }
     catch (Exceptions\TokenInvalid $e) {
-      $app->halt(401, $e->getMessage(), $e->getRestCode());
+      $app->halt(401, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (LibExceptions\MissingParameter $e) {
-      $app->halt(400, $e->getFormatedMessage(), $e->getRestCode());
+      $app->halt(400, $e->getFormatedMessage(), $e->getRESTCode());
     }
   }
 }

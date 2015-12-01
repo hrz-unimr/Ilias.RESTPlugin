@@ -30,7 +30,7 @@ $app->group('/v1/umr', function () use ($app) {
     $accessToken  = Auth\Util::getAccessToken();
 
     try {
-      $request      = $app->request;
+      $request          = $app->request;
       $contactIdString  = $request->params('contactids', null);
 
       // With HTTP-GET Parameter (fetch by contactIds)
@@ -46,10 +46,10 @@ $app->group('/v1/umr', function () use ($app) {
       $app->success($ccontacts);
     }
     catch (Libs\Exceptions\IdParseProblem $e) {
-      $app->halt(422, $e->getMessage(), $e->getRESTCode());
+      $app->halt(422, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (Exceptions\Contacts $e) {
-      $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+      $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
       $responseObject['data'] = $e->getData();
       $app->halt(500, $responseObject);
     }
@@ -75,7 +75,7 @@ $app->group('/v1/umr', function () use ($app) {
       $app->success($ccontacts);
     }
     catch (Exceptions\Contacts $e) {
-      $responseObject         = Libs\RESTLib::responseObject($e->getMessage(), $e->getRestCode());
+      $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
       $responseObject['data'] = $e->getData();
       $app->halt(500, $responseObject);
     }

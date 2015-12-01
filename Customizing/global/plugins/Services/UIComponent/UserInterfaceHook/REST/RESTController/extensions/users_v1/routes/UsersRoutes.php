@@ -174,6 +174,6 @@ $app->delete('/v1/users/:user_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), 
         else
             $app->halt(500, "Could not delete user ".$user_id.".");
     } catch (Libs\Exceptions\IliasApplication $e) {
-        $app->halt(400, $e->getMessage());
+        $app->halt(400, $e->getRESTMessage());
     }
 });

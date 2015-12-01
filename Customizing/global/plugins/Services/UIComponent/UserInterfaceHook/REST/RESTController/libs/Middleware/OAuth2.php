@@ -16,20 +16,15 @@ use \RESTController\core\clients as Clients;
 
 /*
  * Class: OAuth2 (Middleware)
+ *  Implements route authentification that is only concerned with oauth2 information.
  */
 class OAuth2 {
-  /**
-   * List of default REST error-codes
-   *  Extensions are allowed to create their own error-codes.
-   *  Using a unique string seems to be an easier solution than assigning unique numbers.
-   */
+  // Allow to re-use status messages and codes
   const ID_IP_NOT_ALLOWED   = 'RESTController\\libs\\OAuth2Middleware::ID_IP_NOT_ALLOWED';
-  const ID_NO_PERMISSION    = 'RESTController\\libs\\OAuth2Middleware::ID_NO_PERMISSION';
-  const ID_NO_TOKEN         = 'RESTController\\libs\\OAuth2Middleware::ID_NO_TOKEN';
-
-  // Allow to re-use status-strings
   const MSG_IP_NOT_ALLOWED  = 'Access denied for client IP address.';
+  const ID_NO_PERMISSION    = 'RESTController\\libs\\OAuth2Middleware::ID_NO_PERMISSION';
   const MSG_NO_PERMISSION   = 'No permission to access this route.';
+  const ID_NO_TOKEN         = 'RESTController\\libs\\OAuth2Middleware::ID_NO_TOKEN';
   const MSG_NO_TOKEN        = 'No access-token provided or using invalid format.';
 
 
@@ -38,7 +33,6 @@ class OAuth2 {
    *  This route can be used as middleware on a route
    *  to check if:
    *   a) The token is valid
-   *   b) The user is is allowed on this route (scope)
    */
   public static function TOKEN($route) {
     // Fetch reference to RESTController
@@ -50,7 +44,7 @@ class OAuth2 {
 
 
   /**
-   * Function: TOKEN($route)
+   * Function: PERMISSION($route)
    *  This route can be used as middleware on a route
    *  to check if:
    *   a) The token is valid
@@ -70,8 +64,11 @@ class OAuth2 {
 
 
   /**
-   * Function: TOKEN($route)
-   *
+   * Function: SHORT($route)
+   *  This route can be used as middleware on a route
+   *  to check if:
+   *   a) The token is valid
+   *   b) The user is using a special 'short-lived' access-token
    */
   public static function SHORT($route) {
     // Fetch reference to RESTController
@@ -86,7 +83,11 @@ class OAuth2 {
 
 
   /**
-   * Checks the validity of a token and stops application if invalid.
+   * Function: checkAccessToken($app)
+   *  Checks the validity of a token and stops application if invalid.
+   *
+   * Parameters:
+   *  $app <RESTController> - Instance of the RESTController
    */
   public static function checkAccessToken($app) {
     try {
@@ -115,13 +116,20 @@ class OAuth2 {
       return $accessToken;
     }
     catch (TokenExceptions\TokenInvalid $e) {
-        $app->halt(401, $e->getMessage(), $e->getRestCode());
+        $app->halt(401, $e->getMessage(), $e->getRESTCode());
     }
   }
 
 
   /**
-   * Checks the permission for the current client to access a route with a certain action.
+   * Function: checkRoutePermissions($app, $accessToken, $route, $request)
+   *  Checks the permission for the current client to access a route with a certain action.
+   *
+   * Parameters:
+   *  $app <RESTController> - Instance of the RESTController
+   *  $accessToken <AccessToken> - AccessToken that needs to be checked for permissions
+   *  $route <String> - Route for which the access-token needs to be checked
+   *  $request <RESTRequest> - Request-object (used to fetch VERB)
    */
   public static function checkRoutePermissions($app, $accessToken, $route, $request) {
     // Fetch data to check route access
@@ -137,7 +145,12 @@ class OAuth2 {
 
 
   /**
-   * Checks if the given access-token is a special short-lived access-token
+   * Function: checkShort($app, $accessToken)
+   *  Checks if the given access-token is a special short-lived access-token
+   *
+   * Parameters:
+   *  $app <RESTController> - Instance of the RESTController
+   *  $accessToken <AccessToken> - AccessToken that needs to be checked for permissions
    */
   public static function checkShort($app, $accessToken) {
     // Test if token is a short (ttl) one and ip does match

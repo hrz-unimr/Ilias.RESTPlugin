@@ -78,7 +78,7 @@ $app->group('/v1', function () use ($app) {
             $app->success($result);
         }
         catch (Libs\Exceptions\MissingParameter $e) {
-            $app->halt(400, $e->getFormatedMessage(), $e->getRestCode());
+            $app->halt(400, $e->getFormatedMessage(), $e->getRESTCode());
         }
     });
 

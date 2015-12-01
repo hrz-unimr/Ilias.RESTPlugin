@@ -18,5 +18,4 @@ namespace RESTController\libs;
  *  make program-logic reuseable without parsing  input or
  *  sending responses.
  */
-class RESTIO {
-}
+class RESTIO { }

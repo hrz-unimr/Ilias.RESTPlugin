@@ -13,12 +13,14 @@ use \RESTController\libs as Libs;
 
 /**
  * Class: RESTKeys (Database-Table)
- *
+ *  Abstraction for 'ui_uihk_rest_keys' database table.
+ *  See RESTDatabase class for additional information.
  */
 class RESTKeys extends Libs\RESTDatabase {
-  protected static $primaryKey = 'id';
-  protected static $tableName = 'ui_uihk_rest_keys';
-  protected static $tableKeys = array(
+  // This three variables contain information about the table layout
+  protected static $primaryKey  = 'id';
+  protected static $tableName   = 'ui_uihk_rest_keys';
+  protected static $tableKeys   = array(
     'id'                              => 'integer',
     'api_key'                         => 'text',
     'api_secret'                      => 'text',
@@ -38,13 +40,19 @@ class RESTKeys extends Libs\RESTDatabase {
   );
 
 
+  /**
+   * Function: setKey($key, $value, $write)
+   *  @See RESTDatabase->setKey(...)
+   */
   public function setKey($key, $value, $write = false) {
+    // Parse input based on key
     switch ($key) {
-      case 'id':
+      // Convert int values
       case 'oauth2_gt_client_user':
         $value = intval($value);
         break;
 
+      // Convert (empty) string value
       case 'api_key':
       case 'api_secret':
       case 'oauth2_redirection_uri':
@@ -53,6 +61,7 @@ class RESTKeys extends Libs\RESTDatabase {
         $value = ($value == null) ? '' : $value;
         break;
 
+      // Convert boolean values
       case 'oauth2_gt_client_active':
       case 'oauth2_gt_authcode_active':
       case 'oauth2_gt_implicit_active':
@@ -65,9 +74,11 @@ class RESTKeys extends Libs\RESTDatabase {
         $value = ($value == '1');
         break;
 
+      // No default behaviour
       default:
     }
 
+    // Store key's value after convertion
     return parent::setKey($key, $value, $write);
   }
 }

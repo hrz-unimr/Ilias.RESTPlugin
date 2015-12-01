@@ -30,8 +30,8 @@ abstract class RESTDatabase {
   const ID_NO_ENTRY         = 'RESTController\\libs\\RESTDatabase::ID_NO_ENTRY';
   const MSG_NO_KEY          = 'There is no key "%s" in table "%s".';
   const ID_NO_KEY           = 'RESTController\\libs\\RESTDatabase::ID_NO_KEY';
-  const MSG_NO_UNIQUE       = 'Operation not possible, missing value for primary-key (%s.%s).';
-  const ID_NO_UNIQUE        = 'RESTController\\libs\\RESTDatabase::ID_NO_UNIQUE';
+  const MSG_NO_PRIMARY      = 'Operation not possible, missing value for primary-key (%s.%s).';
+  const ID_NO_PRIMARY       = 'RESTController\\libs\\RESTDatabase::ID_NO_PRIMARY';
 
 
   // This three variables contain information about the table layout
@@ -296,7 +296,7 @@ abstract class RESTDatabase {
 
     // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
     if ($value == false)
-      throw new Exceptions\Database(sprintf(self::MSG_NO_UNIQUE, static::$tableName, static::$primaryKey), self::ID_NO_UNIQUE);
+      throw new Exceptions\Database(sprintf(self::MSG_NO_PRIMARY, static::$tableName, static::$primaryKey), self::ID_NO_PRIMARY);
 
     // Build sql-query to fetch table-entry data
     $sql    = sprintf('SELECT * FROM %s WHERE %s = %d', static::$tableName, $key, intval($value));
@@ -409,7 +409,7 @@ abstract class RESTDatabase {
    * Function: exists($where)
    *  By default the table-entry existance is checked via its internally stored primary-key.
    *  Optionally a (instance-parsed) where-clause can be used to make the check
-   *  more flexible, see $this->parseSQL($sql) for more information.
+   *  more flexible, see RESTDatabase->parseSQL($sql) for more information.
    *
    * Note 1: (with $where)
    *  The $where-Parameter can be exploited to generate malformed requests.
@@ -434,7 +434,7 @@ abstract class RESTDatabase {
 
     // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
     if ($value == false)
-      throw new Exceptions\Database(sprintf(self::MSG_NO_UNIQUE, static::$tableName, static::$primaryKey), self::ID_NO_UNIQUE);
+      throw new Exceptions\Database(sprintf(self::MSG_NO_PRIMARY, static::$tableName, static::$primaryKey), self::ID_NO_PRIMARY);
 
     // Delegate actual query to generalized implementation
     return self::existsByPrimary($value);
@@ -501,7 +501,7 @@ abstract class RESTDatabase {
    * Function: delete($where)
    *  By default the table-entry is deleted via its internally stored primary-key.
    *  Optionally a (instance-parsed) where-clause can be used to make the deletion
-   *  more flexible, see $this->parseSQL($sql) for more information.
+   *  more flexible, see RESTDatabase->parseSQL($sql) for more information.
    *
    * Note 1: (with $where)
    *  The $where-Parameter can be exploited to generate malformed requests.
@@ -526,7 +526,7 @@ abstract class RESTDatabase {
 
     // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
     if ($value == false)
-      throw new Exceptions\Database(sprintf(self::MSG_NO_UNIQUE, static::$tableName, static::$primaryKey), self::ID_NO_UNIQUE);
+      throw new Exceptions\Database(sprintf(self::MSG_NO_PRIMARY, static::$tableName, static::$primaryKey), self::ID_NO_PRIMARY);
 
     // Delegate actual query to generalized implementation
     return self::deleteByPrimary($value);
@@ -617,7 +617,7 @@ abstract class RESTDatabase {
 
   /**
    * Static-Function: fetchStatic($sql, $parse)
-   *  @See $this->fetch($sql, $parse), for detailed description.
+   *  @See RESTDatabase->fetch($sql, $parse), for detailed description.
    *
    *  Only static-parses the sql-query, see RESTDatabase::parseStaticSQL($sql)
    *  for more information.
@@ -673,7 +673,7 @@ abstract class RESTDatabase {
 
   /**
    * Static-Function: manipulateStatic($sql, $parse)
-   *  @See $this->manipulate($sql, $parse), for detailed description.
+   *  @See RESTDatabase->manipulate($sql, $parse), for detailed description.
    *
    *  Only static-parses the sql-query, see RESTDatabase::parseStaticSQL($sql)
    *  for more information.
@@ -833,7 +833,7 @@ abstract class RESTDatabase {
 
     // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
     if ($value == false)
-      throw new Exceptions\Database(sprintf(self::MSG_NO_UNIQUE, static::$tableName, static::$primaryKey), self::ID_NO_UNIQUE);
+      throw new Exceptions\Database(sprintf(self::MSG_NO_PRIMARY, static::$tableName, static::$primaryKey), self::ID_NO_PRIMARY);
 
     // Combine (type, value) into pair and pack into associative array
     return array(

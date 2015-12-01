@@ -60,7 +60,7 @@ $app->group('/v1/m', function () use ($app) {
             }
 
         } catch(Exceptions\MissingParameter $e) {
-            $app->halt(400, $e->getFormatedMessage(), $e->getRestCode());
+            $app->halt(400, $e->getFormatedMessage(), $e->getRESTCode());
         }
     });
 
@@ -87,7 +87,7 @@ $app->group('/v1/m', function () use ($app) {
                 $app->success("Moved item from personal file space to repository.");
             }
         } catch(Exceptions\MissingParameter $e) {
-            $app->halt(400, $e->getFormatedMessage(), $e->getRestCode());
+            $app->halt(400, $e->getFormatedMessage(), $e->getRESTCode());
         }
     });
 
@@ -147,7 +147,7 @@ $app->group('/v1/m', function () use ($app) {
             $model = new Files\PersonalFileSpaceModel();
             $model->deleteFromMyFileSpace($file_id, $user_id);
         } catch(Exceptions\MissingParameter $e) {
-            $app->halt(400, $e->getFormatedMessage(), $e->getRestCode());
+            $app->halt(400, $e->getFormatedMessage(), $e->getRESTCode());
         }
 
         $app->success("Deleted file from personal file space.");
