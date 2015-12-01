@@ -40,7 +40,7 @@ $app->group('/v1/umr', function () use ($app) {
         // Output result
         $app->success($data);
       }
-      catch (Libs\Exceptions\IdParseProblem $e) {
+      catch (Libs\Exceptions\StringList $e) {
         $app->halt(422, $e->getRESTMessage(), $e->getRESTCode());
       }
       catch (Libs\Exceptions\MissingParameter $e) {
@@ -70,7 +70,7 @@ $app->group('/v1/umr', function () use ($app) {
       if (!is_numeric($refId)){
         $message = sprintf(Libs\RESTLib::MSG_PARSE_ISSUE, '\'' . $refId . '\'', 'URI-Parameter');
 
-        throw new Libs\Exceptions\IdParseProblem($message, Libs\RESTLib::ID_PARSE_ISSUE);
+        throw new Libs\Exceptions\StringList($message, Libs\RESTLib::ID_PARSE_ISSUE);
       }
 
       // Fetch data for refIds
@@ -79,7 +79,7 @@ $app->group('/v1/umr', function () use ($app) {
       // Output result
       $app->success($data);
     }
-    catch (Libs\Exceptions\IdParseProblem $e) {
+    catch (Libs\Exceptions\StringList $e) {
       $app->halt(422, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (Libs\Exceptions\MissingParameter $e) {

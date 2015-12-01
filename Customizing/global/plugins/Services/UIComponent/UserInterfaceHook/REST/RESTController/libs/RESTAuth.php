@@ -7,6 +7,9 @@
  */
 namespace RESTController\libs;
 
+// Requires Middleware/OAuth2
+// Requires Middleware/ILIAS
+
 
 /**
  * Class: RESTAuth

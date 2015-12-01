@@ -8,6 +8,7 @@
 namespace RESTController\libs;
 
 // This allows us to use shortcuts instead of full quantifier
+// Requires ../Slim/Http/Request
 use \RESTController\libs\Exceptions as Exceptions;
 
 
@@ -18,6 +19,13 @@ use \RESTController\libs\Exceptions as Exceptions;
  *  inside the request BODY.
  */
 class RESTRequest extends \Slim\Http\Request {
+  // Allow to re-use status messages and codes
+  const MSG_MISSING     = 'Mandatory parameter missing, \'{{key}}\' not set in header, GET or POST (JSON/x-www-form-urlencoded).';
+  const ID_MISSING      = 'RESTController\\libs\\RESTRequest::ID_MISSING';
+  const MSG_PARSE_ISSUE = 'Could not parse ids \'{{ids}} from \'{{string}}\'.';
+  const ID_PARSE_ISSUE  = 'RESTController\\libs\\RESTLib::ID_PARSE_ISSUE';
+
+
   /**
    * Constructor: RESTRequest($env)
    *  Create a new (singleton) instance of the
@@ -85,6 +93,61 @@ class RESTRequest extends \Slim\Http\Request {
       return $default;
 
     // Throw exception because its enabled
-    throw new Exceptions\MissingParameter('Mandatory data is missing, parameter \'%paramName%\' not set.', $key);
+    throw new Exceptions\Parameter(
+      self::MSG_MISSING,
+      self::ID_MISSING,
+      array(
+        'key' => $key
+      )
+    );
+  }
+
+
+  /**
+   * Static-Function: parseIDList($idString, $throwException)
+   *  Parse a string of coma-separated numeric values (ids) into an array of integer values.
+   *
+   * Parameters:
+   *  $idString <String> - String that should be parsed.
+   *  $throwException <Boolean> - Throw exception of string does not contain parseable numeric values
+   *
+   * Return:
+   *  <Array[Integer]> - Array of parsed values (integer)
+   */
+  public static function parseIDList($idString, $throwException = false) {
+    // Parse string-list of coma-separated id-values
+    $ids = explode(',', $idString);
+
+    // Convert each id to an integer-value (if possible)
+    $throws = array();
+    foreach($ids as $key => $id) {
+      // Can be converted to int?
+      if (is_int($id))
+        $ids[$key] = intval($id);
+
+      // Drop value (and throw exception)
+      else {
+        if ($throwException)
+          $throws[$key] = $id;
+        $ids[$key] = null;
+      }
+    }
+
+    // Filter null-value from list converted values
+    $ids = array_filter($ids, function($value) { return !is_null($value); });
+
+    // Throw an exception?
+    if (count($throws) > 0)
+      throw new Exceptions\StringList(
+        self::MSG_PARSE_ISSUE,
+        self::ID_PARSE_ISSUE,
+        array(
+          'string'  => $idString,
+          'ids'     => implode(', ', $throws)
+        )
+      );
+
+    // Return ids (array of integers)
+    return $ids;
   }
 }

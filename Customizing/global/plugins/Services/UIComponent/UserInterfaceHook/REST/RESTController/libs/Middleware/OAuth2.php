@@ -7,7 +7,6 @@
  */
 namespace RESTController\libs\Middleware;
 
-
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\core\auth as Auth;
 use \RESTController\core\auth\Exceptions as TokenExceptions;

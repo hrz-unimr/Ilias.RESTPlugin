@@ -7,6 +7,9 @@
  */
 namespace RESTController\libs;
 
+// Requires RESTController
+// Requires <$ilDB>
+
 
 /**
  * Class: RESTModel

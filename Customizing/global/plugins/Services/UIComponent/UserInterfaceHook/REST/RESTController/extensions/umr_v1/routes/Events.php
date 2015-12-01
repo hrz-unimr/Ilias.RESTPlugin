@@ -45,7 +45,7 @@ $app->group('/v1/umr', function () use ($app) {
       // Output result
       $app->success($events);
     }
-    catch (Libs\Exceptions\IdParseProblem $e) {
+    catch (Libs\Exceptions\StringList $e) {
       $app->halt(422, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (Exceptions\Events $e) {

@@ -7,6 +7,8 @@
  */
 namespace RESTController\libs;
 
+// Requires <$ilDB>
+
 
 /**
  * Abstract-Class: RESTDatabase
@@ -22,15 +24,15 @@ namespace RESTController\libs;
  */
 abstract class RESTDatabase {
   // Allow to re-use status messages and codes
-  const MSG_WRONG_ROW_TYPE  = 'Constructor requires first parameter of type array, but it is: %s.';
+  const MSG_WRONG_ROW_TYPE  = 'Constructor requires first parameter of type array, but it is: {{type}}.';
   const ID_WRONG_ROW_TYPE   = 'RESTController\\libs\\RESTDatabase::ID_WRONG_ROW_TYPE';
-  const MSG_WRONG_ROW_SIZE  = 'Constructor requires first parameter to be an array of size %d, but it is %d.';
+  const MSG_WRONG_ROW_SIZE  = 'Constructor requires first parameter to be an array of size {{required}}, but it is {{input}}.';
   const ID_WRONG_ROW_SIZE   = 'RESTController\\libs\\RESTDatabase::ID_WRONG_ROW_SIZE';
-  const MSG_NO_ENTRY        = 'Could not find entry for query: %s.';
+  const MSG_NO_ENTRY        = 'Could not find entry for query: {{sql}}.';
   const ID_NO_ENTRY         = 'RESTController\\libs\\RESTDatabase::ID_NO_ENTRY';
-  const MSG_NO_KEY          = 'There is no key "%s" in table "%s".';
+  const MSG_NO_KEY          = 'There is no key "{{key}}" in table "{{table}}".';
   const ID_NO_KEY           = 'RESTController\\libs\\RESTDatabase::ID_NO_KEY';
-  const MSG_NO_PRIMARY      = 'Operation not possible, missing value for primary-key (%s.%s).';
+  const MSG_NO_PRIMARY      = 'Operation not possible, missing value for primary-key ({{table}}.{{primary}}).';
   const ID_NO_PRIMARY       = 'RESTController\\libs\\RESTDatabase::ID_NO_PRIMARY';
 
 
@@ -60,7 +62,13 @@ abstract class RESTDatabase {
   protected function __construct($row) {
     // Check that input is of correct type (array)
     if (!is_array($row))
-      throw new Exceptions\Database(sprintf(self::MSG_WRONG_ROW_TYPE, gettype($row)), self::ID_WRONG_ROW_TYPE);
+      throw new Exceptions\Database(
+        self::MSG_WRONG_ROW_TYPE,
+        self::ID_WRONG_ROW_TYPE,
+        array(
+          'type' => gettype($row)
+        )
+      );
 
     // Since the primary-key is optional, remember (via false) if it wasn't given
     if (!isset($row[static::$primaryKey]))
@@ -68,7 +76,14 @@ abstract class RESTDatabase {
 
     // Check if input-data has correct number of keys
     if (count($row) != count(static::$tableKeys))
-      throw new Exceptions\Database(sprintf(self::MSG_WRONG_ROW_SIZE, count(static::$tableKeys), count($row)), self::ID_WRONG_ROW_SIZE);
+      throw new Exceptions\Database(
+        self::MSG_WRONG_ROW_SIZE,
+        self::ID_WRONG_ROW_SIZE,
+        array(
+          'required'  => count(static::$tableKeys),
+          'input'     => count($row)
+        )
+      );
 
     // Update internal storage with given data
     // Note: This method will fail, if data contains a wrong key, one not contained in static::$tableKeys!
@@ -198,7 +213,13 @@ abstract class RESTDatabase {
         return new static($row);
 
     // If the function hasn't returned until here, the query must have failed
-    throw new Exceptions\Database(sprintf(self::MSG_NO_ENTRY, $sql), self::ID_NO_ENTRY);
+    throw new Exceptions\Database(
+      self::MSG_NO_ENTRY,
+      self::ID_NO_ENTRY,
+      array(
+        'sql' => $sql
+      )
+    );
   }
 
 
@@ -219,7 +240,14 @@ abstract class RESTDatabase {
   public function getKey($key, $read = false) {
     // Only keys available inside this table are allowed to be fetched
     if (!array_key_exists($key, static::$tableKeys))
-      throw new Exceptions\Database(sprintf(self::MSG_NO_KEY, $key, static::$tableName), self::ID_NO_KEY);
+      throw new Exceptions\Database(
+        self::MSG_NO_KEY,
+        self::ID_NO_KEY,
+        array(
+          'key'   => $key,
+          'table' => static::$tableName
+        )
+      );
 
     // Read (possibly updated) value from database first
     if ($read)
@@ -259,7 +287,14 @@ abstract class RESTDatabase {
   public function setKey($key, $value, $write = false) {
     // Only keys available inside this table are allowed to be changed
     if (!array_key_exists($key, static::$tableKeys))
-      throw new Exceptions\Database(sprintf(self::MSG_NO_KEY, $key, static::$tableName), self::ID_NO_KEY);
+      throw new Exceptions\Database(
+        self::MSG_NO_KEY,
+        self::ID_NO_KEY,
+        array(
+          'key'   => $key,
+          'table' => static::$tableName
+        )
+      );
 
     // Convert primary-key to integer
     // Note: All further type-changes need to be managed by derived implementations!
@@ -296,7 +331,14 @@ abstract class RESTDatabase {
 
     // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
     if ($value == false)
-      throw new Exceptions\Database(sprintf(self::MSG_NO_PRIMARY, static::$tableName, static::$primaryKey), self::ID_NO_PRIMARY);
+      throw new Exceptions\Database(
+        self::MSG_NO_PRIMARY,
+        self::ID_NO_PRIMARY,
+        array(
+          'table'   => static::$tableName,
+          'primary' => static::$primaryKey
+        )
+      );
 
     // Build sql-query to fetch table-entry data
     $sql    = sprintf('SELECT * FROM %s WHERE %s = %d', static::$tableName, $key, intval($value));
@@ -314,7 +356,13 @@ abstract class RESTDatabase {
     }
 
     // If not returned by now, something must have gone wrong
-    throw new Exceptions\Database(sprintf(self::MSG_NO_ENTRY, $sql), self::ID_NO_ENTRY);
+    throw new Exceptions\Database(
+      self::MSG_NO_ENTRY,
+      self::ID_NO_ENTRY,
+      array(
+        'sql' => $sql
+      )
+    );
   }
 
 
@@ -434,7 +482,14 @@ abstract class RESTDatabase {
 
     // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
     if ($value == false)
-      throw new Exceptions\Database(sprintf(self::MSG_NO_PRIMARY, static::$tableName, static::$primaryKey), self::ID_NO_PRIMARY);
+      throw new Exceptions\Database(
+        self::MSG_NO_PRIMARY,
+        self::ID_NO_PRIMARY,
+        array(
+          'table'   => static::$tableName,
+          'primary' => static::$primaryKey
+        )
+      );
 
     // Delegate actual query to generalized implementation
     return self::existsByPrimary($value);
@@ -526,7 +581,14 @@ abstract class RESTDatabase {
 
     // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
     if ($value == false)
-      throw new Exceptions\Database(sprintf(self::MSG_NO_PRIMARY, static::$tableName, static::$primaryKey), self::ID_NO_PRIMARY);
+      throw new Exceptions\Database(
+        self::MSG_NO_PRIMARY,
+        self::ID_NO_PRIMARY,
+        array(
+          'table'   => static::$tableName,
+          'primary' => static::$primaryKey
+        )
+      );
 
     // Delegate actual query to generalized implementation
     return self::deleteByPrimary($value);
@@ -901,6 +963,67 @@ abstract class RESTDatabase {
     // By default return own primary-key...
     // Add conditional return values based on $joinTable in derived classes supporting joining
     return static::$primaryKey;
+  }
+
+
+  /**
+   * Static-Function: safeSQL($sql, ...)
+   *  Correctly quotes the additional input parameters given by '...' and inserts
+   *  them into the sql-query given as first parameter using vsprintf on the
+   *  (correclty quoted) array remaining parameters.
+   *
+   * Parameters:
+   *  $sql <String> - SQL-Query that contains placeholders for the elements from '...'
+   *  ... <Mixed> - [Optional Parameter-List] Values that should be quoted and inserted into $sql
+   *
+   * Return:
+   *  <String> - Input sql query with all placeholders (see vsprintf()) replaced with correctly quoted
+   *             elements from the array of remaining parameters
+   */
+  public static function safeSQL($sql) {
+    // Fetch list of parameters
+    $params = func_get_args();
+    $params = array_slice($params, 1);
+
+    // Correctly quote parameters (as good as can be automated)
+    $params = self::quoteParams($params);
+
+    // Replace placeholders in $sql with correctly quoted parameters
+    return vsprintf($sql, $params);
+  }
+  protected static function quoteParams($params) {
+    $result = array();
+    foreach ($params as $key => $value) {
+      // Boolean values
+      if (is_bool($value))
+        $result[] = self::getDB()->quote($value, 'boolean');
+
+      // Array values
+      elseif (is_array($value)) {
+        $value = self::safeParams($value);
+        $value = sprintf('(%s)', implode(', ', $value));
+        $result[] = $value;
+      }
+
+      // Integer values
+      elseif (is_int($value) || is_integer($value))
+        $result[] = self::getDB()->quote($value, 'integer');
+
+      // Float/double values
+      elseif (is_float($value) || is_double($value) || is_numeric($value))
+        $result[] = self::getDB()->quote($value, 'float');
+
+      // String values
+      elseif (is_string($value))
+        $result[] = self::getDB()->quote($value, 'text');
+
+      // Fallback solution
+      else
+        $result[] = $value;
+    }
+
+    // Return quoted parameter-list
+    return $result;
   }
 
 

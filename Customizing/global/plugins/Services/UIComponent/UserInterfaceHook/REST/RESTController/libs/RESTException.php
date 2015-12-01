@@ -7,6 +7,8 @@
  */
 namespace RESTController\libs;
 
+// Requires RESTController
+
 
 /**
  * Class: RESTException
@@ -111,5 +113,29 @@ class RESTException extends \Exception {
       $message = str_replace(sprintf('{{%s}}', $key), $value, $message);
       $message = str_replace(sprintf('{{%%%s}}', $key), $value, $message);
     }
+  }
+
+
+  /**
+   * Function: send($code)
+   *  Utility-Function to make sneding responses generated from RESTExceptions
+   *  easier, since they 95% of the time will look the same.
+   *
+   * Note:
+   *  This will send the preformated exception-information and terminate the application!
+   *
+   * Parameters:
+   *  $code - HTTP-Code that should be used
+   */
+  public function send($code) {
+    // Fect instance of the RESTController
+    $app = \RESTController\RESTController::getInstance();
+
+    // Send formated exception-information
+    $app->halt($code, array(
+      'message' => $this->getRESTMessage(),
+      'code'    => $this->getRESTCode(),
+      'data'    => $this->getRESTData()
+    ));
   }
 }

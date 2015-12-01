@@ -7,6 +7,8 @@
  */
 namespace RESTController\libs;
 
+// Requires ../Slim/Http/Response
+
 
 /**
  * Class: RESTResponse
@@ -38,10 +40,10 @@ class RESTResponse extends \Slim\Http\Response {
    * @See SLIM->__construct() for additional information.
    */
   public function __construct($body = '', $status = 200, $headers = array()) {
-    //
+    // Call parent constrcutor first
     parent::__construct($body, $status, $headers);
 
-    //
+    // Set default format
     $this->setFormat('JSON');
   }
 
@@ -213,5 +215,40 @@ class RESTResponse extends \Slim\Http\Response {
         'Pragma'        => 'no-cache',
         'Expires '      => 0
       ));
+  }
+
+
+  /**
+   * Static-Function: responseObject($data, $status)
+   *  Creates a responseObject from given $data and $status
+   *  Should be used whenever someone wants to emulate
+   *  $app->success(...) or $app->halt(...) response
+   *  without actually transmitting and terminating with
+   *  said response.
+   *
+   * Parameters:
+   *  $data <Mixed> - Data that should be send, should be an Array or a String
+   *  $status <String> -
+   *
+   * Return:
+   *  <Array[Mixed]> - Specially constructed response-object (eg. used by $app->halt())
+   */
+  public static function responseObject($data, $status) {
+    // Add a status-code to response object?
+    if ($status != null) {
+      // Do NOT overwrite status key inside $data
+      if (is_array($data))
+        $data['status'] = ($data['status']) ?: $status;
+
+      // If data is not empty, construct array with status and original data
+      elseif ($data != '')
+        $data = array(
+          'status'  => $status,
+          'message' => $data
+        );
+    }
+
+    // Return formated response-object
+    return $data;
   }
 }
