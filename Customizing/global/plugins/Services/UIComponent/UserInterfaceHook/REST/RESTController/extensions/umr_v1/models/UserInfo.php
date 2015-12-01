@@ -154,7 +154,7 @@ class UserInfo extends Libs\RESTModel {
       if (is_numeric($accessToken_OR_userId)) {
         $usingToken   = false;
         $userId       = intval($accessToken_OR_userId);
-        $userName     = Libs\RESTLib::getUserNameFromUserId($userId);
+        $userName     = Libs\RESTLib::getUserName($userId);
       }
       // Parse input: Using an access-token
       elseif (is_a($accessToken_OR_userId, '\RESTController\core\auth\Tokens\Generic')) {

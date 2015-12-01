@@ -27,7 +27,7 @@ class Contacts extends Libs\RESTModel {
    *
    */
   protected function getContactInfo($contact) {
-    $loginId  = Libs\RESTLib::getUserIdFromUserName($contact['login']);
+    $loginId  = Libs\RESTLib::getUserId($contact['login']);
 
     try {
       $userInfo = UserInfo::getUserInfo($loginId);

@@ -103,7 +103,7 @@ class RESTController extends \Slim\Slim {
       // File needs to be writeable...
       if (!is_writable($restLog)) {
         // Use ilLog as fallback
-        $ilLog = GLOBALS['ilLog'];
+        global $ilLog;
         $ilLog->write('Plugin REST -> Warning: Log file ' . $restLog . ' is not write-able!');
         return $ilLog;
       }

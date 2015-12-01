@@ -25,6 +25,10 @@ class OAuth2 {
   const MSG_NO_PERMISSION   = 'No permission to access this route.';
   const ID_NO_TOKEN         = 'RESTController\\libs\\OAuth2Middleware::ID_NO_TOKEN';
   const MSG_NO_TOKEN        = 'No access-token provided or using invalid format.';
+  const ID_NEED_SHORT       = 'RESTController\\libs\\OAuth2Middleware::ID_NEED_SHORT';
+  const MSG_NEED_SHORT      = 'This route requires a special short-lived access-token.';
+  const ID_WRONG_IP         = 'RESTController\\libs\\OAuth2Middleware::ID_WRONG_IP';
+  const MSG_WRONG_IP        = 'This token was generated from another address then the your current one.';
 
 
   /**
@@ -154,8 +158,8 @@ class OAuth2 {
   public static function checkShort($app, $accessToken) {
     // Test if token is a short (ttl) one and ip does match
     if ($accessToken->getEntry('type') != Auth\Challenge::type)
-      $app->halt(401, 'This route requires a special short-lived access-token.');
+      $app->halt(401, self::MSG_NEED_SHORT, self::ID_NEED_SHORT);
     if ($accessToken->getEntry('misc') != $_SERVER['REMOTE_ADDR'])
-      $app->halt(401, 'This token was generated from another address then the your current one.');
+      $app->halt(401, self::MSG_WRONG_ID, self::ID_WRONG_ID);
   }
 }

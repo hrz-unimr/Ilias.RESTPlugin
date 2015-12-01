@@ -79,7 +79,7 @@ class Util extends EndpointBase {
     public static function renderWebsite($title, $file, $data) {
         // Build absolute-path (relative to document-root)
         $sub_dir = 'core/auth/views';
-        $rel_path = Libs\RESTLib::getPluginDir();
+        $rel_path = Libs\RESTLib::getPlugin()->getDirectory();
         $scriptName = dirname($_SERVER['SCRIPT_NAME']);
         $scriptName = str_replace('\\', '/', $scriptName);
         $scriptName = ($scriptName == '/' ? '' : $scriptName);

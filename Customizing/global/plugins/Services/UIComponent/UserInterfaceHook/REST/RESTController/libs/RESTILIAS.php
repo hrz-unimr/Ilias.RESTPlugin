@@ -13,240 +13,323 @@ use \RESTController\core\auth as Auth;
 
 
 /**
- * This class provides some common utility functions
- * that should be usefull for many models/routes, such
- * as 'loading' ILIAS classes, working with ILIAS users
- * converting between different id (ref, obj).
+ * Class: RESTILIAS
+ *  This class provides some common utility functions in regards to
+ *  fetching information from ILIAS but do not directly fit into any model.
  */
 class RESTILIAS {
-    /**
-     * @see ilInitialisation::initGlobal($a_name, $a_class, $a_source_file)
-     */
-    public static function initGlobal($a_name, $a_class, $a_source_file = null) {
-        return ilInitialisation_Public::initGlobal_Public($a_name, $a_class, $a_source_file);
-    }
-    /* <REMOVE THIS COMMENT>
-     * Todo:
-     *  Remaining 'artifact' of code-refactoring. This is really only used to load the following classes:
-     *   ilObjDataCache, objDefinition, ilSetting, ilAppEventHandler, rbacreview, rbacadmin, rbacsystem
-     *  Some of of which seems to be used for debugging/development only.
-     * Suggestion:
-     *  Replace initGlobal(...) with methods similar to loadIlUser().
-     */
+  // Allow to re-use status messages and codes
+  const MSG_NO_OBJECT_BY_REF  = 'Could not find any ILIAS-Object with Reference-Id \'{{ref_id}}\' in database.';
+  const ID_NO_OBJECT_BY_REF   = 'RESTController\\libs\\RESTILIAS::ID_NO_OBJECT_BY_REF';
+  const MSG_NO_OBJECT_BY_OBJ  = 'Could not find any ILIAS-Object with Object-Id \'{{obj_id}}\' in database.';
+  const ID_NO_OBJECT_BY_OBJ   = 'RESTController\\libs\\RESTILIAS::ID_NO_OBJECT_BY_OBJ';
+  const MSG_NO_USER_BY_ID     = 'Could not find any user with id \'{{id}}\' in database.';
+  const ID_NO_USER_BY_ID      = 'RESTController\\libs\\RESTILIAS::ID_NO_USER_BY_ID';
+  const MSG_NO_USER_BY_NAME   = 'Could not find any user with name \'{{name}}\' in database.';
+  const ID_NO_USER_BY_NAME    = 'RESTController\\libs\\RESTILIAS::ID_NO_USER_BY_NAME';
+
+  // ILIAS-Admin must have this role (id) assigned to them
+  const RBCA_ADMIN_ID = 2;
 
 
-    /**
-     * Load ILIAS user-management. Normally this would be handled by initILIAS(),
-     * but CONTEXT:REST (intentionally) returns hasUser()->false. (Which causes
-     * initAccessHandling() [and authentification] to be skipped)
-     *
-     * @see ilInitialisation::initAccessHandling()
-     */
-    public static function initAccessHandling() {
-        return ilInitialisation_Public::initAccessHandling_Public();
-    }
+  /**
+   * Static-Function: getPlugin()
+   *  Returns RESTPlugin plugin object.
+   *
+   * Return:
+   *  <ilComponent> - ILIAS Plugin-Object representing the RESTPlugin
+   */
+  public static function getPlugin() {
+    // Fetch plugin object via plugin administration
+    global $ilPluginAdmin;
+    return $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, 'UIComponent', 'uihk', 'REST');
+  }
 
 
-    /**
-     * Shortcut for loading ilObjUser via initGlobal.
-     * Will load user from token, if userId isn't provided
-     * and token is available.
-     *
-     * Throws exception when using on route without auth-middleware!
-     */
-    public static function loadIlUser($userId = null) {
-        // Include ilObjUser and initialize
-        self::initGlobal('ilUser', 'ilObjUser', './Services/User/classes/class.ilObjUser.php');
-
-        // Fetch user-id from token if non is given
-        if ($userId == null) {
-          $accessToken  = Auth\Util::getAccessToken();
-          $userId       = $accessToken->getUserId();
-        }
-
-        // Create user-object if id is given
-        global $ilUser, $ilias;
-        $ilUser->setId($userId);
-        $ilUser->read();
-        self::initAccessHandling();
-        $ilias->account = $ilUser;
-
-        return $ilUser;
-    }
+  /**
+   * Static-Function: initAccessHandling()
+   *  Load ILIAS user-management. Normally this would be handled by initILIAS(),
+   *  but CONTEXT:REST (intentionally) returns hasUser()->false. (Which causes
+   *  initAccessHandling() [and authentification] to be skipped)
+   *
+   * @see ilInitialisation::initAccessHandling()
+   */
+  public static function initAccessHandling() {
+    return ilInitialisation::initAccessHandling();
+  }
 
 
-    /**
-     * Returns the path to the RESTPlugin folder
-     */
-    public static function getPluginDir() {
-      global $ilPluginAdmin;
-      return $ilPluginAdmin->getPluginObject(IL_COMP_SERVICE, 'UIComponent', 'uihk', 'REST')->getDirectory();
-    }
+  /**
+   * Static-Function: loadIlUser($userId)
+   *  Load ilObjUser for given user and attach to global $ilUser and $ilias->account.
+   *  If no user-id is given, fetch the it from access-token.
+   *
+   * Parameters:
+   *  $userId <Integer> - [Optional] Provider the user (id) who should be loader into ilUser.
+   *                      Leave blank to load user from available access-token.
+   *                      Important: Without $userId, requires the access-token to have been loaded.
+   *
+   * Returns:
+   *  <ilObjUser> - Global ilUser object use by ILIAS
+   */
+  public static function loadIlUser($userId = null) {
+    // Include ilObjUser and initialize
+    ilInitialisation::initGlobal('ilUser', 'ilObjUser', './Services/User/classes/class.ilObjUser.php');
 
-
-    /**
-     * Checks if a user with a given login name owns the administration role.
-     *
-     * @param $user_name
-     * @return mixed
-     */
-    public static function isAdminByUserName($user_name) {
-        if ($user_name) {
-            require_once('./Services/User/classes/class.ilObjUser.php');
-            $a_id = \ilObjUser::searchUsers($user_name, 1, true);
-
-            if (count($a_id) > 0)
-                return self::isAdminByUserId($a_id[0]);
-        }
-        return false;
+    // Fetch user-id from access-token if non is given
+    if (!isset($userId)) {
+      $accessToken  = Auth\Util::getAccessToken();
+      $userId       = $accessToken->getUserId();
     }
 
+    // Create user-object if id is given
+    global $ilUser, $ilias;
+    $ilUser->setId($userId);
+    $ilUser->read();
 
-    /**
-     * Checks if a user with a usr_id owns the administration role.
-     *
-     * @param $usr_id
-     * @return bool
-     */
-    public static function isAdminByUserId($usr_id) {
-        if ($usr_id) {
-            require_once('./Services/AccessControl/classes/class.ilRbacReview.php');
-            $rbacreview = new \ilRbacReview();
-            $is_admin = $rbacreview->isAssigned($usr_id, 2);
+    // Initialize access-handling and attach account
+    self::initAccessHandling();
+    $ilias->account = $ilUser;
 
-            return $is_admin;
-        }
-        return false;
+    // Return $ilUser (reference)
+    return $ilUser;
+  }
+
+
+  /**
+   * Static-Function: isAdmin($userId)
+   *  Checks if given user owns the administration role in ILIAS.
+   *  If no user-id is given, fetch the it from access-token.
+   *
+   * Parameters:
+   *  $userId <Integer> - [Optional] User (id) that should be checked for admin-role.
+   *                      Leave blank to load user from available access-token.
+   *                      Important: Without $userId, requires the access-token to have been loaded.
+   *
+   * Return:
+   *  <Boolean> - True if the given user havs the admin-role in ILIAS, false otherwise
+   */
+  public static function isAdmin($userId) {
+    // Load role-based access-control review-functions
+    require_once('./Services/AccessControl/classes/class.ilRbacReview.php');
+
+    // Fetch user-id from access-token if non is given
+    if (!isset($userId)) {
+      $accessToken  = Auth\Util::getAccessToken();
+      $userId       = $accessToken->getUserId();
     }
 
-
-    /**
-     * Determines the ILIAS object id (obj_id) given a ref_id
-     *
-     * @param $ref_id
-     * @return mixed
-     * @throws \Exception
-     */
-    public static function getObjIdFromRef($ref_id) {
-        global $ilDB;
-
-        $sql = self::safeSQL('SELECT obj_id FROM object_reference WHERE object_reference.ref_id = %d', intval($ref_id));
-        $query = $ilDB->query($sql);
-        $ilDB->numRows($query);
-
-        if ($ilDB->numRows($query) == 0)  throw new \Exception('Entry with ref_id '.$ref_id.' does not exist.');
-        $row = $ilDB->fetchAssoc($query);
-
-        return $row['obj_id'];
+    // Check wether a given user has the admin-role
+    if ($userId) {
+      $rbacreview = new \ilRbacReview();
+      $admin      = $rbacreview->isAssigned($userId, self::RBCA_ADMIN_ID);
+      return $admin;
     }
 
-
-    /**
-     * Determines the first (among potential many) ref_id's that are associated with
-     * an ILIAS object identified by an obj_id.
-     *
-     * @param $obj_id
-     * @return mixed
-     * @throws \Exception
-     */
-    public static function getRefIdFromObj($obj_id) {
-        global $ilDB;
-
-        $sql = self::safeSQL('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', intval($obj_id));
-        $query = $ilDB->query($sql);
-        if ($ilDB->numRows($query) == 0)  throw new \Exception('Entry with obj_id '.$obj_id.' does not exist.');
-        $row = $ilDB->fetchAssoc($query);
-
-        return $row['ref_id'];
-    }
+    // No username given -> can't obviously be admin
+    return false;
+  }
 
 
-    /**
-     * Determines all ref_ids that are associated with a particular ILIAS object
-     * identified by its obj_id.
-     *
-     * @param $obj_id
-     * @return array
-     */
-    public static function getRefIdsFromObj($obj_id) {
-        global $ilDB;
+  /**
+   * Static-Function: getObjId($refId)
+   *  Fetches the Object-Id (obj_id) of any ILIAS-Object given one of its Reference-Ids (ref_id).
+   *
+   * Parameters:
+   *  $refId <Integer> - Reference-Id of ILIAS-Object for which the Object-Id should be queried
+   *
+   * Return:
+   *  <Integer> - Object-Id represented by given Reference-Id
+   */
+  public static function getObjId($refId) {
+    // Make global ilDB locally accessable
+    global $ilDB;
 
-        $sql = self::safeSQL('SELECT ref_id FROM object_reference WHERE object_reference.obj_id = %d', $obj_id);
-        $query = $ilDB->query($sql);
+    // Query object by its refence-id
+    $sql    = RESTDatabase::safeSQL('SELECT obj_id FROM object_reference WHERE ref_id = %d', intval($refId));
+    $query  = $ilDB->query($sql);
+    $row    = $ilDB->fetchAssoc($query);
 
-        $res = array();
-        while($row = $ilDB->fetchAssoc($query))
-            $res[] = $row['ref_id'];
+    // Found match?
+    if ($row)
+      return $row['obj_id'];
 
-        return $res;
-    }
-
-
-    /**
-     * Given a user id, this function returns the ilias login name of a user.
-     *
-     * @param $user_id
-     * @return string
-     */
-    public static function getUserNameFromUserId($user_id) {
-        global $ilDB;
-
-        $sql = self::safeSQL('SELECT login FROM usr_data WHERE usr_id=%s', $user_id);
-        $query = $ilDB->query($sql);
-        $row = $ilDB->fetchAssoc($query);
-
-        if ($row)
-            return $row['login'];
-    }
+    // Otherwise throw exception
+    throw new Exceptions\ilObject(
+      self::MSG_NO_OBJECT_BY_REF,
+      self::ID_NO_OBJECT_BY_REF,
+      array(
+        'ref_id' => $refId
+      )
+    );
+  }
 
 
-    /**
-     * Given a user name, this function returns its ilias user_id.
-     *
-     * @param login - user_name
-     * @return user_id
-     */
-    public static function getUserIdFromUserName($login) {
-        global $ilDB;
+  /**
+   * Static-Function: getRefId($objId)
+   *  Fetches the Reference-Id (ref_id) of any ILIAS-Object given its Object-Id (obj_id).
+   *
+   * Parameters:
+   *  $objId <Integer> - Object-Id of ILIAS-Object for which the Reference-Id should be queried
+   *
+   * Return:
+   *  <Integer> - Reference-Id representing a given Object-Id
+   */
+  public static function getRefId($objId) {
+    // Make global ilDB locally accessable
+    global $ilDB;
 
-        $sql = self::safeSQL('SELECT usr_id FROM usr_data WHERE login=%s', $login);
-        $query = $ilDB->query($sql);
-        $row = $ilDB->fetchAssoc($query);
+    // Query object by its refence-id
+    $sql    = RESTDatabase::safeSQL('SELECT ref_id FROM object_reference WHERE obj_id = %d', intval($objId));
+    $query  = $ilDB->query($sql);
+    $row    = $ilDB->fetchAssoc($query);
 
-        if ($row)
-            return $row['usr_id'];
-    }
+    // Found match?
+    if ($row)
+      return $row['ref_id'];
+
+    // Otherwise throw exception
+    throw new Exceptions\ilObject(
+      self::MSG_NO_OBJECT_BY_OBJ,
+      self::ID_NO_OBJECT_BY_OBJ,
+      array(
+        'obj_id' => $objId
+      )
+    );
+  }
+
+
+  /**
+   * Static-Function: getRefIds($objId)
+   *  Fetches all Reference-Ids (ref_id) of any ILIAS-Object given its Object-Id (obj_id).
+   *
+   * Parameters:
+   *  $objId <Integer> - Object-Id of ILIAS-Object for which the Reference-Id should be queried
+   *
+   * Return:
+   *  <Array[Integer]> - Array of Reference-Ids representing a given Object-Id
+   */
+  public static function getRefIds($objId) {
+    // Make global ilDB locally accessable
+    global $ilDB;
+
+    // Query object by its refence-id
+    $sql = RESTDatabase::safeSQL('SELECT ref_id FROM object_reference WHERE obj_id = %d', $objId);
+    $query = $ilDB->query($sql);
+
+    // Fetch all rows with matching obj_id
+    $rows = array();
+    while($row = $ilDB->fetchAssoc($query))
+        $rows[] = $row['ref_id'];
+
+    // return collected rows (each containing a ref_id)
+    return $rows;
+  }
+
+
+  /**
+   * Static-Function: getUserName($userId)
+   *  Given a users id, this function returns the ilias login name of a user.
+   *
+   * Parameters:
+   *  $userId <Integer> - User-id for user who's name should be fetched (login-name, not real-name)
+   *
+   * Return:
+   *  <String> - Fetched user-name for given user-id
+   */
+  public static function getUserName($userId) {
+    // Make global ilDB locally accessable
+    global $ilDB;
+
+    // Query user by his user-id
+    $sql    = RESTDatabase::safeSQL('SELECT login FROM usr_data WHERE usr_id = %d', $userId);
+    $query  = $ilDB->query($sql);
+    $row    = $ilDB->fetchAssoc($query);
+
+    // Found match?
+    if ($row)
+        return $row['login'];
+
+    // Otherwise throw exception
+    throw new Exceptions\ilUser(
+      self::MSG_NO_USER_BY_ID,
+      self::ID_NO_USER_BY_ID,
+      array(
+        'id' => $userId
+      )
+    );
+  }
+
+
+  /**
+   * Static-Function: getUserId($userName)
+   *  Given a users name, this function returns his user-id.
+   *
+   * Parameters:
+   *  $userName <String> - User-name for user who's id should be fetched
+   *
+   * Return:
+   *  <Integer> - Fetched user-id for given user-name (login-name, not real-name)
+   */
+  public static function getUserId($userName) {
+    // Make global ilDB locally accessable
+    global $ilDB;
+
+    // Query user by his user-name
+    $sql    = RESTDatabase::safeSQL('SELECT usr_id FROM usr_data WHERE login = "%s"', $userName);
+    $query  = $ilDB->query($sql);
+    $row    = $ilDB->fetchAssoc($query);
+
+    // Found match?
+    if ($row)
+      return $row['usr_id'];
+
+    // Otherwise throw exception
+    throw new Exceptions\ilUser(
+      self::MSG_NO_USER_BY_NAME,
+      self::ID_NO_USER_BY_NAME,
+      array(
+        'name' => $userName
+      )
+    );
+  }
 }
 
 
 /**
- * Helper class that derives from ilInitialisation in order
- * to 'publish' some of its methods that are (currently)
- * required by RESTLib (some routes/models).
+ * Class: ilInitialisation_Public
+ *  Helper class that derives from ilInitialisation in order
+ *  to 'publish' some of its methods that are (currently)
+ *  required by RESTLib (some routes/models).
  *
- * We aren't extending RESTLib directly for two reasons:
- *  - Keep the RESTLib as clean as possible of any ILIAS code/method
- *    (Reduce dependencies as much as possible)
- *  - PHP does not allow multiple inheritance (IFF we ever really
- *    needed to access another classes protected methods)
+ *  We aren't extending RESTLib directly for two reasons:
+ *   - Keep the RESTLib as clean as possible of any ILIAS code/method
+ *     (Reduce dependencies as much as possible)
+ *   - PHP does not allow multiple inheritance (IFF we ever really
+ *     needed to access another classes protected methods)
  *
- * !!! PLEASE DO NOT USE THIS CLASS OUTSIDE OF RESTLIB !!!
+ * !!! DO NOT USE THIS CLASS OUTSIDE OF RESTLIB !!!
  */
 require_once('./Services/Init/classes/class.ilInitialisation.php');
-class ilInitialisation_Public extends \ilInitialisation {
-    /**
-     * @see ilInitialisation::initGlobal($a_name, $a_class, $a_source_file)
-     */
-    public static function initGlobal_Public($a_name, $a_class, $a_source_file = null) {
-        return self::initGlobal($a_name, $a_class, $a_source_file);
-    }
+class ilInitialisation extends \ilInitialisation {
+  /**
+   * Function; initGlobal($a_name, $a_class, $a_source_file)
+   *  Derive from protected to public...
+   *
+   * @see \ilInitialisation::initGlobal($a_name, $a_class, $a_source_file)
+   */
+  public static function initGlobal($a_name, $a_class, $a_source_file = null) {
+    return parent::initGlobal($a_name, $a_class, $a_source_file);
+  }
 
 
-    /**
-     * @see ilInitialisation::initAccessHandling()
-     */
-    public static function initAccessHandling_Public() {
-        return self::initAccessHandling();
-    }
-
+  /**
+   * Function: initAccessHandling()
+   *  Derive from protected to public...
+   *
+   * @see \ilInitialisation::initAccessHandling()
+   */
+  public static function initAccessHandling() {
+    return parent::initAccessHandling();
+  }
 }

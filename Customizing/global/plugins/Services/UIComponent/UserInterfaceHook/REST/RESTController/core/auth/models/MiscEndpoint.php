@@ -55,7 +55,7 @@ class MiscEndpoint extends EndpointBase {
         }
 
         // Generate token for user (via given api-key)
-        $user = Libs\RESTLib::getUserNameFromUserId($user_id);
+        $user = Libs\RESTLib::getUserName($user_id);
         $bearerToken = Tokens\Bearer::fromFields(self::tokenSettings('bearer'), $user, $api_key, null, $ilias_client);
         $accessToken = $bearerToken->getEntry('access_token');
 

@@ -48,7 +48,7 @@ class TokenEndpoint extends EndpointBase {
 
         // Check whether user is allowed to use this api-key
         $allowed_users = Clients\Clients::getAllowedUsersForApiKey($api_key);
-        $iliasUserId = (int) Libs\RESTLib::getUserIdFromUserName($username);
+        $iliasUserId = (int) Libs\RESTLib::getUserId($username);
         if (!in_array(-1, $allowed_users) && !in_array($iliasUserId, $allowed_users))
             throw new Exceptions\LoginFailed(self::MSG_RESTRICTED_USERS);
 
@@ -91,7 +91,7 @@ class TokenEndpoint extends EndpointBase {
 
         // Fetch username from api-key
         $uid = Clients\Clients::getClientCredentialsUser($api_key);
-        $username = Libs\RESTLib::getUserNameFromUserId($uid);
+        $username = Libs\RESTLib::getUserName($uid);
 
         // [All] Generate bearer & refresh-token (if enabled)
         $bearerToken = Tokens\Bearer::fromFields(self::tokenSettings('access'), $username, $api_key, null, $ilias_client);
