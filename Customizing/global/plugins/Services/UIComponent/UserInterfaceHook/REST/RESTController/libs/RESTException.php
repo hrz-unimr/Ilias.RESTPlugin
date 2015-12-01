@@ -39,7 +39,7 @@ class RESTException extends \Exception {
    */
   public function __construct ($message, $restCode = 0, $restData = null, $previous = NULL) {
     // Call parent constructor
-    $message = self::format($message, $restData);
+    $message = self::format($message, $restCode, $restData);
     parent::__construct ($message, 0, $previous);
 
     // Store data
@@ -107,12 +107,13 @@ class RESTException extends \Exception {
    * Return:
    *  <String> - Formated $message with special placeholders replaced with values from $data-array
    */
-  public static function format($message, $data) {
-    $message = str_replace('{{restcode}}', $this->getRESTCode(), $message);
-    foreach($data as $key => $value) {
-      $message = str_replace(sprintf('{{%s}}', $key), $value, $message);
-      $message = str_replace(sprintf('{{%%%s}}', $key), $value, $message);
-    }
+  public static function format($message, $code, $data) {
+    $message = str_replace('{{restcode}}', $code, $message);
+    if (is_array($data))
+      foreach($data as $key => $value) {
+        $message = str_replace(sprintf('{{%s}}', $key), $value, $message);
+        $message = str_replace(sprintf('{{%%%s}}', $key), $value, $message);
+      }
   }
 
 

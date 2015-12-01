@@ -9,7 +9,7 @@ namespace RESTController\libs;
 
 
 /**
- * Class: RESTIO
+ * Class: RESTio
  *  Base class for all 'io models'. IO classes are allowed to
  *  parse input parameters and send responses via SLIM, but
  *  should contain as little as possible actual "program-logic"
@@ -18,4 +18,4 @@ namespace RESTController\libs;
  *  make program-logic reuseable without parsing  input or
  *  sending responses.
  */
-class RESTIO { }
+class RESTio { }

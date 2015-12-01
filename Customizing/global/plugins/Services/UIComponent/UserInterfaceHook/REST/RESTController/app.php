@@ -123,7 +123,11 @@ class RESTController extends \Slim\Slim {
   protected function setErrorHandlers() {
     // Set default error-handler for exceptions caught by SLIM
     $this->error(function (\Exception $error) {
-      $this->displayError($error->getMessage(), $error->getCode(), $error->getFile(), $error->getLine(), $error->getTraceAsString());
+      // Fetch formated error
+      $formated = $this->getError($error->getMessage(), $error->getCode(), $error->getFile(), $error->getLine(), $error->getTraceAsString());
+
+      // Stop executing on error
+      $this->halt(500, $formated);
     });
 
     // Set default error-handler for any error/exception not caught by SLIM
@@ -143,8 +147,14 @@ class RESTController extends \Slim\Slim {
       $errName = $allowed[$err['type']];
 
       // Log and display error?
-      if ($errName)
-        $this->displayError($err['message'], $err['type'], $err['file'], $err['line']);
+      if ($errName) {
+        // Fetch formated error
+        $formated = $this->getError($err['message'], $err['type'], $err['file'], $err['line'], sprintf('Fatal: %s', $errName));
+
+        // Output via echo
+        header('content-type: application/json');
+        echo json_encode($formated);
+      }
     });
   }
 
@@ -228,7 +238,7 @@ class RESTController extends \Slim\Slim {
    *  $line <Integer> - [Optional] Line in file where the error/exception occured
    *  $trace <String> - [Optional] Full (back-)trace (string) of error/exception
    */
-  public function displayError($msg = '', $code = 0, $file = '', $line = 0, $trace = '') {
+  public function getError($msg = '', $code = 0, $file = '', $line = 0, $trace = '') {
     // Format file-name and trace-data to be easer to read inside JSON
     $file   = str_replace('/', '\\', $file);
     $trace  = str_replace('/', '\\', $trace);
@@ -248,9 +258,8 @@ class RESTController extends \Slim\Slim {
     // Log error to file
     $this->log->critical($error);
 
-    // Send error to client
-    header('content-type: application/json');
-    echo json_encode($error);
+    // Return error-object
+    return $error;
   }
 
 
@@ -309,7 +318,7 @@ class RESTController extends \Slim\Slim {
    */
   public function halt($httpCode, $data = null, $restCode = 'halt') {
     // Do some pre-processing on the $data
-    $response = libs\RESTLib::responseObject($data, $restCode);
+    $response = libs\RESTResponse::responseObject($data, $restCode);
 
     // Delegate transmission of response to SLIM
     parent::halt($httpCode, $response);

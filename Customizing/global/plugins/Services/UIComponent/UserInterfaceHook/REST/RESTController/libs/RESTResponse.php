@@ -60,7 +60,7 @@ class RESTResponse extends \Slim\Http\Response {
       // Convert to desired format
       switch ($this->format) {
         case 'JSON':
-          $payload = json_encode($body);
+          $payload = (is_string($body)) ? $body : json_encode($body);
           break;
         case 'RAW':
         default:

@@ -19,7 +19,7 @@ use \RESTController\core\auth\Exceptions as Exceptions;
  *  Handles I/O logic of all Challenge routes and delegates
  *  program-logic to model-classes.
  */
-class Challenge extends Libs\RESTIO {
+class Challenge extends Libs\RESTio {
   /**
    * Function: ClientChallenge($app)
    *  @See [POST] /v1/challenge/client

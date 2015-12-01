@@ -13,20 +13,20 @@ use \RESTController\core\auth as Auth;
 
 
 /**
- * Class: RESTILIAS
+ * Class: RESTilias
  *  This class provides some common utility functions in regards to
  *  fetching information from ILIAS but do not directly fit into any model.
  */
-class RESTILIAS {
+class RESTilias {
   // Allow to re-use status messages and codes
   const MSG_NO_OBJECT_BY_REF  = 'Could not find any ILIAS-Object with Reference-Id \'{{ref_id}}\' in database.';
-  const ID_NO_OBJECT_BY_REF   = 'RESTController\\libs\\RESTILIAS::ID_NO_OBJECT_BY_REF';
+  const ID_NO_OBJECT_BY_REF   = 'RESTController\\libs\\RESTilias::ID_NO_OBJECT_BY_REF';
   const MSG_NO_OBJECT_BY_OBJ  = 'Could not find any ILIAS-Object with Object-Id \'{{obj_id}}\' in database.';
-  const ID_NO_OBJECT_BY_OBJ   = 'RESTController\\libs\\RESTILIAS::ID_NO_OBJECT_BY_OBJ';
+  const ID_NO_OBJECT_BY_OBJ   = 'RESTController\\libs\\RESTilias::ID_NO_OBJECT_BY_OBJ';
   const MSG_NO_USER_BY_ID     = 'Could not find any user with id \'{{id}}\' in database.';
-  const ID_NO_USER_BY_ID      = 'RESTController\\libs\\RESTILIAS::ID_NO_USER_BY_ID';
+  const ID_NO_USER_BY_ID      = 'RESTController\\libs\\RESTilias::ID_NO_USER_BY_ID';
   const MSG_NO_USER_BY_NAME   = 'Could not find any user with name \'{{name}}\' in database.';
-  const ID_NO_USER_BY_NAME    = 'RESTController\\libs\\RESTILIAS::ID_NO_USER_BY_NAME';
+  const ID_NO_USER_BY_NAME    = 'RESTController\\libs\\RESTilias::ID_NO_USER_BY_NAME';
 
   // ILIAS-Admin must have this role (id) assigned to them
   const RBCA_ADMIN_ID = 2;
@@ -300,10 +300,10 @@ class RESTILIAS {
  * Class: ilInitialisation_Public
  *  Helper class that derives from ilInitialisation in order
  *  to 'publish' some of its methods that are (currently)
- *  required by RESTLib (some routes/models).
+ *  required by RESTilias (some routes/models).
  *
- *  We aren't extending RESTLib directly for two reasons:
- *   - Keep the RESTLib as clean as possible of any ILIAS code/method
+ *  We aren't extending RESTilias directly for two reasons:
+ *   - Keep the RESTilias as clean as possible of any ILIAS code/method
  *     (Reduce dependencies as much as possible)
  *   - PHP does not allow multiple inheritance (IFF we ever really
  *     needed to access another classes protected methods)

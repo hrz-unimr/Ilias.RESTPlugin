@@ -29,7 +29,7 @@ $app->group('/v1', function () use ($app) {
      * Response:
      *
      */
-    $app->post('/auth', function () use ($app) { IO\oAuth2::AuthPost($app); });
+    $app->post('/auth', function () use ($app) { /*IO\oAuth2::AuthPost($app);*/ });
 
 
     /**
@@ -46,7 +46,7 @@ $app->group('/v1', function () use ($app) {
      * Response:
      *
      */
-    $app->get('/auth', function () use ($app) { IO\oAuth2::AuthGet($app); });
+    $app->get('/auth', function () use ($app) { /*IO\oAuth2::AuthGet($app);*/ });
 
 
     /**
@@ -63,7 +63,7 @@ $app->group('/v1', function () use ($app) {
      * Response:
      *
      */
-    $app->post('/token', function () use ($app) { IO\oAuth2::TokenPost($app); });
+    $app->post('/token', function () use ($app) { /*IO\oAuth2::TokenPost($app);*/ });
 
 
     /**
@@ -76,7 +76,7 @@ $app->group('/v1', function () use ($app) {
      * Response:
      *
      */
-    $app->delete('/token', function () use ($app) { IO\oAuth2::TokenDelete($app); });
+    $app->delete('/token', function () use ($app) { /*IO\oAuth2::TokenDelete($app);*/ });
 
 
     /**
@@ -91,7 +91,7 @@ $app->group('/v1', function () use ($app) {
      * Response:
      *
      */
-    $app->get('/info', function () use ($app) { IO\oAuth2::Info($app); });
+    $app->get('/info', function () use ($app) { /*IO\oAuth2::Info($app);*/ });
 
 
     /**
@@ -105,7 +105,7 @@ $app->group('/v1', function () use ($app) {
      * Response:
      *
      */
-    $app->post('/ilias', function () use ($app) { IO\oAuth2::ILIAS($app); });
+    $app->post('/ilias', function () use ($app) { /*IO\oAuth2::ILIAS($app);*/ });
   // End-Of /oauth2-group
   });
 // End-Of /v1-group

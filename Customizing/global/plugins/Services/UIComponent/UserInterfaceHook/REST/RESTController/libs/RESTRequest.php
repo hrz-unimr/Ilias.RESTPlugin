@@ -23,7 +23,7 @@ class RESTRequest extends \Slim\Http\Request {
   const MSG_MISSING     = 'Mandatory parameter missing, \'{{key}}\' not set in header, GET or POST (JSON/x-www-form-urlencoded).';
   const ID_MISSING      = 'RESTController\\libs\\RESTRequest::ID_MISSING';
   const MSG_PARSE_ISSUE = 'Could not parse ids \'{{ids}} from \'{{string}}\'.';
-  const ID_PARSE_ISSUE  = 'RESTController\\libs\\RESTLib::ID_PARSE_ISSUE';
+  const ID_PARSE_ISSUE  = 'RESTController\\libs\\RESTRequest::ID_PARSE_ISSUE';
 
 
   /**

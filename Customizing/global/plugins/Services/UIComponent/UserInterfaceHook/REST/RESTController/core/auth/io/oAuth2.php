@@ -20,7 +20,7 @@ use \RESTController\core\auth\Exceptions as Exceptions;
  *  Handles I/O logic of all oAuth2 routes and delegates
  *  program-logic to model-classes.
  */
-class oAuth2 extends Libs\RESTIO {
+class oAuth2 extends Libs\RESTio {
   /**
    * Function: AuthPost($app)
    *  @See [POST] /v1/oauth2/auth
