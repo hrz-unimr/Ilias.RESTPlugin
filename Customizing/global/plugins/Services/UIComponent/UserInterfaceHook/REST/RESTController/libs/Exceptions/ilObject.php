@@ -7,6 +7,9 @@
  */
 namespace RESTController\libs\Exceptions;
 
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs as Libs;
+
 
 /**
  * Exception: ilObject($message, $restCode, $data, $previous)
@@ -17,4 +20,4 @@ namespace RESTController\libs\Exceptions;
  * Parameters:
  *  @See RESTException for parameter description
  */
-class ilObject extends RESTException { }
+class ilObject extends Libs\RESTException { }

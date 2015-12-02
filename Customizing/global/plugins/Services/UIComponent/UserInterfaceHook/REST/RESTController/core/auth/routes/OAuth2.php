@@ -9,7 +9,8 @@
 namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\core\auth\io as IO;
+use \RESTController\libs     as Libs;
+use \RESTController\database as Database;
 
 
 // Group as version-1 implementation
@@ -17,51 +18,165 @@ $app->group('/v1', function () use ($app) {
   // Group as oauth2 implementation
   $app->group('/oauth2', function () use ($app) {
     /**
-     * Route: [POST] /v1/oauth2/auth
-     *  (RCF6749) Authorization Endpoint, used by the following grant-types:
-     *   - authorization code grant
-     *   - implicit grant type flows
-     *  See http://tools.ietf.org/html/rfc6749
-     *
-     * Parameters:
-     *
-     *
-     * Response:
+     * Route: [GET] /v1/oauth2/authorize
      *
      */
-    $app->post('/auth', function () use ($app) { IO\oAuth2::AuthPost($app); });
+    $app->get('/authorize', function () use ($app) {
+      try {
+        // Fetch RESTRequest object
+        $request        = $app->request();
+
+        // Fetch (manditory) oauth2 data
+        // Note: Against oauth2-RFC, we allow scope and redirect_uri be optional parameters
+        $api_key        = $request->params('api_key',       null, true);
+        $response_type  = $request->params('response_type', null, true);
+        $redirect_uri   = $request->params('redirect_uri');
+        $scope          = $request->params('scope',         'PERMISSION');
+
+        // Fetch redirect_uri from client db-entry
+        if (!isset($redirect_uri)) {
+          // Fetch redirect_uri from client db-entry
+          $client       = Database\RESTKeys::fromApiKey($api_key);
+          $redirect_uri = $client->getKey('redirect_uri');
+
+          // If no redirect_uri was given and non is attached to the client, exit!
+          if (!isset($redirect_uri))
+            throw new Libs\Exceptions\Parameter(
+              Libs\RESTRequest::MSG_MISSING,
+              Libs\RESTRequest::ID_MISSING,
+              array(
+                'key' => 'redirect_uri'
+              )
+            );
+        }
+
+        // Grant-Type: Authorization-Code
+        if ($response_type == 'code') {
+          $app->response()->setFormat('HTML');
+          $app->render(
+            'core/auth/views/authorization.php',
+            array(
+              'baseURL'       => ILIAS_HTTP_PATH,
+              'api_key'       => $api_key,
+              'response_type' => $response_type,
+              'redirect_uri'  => $redirect_uri,
+              'scope'         => $scope
+            )
+          );
+        }
+
+        // Wrong response_type
+        else
+          $app->halt(422, 'Wront response_type', '');
+      }
+
+      // Catch missing parameters and inform client
+      catch (Libs\Exceptions\MissingParameter $e) {
+        $e->send(400);
+      }
+    });
 
 
     /**
-     * Route: [GET] /v1/oauth2/auth
-     *  Authorization Endpoint, this part covers only the first section of the auth
-     *  flow and is included here, such that clients can initiate the "authorization" or
-     *  "implicit grant flow" with a GET request and will 
-     *
-     * Parameters:
-     *
-     *
-     * Response:
-     *
+     * Route: [POST] /v1/oauth2/authorize
      */
-    $app->get('/auth', function () use ($app) { IO\oAuth2::AuthGet($app); });
+    $app->post('/authorize', function () use ($app) {
+      try {
+        // Fetch RESTRequest object
+        $request        = $app->request();
+
+        // Fetch (manditory) oauth2 data
+        $api_key        = $request->params('api_key',         null, true);
+        $response_type  = $request->params('response_type',   null, true);
+        $redirect_uri   = $request->params('redirect_uri',    null, true);
+        $scope          = $request->params('scope',           null, true);
+
+        //
+        $username       = $request->params('username',        null, true);
+        $password       = $request->params('password',        null, true);
+        $client_id      = $request->params('ilias_client_id', CLIENT_ID);
+
+        //
+        if (CLIENT_ID != $client_id)
+          $app->halt(422, 'CLIENT_ID mismatch', '');
+
+        //
+        if (!Libs\RESTilias::authenticate($username, $password))
+          $app->halt(422, 'Wrong resource-owner credentials', '');
+
+        // Throws...
+        $userId = Libs\RESTilias::getUserId($username);
+
+        //
+        if ($response_type == 'code') {
+          //
+          $settings       = Tokens\Settings::load('authorization');
+          $authorization  = Tokens\Authorization::fromFields($settings, $userId, $client_id, $api_key, $response_type);
+
+          //
+          $app->success(array(
+            'authorization_token' => $authorization->getTokenString()
+          ));
+        }
+
+        // Wrong response_type
+        else
+          $app->halt(422, 'Wrong response_type', '');
+      }
+
+      // Catch wrong username (must be case-sensitive)
+      catch (Libs\Exceptions\ilUser $e) {
+        $e->send(422);
+      }
+
+      // Catch missing parameters and inform client
+      catch (Libs\Exceptions\MissingParameter $e) {
+        $e->send(400);
+      }
+    });
 
 
     /**
      * Route: [POST] /v1/oauth2/token
-     *  Token Endpoint, supported grant types:
-     *   - Resource Owner (User),
-     *   - Client Credentials and
-     *   - Authorization Code Grant
-     *  See http://tools.ietf.org/html/rfc6749
-     *
-     * Parameters:
-     *
-     *
-     * Response:
-     *
      */
-    $app->post('/token', function () use ($app) { IO\oAuth2::TokenPost($app); });
+    $app->post('/token', function () use ($app) {
+      try {
+        // Fetch RESTRequest object
+        $request        = $app->request();
+
+        // Fetch (manditory) oauth2 data
+        $api_key      = $request->params('api_key',       null, true);
+        $api_secret   = $request->params('api_secret',    null, true);
+        $grant_type   = $request->params('grant_type',    null, true);
+        $code         = $request->params('code',          null, true);
+        $redirect_uri = $request->params('redirect_uri',  null, true);
+
+        // Fetch information about client
+        $client       = Database\RESTKeys::fromApiKey($api_key);
+        if ($client->getKey('api_secret') != $api_secret)
+          $app->halt(401, '', '');
+
+        // Generate authorization-token (from given string) and check validity
+        $settings       = Tokens\Settings::load('authorization');
+        $authorization  = Tokens\Authorization::fromMixed($settings, $code);
+        if (!$authorization->isValid())
+          $app->halt(401, 'Auth not valid', '');
+
+        //
+
+        $accessSettings   = Tokens\Settings::load('access');
+        $refreshSettings  = Tokens\Settings::load('refresh');
+        $bearer           = Tokens\Bearer::fromArray($accessSettings, $refreshSettings, $authorization->getTokenArray());
+
+        //
+        $app->success($bearer->getResponseObject());
+      }
+
+      // Catch missing parameters and inform client
+      catch (Libs\Exceptions\MissingParameter $e) {
+        $e->send(400);
+      }
+    });
 
 
     /**
@@ -74,7 +189,7 @@ $app->group('/v1', function () use ($app) {
      * Response:
      *
      */
-    $app->delete('/token', function () use ($app) { IO\oAuth2::TokenDelete($app); });
+    $app->delete('/token', function () use ($app) { });
 
 
     /**
@@ -89,7 +204,7 @@ $app->group('/v1', function () use ($app) {
      * Response:
      *
      */
-    $app->get('/info', function () use ($app) { IO\oAuth2::Info($app); });
+    $app->get('/info', function () use ($app) {  });
 
 
     /**
@@ -103,7 +218,7 @@ $app->group('/v1', function () use ($app) {
      * Response:
      *
      */
-    $app->post('/ilias', function () use ($app) { IO\oAuth2::ILIAS($app); });
+    $app->post('/ilias', function () use ($app) { });
   // End-Of /oauth2-group
   });
 // End-Of /v1-group

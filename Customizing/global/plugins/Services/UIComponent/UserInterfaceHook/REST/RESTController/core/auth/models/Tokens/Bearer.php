@@ -22,6 +22,20 @@ class Bearer extends Base {
     'scope'
   );
 
+  // Stores the settings attached to this token (salt and default TTL)
+  protected $accessSettings;
+  protected $refreshSettings;
+
+
+  /**
+   * Constructor:
+   *  Creates a new 'bearer' token.
+   */
+  protected function __construct($accessSettings, $refreshSettings) {
+    $this->accessSettings   = $accessSettings;
+    $this->refreshSettings  = $refreshSettings;
+  }
+
 
   /**
    * Static-Function: fromMixed($tokenSettings, $tokenArray)
@@ -35,9 +49,9 @@ class Bearer extends Base {
    * Return:
    *  <BearerToken> - Generated Bearer-Token
    */
-  public static function fromMixed($tokenSettings, $tokenArray) {
+  public static function fromMixed($accessSettings, $refreshSettings, $tokenArray) {
     // Generate new token from token-data as array
-    $bearerToken = new self($tokenSettings);
+    $bearerToken = new self($accessSettings, $refreshSettings);
     $bearerToken->setToken($tokenArray);
 
     // Return new object
@@ -58,9 +72,9 @@ class Bearer extends Base {
    * Return:
    *  <BearerToken> - Generated Bearer-Token
    */
-  public static function fromFields($tokenSettings, $user_id, $ilias_client, $api_key, $scope = null) {
+  public static function fromFields($accessSettings, $refreshSettings, $user_id, $ilias_client, $api_key, $scope = null) {
     // Generate new token from token-data as parameters
-    $bearerToken = new self($tokenSettings);
+    $bearerToken = new self($accessSettings, $refreshSettings);
     $tokenArray  = $bearerToken->generateTokenArray($user_id, $ilias_client, $api_key, $scope);
     $bearerToken->setToken($tokenArray);
 
@@ -97,11 +111,11 @@ class Bearer extends Base {
   public function getResponseObject() {
     // Generate transmitable object
     return array(
-        'access_token'  => $this->getAccessToken()->getTokenString(),
-        'refresh_token' => $this->getRefreshToken()->getTokenString(),
-        'expires_in'    => $this->getAccessToken()->getRemainingTime(),
-        'token_type'    => 'Bearer',
-        'scope'         => $this->getScope()
+      'access_token'  => $this->getAccessToken()->getTokenString(),
+      'refresh_token' => $this->getRefreshToken()->getTokenString(),
+      'expires_in'    => $this->getAccessToken()->getRemainingTime(),
+      'token_type'    => 'Bearer',
+      'scope'         => $this->getScope()
     );
   }
 
@@ -119,14 +133,14 @@ class Bearer extends Base {
    */
   protected function generateTokenArray($user_id, $ilias_client, $api_key, $scope = null) {
     // Generate generic token containing user and api-key
-    $accessToken  = Access::fromFields( $this->tokenSettings, $user_id, $ilias_client, $api_key, 'Bearer');
-    $refreshToken = Refresh::fromFields($this->tokenSettings, $user_id, $ilias_client, $api_key, 'Bearer');
+    $accessToken  = Access::fromFields( $this->accessSettings,  $user_id, $ilias_client, $api_key, 'Bearer');
+    $refreshToken = Refresh::fromFields($this->refreshSettings, $user_id, $ilias_client, $api_key, 'Bearer');
 
     // Generate bearer-token containing the generic token and additional information
     return array(
-        'access_token'  => $accessToken,
-        'refresh_token' => $refreshToken,
-        'scope'         => $scope
+      'access_token'  => $accessToken,
+      'refresh_token' => $refreshToken,
+      'scope'         => $scope
     );
   }
 }

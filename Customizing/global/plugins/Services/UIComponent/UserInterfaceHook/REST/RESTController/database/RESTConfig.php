@@ -28,6 +28,41 @@ class RESTConfig extends Libs\RESTDatabase {
 
 
   /**
+   * Static-Function: fetchSettings($names)
+   *  Fetches settings with given names from ui_uihk_rest_config.
+   *  Returns an array with that contains all settings
+   *  accessable by using their name as key.
+   *
+   * Parameters:
+   *  $names <Array[String]> - Settings (setting_name) to fetch
+   *
+   * Return:
+   *  <Array[String]> - List of settings with returnValue[setting_name] = setting_value
+   */
+  public static function fetchSettings($names) {
+    // Quote and escape input
+    foreach($names as $key => $name)
+      $names[$key] = sprintf('"%s"', addslashes($name));
+
+    // Create correct where-clause for fetching all settings
+    $in       = implode(', ', $names);
+    $where    = sprintf('setting_name IN (%s)', $in);
+
+    // Convert rows to array of name/setting_value[name] pairs
+    $settings = array();
+    $rows     = self::fromWhere($where, null, true);
+    foreach($rows as $row){
+      $name   = $row->getKey('setting_name');
+      $value  = $row->getKey('setting_value');
+      $settings[$name] = $value;
+    }
+
+    // return settings-object
+    return $settings;
+  }
+
+
+  /**
    * Function: setKey($key, $value, $write)
    *  @See RESTDatabase->setKey(...)
    */

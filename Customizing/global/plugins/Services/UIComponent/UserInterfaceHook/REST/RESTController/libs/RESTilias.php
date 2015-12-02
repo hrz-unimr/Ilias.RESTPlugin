@@ -97,6 +97,47 @@ class RESTilias {
 
 
   /**
+   * Static-Function: authenticate($username, $password)
+   *  Authentication via the ILIAS Auth mechanisms.
+   *  This method is used as backend for OAuth2.
+   *
+   * Parameters:
+   *  $username - ILIAS username to check
+   *  $password - ILIS password of user to check
+   *
+   * Return:
+   *  <Boolean> - True if authentication was successfull, false otherwise
+   */
+  public static function authenticate($username, $password) {
+    // Initilaize role-base access-control
+    self::initAccessHandling();
+
+    // Well, its ILIAS, so there is no way to check username/password pair...
+    // 'Lets just pretend we have filled out a login-form' -.-
+    $_POST['username'] = $username;
+    $_POST['password'] = $password;
+
+    // Initilaize ILIAS authentication
+    require_once('Services/User/classes/class.ilObjUser.php');
+    require_once('Services/Authentication/classes/class.ilAuthUtils.php');
+    \ilAuthUtils::_initAuth();
+
+    // Check authentification
+    global $ilAuth;
+    $ilAuth->start();
+    $checked_in = $ilAuth->getAuth();
+
+    // Remove all dump created by ILIAS
+    $ilAuth->logout();
+    session_destroy();
+    header_remove('Set-Cookie');
+
+    // Return login-state
+    return $checked_in;
+  }
+
+
+  /**
    * Static-Function: isAdmin($userId)
    *  Checks if given user owns the administration role in ILIAS.
    *  If no user-id is given, fetch the it from access-token.
@@ -276,7 +317,7 @@ class RESTilias {
     global $ilDB;
 
     // Query user by his user-name
-    $sql    = RESTDatabase::safeSQL('SELECT usr_id FROM usr_data WHERE login = "%s"', $userName);
+    $sql    = RESTDatabase::safeSQL('SELECT usr_id FROM usr_data WHERE login = %s', addslashes($userName));
     $query  = $ilDB->query($sql);
     $row    = $ilDB->fetchAssoc($query);
 

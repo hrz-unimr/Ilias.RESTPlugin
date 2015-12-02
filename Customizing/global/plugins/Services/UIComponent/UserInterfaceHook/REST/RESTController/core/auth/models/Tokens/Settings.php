@@ -8,8 +8,8 @@
 namespace RESTController\core\auth\Tokens;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\core\auth\Exceptions as Exceptions;
-
+use \RESTController\core\auth\Exceptions  as Exceptions;
+use \RESTController\database              as Database;
 
 /**
  * Class: (Token-) Settings
@@ -23,6 +23,8 @@ class Settings {
   // Allow to re-use status messages and codes
   const MSG_NO_SALT = 'Token-Settings require a valid salt.';
   const ID_NO_SALT  = 'RESTController\\core\\auth\\Tokens\\Settings::ID_NO_SALT';
+  const MSG_NO_DB   = 'Could not load settings for {{token}} from database.';
+  const ID_NO_DB    = 'RESTController\\core\\auth\\Tokens\\Settings::ID_NO_DB';
 
 
   // Internally stores the salt and time-to-live value
@@ -46,6 +48,72 @@ class Settings {
     // Store values
     $this->salt = $salt;
     $this->ttl  = $ttl;
+  }
+
+
+  /**
+   * Static-Function: load($type)
+   *  Creates a new TokenSettings object containing SALT and TTL
+   *  for given type of token.
+   *
+   * Parameters:
+   *  $type <String> - String name of token (-type) to load settings for
+   *
+   * Return:
+   *  <TokenSettings> - Newly created TokenSettingsobject created from database settings
+   */
+  public static function load($type) {
+    // Fetch token-setting values from database
+    switch ($type) {
+      // Short-(Lived-)Token
+      case 'short':
+        $settings  = Database\RESTConfig::fetchSettings(array(
+          'short_token_ttl',
+          'salt'
+        ));
+        $settings['ttl'] = $settings['short_token_ttl'];
+        break;
+
+      // Access-Token
+      case 'access':
+        $settings  = Database\RESTConfig::fetchSettings(array(
+          'access_token_ttl',
+          'salt'
+        ));
+        $settings['ttl'] = $settings['access_token_ttl'];
+        break;
+
+      // Refresh-Token
+      case 'refresh':
+        $settings  = Database\RESTConfig::fetchSettings(array(
+          'refresh_token_ttl',
+          'salt'
+        ));
+        $settings['ttl'] = $settings['refresh_token_ttl'];
+        break;
+
+      // Authorization-Token
+      case 'authorization':
+        $settings  = Database\RESTConfig::fetchSettings(array(
+          'authorization_token_ttl',
+          'salt'
+        ));
+        $settings['ttl'] = $settings['authorization_token_ttl'];
+        break;
+    }
+
+    // Make sure required values where fetched
+    if (isset($settings['salt']) && isset($settings['ttl']))
+      return new self($settings['salt'], $settings['ttl']);
+
+    // When we have not returned by now throw exception about missing db-entry
+    throw new Exceptions\TokenSettings(
+      self::MSG_NO_DB,
+      self::ID_NO_DB,
+      array(
+        'token' => $type
+      )
+    );
   }
 
 

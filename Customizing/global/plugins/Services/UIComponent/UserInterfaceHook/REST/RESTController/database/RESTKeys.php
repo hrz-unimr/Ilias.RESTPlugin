@@ -21,23 +21,60 @@ class RESTKeys extends Libs\RESTDatabase {
   protected static $primaryKey  = 'id';
   protected static $tableName   = 'ui_uihk_rest_keys';
   protected static $tableKeys   = array(
-    'id'                              => 'integer',
-    'api_key'                         => 'text',
-    'api_secret'                      => 'text',
-    'oauth2_redirection_uri'          => 'text',
-    'oauth2_consent_message'          => 'text',
-    'oauth2_gt_client_active'         => 'integer',
-    'oauth2_gt_authcode_active'       => 'integer',
-    'oauth2_gt_implicit_active'       => 'integer',
-    'oauth2_gt_resourceowner_active'  => 'integer',
-    'oauth2_user_restriction_active'  => 'integer',
-    'oauth2_gt_client_user'           => 'integer',
-    'oauth2_consent_message_active'   => 'integer',
-    'oauth2_authcode_refresh_active'  => 'integer',
-    'oauth2_resource_refresh_active'  => 'integer',
-    'ip_restriction_active'           => 'integer',
-    'description'                     => 'text'
+    'id'                          => 'integer',
+    'api_key'                     => 'text',
+    'api_secret'                  => 'text',
+    'redirect_uri'                => 'text',
+    'consent_message'             => 'text',
+    'client_credentials_userid'   => 'integer',
+    'grant_client_credentials'    => 'integer',
+    'grant_authorization_code'    => 'integer',
+    'grant_implicit'              => 'integer',
+    'grant_resource_owner'        => 'integer',
+    'refresh_authorization_code'  => 'integer',
+    'refresh_resource_owner'      => 'integer',
+    'description'                 => 'text'
   );
+
+
+  /**
+   * Static-Function: fromApiKey($apiKey)
+   *  Creates a new instance of RESTKeys representing the table-entry with given aki-key.
+   *
+   * Parameters:
+   *  $apiKey <String> - Api-Key who's database entry should be returned
+   *
+   * Return:
+   *  <RESTKeys> - A new instance of RESTKeys representing the table-entry with given aki-key
+   */
+  public static function fromApiKey($apiKey) {
+    // Generate a (save) where clause for the api-key ($apiKey can be malformed!)
+    $where  = sprintf('api_key = \'%s\'', addslashes($apiKey));
+
+    // Fetch matching object
+    return self::fromWhere($where);
+  }
+
+
+  /**
+   * Function: getKey($key)
+   *  @See RESTDatabase->getKey(...)
+   */
+  public function getKey($key) {
+    // Fetch internal value from parent
+    $value = parent::getKey($key);
+
+    // Convert internal value when publshing
+    // Note: Make sure to 'revert' those changes in setKey(...)!
+    switch ($key) {
+      // Convert string/boolean values
+      case 'consent_message':
+        return ($value == null) ? false : $value;
+
+      default:
+        return $value;
+    }
+  }
 
 
   /**
@@ -47,30 +84,30 @@ class RESTKeys extends Libs\RESTDatabase {
   public function setKey($key, $value, $write = false) {
     // Parse input based on key
     switch ($key) {
+      // Convert string/boolean values
+      case 'consent_message':
+        $value = ($value == FALSE) ? null : $value;
+        break;
+
       // Convert int values
-      case 'oauth2_gt_client_user':
+      case 'client_credentials_userid':
         $value = intval($value);
         break;
 
       // Convert (empty) string value
       case 'api_key':
       case 'api_secret':
-      case 'oauth2_redirection_uri':
-      case 'oauth2_consent_message':
       case 'description':
         $value = ($value == null) ? '' : $value;
         break;
 
       // Convert boolean values
-      case 'oauth2_gt_client_active':
-      case 'oauth2_gt_authcode_active':
-      case 'oauth2_gt_implicit_active':
-      case 'oauth2_gt_resourceowner_active':
-      case 'oauth2_user_restriction_active':
-      case 'oauth2_consent_message_active':
-      case 'oauth2_authcode_refresh_active':
-      case 'oauth2_resource_refresh_active':
-      case 'ip_restriction_active':
+      case 'grant_client_credentials':
+      case 'grant_authorization_code':
+      case 'grant_implicit':
+      case 'grant_resource_owner':
+      case 'refresh_authorization_code':
+      case 'refresh_resource_owner':
         $value = ($value == '1');
         break;
 

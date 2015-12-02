@@ -172,9 +172,9 @@ abstract class RESTDatabase {
     $sql        = '';
 
     // Generate LIMIT and OFFSET sql sub-queries
-    if ($limit)
+    if (is_int($limit))
       $limitSQL   = sprintf('LIMIT %d', $limit);
-    if ($offset)
+    if (is_int($offset))
       $offsetSQL  = sprintf('OFFSET %d', $offset);
 
     // Generate JOIN sql sub-query
@@ -198,7 +198,7 @@ abstract class RESTDatabase {
     $query  = self::getDB()->query($sql);
     if ($query)
       // Return more then one table-entry
-      if (is_int($limit) && $limit > 0) {
+      if ($limit) {
         // Fetch all table-entrys matched by query
         $rows = array();
         while ($row = self::getDB()->fetchAssoc($query))

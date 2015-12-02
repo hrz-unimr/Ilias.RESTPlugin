@@ -21,9 +21,6 @@ class Base {
   const ID_INVALID_SIZE     = 'RESTController\\core\\auth\\Base::ID_INVALID_SIZE';
 
 
-  // Stores the settings attached to this token (salt and default TTL)
-  protected $tokenSettings;
-
   // Stored the actuall token-data (as array)
   protected $tokenArray;
 
@@ -34,14 +31,9 @@ class Base {
 
   /**
    * Constructor:
-   *  Creates a new token from a given serialied string.
-   *
-   * Parameters:
-   *  $tokenSettings <Settings> - Internal settings of this token
+   *  Creates a new 'base' token.
    */
-  protected function __construct($tokenSettings) {
-    $this->tokenSettings = $tokenSettings;
-  }
+  protected function __construct() { }
 
 
   /**

@@ -7,6 +7,9 @@
  */
 namespace RESTController\libs\Exceptions;
 
+// This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs as Libs;
+
 
 /**
  * Exception: Parameter($message, $restCode, $data, $previous)

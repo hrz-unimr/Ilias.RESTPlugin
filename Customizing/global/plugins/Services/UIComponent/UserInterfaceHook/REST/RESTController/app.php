@@ -123,18 +123,15 @@ class RESTController extends \Slim\Slim {
   protected function setErrorHandlers() {
     // Set default error-handler for exceptions caught by SLIM
     $this->error(function (\Exception $error) {
-      // Fetch formated error
-      $formated = $this->getError($error->getMessage(), $error->getCode(), $error->getFile(), $error->getLine(), $error->getTraceAsString());
-
       // Stop executing on error
-      $this->halt(500, $formated);
+      $this->halt(500, $this->getError($error));
     });
 
     // Set default error-handler for any error/exception not caught by SLIM
     ini_set('display_errors', false);
     register_shutdown_function(function () {
       // Fetch latch error
-      $err = error_get_last();
+      $error = error_get_last();
 
       // Check wether the error should to be displayed
       $allowed = array(
@@ -144,16 +141,13 @@ class RESTController extends \Slim\Slim {
         E_COMPILE_ERROR => 'E_COMPILE_ERROR',
         E_USER_ERROR    => 'E_USER_ERROR'
       );
-      $errName = $allowed[$err['type']];
+      $name = $allowed[$error['type']];
 
       // Log and display error?
-      if ($errName) {
-        // Fetch formated error
-        $formated = $this->getError($err['message'], $err['type'], $err['file'], $err['line'], sprintf('Fatal: %s', $errName));
-
-        // Output via echo
+      if ($name) {
+        // Output formated error via echo
         header('content-type: application/json');
-        echo json_encode($formated);
+        echo json_encode($this->getError($error));
       }
     });
   }
@@ -238,22 +232,52 @@ class RESTController extends \Slim\Slim {
    *  $line <Integer> - [Optional] Line in file where the error/exception occured
    *  $trace <String> - [Optional] Full (back-)trace (string) of error/exception
    */
-  public function getError($msg = '', $code = 0, $file = '', $line = 0, $trace = '') {
-    // Format file-name and trace-data to be easer to read inside JSON
-    $file   = str_replace('/', '\\', $file);
-    $trace  = str_replace('/', '\\', $trace);
+  public function getError($error) {
+    if ($error instanceof libs\RESTException)
+      $error = array(
+        'message'   => $error->getRESTMessage(),
+        'status'    => $error->getRESTCode(),
+        'data'      => $error->getRESTData(),
+        'error'     => array(
+          'message' => $error->getMessage(),
+          'code'    => $error->getCode(),
+          'file'    => str_replace('/', '\\', $error->getFile()),
+          'line'    => $error->getLine(),
+          'trace'   => str_replace('/', '\\', $error->getTraceAsString())
+        )
+      );
 
-    // Generate error-object that will be logged and displayed
-    $error = array(
-      'msg'   => 'An error occured while handling this route!',
-      'data'  => array(
-        'message' => $msg,
-        'code'    => $code,
-        'file'    => $file,
-        'line'    => $line,
-        'trace'   => $trace
-      )
-    );
+    elseif ($error instanceof \Exception)
+      $error = array(
+        'message'   => 'An exception was thrown!',
+        'status'    => '\Exception',
+        'error'     => array(
+          'message' => $error->getMessage(),
+          'code'    => $error->getCode(),
+          'file'    => str_replace('/', '\\', $error->getFile()),
+          'line'    => $error->getLine(),
+          'trace'   => str_replace('/', '\\', $error->getTraceAsString())
+        )
+      );
+
+    elseif (is_array($error))
+      $error = array(
+        'message'   => 'There is an error in the executed PHP-Script.',
+        'status'    => 'FATAL',
+        'error'     => array(
+          'message' => $error['message'],
+          'code'    => $error['type'],
+          'file'    => str_replace('/', '\\', $error['file']),
+          'line'    => $error['line'],
+          'trace'   => null
+        )
+      );
+
+    else
+      $error = array(
+        'message'   => 'Unkown error...',
+        'status'    => 'UNKNOWN'
+      );
 
     // Log error to file
     $this->log->critical($error);

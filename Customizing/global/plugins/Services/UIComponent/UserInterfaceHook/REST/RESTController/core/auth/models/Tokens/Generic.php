@@ -24,6 +24,9 @@ class Generic extends Base {
   const ID_INVALID  = 'RESTController\\core\\auth\\Generic::ID_INVALID';
 
 
+  // Stores the settings attached to this token (salt and default TTL)
+  protected $tokenSettings;
+
   // List of fields (keys) for this kind of token
   protected static $fields = array(
     'user_id',
@@ -38,6 +41,18 @@ class Generic extends Base {
 
   // Store username in addition to user-id (only looked-up once)
   protected $username = null;
+
+
+  /**
+   * Constructor:
+   *  Creates a new 'generic' token.
+   *
+   * Parameters:
+   *  $tokenSettings <Settings> - Internal settings of this token
+   */
+  protected function __construct($tokenSettings) {
+    $this->tokenSettings = $tokenSettings;
+  }
 
 
   /**

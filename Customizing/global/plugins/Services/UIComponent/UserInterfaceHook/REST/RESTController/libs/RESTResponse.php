@@ -64,6 +64,7 @@ class RESTResponse extends \Slim\Http\Response {
           $payload = (is_string($body)) ? $body : json_encode($body);
           break;
         case 'RAW':
+        case 'HTML':
         default:
           $payload = $body;
           break;
@@ -92,6 +93,7 @@ class RESTResponse extends \Slim\Http\Response {
       case 'JSON':
         return json_decode($payload, true);
       case 'RAW':
+      case 'HTML':
       default:
         return $payload;
     }
@@ -119,6 +121,7 @@ class RESTResponse extends \Slim\Http\Response {
         case 'JSON':
           return json_decode($payload, true);
         case 'RAW':
+        case 'HTML':
         default:
           return $payload;
       }
@@ -142,6 +145,9 @@ class RESTResponse extends \Slim\Http\Response {
     switch ($this->format) {
       case 'JSON':
         $headers->set('Content-Type', 'application/json');
+        break;
+      case 'HTML':
+        $headers->set('Content-Type', 'text/html');
         break;
       case 'RAW':
       default:

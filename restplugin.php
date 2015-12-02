@@ -24,10 +24,10 @@ class Bootstrap {
     header('HTTP/1.0 404 Disabled');
     header('Warning: RESTPlugin disabled');
     header('Content-Type: application/json');
-    echo '{
-        "status": "RESTPlugin\\Bootstrap::ID_DISABLED",
-        "msg": "The RESTPlugin is currently disabled."
-    }';
+    echo json_encode(array(
+      'status'  =>  'RESTPlugin\\Bootstrap::ID_DISABLED',
+      'message' => 'The RESTPlugin is currently disabled.'
+    ), true);
   }
 
 
