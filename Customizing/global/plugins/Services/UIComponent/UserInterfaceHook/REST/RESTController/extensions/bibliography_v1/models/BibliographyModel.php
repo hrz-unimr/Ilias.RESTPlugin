@@ -14,6 +14,10 @@ use \RESTController\libs as Libs;
 require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
 require_once("./Services/User/classes/class.ilObjUser.php");
 require_once('./Modules/Bibliographic/classes/class.ilObjBibliographic.php');
+require_once('./Modules/Bibliographic/classes/class.ilBibliographicEntry.php');
+require_once('./Modules/Bibliographic/classes/Types/class.ilBibTex.php');
+require_once('./Modules/Bibliographic/classes/Types/class.ilRis.php');
+//require_once('helper/class.ilObjBibliographicEntryLight.php');
 
 
 class BibliographyModel
@@ -48,9 +52,70 @@ class BibliographyModel
             $bib_info['description'] = $bibObj->getDescription();
             $bib_info['create_date'] = $bibObj->create_date;
             $bib_info['type'] = $bibObj->getType();
+            /*$entries = array();
+            foreach (ilBibliographicEntry::getAllEntries($this->parent_obj->object->getId()) as $entry) {
+                $ilBibliographicEntry = ilBibliographicEntry::getInstance($this->parent_obj->object->getFiletype(), $entry['entry_id']);
+                $entry['content'] = strip_tags($ilBibliographicEntry->getOverwiew());
+                $entries[] = $entry;
+            }*/
+
+            $bib_entries = array();
+            foreach (\ilBibliographicEntry::getAllEntries($obj_id) as $entry) {
+                //$ilBibliographicEntry = \ilBibliographicEntry::getInstance($bibObj->getFiletype(), $entry['entry_id']);
+                $ilBibliographicEntry = ilObjBibliographicEntryLight::getInstanceLight($bibObj->getFiletype(), $entry['entry_id']);
+
+                //$entry['content'] = strip_tags($ilBibliographicEntry->getOverwiew());
+                $b_entry = array();
+                $b_entry['entry_id'] = $entry['entry_id'];
+                $b_entry['content'] = BibliographyModel::getBiblioEntryDetails($ilBibliographicEntry);
+
+                $bib_entries[] = $b_entry;
+            }
+            $bib_info['entries'] = $bib_entries;
         }
         //var_dump($bibObj);
         return $bib_info;
 
     }
+
+    /**
+     * See ilBibliographicDetailsGUI
+     * @param $entry
+     */
+    static function getBiblioEntryDetails($entry) {
+        $attributes = $entry->getAttributes();
+        //translate array key in order to sort by those keys
+        foreach ($attributes as $key => $attribute) {
+            //Check if there is a specific language entry
+            if (false) {
+            //if ($lng->exists($key)) {
+                //$strDescTranslated = $lng->txt($key);
+            } //If not: get the default language entry
+            else {
+                $arrKey = explode("_", $key);
+                $is_standard_field = false;
+                switch ($arrKey[0]) {
+                    case 'bib':
+                        $is_standard_field = \ilBibTex::isStandardField($arrKey[2]);
+                        break;
+                    case 'ris':
+                        $is_standard_field = \ilRis::isStandardField($arrKey[2]);
+                        break;
+                }
+                //				var_dump($is_standard_field); // FSX
+                $strDescTranslated = $arrKey[2];
+               /* if ($is_standard_field) {
+                    $strDescTranslated = $lng->txt($arrKey[0] . "_default_" . $arrKey[2]);
+                } else {
+                    $strDescTranslated = $arrKey[2];
+                }*/
+            }
+            unset($attributes[$key]);
+            $attributes[$strDescTranslated] = $attribute;
+        }
+        // sort attributes alphabetically by their array-key
+        ksort($attributes, SORT_STRING);
+        return $attributes;
+    }
+
 }

@@ -26,7 +26,7 @@ $app->group('/v1', function () use ($app) {
             $data = $model->getBibliography($ref_id,$authorizedUserId);
             $app->success($data);
         } catch (Libs\Exceptions\ReadFailed $e) {
-            $app->halt(404, $e->getMessage(), -15);
+             $app->halt(404, $e->getMessage(), -15);
         }
 
     });
