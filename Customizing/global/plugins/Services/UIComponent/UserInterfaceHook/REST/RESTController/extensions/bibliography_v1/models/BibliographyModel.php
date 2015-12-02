@@ -10,18 +10,23 @@ namespace RESTController\extensions\bibliography_v1;
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
 
-
 require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
 require_once("./Services/User/classes/class.ilObjUser.php");
 require_once('./Modules/Bibliographic/classes/class.ilObjBibliographic.php');
 require_once('./Modules/Bibliographic/classes/class.ilBibliographicEntry.php');
 require_once('./Modules/Bibliographic/classes/Types/class.ilBibTex.php');
 require_once('./Modules/Bibliographic/classes/Types/class.ilRis.php');
-//require_once('helper/class.ilObjBibliographicEntryLight.php');
 
 
 class BibliographyModel
 {
+    /**
+     * Reads the bibliography object with ref_id for a user.
+     * @param $ref_id
+     * @param $user_id
+     * @return array
+     * @throws Libs\Exceptions\ReadFailed - if user has not enough permissions
+     */
     function getBibliography($ref_id, $user_id) {
         global $ilAccess;
         Libs\RESTLib::loadIlUser();
@@ -52,19 +57,11 @@ class BibliographyModel
             $bib_info['description'] = $bibObj->getDescription();
             $bib_info['create_date'] = $bibObj->create_date;
             $bib_info['type'] = $bibObj->getType();
-            /*$entries = array();
-            foreach (ilBibliographicEntry::getAllEntries($this->parent_obj->object->getId()) as $entry) {
-                $ilBibliographicEntry = ilBibliographicEntry::getInstance($this->parent_obj->object->getFiletype(), $entry['entry_id']);
-                $entry['content'] = strip_tags($ilBibliographicEntry->getOverwiew());
-                $entries[] = $entry;
-            }*/
 
             $bib_entries = array();
             foreach (\ilBibliographicEntry::getAllEntries($obj_id) as $entry) {
-                //$ilBibliographicEntry = \ilBibliographicEntry::getInstance($bibObj->getFiletype(), $entry['entry_id']);
                 $ilBibliographicEntry = ilObjBibliographicEntryLight::getInstanceLight($bibObj->getFiletype(), $entry['entry_id']);
 
-                //$entry['content'] = strip_tags($ilBibliographicEntry->getOverwiew());
                 $b_entry = array();
                 $b_entry['entry_id'] = $entry['entry_id'];
                 $b_entry['content'] = BibliographyModel::getBiblioEntryDetails($ilBibliographicEntry);
@@ -79,7 +76,9 @@ class BibliographyModel
     }
 
     /**
-     * See ilBibliographicDetailsGUI
+     * Helper function for getBibliography()
+     * Inspired by ilBibliographicDetailsGUI.
+     * Todo: language files might be used in the future
      * @param $entry
      */
     static function getBiblioEntryDetails($entry) {

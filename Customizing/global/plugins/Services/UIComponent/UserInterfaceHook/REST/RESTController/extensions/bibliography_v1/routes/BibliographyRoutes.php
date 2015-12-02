@@ -16,7 +16,7 @@ use \RESTController\libs\Exceptions as LibExceptions;
 
 $app->group('/v1', function () use ($app) {
     /**
-     * Returns the personal ILIAS contacts for a user specified by id.
+     * Returns a json representation of a bibliography.
      */
     $app->get('/biblio/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         $accessToken = Auth\Util::getAccessToken();
