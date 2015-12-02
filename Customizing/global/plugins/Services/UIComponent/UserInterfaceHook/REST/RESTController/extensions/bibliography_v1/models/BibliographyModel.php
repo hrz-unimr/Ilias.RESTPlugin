@@ -19,16 +19,28 @@ require_once('./Modules/Bibliographic/classes/class.ilObjBibliographic.php');
 class BibliographyModel
 {
     function getBibliography($ref_id, $user_id) {
+        global $ilAccess;
         Libs\RESTLib::loadIlUser();
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
         $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
+
+        // Check access rights
+        if (!(($ilAccess->checkAccess('read', "", $ref_id) )
+            || $ilAccess->checkAccess('write', "", $ref_id))
+        ) {
+            throw new Libs\Exceptions\ReadFailed("No r/w access.",$ref_id, "biblio", -15);
+        }
+
         $bibObj = new \ilObjBibliographic($obj_id);
-        //$svyObj = new \ilObjSurvey($ref_id);
+
+        if ($bibObj->getOnline() == false) {
+            throw new Libs\Exceptions\ReadFailed("Object is not online.",$ref_id, "biblio", -17);
+        }
+
         $bib_info = array();
         $bib_info['ref_id'] = $ref_id;
-        //$obj = \ilObjectFactory::getInstanceByRefId($svy_ref_id,false);
         if(is_null($bibObj)) {
             $bib_info['title'] = 'notFound';
         } else {
