@@ -44,13 +44,13 @@ class ILIAS {
       $accessToken = OAuth2::checkAccessToken($app);
 
       // Check if user is admin in ILIAS
-      self::checkAdmin($accessToken);
+      self::checkAdmin($app,$accessToken);
     }
     
 
     /**
      * Function: checkAdmin($accessToken)
-     *  This function checks wether the user
+     *  This function checks whether the user
      *  given by the access-token has the admin-role
      *  in ILIAS.
      *  Will stop with 401 if user isn't admin.
@@ -58,10 +58,10 @@ class ILIAS {
      * Parameters:
      *  $accessToken <AccessToken> - Access-Token which contains the user that should be checked
      */
-    protected static function checkAdmin($accessToken) {
+    protected static function checkAdmin($app,$accessToken) {
       // Check if given user has admin-role
       $user = $accessToken->getUserName();
       if (!Libs\RESTLib::isAdminByUserName($user))
-          $app->halt(401, OAuth2Middleware::MSG_NO_ADMIN, OAuth2Middleware::ID_NO_ADMIN);
+          $app->halt(401, ILIAS::MSG_NO_ADMIN, ILIAS::ID_NO_ADMIN);
     }
  }
