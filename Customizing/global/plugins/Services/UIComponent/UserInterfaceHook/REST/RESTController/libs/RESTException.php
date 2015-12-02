@@ -108,12 +108,18 @@ class RESTException extends \Exception {
    *  <String> - Formated $message with special placeholders replaced with values from $data-array
    */
   public static function format($message, $code, $data) {
+    // Format message, by replacing placeholders (restcode)
     $message = str_replace('{{restcode}}', $code, $message);
+
+    // Format message, by replacing placeholders (data-keys)
     if (is_array($data))
       foreach($data as $key => $value) {
         $message = str_replace(sprintf('{{%s}}', $key), $value, $message);
         $message = str_replace(sprintf('{{%%%s}}', $key), $value, $message);
       }
+
+    // Return formated message
+    return $message;
   }
 
 
@@ -135,7 +141,7 @@ class RESTException extends \Exception {
     // Send formated exception-information
     $app->halt($code, array(
       'message' => $this->getRESTMessage(),
-      'code'    => $this->getRESTCode(),
+      'status'  => $this->getRESTCode(),
       'data'    => $this->getRESTData()
     ));
   }

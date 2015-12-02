@@ -282,7 +282,7 @@ class RESTController extends \Slim\Slim {
 
 
   /**
-   * Function: halt(($httpCode, $data, $restCode)
+   * Function: halt(($httpStatus, $data, $restStatus)
    *  This function should be used by any route that wants to return
    *  data or any kind of information after query/request has failed
    *  for some reason . The application will be terminated afterwards,
@@ -312,15 +312,15 @@ class RESTController extends \Slim\Slim {
    *  Only use inside a route or IO-Class and pass data from/to models!
    *
    * Parameters:
-   *  $httpCode <Integer> -
+   *  $httpStatus <Integer> -
    *  $data <String>/<Array[Mixed]> - [Optional]
-   *  $restCode <String> - [Optional]
+   *  $restStatus <String> - [Optional]
    */
-  public function halt($httpCode, $data = null, $restCode = 'halt') {
+  public function halt($httpStatus, $data = null, $restStatus = 'halt') {
     // Do some pre-processing on the $data
-    $response = libs\RESTResponse::responseObject($data, $restCode);
+    $response = libs\RESTResponse::responseObject($data, $restStatus);
 
     // Delegate transmission of response to SLIM
-    parent::halt($httpCode, $response);
+    parent::halt($httpStatus, $response);
   }
 }

@@ -19,6 +19,20 @@ use \RESTController\core\auth\Exceptions as Exceptions;
  * Class: oAuth2 (I/O)
  *  Handles I/O logic of all oAuth2 routes and delegates
  *  program-logic to model-classes.
+ *
+ * To request an access token, the client obtains authorization from the
+   resource owner.  The authorization is expressed in the form of an
+   authorization grant, which the client uses to request the access
+   token.  OAuth defines four grant types: authorization code, implicit,
+   resource owner password credentials, and client credentials.
+ *
+ * Authorization Code Grant:
+ *  The authorization code grant type is used to obtain both access
+    tokens and refresh tokens and is optimized for confidential clients.
+    https://tools.ietf.org/html/rfc6749#section-4.1
+ *
+ *
+ * (scope)
  */
 class oAuth2 extends Libs\RESTio {
   /**

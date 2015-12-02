@@ -7,41 +7,38 @@
  */
 namespace RESTController\extensions\umr_v1;
 use \RESTController\libs\RESTAuth as RESTAuth;
+use \RESTController\core\auth as Auth;
 
 
-$app->post('/v1/umr/debug', function () use ($app) {
-  $app->success(array(
-    'hello' => 'world',
-    '123'   => '#####',
-    'gfdgsd' => 123
-  ));
-  /*
-  $request = $app->request;
+$app->get('/v1/umr/debug', function () use ($app) {
+  try {
+    // Fetch token
+    $accessToken = Auth\Util::getAccessToken();
 
-  $val = $request->params('header_key2', 'haha', false);
-  var_dump($val);
-  die;
+    // Check token for common problems: Non given or invalid format
+    if (!$accessToken)
+        $app->halt(401, self::MSG_NO_TOKEN, self::ID_NO_TOKEN);
 
-  // FORM/JSON: RAW BODY CONTENT
-  // JSON: Array of key/value pairs from body
-  var_dump($request->getBody());
+    // Check token for common problems: Invalid format
+    if (!$accessToken->isValid())
+        $app->halt(401, Auth\Tokens\Generic::MSG_INVALID, Auth\Tokens\Generic::ID_INVALID);
 
-  // FORM: Array of key/value pairs from get and body
-  // JSON: Array key/value pairs from get only
-  var_dump($request->params());
+    // Check token for common problems: Invalid format
+    if ($accessToken->isExpired())
+        $app->halt(401, Auth\Tokens\Generic::MSG_EXPIRED, Auth\Tokens\Generic::ID_EXPIRED);
 
-  // FORM: Array of key/value pairs from body
-  // JSON: Empty
-  var_dump($_POST);
+    // Check IP (if option is enabled)
+    $api_key  = $accessToken->getApiKey();
+    $client   = new Clients\RESTClient($api_key);
+    if (!$client->checkIPAccess($_SERVER['REMOTE_ADDR']))
+      $app->halt(401, self::MSG_IP_NOT_ALLOWED, self::ID_IP_NOT_ALLOWED);
 
-  // FORM/JSON: Array of key/value of get
-  var_dump($_GET);
-
-  // FORM/JSON: Array of key/value of headers
-  var_dump($request->headers());
-
-  die;
-  */
+    // For sake of simplicity also return the access-token
+    return $accessToken;
+  }
+  catch (Auth\Exceptions\TokenInvalid $e) {
+    $e->send(401);
+  }
 });
 
 

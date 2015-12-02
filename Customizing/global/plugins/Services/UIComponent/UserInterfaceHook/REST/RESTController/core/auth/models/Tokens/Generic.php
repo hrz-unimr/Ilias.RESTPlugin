@@ -105,7 +105,7 @@ class Generic extends Base {
 
     // Check validity of input
     if (!$this->isValidTokenArray($tokenArray))
-      throw new Exceptions\TokenInvalid(self::MSG_INVALID);
+      throw new Exceptions\TokenInvalid(self::MSG_INVALID, self::ID_INVALID);
 
     // Update internal storage
     parent::setToken($tokenArray);

@@ -13,8 +13,12 @@ use \RESTController\libs as Libs;
 
 
 /**
+ * The token endpoint is used by the client to obtain an access token by presenting its authorization grant or refresh token
+ * https://tools.ietf.org/html/rfc6749#section-3.2 - Token Endpoint
  *
- * Constructor requires $app & $sqlDB.
+ * Requires valid client-credentials - https://tools.ietf.org/html/rfc6749#section-2.3
+ * grant_type
+ * api_key (for grant_type = authorization_code)
  */
 class TokenEndpoint extends EndpointBase {
     /**

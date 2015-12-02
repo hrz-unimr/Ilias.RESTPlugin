@@ -9,7 +9,6 @@ namespace RESTController\libs\Middleware;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\core\auth as Auth;
-use \RESTController\core\auth\Exceptions as TokenExceptions;
 use \RESTController\core\clients as Clients;
 
 
@@ -118,8 +117,8 @@ class OAuth2 {
       // For sake of simplicity also return the access-token
       return $accessToken;
     }
-    catch (TokenExceptions\TokenInvalid $e) {
-        $app->halt(401, $e->getMessage(), $e->getRESTCode());
+    catch (Auth\Exceptions\TokenInvalid $e) {
+      $e->send(401);
     }
   }
 
@@ -143,7 +142,7 @@ class OAuth2 {
     // Check route access rights given route, method and api-key
     $client   = new Clients\RESTClient($api_key);
     if (!$client->checkScope($pattern, $verb))
-      $app->halt(401, self::MSG_NO_PERMISSION, self::ID_NO_PERMISSION);
+      $app->halt(403, self::MSG_NO_PERMISSION, self::ID_NO_PERMISSION);
   }
 
 
@@ -158,8 +157,8 @@ class OAuth2 {
   public static function checkShort($app, $accessToken) {
     // Test if token is a short (ttl) one and ip does match
     if ($accessToken->getEntry('type') != Auth\Challenge::type)
-      $app->halt(401, self::MSG_NEED_SHORT, self::ID_NEED_SHORT);
+      $app->halt(403, self::MSG_NEED_SHORT, self::ID_NEED_SHORT);
     if ($accessToken->getEntry('misc') != $_SERVER['REMOTE_ADDR'])
-      $app->halt(401, self::MSG_WRONG_ID, self::ID_WRONG_ID);
+      $app->halt(403, self::MSG_WRONG_ID, self::ID_WRONG_ID);
   }
 }

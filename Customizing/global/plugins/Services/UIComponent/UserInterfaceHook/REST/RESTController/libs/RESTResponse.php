@@ -19,8 +19,9 @@ namespace RESTController\libs;
  * Here are some HTTP-Codes, used throughout the RESTController
  *  - 200 OK                    - For successfull requests,
  *  - 400 Bad Request           - Wrong (input) syntax, eg. missing manditory parameter
+ *  - 401 Not Authorized        - Authorization has failed, eg. invalid token
+ *  - 403 Forbidden             - User could not be authorized due du missing permissions
  *  - 422 Unprocessable Entity  - Correct (input) syntax, but wrong data, eg wrong input format
- *  - 401 Not Authorized        - Not authorized for this operation, eg. invalid token
  *  - 404 Not Found             - No route here or wrong URI (maybe missing url-parameter)
  *  - 500 Server Fault          - Issue on the server-side, eg. failed SQL query
  * Additionally all non 200-responses should additionally contain a
@@ -151,7 +152,7 @@ class RESTResponse extends \Slim\Http\Response {
     // Add WWW-Authenticate header for 401 responses
     // to indicate required authorization
     if ($status == 401)
-      $headers->set(sprintf('WWW-Authenticate', 'Bearer realm="%s"', $_SERVER['SERVER_NAME']));
+      $headers->set('WWW-Authenticate', sprintf('Bearer realm="%s"', $_SERVER['SERVER_NAME']));
 
     // Return updated response
     return array($status, $headers, $body);

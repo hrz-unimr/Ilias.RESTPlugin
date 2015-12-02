@@ -29,16 +29,14 @@ $app->group('/v1', function () use ($app) {
      * Response:
      *
      */
-    $app->post('/auth', function () use ($app) { /*IO\oAuth2::AuthPost($app);*/ });
+    $app->post('/auth', function () use ($app) { IO\oAuth2::AuthPost($app); });
 
 
     /**
      * Route: [GET] /v1/oauth2/auth
      *  Authorization Endpoint, this part covers only the first section of the auth
-     *  flow and is included here, s.t. clients can initiate the "authorization or
-     *  implicit grant flow" with a GET request.
-     *  The flow after calling "oauth2loginform" continues with the POST
-     *  version of "oauth2/auth".
+     *  flow and is included here, such that clients can initiate the "authorization" or
+     *  "implicit grant flow" with a GET request and will 
      *
      * Parameters:
      *
@@ -46,7 +44,7 @@ $app->group('/v1', function () use ($app) {
      * Response:
      *
      */
-    $app->get('/auth', function () use ($app) { /*IO\oAuth2::AuthGet($app);*/ });
+    $app->get('/auth', function () use ($app) { IO\oAuth2::AuthGet($app); });
 
 
     /**
@@ -63,7 +61,7 @@ $app->group('/v1', function () use ($app) {
      * Response:
      *
      */
-    $app->post('/token', function () use ($app) { /*IO\oAuth2::TokenPost($app);*/ });
+    $app->post('/token', function () use ($app) { IO\oAuth2::TokenPost($app); });
 
 
     /**
@@ -76,7 +74,7 @@ $app->group('/v1', function () use ($app) {
      * Response:
      *
      */
-    $app->delete('/token', function () use ($app) { /*IO\oAuth2::TokenDelete($app);*/ });
+    $app->delete('/token', function () use ($app) { IO\oAuth2::TokenDelete($app); });
 
 
     /**
@@ -91,7 +89,7 @@ $app->group('/v1', function () use ($app) {
      * Response:
      *
      */
-    $app->get('/info', function () use ($app) { /*IO\oAuth2::Info($app);*/ });
+    $app->get('/info', function () use ($app) { IO\oAuth2::Info($app); });
 
 
     /**
@@ -105,7 +103,7 @@ $app->group('/v1', function () use ($app) {
      * Response:
      *
      */
-    $app->post('/ilias', function () use ($app) { /*IO\oAuth2::ILIAS($app);*/ });
+    $app->post('/ilias', function () use ($app) { IO\oAuth2::ILIAS($app); });
   // End-Of /oauth2-group
   });
 // End-Of /v1-group
