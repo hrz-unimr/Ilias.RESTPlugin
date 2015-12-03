@@ -21,6 +21,7 @@ $app->group('/v1', function () use ($app) {
      * Route: [GET] /v1/oauth2/authorize
      *
      */
+    // Gehört in POST (GET should redirect only show login)
     $app->get('/authorize', function () use ($app) {
       try {
         // Fetch RESTRequest object
@@ -65,9 +66,9 @@ $app->group('/v1', function () use ($app) {
           );
         }
 
-        // Wrong response_type
+        // Unsupported grant-type
         else
-          $app->halt(422, 'Wront response_type', '');
+          $app->halt(422, 'Wrong response_type', '');
       }
 
       // Catch missing parameters and inform client
@@ -80,6 +81,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Route: [POST] /v1/oauth2/authorize
      */
+    // TODO: In Modell un route zerstören, da sonst jeder "client" auth-tokens erzeugen kann (oder cc-permission hinzufügen)
     $app->post('/authorize', function () use ($app) {
       try {
         // Fetch RESTRequest object
@@ -107,7 +109,7 @@ $app->group('/v1', function () use ($app) {
         // Throws...
         $userId = Libs\RESTilias::getUserId($username);
 
-        //
+        // Grant-Type: Authorization-Code
         if ($response_type == 'code') {
           //
           $settings       = Tokens\Settings::load('authorization');
@@ -119,7 +121,7 @@ $app->group('/v1', function () use ($app) {
           ));
         }
 
-        // Wrong response_type
+        // Unsupported grant-type
         else
           $app->halt(422, 'Wrong response_type', '');
       }
@@ -149,27 +151,39 @@ $app->group('/v1', function () use ($app) {
         $api_secret   = $request->params('api_secret',    null, true);
         $grant_type   = $request->params('grant_type',    null, true);
         $code         = $request->params('code',          null, true);
-        $redirect_uri = $request->params('redirect_uri',  null, true);
+        $redirect_uri = $request->params('redirect_uri'); // Unused?!
 
         // Fetch information about client
         $client       = Database\RESTKeys::fromApiKey($api_key);
         if ($client->getKey('api_secret') != $api_secret)
-          $app->halt(401, '', '');
+          $app->halt(401, 'API-Secrets mismatch', '');
 
-        // Generate authorization-token (from given string) and check validity
-        $settings       = Tokens\Settings::load('authorization');
-        $authorization  = Tokens\Authorization::fromMixed($settings, $code);
-        if (!$authorization->isValid())
-          $app->halt(401, 'Auth not valid', '');
+        // Grant-Type: Authorization Code
+        if ($grant_type == 'authorization_code') {
+          // Generate authorization-token (from given string) and check validity
+          $settings       = Tokens\Settings::load('authorization');
+          $authorization  = Tokens\Authorization::fromMixed($settings, $code);
+          if ($authorization->isExpired())
+            $app->halt(401, 'Auth invalid or expired', '');
 
-        //
+          if ($authorization->getApiKey() != $api_key)
+            $app->halt(401, 'API-Key mismatch', '');
 
-        $accessSettings   = Tokens\Settings::load('access');
-        $refreshSettings  = Tokens\Settings::load('refresh');
-        $bearer           = Tokens\Bearer::fromArray($accessSettings, $refreshSettings, $authorization->getTokenArray());
+          //
+          $accessSettings   = Tokens\Settings::load('access');
+          $refreshSettings  = Tokens\Settings::load('refresh');
+          $userId           = $authorization->getUserId();
+          $iliasClient      = $authorization->getIliasClient();
+          $scope            = $authorization->getScope();
+          $bearer           = Tokens\Bearer::fromFields($accessSettings, $refreshSettings, $userId, $iliasClient, $apiKey, $scope);
 
-        //
-        $app->success($bearer->getResponseObject());
+          //
+          $app->success($bearer->getResponseObject());
+        }
+
+        // Unsupported grant-type
+        else
+          $app->halt(422, 'Wrong grant_type', '');
       }
 
       // Catch missing parameters and inform client

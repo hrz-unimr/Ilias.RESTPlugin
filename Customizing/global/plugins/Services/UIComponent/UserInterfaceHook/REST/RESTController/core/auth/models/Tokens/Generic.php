@@ -73,7 +73,7 @@ class Generic extends Base {
     $genericToken->setToken($tokenArray);
 
     // Return new object
-    return $token;
+    return $genericToken;
   }
 
 
@@ -184,6 +184,10 @@ class Generic extends Base {
   }
   public function getIliasClient() {
     return $this->tokenArray['ilias_client'];
+  }
+  public function getScope() {
+    // TODO: Implement me!
+    return null;
   }
 
 
