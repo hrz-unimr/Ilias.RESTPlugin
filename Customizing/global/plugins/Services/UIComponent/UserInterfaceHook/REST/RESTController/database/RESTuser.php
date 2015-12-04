@@ -12,18 +12,18 @@ use \RESTController\libs as Libs;
 
 
 /**
- * Class: RESTKey2IP (Database-Table)
- *  Abstraction for 'ui_uihk_rest_key2ip' database table.
+ * Class: RESTuser (Database-Table)
+ *  Abstraction for 'ui_uihk_rest_user' database table.
  *  See RESTDatabase class for additional information.
  */
-class RESTKey2IP extends Libs\RESTDatabase {
+class RESTuser extends Libs\RESTDatabase {
   // This three variables contain information about the table layout
   protected static $primaryKey  = 'id';
-  protected static $tableName   = 'ui_uihk_rest_key2ip';
+  protected static $tableName   = 'ui_uihk_rest_user';
   protected static $tableKeys   = array(
     'id'      => 'integer',
     'api_id'  => 'integer',
-    'ip'      => 'text'
+    'user_id' => 'integer'
   );
 
 
@@ -36,6 +36,7 @@ class RESTKey2IP extends Libs\RESTDatabase {
     switch ($key) {
       // Convert int values
       case 'api_id':
+      case 'user_id':
         $value = intval($value);
         break;
 
@@ -56,6 +57,10 @@ class RESTKey2IP extends Libs\RESTDatabase {
     // JOIN ui_uihk_rest_keys ON api_id
     if ($joinTable == 'ui_uihk_rest_keys')
       return 'api_id';
+
+    // JOIN usr_data ON user_id (probably never used, but anyway...)
+    elseif ($joinTable == 'usr_data')
+      return 'user_id';
 
     // Otherwise join on primary
     return parent::getJoinKey($joinTable);

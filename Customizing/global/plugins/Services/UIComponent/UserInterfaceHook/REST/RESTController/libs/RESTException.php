@@ -92,7 +92,7 @@ class RESTException extends \Exception {
 
 
   /**
-   * Static-Function: format($message, $data)
+   * Function: format($message, $data)
    *  Formats special placeholders in the given message with data
    *  from the $data-array.
    *  Supported placeholders:

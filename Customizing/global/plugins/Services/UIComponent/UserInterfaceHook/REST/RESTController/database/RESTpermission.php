@@ -12,11 +12,11 @@ use \RESTController\libs as Libs;
 
 
 /**
- * Class: RESTPermissions (Database-Table)
+ * Class: RESTpermission (Database-Table)
  *  Abstraction for 'ui_uihk_rest_perm' database table.
  *  See RESTDatabase class for additional information.
  */
-class RESTPermissions extends Libs\RESTDatabase {
+class RESTpermission extends Libs\RESTDatabase {
   // This three variables contain information about the table layout
   protected static $primaryKey  = 'id';
   protected static $tableName   = 'ui_uihk_rest_perm';

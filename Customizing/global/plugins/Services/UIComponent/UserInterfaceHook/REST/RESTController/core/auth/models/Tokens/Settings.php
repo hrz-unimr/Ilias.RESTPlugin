@@ -52,7 +52,7 @@ class Settings {
 
 
   /**
-   * Static-Function: load($type)
+   * Function: load($type)
    *  Creates a new TokenSettings object containing SALT and TTL
    *  for given type of token.
    *

@@ -205,7 +205,7 @@ class RESTRequest extends \Slim\Http\Request {
 
 
   /**
-   * Static-Function: parseIDList($idString, $throwException)
+   * Function: parseIDList($idString, $throwException)
    *  Parse a string of coma-separated numeric values (ids) into an array of integer values.
    *
    * Parameters:

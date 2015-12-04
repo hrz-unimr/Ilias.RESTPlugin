@@ -226,7 +226,7 @@ class RESTResponse extends \Slim\Http\Response {
 
 
   /**
-   * Static-Function: responseObject($data, $status)
+   * Function: responseObject($data, $status)
    *  Creates a responseObject from given $data and $status
    *  Should be used whenever someone wants to emulate
    *  $app->success(...) or $app->halt(...) response

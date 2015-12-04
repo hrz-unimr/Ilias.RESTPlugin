@@ -35,7 +35,6 @@ class Base extends Base {
     'user_id',        // Attached ILIAS User-Id
     'ilias_client',   // Attached ILIAS Client-Id
     'api_key',        // Oauth2 Client-Id
-    'type',           // Type (or encoding) of Token (Only Bearer is supported)
     'class',          // Internal type of token (Authorization-Code, Access-Token, Refresh-Token, etc.)
     'scope',          // Scope that is attached to the token
     'ttl',            // Time-To-Live (aka expiration time) of token
@@ -65,7 +64,7 @@ class Base extends Base {
 
 
   /**
-   * Static-Function: fromMixed($tokenSettings, $tokenArray)
+   * Function: fromMixed($tokenSettings, $tokenArray)
    *  Generates a Base-Token from given input parameters.
    *  Expects settings-object and token-data as array.
    *
@@ -87,7 +86,7 @@ class Base extends Base {
 
 
   /**
-   * Static-Function: fromFields($tokenSettings, $user_id, $ilias_client, $api_key, $type, $misc, $lifetime)
+   * Function: fromFields($tokenSettings, $user_id, $ilias_client, $api_key, $type, $misc, $lifetime)
    *  Generates a Base-Token from given input parameters.
    *  Expects settings-object and token-data as additional parameters.
    *
@@ -96,7 +95,6 @@ class Base extends Base {
    *  $user_id <String> - User-Id that should be attached to the token
    *  $ilias_client <String> - ILIAS Client-Id that should be attached to the token
    *  $api_key <String> - API-Key that should be attached to the token
-   *  $type <String> - Type that should be attached to token
    *  $scope <String> - Scope that should be attached to token
    *  $misc <String> - Misc data that should be attached to token
    *  $lifetime <Integer> - Lifetime that should be attached to token (get invalid after expiration)
@@ -104,10 +102,10 @@ class Base extends Base {
    * Return:
    *  <BaseToken> - Generated Base-Token
    */
-  public static function fromFields($tokenSettings, $user_id, $ilias_client = null, $api_key, $type = null, $scope = null, $misc = null, $lifetime = null) {
+  public static function fromFields($tokenSettings, $user_id, $ilias_client = null, $api_key, $scope = null, $misc = null, $lifetime = null) {
     // Generate new token from token-data as parameters
-    $baseToken = new self($tokenSettings);
-    $tokenArray   = $baseToken->generateTokenArray($user_id, $ilias_client, $api_key, $type, $scope, $misc, $lifetime);
+    $baseToken  = new self($tokenSettings);
+    $tokenArray = $baseToken->generateTokenArray($user_id, $ilias_client, $api_key, $scope, $misc, $lifetime);
     $baseToken->setToken($tokenArray);
 
     // Return new object
@@ -334,12 +332,11 @@ class Base extends Base {
     $user_id      = $this->tokenArray['user_id'];
     $ilias_client = $this->tokenArray['ilias_client'];
     $api_key      = $this->tokenArray['api_key'];
-    $type         = $this->tokenArray['type'];
     $scope        = $this->tokenArray['scope'];
     $misc         = $this->tokenArray['misc'];
 
     // Update $this from given data, but with reset ttl (null -> default-ttl)
-    $token = $this->generateTokenArray($user_id, $ilias_client, $api_key, $type, $scope, $misc, $ttl);
+    $token = $this->generateTokenArray($user_id, $ilias_client, $api_key, $scope, $misc, $ttl);
     $this->setToken($token);
   }
 
@@ -360,7 +357,7 @@ class Base extends Base {
    * Return:
    *  <Array[Mixed]> - Generated token-array (Eg. for internal storage)
    */
-  protected function generateTokenArray($user_id, $ilias_client = null, $api_key, $type = null, $scope = null, $misc = null, $lifetime = null) {
+  protected function generateTokenArray($user_id, $ilias_client = null, $api_key, $scope = null, $misc = null, $lifetime = null) {
     // Apply default values
     if ($ilias_client == null) $ilias_client  = CLIENT_ID;
     if ($scope        == null) $scope         = '';
@@ -375,7 +372,6 @@ class Base extends Base {
       'user_id'       => $user_id,
       'ilias_client'  => $ilias_client,
       'api_key'       => $api_key,
-      'type'          => $type,
       'class'         => static::$class,
       'scope'         => $scope,
       'misc'          => $misc,
@@ -405,12 +401,11 @@ class Base extends Base {
   protected function generateHash($tokenArray) {
     // Concat all token-array keys to string
     $hashStr = sprintf(
-      '%s-%s-%s-%s-%s-%s-%s-%s-%s-%s',
+      '%s-%s-%s-%s-%s-%s-%s-%s-%s',
       $this->tokenSettings->getSalt(),
       $tokenArray['user_id'],
       $tokenArray['ilias_client'],
       $tokenArray['api_key'],
-      $tokenArray['type'],
       $tokenArray['class'],
       $tokenArray['scope'],
       $tokenArray['misc'],
@@ -461,11 +456,10 @@ class Base extends Base {
   public static function serializeToken($tokenArray) {
     // Concat all token-array keys to string
     $tokenStr = sprintf(
-      '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s',
+      '%s,%s,%s,%s,%s,%s,%s,%s,%s',
       str_replace(',', '', $tokenArray['user_id']),
       str_replace(',', '', $tokenArray['ilias_client']),
       str_replace(',', '', $tokenArray['api_key']),
-      str_replace(',', '', $tokenArray['type']),
       str_replace(',', '', $tokenArray['class']),
       str_replace(',', '', $tokenArray['scope']),
       str_replace(',', '', $tokenArray['misc']),
@@ -502,15 +496,16 @@ class Base extends Base {
         'user_id'       =>  $tokenPartArray[0],
         'ilias_client'  =>  $tokenPartArray[1],
         'api_key'       =>  $tokenPartArray[2],
-        'type'          =>  $tokenPartArray[3],
-        'class'         =>  $tokenPartArray[4],
-        'scope'         =>  $tokenPartArray[5],
-        'misc'          =>  $tokenPartArray[6],
-        'ttl'           =>  $tokenPartArray[7],
-        's'             =>  $tokenPartArray[8],
-        'h'             =>  $tokenPartArray[9]
+        'class'         =>  $tokenPartArray[3],
+        'scope'         =>  $tokenPartArray[4],
+        'misc'          =>  $tokenPartArray[5],
+        'ttl'           =>  $tokenPartArray[6],
+        's'             =>  $tokenPartArray[7],
+        'h'             =>  $tokenPartArray[8]
       );
     }
+
+    // Not good...
     else
       throw new Exceptions\TokenInvalid(self::MSG_INVALID_SIZE, self::ID_INVALID_SIZE);
   }

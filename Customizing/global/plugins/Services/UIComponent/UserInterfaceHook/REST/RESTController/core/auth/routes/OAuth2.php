@@ -19,60 +19,42 @@ $app->group('/v1', function () use ($app) {
   $app->group('/oauth2', function () use ($app) {
     /**
      * Route: [GET] /v1/oauth2/authorize
+     *  Implementation of the OAuth2 'Authorization Flow'. This route manages the
+     *  step (A) for both 'Authorization-Code Grant' and the 'Implicit Grant'.
      *
+     *  See https://tools.ietf.org/html/rfc6749#section-4 for more information.
+     *
+     * Parameters:
+     *  api_key - OAuth2 client-id(entification) of client application
+     *  response_type - Needs to be code for 'authorization-code grant' or 'token' for implicit grant
+     *  redirect_uri - [Optional] URL where the user-agent should be redirected to after successfull/denied authorization
+     *                 (If no default value is given for this client application, this value is MANDITORY!)
+     *  scope - [Optional] Scope of requested access-token
+     *  state - [Optional] State of client-application during authorization request
+     *
+     * Returns:
+     *  A website where the resource-owner can allow or deny the client access to is resources (via his account)
+     *  Since this requires login, the user will be redirected to [POST] /v1/oauth2/authorize.
      */
-    // Gehört in POST (GET should redirect only show login)
     $app->get('/authorize', function () use ($app) {
       try {
-        // Fetch RESTRequest object
-        $request        = $app->request();
+        // Fetch parameters...
+        $request          = $app->request();
+        $clientParameters = Authorize::FetchClientParameters($request);
 
-        // Fetch (manditory) oauth2 data
-        // Note: Against oauth2-RFC, we allow scope and redirect_uri be optional parameters
-        $api_key        = $request->params('api_key',       null, true);
-        $response_type  = $request->params('response_type', null, true);
-        $redirect_uri   = $request->params('redirect_uri');
-        $scope          = $request->params('scope',         'PERMISSION');
+        // Check (and update) client-parameters
+        $clientParameters = Authorize::CheckAuthorizationRequest($clientParameters);
 
-        // Fetch redirect_uri from client db-entry
-        if (!isset($redirect_uri)) {
-          // Fetch redirect_uri from client db-entry
-          $client       = Database\RESTKeys::fromApiKey($api_key);
-          $redirect_uri = $client->getKey('redirect_uri');
-
-          // If no redirect_uri was given and non is attached to the client, exit!
-          if (!isset($redirect_uri))
-            throw new Libs\Exceptions\Parameter(
-              Libs\RESTRequest::MSG_MISSING,
-              Libs\RESTRequest::ID_MISSING,
-              array(
-                'key' => 'redirect_uri'
-              )
-            );
-        }
-
-        // Grant-Type: Authorization-Code
-        if ($response_type == 'code') {
-          $app->response()->setFormat('HTML');
-          $app->render(
-            'core/auth/views/authorization.php',
-            array(
-              'baseURL'       => ILIAS_HTTP_PATH,
-              'api_key'       => $api_key,
-              'response_type' => $response_type,
-              'redirect_uri'  => $redirect_uri,
-              'scope'         => $scope
-            )
-          );
-        }
-
-        // Unsupported grant-type
-        else
-          $app->halt(422, 'Wrong response_type', '');
+        // Show permission website (should show login)
+        Authorize::showWebsite($clientParameters);
       }
 
       // Catch missing parameters and inform client
       catch (Libs\Exceptions\MissingParameter $e) {
+        $e->send(400);
+      }
+      // Catch if something is incorrect about request-parameters
+      catch (Exceptions\Authorize $e) {
         $e->send(400);
       }
     });
@@ -80,57 +62,63 @@ $app->group('/v1', function () use ($app) {
 
     /**
      * Route: [POST] /v1/oauth2/authorize
+     *  Implementation of the OAuth2 'Authorization Flow'. This route manages the
+     *  steps (B) and (C) for both 'Authorization-Code Grant' and the 'Implicit Grant'.
+     *
+     *  See https://tools.ietf.org/html/rfc6749#section-4 for more information.
+     *
+     * Parameters:
+     *  api_key - OAuth2 client-id(entification) of client application
+     *  response_type - Needs to be code for 'authorization-code grant' or 'token' for implicit grant
+     *  redirect_uri - [Optional] URL where the user-agent should be redirected to after successfull/denied authorization
+     *                 (If no default value is given for this client application, this value is MANDITORY!)
+     *  scope - [Optional] Scope of requested access-token
+     *  state - [Optional] State of client-application during authorization request
+     *  username - [Optional] Username of resource-owner, required to show 'allow/deny access to client'-Website
+     *             (If omited a login dialog will be displayed)
+     *  password - [Optional] Password of resource-owner, required to show 'allow/deny access to client'-Website
+     *             (If omited a login dialog will be displayed)
+     *  grant - [Optional] Should be 'allow' or 'deny' (or null) and only be non-null AFTER resource-owner made his decision
+     *  client_id - [Optional] Pass (via GET only!) to change the attached ILIAS client-id
+     *              (This client_id will always be enforce when using the generated access-token, since it is part of the
+     *               resource owner credentials!)
+     *
+     * Returns:
+     *  A website where the resource-owner can allow or deny the client access to is resources (via his account)
      */
-    // TODO: In Modell un route zerstören, da sonst jeder "client" auth-tokens erzeugen kann (oder cc-permission hinzufügen)
     $app->post('/authorize', function () use ($app) {
       try {
-        // Fetch RESTRequest object
-        $request        = $app->request();
+        // Fetch parameters...
+        $request          = $app->request();
+        $clientParameters = Authorize::FetchClientParameters($request);
+        $ownerCredentials = Authorize::FetchResourceOwnerCredentials($request);
 
-        // Fetch (manditory) oauth2 data
-        $api_key        = $request->params('api_key',         null, true);
-        $response_type  = $request->params('response_type',   null, true);
-        $redirect_uri   = $request->params('redirect_uri',    null, true);
-        $scope          = $request->params('scope',           null, true);
+        // Check (and update) client-parameters
+        $clientParameters = Authorize::CheckAuthorizationRequest($clientParameters);
+        $userId           = Authorize::CheckResourceOwnerCredentials($ownerCredentials);
 
-        //
-        $username       = $request->params('username',        null, true);
-        $password       = $request->params('password',        null, true);
-        $client_id      = $request->params('ilias_client_id', CLIENT_ID);
+        // Combine all parameters
+        $parameters             = array_merge($clientParameters, $ownerCredentials);
+        $parameters['grant']    = $request->params('grant', null);
+        $parameters['user_Id']  = $userId;
 
-        //
-        if (CLIENT_ID != $client_id)
-          $app->halt(422, 'CLIENT_ID mismatch', '');
+        // Either redirect user-agen back to client...
+        if (isset($parameters['grant']))
+          Authorize::RedirectUserAgent($app, $parameters);
 
-        //
-        if (!Libs\RESTilias::authenticate($username, $password))
-          $app->halt(422, 'Wrong resource-owner credentials', '');
-
-        // Throws...
-        $userId = Libs\RESTilias::getUserId($username);
-
-        // Grant-Type: Authorization-Code
-        if ($response_type == 'code') {
-          //
-          $settings       = Tokens\Settings::load('authorization');
-          $authorization  = Tokens\Authorization::fromFields($settings, $userId, $client_id, $api_key, $response_type);
-
-          //
-          $app->success(array(
-            'authorization_token' => $authorization->getTokenString()
-          ));
-        }
-
-        // Unsupported grant-type
+        // ... or display website to ask to allow/deny the client access
         else
-          $app->halt(422, 'Wrong response_type', '');
+          Authorize::AskPermission($app, $parameters);
       }
 
-      // Catch wrong username (must be case-sensitive)
+      // Catch wrong resource-owner username (case-sensitive)
       catch (Libs\Exceptions\ilUser $e) {
-        $e->send(422);
+        Authorize::LoginFailed($app, $clientParameters, $e);
       }
-
+      // Catch wrong resource-owner credentials
+      catch (Exception\Credentials $e) {
+        Authorize::LoginFailed($app, $clientParameters, $e);
+      }
       // Catch missing parameters and inform client
       catch (Libs\Exceptions\MissingParameter $e) {
         $e->send(400);
@@ -140,6 +128,16 @@ $app->group('/v1', function () use ($app) {
 
     /**
      * Route: [POST] /v1/oauth2/token
+     *  Implementation of the OAuth2 'Authorization Flow'. This route manages:
+     *   1) the steps (D) and (E) for 'Authorization-Code Grant'.
+     *   2) the steps (B) and (C) for 'Resource Owner (Password Credentials) Grant'
+     *   3) the steps (A) and (B) for 'Client Credentials Grant'
+     *
+     *  See https://tools.ietf.org/html/rfc6749#section-4 for more information.
+     *
+     * Parameters:
+     *  <Client-Credentials> - IFF the client is confidential (has a api_secret or crt_* stored)
+     *                         This includes either a valid api_secret or a ssl client-certificate.
      */
     $app->post('/token', function () use ($app) {
       try {
@@ -181,6 +179,20 @@ $app->group('/v1', function () use ($app) {
           $app->success($bearer->getResponseObject());
 
           /**
+          For auth-code
+            check cc (if set)
+            check auth-code values with client-parameters
+
+            NOTE: Check if auth-code (or implicit) is enabled herre and in authorize!
+            Authorize Route (POST): Consent_message muss noch in die parameters gepackt werden
+            
+
+
+          // Check client-credentials
+          $cert = Database\RESTKeys::getClientCertificate();
+          if (!$client->checkCredentials($api_secret, $cert, $redirect_uri))
+            $app->halt(401, 'Invalid CC', '');
+
           array(
             'access_token'  => $this->getAccessToken()->getTokenString(),
             'refresh_token' => $this->getRefreshToken()->getTokenString(),

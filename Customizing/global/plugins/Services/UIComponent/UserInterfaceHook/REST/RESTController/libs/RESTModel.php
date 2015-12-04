@@ -13,14 +13,20 @@ namespace RESTController\libs;
 
 /**
  * Class: RESTModel
- *  Base class for all ('non-io') 'models'. Models should contain only program
- *  logic and are not allowed to parse input parameters and send
- *  responses via SLIM in order to be as reusable as possible, while 'io models'
- *  should doing the input parsing and reesponse sending.
+ *  Base class for all 'models'. Models should contain only buisness-logic.
+ *  If possible the should not read input parameters themselves or
+ *  produce output directly unless this code is strictly separated
+ *  from program-logic code.
+ *  In other words a Model-Function should either:
+ *   - Read (and pre-process) input data
+ *   - Write data to the output
+ *   - Do buiness-logic calculation
+ *  But never two or more of the above at the same time, to keep all
+ *  componentfunctions reuseable!
  */
 class RESTModel {
   /**
-   * Static-Function: getApp()
+   * Function: getApp()
    *  Inject RESTController into model.
    *
    * Return:
@@ -32,7 +38,7 @@ class RESTModel {
 
 
   /**
-   * Static-Function: getDB()
+   * Function: getDB()
    *  Inject ilDB into model.
    *
    * Return:

@@ -12,15 +12,16 @@ use \RESTController\libs as Libs;
 
 
 /**
- * Class: RESTChallenge (Database-Table)
+ * Class: RESTchallenge (Database-Table)
  *  Abstraction for 'ui_uihk_rest_challenge' database table.
  *  See RESTDatabase class for additional information.
  */
-class RESTChallenge extends Libs\RESTDatabase {
+class RESTchallenge extends Libs\RESTDatabase {
   // This three variables contain information about the table layout
-  protected static $primaryKey  = 'user_id';
+  protected static $primaryKey  = 'id';
   protected static $tableName   = 'ui_uihk_rest_challenge';
   protected static $tableKeys   = array(
+    'id'                => 'integer',
     'user_id'           => 'integer',
     'client_challange'  => 'text',
     'server_challange'  => 'text',

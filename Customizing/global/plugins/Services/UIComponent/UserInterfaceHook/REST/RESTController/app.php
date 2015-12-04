@@ -30,7 +30,7 @@ class RESTController extends \Slim\Slim {
 
 
   /**
-   * Static-Function: autoload($classname)
+   * Function: autoload($classname)
    *  PSR-0 autoloader for RESTController classes.
    *  Automatically adds a "models" subname into the namespace of \RESTController\core und
    *  @See \Slim\Slim::autoload(...)

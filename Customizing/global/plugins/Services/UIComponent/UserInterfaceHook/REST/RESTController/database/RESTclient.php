@@ -12,19 +12,20 @@ use \RESTController\libs as Libs;
 
 
 /**
- * Class: RESTclients (Database-Table)
- *  Abstraction for 'ui_uihk_rest_clients' database table.
+ * Class: RESTclient (Database-Table)
+ *  Abstraction for 'ui_uihk_rest_client' database table.
  *  See RESTDatabase class for additional information.
  */
-class RESTclients extends Libs\RESTDatabase {
+class RESTclient extends Libs\RESTDatabase {
   // This three variables contain information about the table layout
   protected static $primaryKey  = 'id';
-  protected static $tableName   = 'ui_uihk_rest_clients';
+  protected static $tableName   = 'ui_uihk_rest_client';
   protected static $tableKeys   = array(
     'id'                          => 'integer',
     'api_key'                     => 'text',
     'api_secret'                  => 'text',
     'redirect_uri'                => 'text',
+    'ips'                         => 'text',
     'consent_message'             => 'text',
     'client_credentials_userid'   => 'integer',
     'grant_client_credentials'    => 'integer',
@@ -38,7 +39,7 @@ class RESTclients extends Libs\RESTDatabase {
 
 
   /**
-   * Static-Function: fromApiKey($apiKey)
+   * Function: fromApiKey($apiKey)
    *  Creates a new instance of RESTKeys representing the table-entry with given aki-key.
    *
    * Parameters:
@@ -243,7 +244,7 @@ class RESTclients extends Libs\RESTDatabase {
 
 
   /**
-   * Static-Function: getClientCertificate()
+   * Function: getClientCertificate()
    *  Utility method to nicely fetch client-certificate (ssl) data from
    *  gfobal namespace and preformat it...
    *

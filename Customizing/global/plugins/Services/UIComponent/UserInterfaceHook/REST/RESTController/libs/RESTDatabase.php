@@ -497,7 +497,7 @@ abstract class RESTDatabase {
 
 
   /**
-   * Static-Function: existsByPrimary($value)
+   * Function: existsByPrimary($value)
    *  Checks wether the table-entry given by the parameter-value primary-key
    *  exists. This will ONLY check using the primary-key, use existsByWhere(...)
    *  for more advanced queries.
@@ -519,7 +519,7 @@ abstract class RESTDatabase {
 
 
   /**
-   * Static-Function: existsByWhere($where)
+   * Function: existsByWhere($where)
    *  Check wether the table-entry exists, by fetching number of affected
    *  table-entries via a simple:
    *    SELECT 1 FROM static::$tableName WHERE $where
@@ -596,7 +596,7 @@ abstract class RESTDatabase {
 
 
   /**
-   * Static-Function: deleteByPrimary($value)
+   * Function: deleteByPrimary($value)
    *  Deletes the table-entry given by the parameter-value primary-key.
    *  This will select the table ONLY using the primary-key, use deleteByWhere(...)
    *  for more advanced delete-requests.
@@ -618,7 +618,7 @@ abstract class RESTDatabase {
 
 
   /**
-   * Static-Function: deleteByWhere($where)
+   * Function: deleteByWhere($where)
    *  Deletes the table-entries matching the given where-clause, via a simple:
    *    DELETE FROM static::$tableName WHERE $where
    *  Were the $where-clause is given as parameter. Furthermore $where
@@ -678,7 +678,7 @@ abstract class RESTDatabase {
 
 
   /**
-   * Static-Function: fetchStatic($sql, $parse)
+   * Function: fetchStatic($sql, $parse)
    *  @See RESTDatabase->fetch($sql, $parse), for detailed description.
    *
    *  Only static-parses the sql-query, see RESTDatabase::parseStaticSQL($sql)
@@ -734,7 +734,7 @@ abstract class RESTDatabase {
 
 
   /**
-   * Static-Function: manipulateStatic($sql, $parse)
+   * Function: manipulateStatic($sql, $parse)
    *  @See RESTDatabase->manipulate($sql, $parse), for detailed description.
    *
    *  Only static-parses the sql-query, see RESTDatabase::parseStaticSQL($sql)
@@ -787,7 +787,7 @@ abstract class RESTDatabase {
 
 
   /**
-   * Static-Function: parseStaticSQL($sql)
+   * Function: parseStaticSQL($sql)
    *  Replaces certain 'needles' inside the sql query (string) with internally stored values.
    *  Currently supported needles are:
    *   {{table}} - Will be replaced by static::$tableName (which should contain the name of the attached table)
@@ -905,7 +905,7 @@ abstract class RESTDatabase {
 
 
   /**
-   * Static-Function: getPrimaryKey()
+   * Function: getPrimaryKey()
    *  Utility-function to return the primary-key used by the attached table.
    *
    * Return:
@@ -917,7 +917,7 @@ abstract class RESTDatabase {
 
 
   /**
-   * Static-Function: getTableName()
+   * Function: getTableName()
    *  Utility-function to return the name of the attached table.
    *
    * Return:
@@ -929,7 +929,7 @@ abstract class RESTDatabase {
 
 
   /**
-   * Static-Function: getTableKeys()
+   * Function: getTableKeys()
    *  Utility-function to return a list of all keys (and their ilDB type) inside by the attached table.
    *
    * Return:
@@ -941,7 +941,7 @@ abstract class RESTDatabase {
 
 
   /**
-   * Static-Function: getJoinKey($joinTable)
+   * Function: getJoinKey($joinTable)
    *  This method should return the name of the OWN key
    *  (not the key of the $joinTable) which should be used
    *  to join with $joinTable ON.
@@ -967,7 +967,7 @@ abstract class RESTDatabase {
 
 
   /**
-   * Static-Function: safeSQL($sql, ...)
+   * Function: safeSQL($sql, ...)
    *  Correctly quotes the additional input parameters given by '...' and inserts
    *  them into the sql-query given as first parameter using vsprintf on the
    *  (correclty quoted) array remaining parameters.
@@ -1028,7 +1028,7 @@ abstract class RESTDatabase {
 
 
   /**
-   * Static-Function: getDB()
+   * Function: getDB()
    *  Use this to inject global ILIAS-Database into this class.
    *  In a perfect world this would be done via DI instead... >_>
    *

@@ -12,11 +12,11 @@ use \RESTController\libs as Libs;
 
 
 /**
- * Class: RESTConfig (Database-Table)
+ * Class: RESTconfig (Database-Table)
  *  Abstraction for 'ui_uihk_rest_config' database table.
  *  See RESTDatabase class for additional information.
  */
-class RESTConfig extends Libs\RESTDatabase {
+class RESTconfig extends Libs\RESTDatabase {
   // This three variables contain information about the table layout
   protected static $primaryKey = 'id';
   protected static $tableName = 'ui_uihk_rest_config';
@@ -28,7 +28,7 @@ class RESTConfig extends Libs\RESTDatabase {
 
 
   /**
-   * Static-Function: fetchSettings($names)
+   * Function: fetchSettings($names)
    *  Fetches settings with given names from ui_uihk_rest_config.
    *  Returns an array with that contains all settings
    *  accessable by using their name as key.

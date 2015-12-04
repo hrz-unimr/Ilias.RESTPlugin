@@ -33,7 +33,7 @@ class RESTilias {
 
 
   /**
-   * Static-Function: getPlugin()
+   * Function: getPlugin()
    *  Returns RESTPlugin plugin object.
    *
    * Return:
@@ -47,7 +47,7 @@ class RESTilias {
 
 
   /**
-   * Static-Function: initAccessHandling()
+   * Function: initAccessHandling()
    *  Load ILIAS user-management. Normally this would be handled by initILIAS(),
    *  but CONTEXT:REST (intentionally) returns hasUser()->false. (Which causes
    *  initAccessHandling() [and authentification] to be skipped)
@@ -60,7 +60,7 @@ class RESTilias {
 
 
   /**
-   * Static-Function: loadIlUser($userId)
+   * Function: loadIlUser($userId)
    *  Load ilObjUser for given user and attach to global $ilUser and $ilias->account.
    *  If no user-id is given, fetch the it from access-token.
    *
@@ -97,7 +97,7 @@ class RESTilias {
 
 
   /**
-   * Static-Function: authenticate($username, $password)
+   * Function: authenticate($username, $password)
    *  Authentication via the ILIAS Auth mechanisms.
    *  This method is used as backend for OAuth2.
    *
@@ -138,7 +138,7 @@ class RESTilias {
 
 
   /**
-   * Static-Function: isAdmin($userId)
+   * Function: isAdmin($userId)
    *  Checks if given user owns the administration role in ILIAS.
    *  If no user-id is given, fetch the it from access-token.
    *
@@ -173,7 +173,7 @@ class RESTilias {
 
 
   /**
-   * Static-Function: getObjId($refId)
+   * Function: getObjId($refId)
    *  Fetches the Object-Id (obj_id) of any ILIAS-Object given one of its Reference-Ids (ref_id).
    *
    * Parameters:
@@ -207,7 +207,7 @@ class RESTilias {
 
 
   /**
-   * Static-Function: getRefId($objId)
+   * Function: getRefId($objId)
    *  Fetches the Reference-Id (ref_id) of any ILIAS-Object given its Object-Id (obj_id).
    *
    * Parameters:
@@ -241,7 +241,7 @@ class RESTilias {
 
 
   /**
-   * Static-Function: getRefIds($objId)
+   * Function: getRefIds($objId)
    *  Fetches all Reference-Ids (ref_id) of any ILIAS-Object given its Object-Id (obj_id).
    *
    * Parameters:
@@ -269,7 +269,7 @@ class RESTilias {
 
 
   /**
-   * Static-Function: getUserName($userId)
+   * Function: getUserName($userId)
    *  Given a users id, this function returns the ilias login name of a user.
    *
    * Parameters:
@@ -303,7 +303,7 @@ class RESTilias {
 
 
   /**
-   * Static-Function: getUserId($userName)
+   * Function: getUserId($userName)
    *  Given a users name, this function returns his user-id.
    *
    * Parameters:

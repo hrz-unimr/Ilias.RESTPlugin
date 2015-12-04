@@ -12,14 +12,14 @@ use \RESTController\libs as Libs;
 
 
 /**
- * Class: RESTOAuth2 (Database-Table)
- *  Abstraction for 'ui_uihk_rest_oauth2' database table.
+ * Class: RESTrefresh (Database-Table)
+ *  Abstraction for 'ui_uihk_rest_refresh' database table.
  *  See RESTDatabase class for additional information.
  */
-class RESTOAuth2 extends Libs\RESTDatabase {
+class RESTrefresh extends Libs\RESTDatabase {
   // This three variables contain information about the table layout
   protected static $primaryKey  = 'id';
-  protected static $tableName   = 'ui_uihk_rest_oauth2';
+  protected static $tableName   = 'ui_uihk_rest_refresh';
   protected static $tableKeys   = array(
     'id'                      => 'integer',
     'user_id'                 => 'integer',
