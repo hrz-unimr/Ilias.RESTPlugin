@@ -34,15 +34,12 @@
   $ilDB->addPrimaryKey('ui_uihk_rest_config', array('id'));
   $ilDB->manipulate('ALTER TABLE ui_uihk_rest_config CHANGE id id INT NOT NULL AUTO_INCREMENT');
 
-  global $ilLog;
   $ilLog->write('Plugin REST -> DB-Update #1: Created ui_uihk_rest_config.');
 ?>
 
 
 <#2>
 <?php
-  global $ilLog;
-
   function gen_uuid() {
     return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
       // 32 bits for 'time_low'
@@ -96,6 +93,7 @@
     'setting_value' => array('text', 1)
   ));
 
+  global $ilLog;
   $ilLog->write('Plugin REST -> DB-Update #2: Filled ui_uihk_rest_config.');
 ?>
 
@@ -138,37 +136,37 @@
       'type'    => 'integer',
       'length'  => 4,
       'notnull' => true,
-      'default' => 6
+      'default' => -1
     ),
     'grant_client_credentials' => array(
       'type'    => 'integer',
       'length'  => 1,
       'notnull' => true,
-      'default' => 1
+      'default' => 0
     ),
     'grant_authorization_code' => array(
       'type'    => 'integer',
       'length'  => 1,
       'notnull' => true,
-      'default' => 1
+      'default' => 0
     ),
     'grant_implicit' => array(
       'type'    => 'integer',
       'length'  => 1,
       'notnull' => true,
-      'default' => 1
+      'default' => 0
     ),
     'grant_resource_owner' => array(
       'type'    => 'integer',
       'length'  => 1,
       'notnull' => true,
-      'default' => 1
+      'default' => 0
     ),
     'refresh_authorization_code' => array(
       'type'    => 'integer',
       'length'  => 1,
       'notnull' => true,
-      'default' => 1
+      'default' => 0
     ),
     'refresh_resource_owner' => array(
       'type'    => 'integer',
@@ -184,34 +182,32 @@
       'default' => ''
     )
   );
-  $ilDB->createTable('ui_uihk_rest_keys', $fields, true);
+  $ilDB->createTable('ui_uihk_rest_clients', $fields, true);
 
-  $ilDB->addPrimaryKey('ui_uihk_rest_keys', array('id'));
-  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_keys CHANGE id id INT NOT NULL AUTO_INCREMENT');
+  $ilDB->addPrimaryKey('ui_uihk_rest_clients', array('id'));
+  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_clients CHANGE id id INT NOT NULL AUTO_INCREMENT');
 
   global $ilLog;
-  $ilLog->write('Plugin REST -> DB-Update #3: Created ui_uihk_rest_keys.');
+  $ilLog->write('Plugin REST -> DB-Update #3: Created ui_uihk_rest_clients.');
 ?>
 
 
 <#4>
 <?php
-  $api_key                = 'apollon';
-  $api_secret             = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',5)),0,10);
-  $redirection_uri        = '';
-  $oauth_consent_message  = '';
-  $description            = '';
+  $api_key         = 'apollon';
+  $api_secret      = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 5)), 0, 10);
+  $description     = 'oAuth2 Admin-Panel Client';
 
   $ilDB->insert('ui_uihk_rest_keys', array(
-    'api_key'         => array('text', $api_key),
-    'api_secret'      => array('text', $api_secret),
-    'redirect_uri'    => array('text', $redirection_uri),
-    'consent_message' => array('text', $oauth_consent_message),
-    'description'     => array('text', $description)
+    'api_key'                   => array('text',    $api_key),
+    'api_secret'                => array('text',    $api_secret),
+    'grant_resource_owner'      => array('boolean', true),
+    'description'               => array('text',    $description)
   ));
+  // TODO: Store into admin-panel config
 
   global $ilLog;
-  $ilLog->write('Plugin REST -> DB-Update #4: Filled ui_uihk_rest_keys.');
+  $ilLog->write('Plugin REST -> DB-Update #4: Filled ui_uihk_rest_clients.');
 ?>
 
 
@@ -234,17 +230,137 @@
       'notnull' => true
     )
   );
-  $ilDB->createTable('ui_uihk_rest_key2user', $fields, true);
+  $ilDB->createTable('ui_uihk_rest_users', $fields, true);
 
-  $ilDB->addPrimaryKey('ui_uihk_rest_key2user', array('id'));
-  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_key2user CHANGE id id INT NOT NULL AUTO_INCREMENT');
+  $ilDB->addPrimaryKey('ui_uihk_rest_users', array('id'));
+  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_users CHANGE id id INT NOT NULL AUTO_INCREMENT');
 
   global $ilLog;
-  $ilLog->write('Plugin REST -> DB-Update #5: Created ui_uihk_rest_key2user.');
+  $ilLog->write('Plugin REST -> DB-Update #5: Created ui_uihk_rest_users.');
 ?>
 
 
 <#6>
+<?php
+  $fields = array(
+    'id' => array(
+      'type'    => 'integer',
+      'length'  => 4,
+      'notnull' => true
+    ),
+    'api_id' => array(
+      'type'    => 'integer',
+      'length'  => 4,
+      'notnull' => true
+    ),
+    'pattern' => array(
+      'type'    => 'text',
+      'length'  => 512,
+      'fixed'   => false,
+      'notnull' => false
+    ),
+    'verb' => array(
+      'type'    => 'text',
+      'length'  => 16,
+      'fixed'   => false,
+      'notnull' => false
+    )
+  );
+  $ilDB->createTable('ui_uihk_rest_scopes', $fields, true);
+
+  $ilDB->addPrimaryKey('ui_uihk_rest_scopes', array('id'));
+  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_scopes CHANGE id id INT NOT NULL AUTO_INCREMENT');
+
+  global $ilLog;
+  $ilLog->write('Plugin REST -> DB-Update #6: Created ui_uihk_rest_scopes.');
+?>
+
+
+<#7>
+<?php
+  $sql    = 'SELECT id FROM ui_uihk_rest_clients WHERE api_key = "apollon"';
+  $query  = $ilDB->query($sql);
+  $row    = $ilDB->fetchAssoc($query);
+  $id     = (isset($row['id'])) ? $row['id'] : 1;
+
+  $ilDB->insert('ui_uihk_rest_scopes', array(
+    'api_id'  => array('integer', $id),
+    'pattern' => array('text', '/clients'),
+    'verb'    => array('text', 'GET')
+  ));
+  $ilDB->insert('ui_uihk_rest_scopes', array(
+    'api_id'  => array('integer', $id),
+    'pattern' => array('text', '/clients/:id'),
+    'verb'    => array('text', 'PUT')
+  ));
+  $ilDB->insert('ui_uihk_rest_scopes', array(
+    'api_id'  => array('integer', $id),
+    'pattern' => array('text', '/clients/:id'),
+    'verb'    => array('text', 'DELETE')
+  ));
+  $ilDB->insert('ui_uihk_rest_scopes', array(
+    'api_id'  => array('integer', $id),
+    'pattern' => array('text', '/clients/'),
+    'verb'    => array('text', 'POST')
+  ));
+  $ilDB->insert('ui_uihk_rest_scopes', array(
+    'api_id'  => array('integer', $id),
+    'pattern' => array('text', '/routes'),
+    'verb'    => array('text', 'GET')
+  ));
+  $ilDB->insert('ui_uihk_rest_scopes', array(
+    'api_id'  => array('integer', $id),
+    'pattern' => array('text', '/clientpermissions'),
+    'verb'    => array('text', 'GET')
+  ));
+  $ilDB->insert('ui_uihk_rest_scopes', array(
+    'api_id'  => array('integer', $id),
+    'pattern' => array('text', '/clientpermissions/:id'),
+    'verb'    => array('text', 'DELETE')
+  ));
+  $ilDB->insert('ui_uihk_rest_scopes', array(
+    'api_id'  => array('integer', $id),
+    'pattern' => array('text', '/clientpermissions/'),
+    'verb'    => array('text', 'POST')
+  ));
+
+  global $ilLog;
+  $ilLog->write('Plugin REST -> DB-Update #7: Filled ui_uihk_rest_scopes.');
+?>
+
+
+<#8>
+<?php
+  global $ilLog;
+
+  $fields = array(
+    'id' => array(
+      'type'    => 'integer',
+      'length'  => 4,
+      'notnull' => true
+    ),
+    'api_id' => array(
+      'type'    => 'integer',
+      'length'  => 4,
+      'notnull' => true
+    ),
+    'ip' => array(
+      'type'    => 'text',
+      'length'  => 45,
+      'notnull' => true
+    )
+  );
+  $ilDB->createTable('ui_uihk_rest_ips', $fields, true);
+
+  $ilDB->addPrimaryKey('ui_uihk_rest_ips', array('id'));
+  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_ips CHANGE id id INT NOT NULL AUTO_INCREMENT');
+
+  global $ilLog;
+  $ilLog->write('Plugin REST -> DB-Update #8: Created ui_uihk_rest_ips.');
+?>
+
+
+<#9>
 <?php
   // setup of table ui_uihk_rest_oauth2
   $fields = array(
@@ -282,132 +398,67 @@
       'notnull' => true
     )
   );
-  $ilDB->createTable('ui_uihk_rest_oauth2', $fields, true);
+  $ilDB->createTable('ui_uihk_rest_refresh', $fields, true);
 
-  $ilDB->addPrimaryKey('ui_uihk_rest_oauth2', array('id'));
-  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_oauth2 CHANGE id id INT NOT NULL AUTO_INCREMENT');
-
-  global $ilLog;
-  $ilLog->write('Plugin REST -> DB-Update #6: Created ui_uihk_rest_oauth2.');
-?>
-
-
-<#7>
-<?php
-  $fields = array(
-    'id' => array(
-      'type'    => 'integer',
-      'length'  => 4,
-      'notnull' => true
-    ),
-    'api_id' => array(
-      'type'    => 'integer',
-      'length'  => 4,
-      'notnull' => true
-    ),
-    'pattern' => array(
-      'type'    => 'text',
-      'length'  => 512,
-      'fixed'   => false,
-      'notnull' => false
-    ),
-    'verb' => array(
-      'type'    => 'text',
-      'length'  => 16,
-      'fixed'   => false,
-      'notnull' => false
-    )
-  );
-  $ilDB->createTable('ui_uihk_rest_perm', $fields, true);
-
-  $ilDB->addPrimaryKey('ui_uihk_rest_perm', array('id'));
-  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_perm CHANGE id id INT NOT NULL AUTO_INCREMENT');
+  $ilDB->addPrimaryKey('ui_uihk_rest_refresh', array('id'));
+  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_refresh CHANGE id id INT NOT NULL AUTO_INCREMENT');
 
   global $ilLog;
-  $ilLog->write('Plugin REST -> DB-Update #7: Created ui_uihk_rest_perm.');
-?>
-
-
-<#8>
-<?php
-  $ilDB->insert('ui_uihk_rest_perm', array(
-    'api_id'  => array('integer', 1),
-    'pattern' => array('text', '/clients'),
-    'verb'    => array('text', 'GET')
-  ));
-  $ilDB->insert('ui_uihk_rest_perm', array(
-    'api_id'  => array('integer', 1),
-    'pattern' => array('text', '/clients/:id'),
-    'verb'    => array('text', 'PUT')
-  ));
-  $ilDB->insert('ui_uihk_rest_perm', array(
-    'api_id'  => array('integer', 1),
-    'pattern' => array('text', '/clients/:id'),
-    'verb'    => array('text', 'DELETE')
-  ));
-  $ilDB->insert('ui_uihk_rest_perm', array(
-    'api_id'  => array('integer', 1),
-    'pattern' => array('text', '/clients/'),
-    'verb'    => array('text', 'POST')
-  ));
-  $ilDB->insert('ui_uihk_rest_perm', array(
-    'api_id'  => array('integer', 1),
-    'pattern' => array('text', '/routes'),
-    'verb'    => array('text', 'GET')
-  ));
-  $ilDB->insert('ui_uihk_rest_perm', array(
-    'api_id'  => array('integer', 1),
-    'pattern' => array('text', '/clientpermissions'),
-    'verb'    => array('text', 'GET')
-  ));
-  $ilDB->insert('ui_uihk_rest_perm', array(
-    'api_id'  => array('integer', 1),
-    'pattern' => array('text', '/clientpermissions/:id'),
-    'verb'    => array('text', 'DELETE')
-  ));
-  $ilDB->insert('ui_uihk_rest_perm', array(
-    'api_id'  => array('integer', 1),
-    'pattern' => array('text', '/clientpermissions/'),
-    'verb'    => array('text', 'POST')
-  ));
-
-  global $ilLog;
-  $ilLog->write('Plugin REST -> DB-Update #8: Filled ui_uihk_rest_perm.');
-?>
-
-
-<#9>
-<?php
-  global $ilLog;
-
-  $fields = array(
-    'id' => array(
-      'type'    => 'integer',
-      'length'  => 4,
-      'notnull' => true
-    ),
-    'api_id' => array(
-      'type'    => 'integer',
-      'length'  => 4,
-      'notnull' => true
-    ),
-    'ip' => array(
-      'type'    => 'text',
-      'length'  => 45,
-      'notnull' => true
-    )
-  );
-  $ilDB->createTable('ui_uihk_rest_key2ip', $fields, true);
-
-  $ilDB->addPrimaryKey('ui_uihk_rest_key2ip', array('id'));
-  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_key2ip CHANGE id id INT NOT NULL AUTO_INCREMENT');
-
-  global $ilLog;
-  $ilLog->write('Plugin REST -> DB-Update #9: Created ui_uihk_rest_key2ip.');
+  $ilLog->write('Plugin REST -> DB-Update #9: Created ui_uihk_rest_refresh.');
 ?>
 
 
 <#10>
+<?php
+  $fields = array(
+    'id' => array(
+      'type'    => 'integer',
+      'length'  => 4,
+      'notnull' => true
+    ),
+    'token' => array(
+      'type'    => 'text',
+      'length'  => 512,
+      'fixed'   => false,
+      'notnull' => false
+    )
+  );
+  $ilDB->createTable('ui_uihk_rest_access', $fields, true);
+
+  $ilDB->addPrimaryKey('ui_uihk_rest_access',  array('id'));
+  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_access CHANGE id id INT NOT NULL AUTO_INCREMENT');
+
+  global $ilLog;
+  $ilLog->write('Plugin REST -> DB-Update #10: Created ui_uihk_rest_access.');
+?>
+
+
+<#11>
+<?php
+  $fields = array(
+    'id' => array(
+      'type'    => 'integer',
+      'length'  => 4,
+      'notnull' => true
+    ),
+    'token' => array(
+      'type'    => 'text',
+      'length'  => 512,
+      'fixed'   => false,
+      'notnull' => false
+    )
+  );
+  $ilDB->createTable('ui_uihk_rest_authcode', $fields, true);
+
+  $ilDB->addPrimaryKey('ui_uihk_rest_authcode',  array('id'));
+  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_authcode CHANGE id id INT NOT NULL AUTO_INCREMENT');
+
+  global $ilLog;
+  $ilLog->write('Plugin REST -> DB-Update #11: Created ui_uihk_rest_authcode.');
+?>
+
+
+<#12>
 <?php
   $fields = array(
     'id' => array(
@@ -437,5 +488,5 @@
   $ilDB->manipulate('ALTER TABLE ui_uihk_rest_challenge CHANGE id id INT NOT NULL AUTO_INCREMENT');
 
   global $ilLog;
-  $ilLog->write('Plugin REST -> DB-Update #10: Created ui_uihk_rest_challenge.');
+  $ilLog->write('Plugin REST -> DB-Update #12: Created ui_uihk_rest_challenge.');
 ?>

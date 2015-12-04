@@ -20,10 +20,14 @@ use \RESTController\libs\Exceptions as Exceptions;
  */
 class RESTRequest extends \Slim\Http\Request {
   // Allow to re-use status messages and codes
-  const MSG_MISSING     = 'Mandatory parameter missing, \'{{key}}\' not set in header, GET or POST (JSON/x-www-form-urlencoded).';
-  const ID_MISSING      = 'RESTController\\libs\\RESTRequest::ID_MISSING';
-  const MSG_PARSE_ISSUE = 'Could not parse ids \'{{ids}} from \'{{string}}\'.';
-  const ID_PARSE_ISSUE  = 'RESTController\\libs\\RESTRequest::ID_PARSE_ISSUE';
+  const MSG_MISSING         = 'Mandatory parameter missing, \'{{key}}\' not set in header, GET or POST (JSON/x-www-form-urlencoded) parameters.';
+  const ID_MISSING          = 'RESTController\\libs\\RESTRequest::ID_MISSING';
+  const MSG_PARSE_ISSUE     = 'Could not parse ids \'{{ids}} from \'{{string}}\'.';
+  const ID_PARSE_ISSUE      = 'RESTController\\libs\\RESTRequest::ID_PARSE_ISSUE';
+  const MSG_NO_ACCESS_TOKEN = 'Could not find any access-token in Authorizaton-Header and header, GET or POST (JSON/x-www-form-urlencoded) parameters.';
+  const ID_NO_ACCESS_TOKEN  = 'RESTController\\libs\\RESTRequest::ID_NO_ACCESS_TOKEN';
+  const MSG_NO_TOKEN        = 'Could not find any {{token}} in header, GET or POST (JSON/x-www-form-urlencoded) parameters.';
+  const ID_NO_TOKEN         = 'RESTController\\libs\\RESTRequest::ID_NO_TOKEN';
 
 
   /**
@@ -100,6 +104,103 @@ class RESTRequest extends \Slim\Http\Request {
         'key' => $key
       )
     );
+  }
+
+
+  /**
+   * Function: getToken($name)
+   *  Utility method to fetch Token-Object from given input parameter.
+   *  Supported are access-token, refresh-token and authorization-code (token).
+   *
+   * Parameter:
+   *  $name <String> - [Optional] Which type of token should be fetched (Default: Access-Token)
+   *                   Supports: null, 'access', 'refresh', 'authorization'
+   *
+   * Return:
+   *  <AccessToken>/<RefreshToken>/<AuthorizationCode> - Fetched token, depending on input parameter
+   */
+  public function getToken($name = 'access') {
+    switch ($name) {
+      // Fetch access-token
+      default:
+      case 'access':
+        // Fetch 'access_token' from header, GET or POST...
+        $tokenString = $this->params('access_token');
+
+        // Fetch 'token'  from header, GET or POST...
+        if ($tokenString == null)
+            $tokenString = $this->params('token');
+
+        // Fetch 'Authorization' from header ONLY!
+        if ($tokenString == null) {
+          $authHeader = $this->headers('Authorization');
+
+          // Found Authorization header?
+          if ($authHeader) {
+              $authArray = explode(' ', $authHeader);
+
+              // Look for bearer-type token
+              if (strtolower($authArray[0]) == 'bearer')
+                $tokenString = $authArray[1];
+          }
+        }
+
+        // Found something that could be an access-token?
+        if ($tokenString != null) {
+          $settings = Tokens\Settings::load('access');
+          return Tokens\Access::fromMixed($settings, $tokenString);
+        }
+
+        // Not returned by now means no token was found
+        throw new Exceptions\Parameter(
+          self::MSG_NO_ACCESS_TOKEN,
+          self::ID_NO_ACCESS_TOKEN
+        );
+
+      // Fetch refresh-token
+      case 'refresh':
+        // Fetch 'access_token' from header, GET or POST...
+        $tokenString = $this->params('refresh_token');
+
+        // Found something that could be an access-token?
+        if ($tokenString != null) {
+          $settings = Tokens\Settings::load('refresh');
+          return Tokens\Refresh::fromMixed($settings, $tokenString);
+        }
+
+        // Not returned by now means no token was found
+        throw new Exceptions\Parameter(
+          self::MSG_NO_TOKEN,
+          self::ID_NO_TOKEN,
+          array(
+            'token' => 'refresh'
+          )
+        );
+
+      // Fetch authorization-token
+      case 'authorization':
+        // Fetch 'access_token' from header, GET or POST...
+        $tokenString = $this->params('authorization_token');
+
+        // Fetch 'token'  from header, GET or POST...
+        if ($tokenString == null)
+            $tokenString = $this->params('code');
+
+        // Found something that could be an access-token?
+        if ($tokenString != null) {
+          $settings = Tokens\Settings::load('authorization');
+          return Tokens\Authorization::fromMixed($settings, $tokenString);
+        }
+
+        // Not returned by now means no token was found
+        throw new Exceptions\Parameter(
+          self::MSG_NO_TOKEN,
+          self::ID_NO_TOKEN,
+          array(
+            'token' => 'authorization'
+          )
+        );
+    }
   }
 
 

@@ -179,6 +179,16 @@ $app->group('/v1', function () use ($app) {
 
           //
           $app->success($bearer->getResponseObject());
+
+          /**
+          array(
+            'access_token'  => $this->getAccessToken()->getTokenString(),
+            'refresh_token' => $this->getRefreshToken()->getTokenString(),
+            'expires_in'    => $this->getAccessToken()->getRemainingTime(),
+            'token_type'    => 'Bearer',
+            'scope'         => $this->getScope()
+          );
+          */
         }
 
         // Unsupported grant-type
