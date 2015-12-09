@@ -39,23 +39,27 @@ $app->group('/v1', function () use ($app) {
     $app->get('/authorize', function () use ($app) {
       try {
         // Fetch parameters...
-        $request          = $app->request();
-        $clientParameters = Authorize::FetchClientParameters($request);
+        $request      = $app->request();
+        $clientParam  = Authorize::FetchClientParameters($request);
 
         // Check (and update) client-parameters
-        $clientParameters = Authorize::CheckClientRequest($clientParameters);
+        $client       = Database\RESTclient::fromApiKey($clientParam['api_key']);
+        $clientParam  = Authorize::CheckClientRequest($client, $clientParam);
 
         // Show permission website (should show login)
-        Authorize::showWebsite($clientParameters);
+        Authorize::showWebsite($clientParam);
       }
 
-      // Catch missing parameters and inform client
-      catch (Libs\Exceptions\MissingParameter $e) {
-        $e->send(400);
+      // Database query failed (eg. no client with given api-key)
+      catch (Libs\Exceptions\Database $e) {
+        $e->redirect($clientParam['redirect_uri'], 'unauthorized_client');
       }
-      // Catch if something is incorrect about request-parameters
-      catch (Exceptions\Authorize $e) {
-        $e->send(400);
+      // Catch unsupported response_type (Exceptions\ResponseType)
+      // Catch invalid request (Exceptions\InvalidRequest)
+      // Catch if access is denied, by user of due to client settings (Exceptions\Denied)
+      // Catch missing parameters (Libs\Exceptions\Parameter)
+      catch (Libs\RESTException $e) {
+        $e->redirect($clientParam['redirect_uri']);
       }
     });
 
@@ -89,39 +93,45 @@ $app->group('/v1', function () use ($app) {
     $app->post('/authorize', function () use ($app) {
       try {
         // Fetch parameters...
-        $request          = $app->request();
-        $clientParameters = Authorize::FetchClientParameters($request);
-        $ownerCredentials = Authorize::FetchResourceOwnerCredentials($request);
+        $request      = $app->request();
+        $clientParam  = Authorize::FetchClientParameters($request);
+        $owner        = Authorize::FetchResourceOwnerCredentials($request);
 
         // Check (and update) client-parameters
-        $clientParameters = Authorize::CheckClientRequest($clientParameters);
-        $userId           = Authorize::CheckResourceOwnerCredentials($ownerCredentials);
+        $clientParam  = Authorize::CheckClientRequest($clientParam);
+        $owner        = Authorize::CheckResourceOwnerCredentials($owner);
 
         // Combine all parameters
-        $parameters             = array_merge($clientParameters, $ownerCredentials);
-        $parameters['grant']    = $request->params('grant', null);
-        $parameters['user_Id']  = $userId;
+        $grant        = $request->params('grant', null);
+        $param        = array_merge($clientParam, $owner, array('grant' => $grant));
 
-        // Either redirect user-agen back to client...
+        // Either redirect user-agent (access was granted or denied) back to client...
         if (isset($parameters['grant']))
-          Authorize::RedirectUserAgent($app, $parameters);
+          Authorize::RedirectUserAgent($app, $param);
 
         // ... or display website to ask to allow/deny the client access
         else
-          Authorize::AskPermission($app, $parameters);
+          Authorize::AskPermission($app, $param);
       }
 
       // Catch wrong resource-owner username (case-sensitive)
       catch (Libs\Exceptions\ilUser $e) {
-        Authorize::LoginFailed($app, $clientParameters, $e);
+        Authorize::LoginFailed($app, $clientParam, $e);
       }
       // Catch wrong resource-owner credentials
       catch (Exception\Credentials $e) {
-        Authorize::LoginFailed($app, $clientParameters, $e);
+        Authorize::LoginFailed($app, $clientParam, $e);
       }
-      // Catch missing parameters and inform client
-      catch (Libs\Exceptions\MissingParameter $e) {
-        $e->send(400);
+      // Database query failed (eg. no client with given api-key)
+      catch (Libs\Exceptions\Database $e) {
+        $e->redirect($clientParam['redirect_uri'], 'unauthorized_client');
+      }
+      // Catch unsupported response_type
+      // Catch invalid request
+      // Catch if access is denied (by user of due to client settings)
+      // Catch missing parameters
+      catch (Libs\RESTException $e) {
+        $e->redirect($clientParam['redirect_uri']);
       }
     });
 
@@ -179,46 +189,30 @@ $app->group('/v1', function () use ($app) {
           $app->success($bearer->getResponseObject());
 
           /**
+
           Alle Routen:
-            * IP restriction prüfen
-            * User-Restriction prüfen
+            * IP restriction prüfen                   [Auth: X]
+            * User-Restriction prüfen                 [Auth: X]
+            * Check client with api-key exists        [Auth: X]
+            * Check if client has grant-type enabled  [Auth: X]
 
-          For auth-code
-            check client (available and credentials if set)
-            check auth-code values with client-parameters (eg. api-key, redirect_uri, etc.)
-            check auth-code not expired (look up in DB, delete afterwards!)
+          Token-Endpoint - Auth-Code:
+            * check client-credentials
+            * check auth-code values with client-parameters (eg. api-key, redirect_uri, etc.)
+            * check auth-code not expired (look up in DB, delete afterwards!)
+            * send access-token, send and store refresh-token
+            * SCOPE steckt im Auth-TOKEN
 
-          Token Route:
-            * Store refresh in DB
-
-
-          NOTE: Check if auth-code (or implicit) is enabled here and in authorize!
-          Authorize Route (POST):
-            * Consent_message muss noch in die parameters gepackt werden
-            * AuthCode token in DB schreiben!
-          Authorize RouteN:
-            * Auch im Fehler-Fall redirect ausführen (ist nunmal im spec so!)
-
-
-          // Check client-credentials
-          $cert = Database\RESTclient::getClientCertificate();
-          if (!$client->checkCredentials($api_secret, $cert, $redirect_uri))
-            $app->halt(401, 'Invalid CC', '');
-
-          array(
-            'access_token'  => $this->getAccessToken()->getTokenString(),
-            'refresh_token' => $this->getRefreshToken()->getTokenString(),
-            'expires_in'    => $this->getAccessToken()->getRemainingTime(),
-            'token_type'    => 'Bearer',
-            'scope'         => $this->getScope()
-          );
-          */
+          **/
         }
 
         // Unsupported grant-type
         else
           $app->halt(422, 'Wrong grant_type', '');
       }
+
+      // TokenInvalid
+      // ilUser
 
       // Catch missing parameters and inform client
       catch (Libs\Exceptions\MissingParameter $e) {

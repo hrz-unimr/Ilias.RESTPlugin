@@ -12,11 +12,15 @@ use \RESTController\libs as Libs;
 
 
 /**
- * Exception: Credentials($message, $restCode, $previous)
- *  This exception should be thrown, when the resource-owner could not be authorized.
+ * Exception: UnauthorizedClient($message, $restCode, $previous)
+ *  This exception should be thrown, when the client could not be authorized.
  *  Details: https://tools.ietf.org/html/rfc6749#section-4.1.2
  *
  * Parameters:
  *  @See Libs\RESTException for parameter description
  */
-class Credentials extends Libs\RESTException { }
+class UnauthorizedClient extends Libs\RESTException {
+  // Error-Type used for redirection
+  // See https://tools.ietf.org/html/rfc6749#section-5.2
+  protected static $errorType = 'unauthorized_client';
+}

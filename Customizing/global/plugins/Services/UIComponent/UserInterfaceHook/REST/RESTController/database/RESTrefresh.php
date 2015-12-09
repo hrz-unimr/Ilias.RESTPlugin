@@ -59,13 +59,9 @@ class RESTrefresh extends Libs\RESTDatabase {
    *  @See RESTDatabase::getJoinKey(...)
    */
   public static function getJoinKey($joinTable) {
-    // JOIN ui_uihk_rest_keys ON api_id
-    if ($joinTable == 'ui_uihk_rest_keys')
+    // JOIN ui_uihk_rest_client ON ui_uihk_rest_client.id = ui_uihk_rest_refresh.api_id
+    if ($joinTable == 'RESTclient')
       return 'api_id';
-
-    // JOIN usr_data ON user_id (probably never used, but anyway...)
-    elseif ($joinTable == 'usr_data')
-      return 'user_id';
 
     // Otherwise join on primary
     return parent::getJoinKey($joinTable);

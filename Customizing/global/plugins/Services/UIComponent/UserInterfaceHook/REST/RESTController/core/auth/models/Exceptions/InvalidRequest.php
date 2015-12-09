@@ -12,12 +12,15 @@ use \RESTController\libs as Libs;
 
 
 /**
- * Exception: Authorize($message, $restCode, $previous)
- *  This exception should be thrown, when the resource-owner
- *  or client authorization failed during one of the
- *  Authorize routes.
+ * Exception: InvalidRequest($message, $restCode, $previous)
+ *  This exception should be thrown, when the request was invalid.
+ *  Details: https://tools.ietf.org/html/rfc6749#section-4.1.2
  *
  * Parameters:
  *  @See Libs\RESTException for parameter description
  */
-class Authorize extends Libs\RESTException { }
+class InvalidRequest extends Libs\RESTException {
+  // Error-Type used for redirection
+  // See https://tools.ietf.org/html/rfc6749#section-5.2
+  protected static $errorType = 'invalid_request';
+}

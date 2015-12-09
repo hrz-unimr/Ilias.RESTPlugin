@@ -21,4 +21,7 @@ use \RESTController\libs as Libs;
  * Parameters:
  *  @See RESTException for parameter description
  */
-class Database extends Libs\RESTException { }
+class Database extends Libs\RESTException {
+  // Error-Type used for redirection (only usefull for oauth2)
+  protected static $errorType = 'server_error';
+}

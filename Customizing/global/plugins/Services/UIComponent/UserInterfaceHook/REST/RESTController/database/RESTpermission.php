@@ -64,8 +64,8 @@ class RESTpermission extends Libs\RESTDatabase {
    *  @See RESTDatabase::getJoinKey(...)
    */
   public static function getJoinKey($joinTable) {
-    // JOIN ui_uihk_rest_keys ON api_id
-    if ($joinTable == 'ui_uihk_rest_keys')
+    // JOIN ui_uihk_rest_client ON ui_uihk_rest_client.id = ui_uihk_rest_perm.api_id
+    if ($joinTable == 'RESTclient')
       return 'api_id';
 
     // Otherwise join on primary

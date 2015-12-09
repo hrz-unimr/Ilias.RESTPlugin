@@ -47,18 +47,4 @@ class RESTchallenge extends Libs\RESTDatabase {
     // Store key's value after convertion
     return parent::setKey($key, $value, $write);
   }
-
-
-  /**
-   * Function: setKey($joinTable)
-   *  @See RESTDatabase::getJoinKey(...)
-   */
-  public static function getJoinKey($joinTable) {
-    // JOIN usr_data ON user_id (probably never used, but anyway...)
-    if ($joinTable == 'usr_data')
-      return 'user_id';
-
-    // Otherwise join on primary
-    return parent::getJoinKey($joinTable);
-  }
 }

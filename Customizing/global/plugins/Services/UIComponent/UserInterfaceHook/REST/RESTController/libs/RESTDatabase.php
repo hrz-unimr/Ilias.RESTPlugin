@@ -185,7 +185,7 @@ abstract class RESTDatabase {
       $joinKey    = call_user_func(array($joinWith, 'getJoinKey'), $table);
 
       // Fetch key which should be joined against
-      $key        = static::getJoinKey($joinTable);
+      $key        = static::getJoinKey($joinWith);
 
       // Build JOIN sub-query
       $joinSql    = sprintf('JOIN %s ON %s.%s = %s.%s', $joinTable, $table, $key, $joinTable, $joinKey);
@@ -980,7 +980,7 @@ abstract class RESTDatabase {
 
 
   /**
-   * Function: getJoinKey($joinTable)
+   * Function: getJoinKey($joinWith)
    *  This method should return the name of the OWN key
    *  (not the key of the $joinTable) which should be used
    *  to join with $joinTable ON.
@@ -993,14 +993,14 @@ abstract class RESTDatabase {
    *   all derived classes that can be joined with another table.
    *
    * Parameters:
-   *  $joinTable <String> - Name of table to join with
+   *  $joinWith <String> - Name of CLASS (derived from RESTDatabase) that represents the table with which to join
    *
    * Return:
-   *  <String> - OWN Key used to join on with $joinTable
+   *  <String> - OWN Key used to join on with $joinWith
    */
-  public static function getJoinKey($joinTable) {
+  public static function getJoinKey($joinWith) {
     // By default return own primary-key...
-    // Add conditional return values based on $joinTable in derived classes supporting joining
+    // Add conditional return values based on $joinWith in derived classes supporting joining
     return static::$primaryKey;
   }
 

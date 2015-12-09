@@ -244,36 +244,6 @@ class RESTclient extends Libs\RESTDatabase {
 
 
   /**
-   * Function: getClientCertificate()
-   *  Utility method to nicely fetch client-certificate (ssl) data from
-   *  gfobal namespace and preformat it...
-   *
-   * Return:
-   *  <Array[String]> - See below...
-   */
-  public static function getClientCertificate() {
-    // Build a more readable ssl client-certificate array...
-    return array(
-      verify  => $_SERVER['SSL_CLIENT_VERIFY'],
-      serial  => $_SERVER['SSL_CLIENT_M_SERIAL'],
-      issuer  => $_SERVER['SSL_CLIENT_I_DN'],
-      subject => $_SERVER['SSL_CLIENT_S_DN'],
-      expires => $_SERVER['SSL_CLIENT_V_END'],
-      ttl     => $_SERVER['SSL_CLIENT_V_REMAIN']
-    );
-  }
-
-
-  /**
-   * Function: isUserAllowed($userId)
-   *  @See RESTuser::isUserAllowed(...) for more information
-   */
-  public function isUserAllowed($userId) {
-    return RESTuser::usUserAllowed($this->getKey('id'), $userId);
-  }
-
-
-  /**
    * Function: isIpAllowed($ip)
    *  If no value is given for the 'ips' key, there is no ip
    *  restriction, otherwise the given ip has to match the

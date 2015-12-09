@@ -20,4 +20,7 @@ use \RESTController\libs as Libs;
  * Parameters:
  *  @See RESTException for parameter description
  */
-class Parameter extends Libs\RESTException { }
+class Parameter extends Libs\RESTException {
+  // Error-Type used for redirection (only usefull for oauth2)
+  protected static $errorType = 'invalid_request';
+}

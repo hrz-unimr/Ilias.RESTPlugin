@@ -233,9 +233,6 @@ class Base extends Base {
   public function getApiKey() {
     return $this->tokenArray['api_key'];
   }
-  public function getType() {
-    return $this->tokenArray['type'];
-  }
   public function getScope() {
     return $this->tokenArray['scope'];
   }

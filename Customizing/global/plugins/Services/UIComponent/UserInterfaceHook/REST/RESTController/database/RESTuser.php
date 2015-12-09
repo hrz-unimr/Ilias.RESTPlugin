@@ -28,11 +28,11 @@ class RESTuser extends Libs\RESTDatabase {
 
 
   /**
-   * Function: fromApiId($apiKey)
+   * Function: fromApiId($apiId)
    *  Creates new instance(s) of RESTuser representing the table-entries with given aki-key id.
    *
    * Parameters:
-   *  $apiKey <String> - Api-Key who's database entries should be returned
+   *  $apiId <String> - Api-Key id who's database entries should be returned
    *
    * Return:
    *  <RESTuser> - A new instance of RESTuser representing the table-entry with given aki-key id
@@ -43,6 +43,25 @@ class RESTuser extends Libs\RESTDatabase {
 
     // Fetch matching object(s), could be multiple rows
     return self::fromWhere($where, null, true);
+  }
+
+
+  /**
+   * Function: fromApiKey($apiKey)
+   *  Creates new instance(s) of RESTuser representing the table-entries with given aki-key.
+   *
+   * Parameters:
+   *  $apiKey <String> - Api-Key who's database entries should be returned
+   *
+   * Return:
+   *  <RESTuser> - A new instance of RESTuser representing the table-entry with given aki-key
+   */
+  public static function fromApiKey($apiKey) {
+    // Generate a (save) where clause for the api-key ($apiKey can be malformed!)
+    $where  = sprintf('ui_uihk_rest_client.api_key = %s', self::quote($apiKey, 'text'));
+
+    // Fetch matching object(s), could be multiple rows (joined on api_id = api_key)
+    return self::fromWhere($where, 'ui_uihk_rest_client', true);
   }
 
 
@@ -73,13 +92,9 @@ class RESTuser extends Libs\RESTDatabase {
    *  @See RESTDatabase::getJoinKey(...)
    */
   public static function getJoinKey($joinTable) {
-    // JOIN ui_uihk_rest_keys ON api_id
-    if ($joinTable == 'ui_uihk_rest_keys')
+    // JOIN ui_uihk_rest_client ON ui_uihk_rest_client.id = ui_uihk_rest_user.api_id
+    if ($joinTable == 'RESTclient')
       return 'api_id';
-
-    // JOIN usr_data ON user_id (probably never used, but anyway...)
-    elseif ($joinTable == 'usr_data')
-      return 'user_id';
 
     // Otherwise join on primary
     return parent::getJoinKey($joinTable);
@@ -87,22 +102,44 @@ class RESTuser extends Libs\RESTDatabase {
 
 
   /**
-   * Function: isUserAllowed($apiId, $userId)
-   *  First checks if there exists any entries for the given api-key.
+   * Function: isUserAllowedByKey($apiKey, $userId) / isUserAllowedById($apiId, $userId)
+   *  First checks if there exists any entries for the given api-key / api-key id.
    *  If not, no restriction is active, otherwise only users with
-   *  their user-id (and given api-key id) who have an entry are allowed.
+   *  their user-id (and given api-key / api-key id) who have an entry are allowed.
    *
    * Parameters:
-   *  $apiId <String> - API-Key id used to fetch allowed users for
+   *  $apiKey <String> - API-Key used to fetch allowed users for
+   *  $apiId <Integer> - API-Key id used to fetch allowed users for
    *  $userId <Integer> - User-Id to check wether he is allowed to use this api-key
    *
    * Return:
-   *  <Boolean> - True if the user is allowed to use the given api-key, false otherwise
+   *  <Boolean> - True if the user is allowed to use the given api-key / api-key id, false otherwise
    */
-  public static function isUserAllowed($apiId, $userId) {
+  public static function isUserAllowedByKey($apiKey, $userId) {
+    // Fetch allowed user for given api-key
+    $users = self::fromApiKey($apiKey);
+
+    // Delegate to actual implementation
+    return self::isUserAllowed($users, $userId);
+  }
+  public static function isUserAllowedById($apiId, $userId) {
     // Fetch allowed user for given api-key
     $users = self::fromApiId($apiId);
 
+    // Delegate to actual implementation
+    return self::isUserAllowed($users, $userId);
+  }
+
+
+  /**
+   * Function: isUserAllowed($users, $userId)
+   *  Utility-Function that actually implements the checks used by
+   *  RESTuser::isUserAllowedByKey() and RESTuser::isUserAllowedById()
+   *
+   * @See RESTuser::isUserAllowedByKey() and RESTuser::isUserAllowedById()
+   * for more information.
+   */
+  protected static function isUserAllowed($users, $userId) {
     // No users for a given api-key means no restriction active
     if (count($users) == 0)
       return true;

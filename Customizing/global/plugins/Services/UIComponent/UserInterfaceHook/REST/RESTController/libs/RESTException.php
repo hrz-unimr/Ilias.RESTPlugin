@@ -20,6 +20,10 @@ namespace RESTController\libs;
  * @See http://php.net/manual/de/class.exception.php for additonal methods.
  */
 class RESTException extends \Exception {
+  // Error-Type used for redirection
+  // See https://tools.ietf.org/html/rfc6749#section-5.2
+  protected static $errorType = 'server_error';
+
   // All RESTException can optionally have an attached 'rest-code'
   // Unlike the default exception-code, this can be non-numeric!
   protected $restCode = 0;
@@ -124,25 +128,70 @@ class RESTException extends \Exception {
 
 
   /**
+   * Function: responseObject()
+   *  Creates a responseObject for this exception. Usefull
+   *  for halt(), redirect() or logging.
+   *
+   * Return:
+   *  <Array[Mixed]> - Specially constructed response-object (eg. used by $app->halt())
+   */
+  public function responseObject() {
+    // Return formated response-object
+    return array(
+      'message' => $this->getRESTMessage(),
+      'status'  => $this->getRESTCode(),
+      'data'    => $this->getRESTData()
+    );
+  }
+
+
+  /**
    * Function: send($code)
-   *  Utility-Function to make sneding responses generated from RESTExceptions
+   *  Utility-Function to make sending responses generated from RESTExceptions
    *  easier, since they 95% of the time will look the same.
    *
    * Note:
    *  This will send the preformated exception-information and terminate the application!
    *
    * Parameters:
-   *  $code - HTTP-Code that should be used
+   *  $code <Integer> - HTTP-Code that should be used
    */
   public function send($code) {
     // Fect instance of the RESTController
     $app = \RESTController\RESTController::getInstance();
 
     // Send formated exception-information
-    $app->halt($code, array(
-      'message' => $this->getRESTMessage(),
-      'status'  => $this->getRESTCode(),
-      'data'    => $this->getRESTData()
-    ));
+    $app->halt($code, $this->responseObject());
+  }
+
+
+  /**
+   * Function: redirect($redirect_uri, $typeOverwrite)
+   *  Utility-Function to make redirections generated from RESTExceptions
+   *  easier, since they 95% of the time will look the same.
+   *
+   * Note:
+   *  This will send the preformated exception-information and terminate the application!
+   *
+   * Parameters:
+   *  $redirect_uri <String> - Where to redirect to (parameters will be appended via ? and &)
+   *  $typeOverwrite <String> - Allow to temporary overwrite the type attached to the exception.
+   */
+  public function redirect($redirect_uri, $typeOverwrite = null) {
+    // A redirect_uri is absolutely required
+    if (!isset($redirect_uri))
+      $this->halt(500);
+
+    // Fect instance of the RESTController
+    $app = \RESTController\RESTController::getInstance();
+
+    // URL-Encode error-message (without data!)
+    $description  = urlencode($this->getRESTMessage());
+    $status       = urlencode($this->getRESTCode());
+    $type         = (isset($typeOverwrite)) ? $typeOverwrite : static::$errorType;
+    $url          = sprintf('%s?error=%s&error_description=%s&error_status=%s', $redirect_uri, $type, $description, $status);
+
+    // Redirect using generated url
+    $app->redirect($url);
   }
 }
