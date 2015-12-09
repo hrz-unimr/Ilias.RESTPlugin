@@ -173,9 +173,9 @@ abstract class RESTDatabase {
 
     // Generate LIMIT and OFFSET sql sub-queries
     if (is_int($limit))
-      $limitSQL   = sprintf('LIMIT %d', $limit);
+      $limitSQL   = sprintf('LIMIT %d', intval($limit));
     if (is_int($offset))
-      $offsetSQL  = sprintf('OFFSET %d', $offset);
+      $offsetSQL  = sprintf('OFFSET %d', intval($offset));
 
     // Generate JOIN sql sub-query
     $table        = static::getTableName();
@@ -200,7 +200,8 @@ abstract class RESTDatabase {
       // Return more then one table-entry
       if ($limit) {
         // Fetch all table-entrys matched by query
-        $rows = array();
+        $count  = 0;
+        $rows   = array();
         while ($row = self::getDB()->fetchAssoc($query))
           $rows[] = new static($row);
 
@@ -454,7 +455,7 @@ abstract class RESTDatabase {
 
 
   /**
-   * Function: exists($where)
+   * Function: exists($where, $parse)
    *  By default the table-entry existance is checked via its internally stored primary-key.
    *  Optionally a (instance-parsed) where-clause can be used to make the check
    *  more flexible, see RESTDatabase->parseSQL($sql) for more information.
@@ -471,28 +472,42 @@ abstract class RESTDatabase {
    *
    * Parameters:
    *  $where <String> - [Optional] Valid SQL where-clause (Needs to be validated by the caller!)
+   *  $parse <Boolean> - [Optional] Pass false to disable parsing of {{}} entries in SQL query (Default: True)
    *
    * Return:
    *  <Boolean> - True if there already exists a table with the given primary-key, false otherwise
    */
-  public function exists() {
-    // Fetch internally stored primary-key
-    $key    = static::$primaryKey;
-    $value  = $this->row[$key];
+  public function exists($where = null, $parse = true) {
+    // Check existance by given (parsed) where-clause
+    if (isset($where)) {
+      // Parse the where-clause (replacing {{table}}, {{primary}} and {{'key'}})
+      if ($parse)
+        $where = self::parseSQL($where);
 
-    // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
-    if ($value == false)
-      throw new Exceptions\Database(
-        self::MSG_NO_PRIMARY,
-        self::ID_NO_PRIMARY,
-        array(
-          'table'   => static::$tableName,
-          'primary' => static::$primaryKey
-        )
-      );
+      // Delegate actual query to generalized implementation
+      return self::existsByWhere($where, false);
+    }
 
-    // Delegate actual query to generalized implementation
-    return self::existsByPrimary($value);
+    // Check existence using internal primary-key
+    else {
+      // Fetch internally stored primary-key
+      $key    = static::$primaryKey;
+      $value  = $this->row[$key];
+
+      // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
+      if ($value == false)
+        throw new Exceptions\Database(
+          self::MSG_NO_PRIMARY,
+          self::ID_NO_PRIMARY,
+          array(
+            'table'   => static::$tableName,
+            'primary' => static::$primaryKey
+          )
+        );
+
+      // Delegate actual query to generalized implementation
+      return self::existsByPrimary($value);
+    }
   }
 
 
@@ -535,13 +550,15 @@ abstract class RESTDatabase {
    *
    * Parameters:
    *  $where <String> - Valid SQL where-clause (Needs to be validated by the caller!)
+   *  $parse <Boolean> - [Optional] Pass false to disable parsing of {{}} entries in SQL query (Default: True)
    *
    * Return:
    *  <Boolean> - True if there already exists a table with the given primary-key, false otherwise
    */
-  public static function existsByWhere($where) {
+  public static function existsByWhere($where, $parse = true) {
     // Static-Parse the where-clause (replacing {{table}} and {{primary}})
-    $where = self::parseStaticSQL($where);
+    if ($parse)
+      $where = self::parseStaticSQL($where);
 
     // Generate query
     $sql    = sprintf('SELECT 1 FROM %s WHERE %s', static::$tableName, $where);
@@ -553,7 +570,7 @@ abstract class RESTDatabase {
 
 
   /**
-   * Function: delete($where)
+   * Function: delete($where, $parse)
    *  By default the table-entry is deleted via its internally stored primary-key.
    *  Optionally a (instance-parsed) where-clause can be used to make the deletion
    *  more flexible, see RESTDatabase->parseSQL($sql) for more information.
@@ -570,28 +587,42 @@ abstract class RESTDatabase {
    *
    * Parameters:
    *  $where <String> - [Optional] Valid SQL where-clause (Needs to be validated by the caller!)
+   *  $parse <Boolean> - [Optional] Pass false to disable parsing of {{}} entries in SQL query (Default: True)
    *
    * Return:
    *  <ilDB.query> - Same return value as given by an ilDB->manipulate() operation
    */
-  public function delete($where = null) {
-    // Fetch internally stored primary-key
-    $key    = static::$primaryKey;
-    $value  = $this->row[$key];
+  public function delete($where = null, $parse = true) {
+    // Delete by given (parsed) where-clause
+    if (isset($where)) {
+      // Parse the where-clause (replacing {{table}}, {{primary}} and {{'key'}})
+      if ($parse)
+        $where = self::parseSQL($where);
 
-    // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
-    if ($value == false)
-      throw new Exceptions\Database(
-        self::MSG_NO_PRIMARY,
-        self::ID_NO_PRIMARY,
-        array(
-          'table'   => static::$tableName,
-          'primary' => static::$primaryKey
-        )
-      );
+      // Delegate actual query to generalized implementation
+      return self::deleteByWhere($where, false);
+    }
 
-    // Delegate actual query to generalized implementation
-    return self::deleteByPrimary($value);
+    // Delete using internal primary-key
+    else {
+      // Fetch internally stored primary-key
+      $key    = static::$primaryKey;
+      $value  = $this->row[$key];
+
+      // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
+      if ($value == false)
+        throw new Exceptions\Database(
+          self::MSG_NO_PRIMARY,
+          self::ID_NO_PRIMARY,
+          array(
+            'table'   => static::$tableName,
+            'primary' => static::$primaryKey
+          )
+        );
+
+      // Delegate actual query to generalized implementation
+      return self::deleteByPrimary($value);
+    }
   }
 
 
@@ -633,13 +664,15 @@ abstract class RESTDatabase {
    *
    * Parameters:
    *  $where <String> - Valid SQL where-clause (Needs to be validated by the caller!)
+   *  $parse <Boolean> - [Optional] Pass false to disable parsing of {{}} entries in SQL query (Default: True)
    *
    * Return:
    *  <Boolean> - True if there already exists a table with the given primary-key, false otherwise
    */
-  public static function deleteByWhere($where) {
+  public static function deleteByWhere($where, $parse = true) {
     // Static-Parse the where-clause (replacing {{table}} and {{primary}})
-    $where = self::parseStaticSQL($where);
+    if ($parse)
+      $where = self::parseStaticSQL($where);
 
     // Generate and execute query (return ilDB result)
     $sql    = sprintf('DELETE FROM %s WHERE %s', static::$tableName, $where);
@@ -759,6 +792,9 @@ abstract class RESTDatabase {
    *   {{KEY}} - Will be replaced by $this->getKey(KEY)
    *   {{%KEY}} - Will be replaced by $this->getKey(KEY), usefull if table contains a key named after one of the above
    *
+   * Note:
+   *  All {{}} needles will be correctly quoted (and escaped) by ilDB when replacing them with the internal values.
+   *
    * Parameters:
    *  $sql <String> - SQL query that should be parsed
    *
@@ -793,6 +829,9 @@ abstract class RESTDatabase {
    *   {{table}} - Will be replaced by static::$tableName (which should contain the name of the attached table)
    *   {{primary}} - Will be replaced by static::$primaryKey /which should be the name of the tables primary-key)
    *  Obviously the static method can not access instance information, such as getKey(...).
+   *
+   * Note:
+   *  All {{}} needles will be correctly quoted (and escaped) by ilDB when replacing them with the internal values.
    *
    * Parameters:
    *  $sql <String> - SQL query that should be parsed
@@ -975,6 +1014,8 @@ abstract class RESTDatabase {
    * Parameters:
    *  $sql <String> - SQL-Query that contains placeholders for the elements from '...'
    *  ... <Mixed> - [Optional Parameter-List] Values that should be quoted and inserted into $sql
+   *                Each additional parameter can also be an array with the first element the value and
+   *                the second value its desired ilDB->quote(value, type) type.
    *
    * Return:
    *  <String> - Input sql query with all placeholders (see vsprintf()) replaced with correctly quoted
@@ -986,44 +1027,77 @@ abstract class RESTDatabase {
     $params = array_slice($params, 1);
 
     // Correctly quote parameters (as good as can be automated)
-    $params = self::quoteParams($params);
+    $quoted = array();
+    foreach ($params as $key => $value)
+      // Got (value, type) array as parameter
+      if (is_array($value) && count($value) == 2)
+        $quoted[$key] = self::quote($value[0], $value[1]);
+
+      // Simply for value as parameter
+      else
+        $quoted[$key] = self::quote($value);
 
     // Replace placeholders in $sql with correctly quoted parameters
-    return vsprintf($sql, $params);
+    return vsprintf($sql, $quoted);
   }
-  protected static function quoteParams($params) {
-    $result = array();
-    foreach ($params as $key => $value) {
-      // Boolean values
-      if (is_bool($value))
-        $result[] = self::getDB()->quote($value, 'boolean');
 
-      // Array values
-      elseif (is_array($value)) {
-        $value = self::safeParams($value);
-        $value = sprintf('(%s)', implode(', ', $value));
-        $result[] = $value;
-      }
 
-      // Integer values
-      elseif (is_int($value) || is_integer($value))
-        $result[] = self::getDB()->quote($value, 'integer');
+  /**
+   * Function: quote($value, $type)
+   *  Correctly quotes the given value such that it can be savely used inside an sql-query even if
+   *  value may contain user-defined data. (This asumes ilDB is smart enough to quote AND escape quotes!)
+   *  The second parameter can (and should) be used to set the correct ilDB->quote(value, type) type
+   *  used for quoting. Otherwise its derived from the values type at run-time.
+   *
+   * Parameters:
+   *  $value <Mixed> - Value that should be quoted (Can be any value that can be converted to string)
+   *  $type <String> - [Optional] Type used to for ilDb->quote($value, $type) to ensure correct escaping
+   *                   If no type is given, it is tried to detect the correct type from $value's type,
+   *                   so make sure $value if of correct type (supported boolean, string, int, float, double,
+   *                   or any numeric value and arrays of depth one with mentioned keys as content)
+   *
+   * Return:
+   *  <String> - Correctly quoted (and escaped) string that can savely be used inside a sql query.
+   */
+  public static function quote($value, $type = null) {
+    // Return quoted as given type
+    if (isset($type))
+      return self::getDB()->quote($value, $type);
 
-      // Float/double values
-      elseif (is_float($value) || is_double($value) || is_numeric($value))
-        $result[] = self::getDB()->quote($value, 'float');
+    // Return by detected type: Boolean
+    else if (is_bool($value))
+      return self::getDB()->quote($value, 'boolean');
 
-      // String values
-      elseif (is_string($value))
-        $result[] = self::getDB()->quote($value, 'text');
+    // Return by detected type: Integer
+    elseif (is_int($value) || is_integer($value))
+      return self::getDB()->quote($value, 'integer');
 
-      // Fallback solution
+    // Return by detected type: Float/double
+    elseif (is_float($value) || is_double($value) || is_numeric($value))
+      return self::getDB()->quote($value, 'float');
+
+    // Return by detected type: String
+    elseif (is_string($value))
+      return self::getDB()->quote($value, 'text');
+
+    // Return by detected type: Array
+    // Note: This makes only sense for arrays of max-depth 1!
+    else if (is_array($value)) {
+      // Array contains ($value, $type) array?
+      if (is_array($value) && count($value) == 2)
+        $value = self::quote($value[0], $value[1]);
+
+      // Array contains list of $values
       else
-        $result[] = $value;
+        $value = self::quote($value);
+
+      // All return values need to be strings!
+      return sprintf('(%s)', implode(', ', $value));
     }
 
-    // Return quoted parameter-list
-    return $result;
+    // Return by detected type: Unsupported!
+    else
+      return $value;
   }
 
 

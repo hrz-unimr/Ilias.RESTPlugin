@@ -20,6 +20,17 @@ use \RESTController\libs as Libs;
  *  See https://tools.ietf.org/html/rfc6749#section-4 for more information.
  */
 class Authorize extends Libs\RESTModel {
+  // Allow to re-use status messages and codes
+  const MSG_RESTRICTED_IP             = '';
+  const ID_RESTRICTED_IP              = '';
+  const MSG_RESTRICTED_USER           = '';
+  const ID_RESTRICTED_USER            = '';
+  const MSG_RESPONSE_TYPE             = '';
+  const ID_RESPONSE_TYPE              = '';
+  const MSG_WRONG_OWNER_CREDENTIALS   = '';
+  const ID_WRONG_OWNER_CREDENTIALS    = '';
+
+
   /**
    * Input-Function: FetchAuthorizationParameters($app)
    *  Fetch all parameters that are required for both /v1/oauth2/authorize endpoints.
@@ -80,7 +91,19 @@ class Authorize extends Libs\RESTModel {
    */
   public static function CheckClientRequest($parameters) {
     // Check if with given api-key exists
-    $client = Database\RESTKeys::fromApiKey($parameters['api_key']);
+    $client = Database\RESTclient::fromApiKey($parameters['api_key']);
+
+    // Check ip-restriction
+    // Note: If a (reverse-) proxy server is used, all workers need to set REMOTE_ADDR
+    //       for example an apache worker (behind an nginx loadbalancer) by using mod_rpaf.
+    if (Database\RESTclient::isIpAllowed($_SERVER['REMOTE_ADDR']))
+      throw new Exceptions\Authorize(
+        self::MSG_RESTRICTED_IP,
+        self::ID_RESTRICTED_IP,
+        array(
+          'ip' => $clientIP
+        )
+      );
 
     // Fetch redirect_uri from client db-entry if non was given
     if (!isset($parameters['redirect_uri'])) {
@@ -97,10 +120,6 @@ class Authorize extends Libs\RESTModel {
           )
         );
     }
-
-    // Show website to allow resource-owner to allow or deny access
-    if ($parameters['response_type'] == 'code' || $parameters['response_type'] == 'token')
-      return $parameters;
 
     // Wrong response-type given
     else
@@ -129,6 +148,17 @@ class Authorize extends Libs\RESTModel {
   static public function CheckResourceOwnerCredentials($parameters) {
     // This throws for wrong username (case-sensitive!)
     $userId = Libs\RESTilias::getUserId($ownerCredentials['username']);
+
+    // Check user restriction
+    if (!Database\RESTuser::isUserAllowed($parameters['api_key'], $userId)) // TODO: API-ID required here!
+      throw new Exceptions\Authorize(
+        self::MSG_RESTRICTED_USER,
+        self::ID_RESTRICTED_USER,
+        array(
+          'userID'    => $userId,
+          'username'  => $ownerCredentials['username'],
+        )
+      );
 
     // Check wether the resource owner credentials are valid
     if (!Libs\RESTilias::authenticate($ownerCredentials['username'], $ownerCredentials['password']))

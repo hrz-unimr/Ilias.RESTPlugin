@@ -43,7 +43,7 @@ $app->group('/v1', function () use ($app) {
         $clientParameters = Authorize::FetchClientParameters($request);
 
         // Check (and update) client-parameters
-        $clientParameters = Authorize::CheckAuthorizationRequest($clientParameters);
+        $clientParameters = Authorize::CheckClientRequest($clientParameters);
 
         // Show permission website (should show login)
         Authorize::showWebsite($clientParameters);
@@ -94,7 +94,7 @@ $app->group('/v1', function () use ($app) {
         $ownerCredentials = Authorize::FetchResourceOwnerCredentials($request);
 
         // Check (and update) client-parameters
-        $clientParameters = Authorize::CheckAuthorizationRequest($clientParameters);
+        $clientParameters = Authorize::CheckClientRequest($clientParameters);
         $userId           = Authorize::CheckResourceOwnerCredentials($ownerCredentials);
 
         // Combine all parameters
@@ -152,7 +152,7 @@ $app->group('/v1', function () use ($app) {
         $redirect_uri = $request->params('redirect_uri'); // Unused?!
 
         // Fetch information about client
-        $client       = Database\RESTKeys::fromApiKey($api_key);
+        $client       = Database\RESTclient::fromApiKey($api_key);
         if ($client->getKey('api_secret') != $api_secret)
           $app->halt(401, 'API-Secrets mismatch', '');
 
@@ -179,17 +179,29 @@ $app->group('/v1', function () use ($app) {
           $app->success($bearer->getResponseObject());
 
           /**
-          For auth-code
-            check cc (if set)
-            check auth-code values with client-parameters
+          Alle Routen:
+            * IP restriction prüfen
+            * User-Restriction prüfen
 
-            NOTE: Check if auth-code (or implicit) is enabled herre and in authorize!
-            Authorize Route (POST): Consent_message muss noch in die parameters gepackt werden
-            
+          For auth-code
+            check client (available and credentials if set)
+            check auth-code values with client-parameters (eg. api-key, redirect_uri, etc.)
+            check auth-code not expired (look up in DB, delete afterwards!)
+
+          Token Route:
+            * Store refresh in DB
+
+
+          NOTE: Check if auth-code (or implicit) is enabled here and in authorize!
+          Authorize Route (POST):
+            * Consent_message muss noch in die parameters gepackt werden
+            * AuthCode token in DB schreiben!
+          Authorize RouteN:
+            * Auch im Fehler-Fall redirect ausführen (ist nunmal im spec so!)
 
 
           // Check client-credentials
-          $cert = Database\RESTKeys::getClientCertificate();
+          $cert = Database\RESTclient::getClientCertificate();
           if (!$client->checkCredentials($api_secret, $cert, $redirect_uri))
             $app->halt(401, 'Invalid CC', '');
 

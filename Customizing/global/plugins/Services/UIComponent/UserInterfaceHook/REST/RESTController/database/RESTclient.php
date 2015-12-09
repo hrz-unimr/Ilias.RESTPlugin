@@ -40,17 +40,17 @@ class RESTclient extends Libs\RESTDatabase {
 
   /**
    * Function: fromApiKey($apiKey)
-   *  Creates a new instance of RESTKeys representing the table-entry with given aki-key.
+   *  Creates a new instance of RESTclient representing the table-entry with given aki-key.
    *
    * Parameters:
    *  $apiKey <String> - Api-Key who's database entry should be returned
    *
    * Return:
-   *  <RESTKeys> - A new instance of RESTKeys representing the table-entry with given aki-key
+   *  <RESTclient> - A new instance of RESTclient representing the table-entry with given aki-key
    */
   public static function fromApiKey($apiKey) {
     // Generate a (save) where clause for the api-key ($apiKey can be malformed!)
-    $where  = sprintf('api_key = \'%s\'', addslashes($apiKey));
+    $where  = sprintf('api_key = %s', self::quote($apiKey, 'text'));
 
     // Fetch matching object
     return self::fromWhere($where);
@@ -261,5 +261,35 @@ class RESTclient extends Libs\RESTDatabase {
       expires => $_SERVER['SSL_CLIENT_V_END'],
       ttl     => $_SERVER['SSL_CLIENT_V_REMAIN']
     );
+  }
+
+
+  /**
+   * Function: isUserAllowed($userId)
+   *  @See RESTuser::isUserAllowed(...) for more information
+   */
+  public function isUserAllowed($userId) {
+    return RESTuser::usUserAllowed($this->getKey('id'), $userId);
+  }
+
+
+  /**
+   * Function: isIpAllowed($ip)
+   *  If no value is given for the 'ips' key, there is no ip
+   *  restriction, otherwise the given ip has to match the
+   *  (regex-match) with the database entry for the 'ips' key
+   *
+   * Parameters:
+   *  $ip <String> - IP that should be checked for restrictions
+   *
+   * Return:
+   *  <Boolean> - True if the given ip is allowed to use this key
+   */
+  public function isIpAllowed($ip) {
+    // fetch allowed-ips regex
+    $allowed = $this->getKey('ips');
+
+    // False means unset, otherwise ip needs to regex-match!
+    return $allowed == false || preg_match($allowed, $ip) == 1;
   }
 }

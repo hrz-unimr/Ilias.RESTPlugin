@@ -28,6 +28,25 @@ class RESTuser extends Libs\RESTDatabase {
 
 
   /**
+   * Function: fromApiId($apiKey)
+   *  Creates new instance(s) of RESTuser representing the table-entries with given aki-key id.
+   *
+   * Parameters:
+   *  $apiKey <String> - Api-Key who's database entries should be returned
+   *
+   * Return:
+   *  <RESTuser> - A new instance of RESTuser representing the table-entry with given aki-key id
+   */
+  public static function fromApiId($apiId) {
+    // Generate a (save) where clause for the api_id ($apiId can be malformed!)
+    $where  = sprintf('api_id = %d', self::quote($apiId, 'integer'));
+
+    // Fetch matching object(s), could be multiple rows
+    return self::fromWhere($where, null, true);
+  }
+
+
+  /**
    * Function: setKey($key, $value, $write)
    *  @See RESTDatabase->setKey(...)
    */
@@ -64,5 +83,38 @@ class RESTuser extends Libs\RESTDatabase {
 
     // Otherwise join on primary
     return parent::getJoinKey($joinTable);
+  }
+
+
+  /**
+   * Function: isUserAllowed($apiId, $userId)
+   *  First checks if there exists any entries for the given api-key.
+   *  If not, no restriction is active, otherwise only users with
+   *  their user-id (and given api-key id) who have an entry are allowed.
+   *
+   * Parameters:
+   *  $apiId <String> - API-Key id used to fetch allowed users for
+   *  $userId <Integer> - User-Id to check wether he is allowed to use this api-key
+   *
+   * Return:
+   *  <Boolean> - True if the user is allowed to use the given api-key, false otherwise
+   */
+  public static function isUserAllowed($apiId, $userId) {
+    // Fetch allowed user for given api-key
+    $users = self::fromApiId($apiId);
+
+    // No users for a given api-key means no restriction active
+    if (count($users) == 0)
+      return true;
+
+    // Otherwise...
+    else
+      // ... user needs to have a table-entry
+      foreach($users as $user)
+        if ($user->getKey('user_id') == $userId)
+          return true;
+
+    // Not returned by now means, user restriction is active, but given user did no match any allowed id
+    return false;
   }
 }

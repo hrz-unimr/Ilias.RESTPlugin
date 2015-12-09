@@ -12,11 +12,11 @@ use \RESTController\libs as Libs;
 
 
 /**
- * Class: RESTauthentification (Database-Table)
+ * Class: RESTauthorization (Database-Table)
  *  Abstraction for 'ui_uihk_rest_authcode' database table.
  *  See RESTDatabase class for additional information.
  */
-class RESTauthentification extends Libs\RESTDatabase {
+class RESTauthorization extends Libs\RESTDatabase {
   // This three variables contain information about the table layout
   protected static $primaryKey  = 'id';
   protected static $tableName   = 'ui_uihk_rest_authcode';

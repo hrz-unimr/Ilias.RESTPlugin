@@ -42,7 +42,7 @@ class RESTconfig extends Libs\RESTDatabase {
   public static function fetchSettings($names) {
     // Quote and escape input
     foreach($names as $key => $name)
-      $names[$key] = sprintf('"%s"', addslashes($name));
+      $names[$key] = self::quote($name, 'text');
 
     // Create correct where-clause for fetching all settings
     $in       = implode(', ', $names);
