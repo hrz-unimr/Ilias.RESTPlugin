@@ -21,6 +21,15 @@ use \RESTController\libs as Libs;
  *  See https://tools.ietf.org/html/rfc6749#section-4 for more information.
  */
 class Token extends Libs\RESTModel {
+  // Allow to re-use status messages and codes
+  const MSG_AUTHORIZATION_EXPIRED   = '';
+  const ID_AUTHORIZATION_EXPIRED    = '';
+  const MSG_AUTHORIZATION_MISTMATCH = '';
+  const ID_AUTHORIZATION_MISTMATCH  = '';
+  const MSG_GRANT_TYPE              = '';
+  const ID_GRANT_TYPE               = '';
+
+
   /**
    * Function: getClientCertificate()
    *  Utility method to nicely fetch client-certificate (ssl) data from
@@ -43,7 +52,14 @@ class Token extends Libs\RESTModel {
 
 
   /**
+   * Function: FetchGrantType($request)
    *
+   *
+   * Parameters:
+   *  $request <RESTRequest> -
+   *
+   * Return:
+   *  <String> -
    */
   public static function FetchGrantType($request) {
     return $request->params('grant_type', null, true);
@@ -51,7 +67,14 @@ class Token extends Libs\RESTModel {
 
 
   /**
+   * Function: FetchAuthorizationCodeParameters($request)
    *
+   *
+   * Parameters:
+   *  $request <RESTRequest> -
+   *
+   * Return:
+   *  <Array[String]> -
    */
   public static function FetchAuthorizationCodeParameters($request) {
     return array(
@@ -63,7 +86,14 @@ class Token extends Libs\RESTModel {
 
 
   /**
+   * Function: FetchResourceOwnerParameters($request)
    *
+   *
+   * Parameters:
+   *  $request <RESTRequest> -
+   *
+   * Return:
+   *  <Array[String]> -
    */
   public static function FetchResourceOwnerParameters($request) {
     return array(
@@ -77,7 +107,14 @@ class Token extends Libs\RESTModel {
 
 
   /**
+   * Function: FetchClientCredentialParameters($request)
    *
+   *
+   * Parameters:
+   *  $request <RESTRequest> -
+   *
+   * Return:
+   *  <Array[String]> -
    */
   public static function FetchClientCredentialParameters($request) {
     return array(
@@ -89,31 +126,117 @@ class Token extends Libs\RESTModel {
 
 
   /**
+   * Function: CheckGrantType($client, $type)
    *
+   *
+   * Parameters:
+   *  $client <RESTClient> -
+   *  $type <String> -
+   */
+  public static function CheckGrantType($client, $type) {
+    if (!in_array($type, array('authorization_code', 'password', 'client_credentials')))
+      throw new Exceptions\ResponseType(
+        self::MSG_GRANT_TYPE,
+        self::ID_GRANT_TYPE,
+        array(
+          'response_type' => $param['response_type']
+        )
+      );
+
+    if ($type == 'authorization_code' && $client->getKey('grant_authorization_code') != true)
+      throw new Exception\Denied(
+        Common::MSG_AUTHORIZATION_CODE_DISABLED,
+        Common::ID_AUTHORIZATION_CODE_DISABLED
+      );
+    if ($type == 'password' && $client->getKey('grant_resource_owner') != true)
+      throw new Exception\Denied(
+        Common::MSG_RESOURCE_OWNER_DISABLED,
+        Common::ID_RESOURCE_OWNER_DISABLED
+      );
+    if ($type == 'client_credentials' && $client->getKey('grant_client_credentials') != true)
+      throw new Exception\Denied(
+        Common::MSG_CLIENT_CREDENTIALS_DISABLED,
+        Common::ID_CLIENT_CREDENTIALS_DISABLED
+      );
+  }
+
+
+  /**
+   * Function: CheckAuthorizationCode($authorizationCode, $apiKey, $redirectUri)
+   *
+   *
+   * Parameters:
+   *  $authorizationCode <String> -
+   *  $apiKey <String> -
+   *  $redirectUri <String> -
+   *
+   * Return:
+   *  <authorizationToken> -
+   */
+  public static function CheckAuthorizationCode($authorizationCode, $apiKey, $redirectUri) {
+    $settings       = Tokens\Settings::load('authorization');
+    $authorization  = Tokens\Authorization::fromMixed($settings, $authorizationCode);
+
+    if ($authorization->isExpired())
+      throw new Exception\Denied(
+        self::MSG_AUTHORIZATION_EXPIRED,
+        self::ID_AUTHORIZATION_EXPIRED
+      );
+
+    $iliasClient = self::FetchILIASClient();
+    if (
+      $iliasClient  != $authorization->getIliasClient() ||
+      $apiKey       != $authorization->getApiKey() ||
+      $redirectUri  != $authorization->getMisc()
+    )
+      throw new Exception\Denied(
+        self::MSG_AUTHORIZATION_MISTMATCH,
+        self::ID_AUTHORIZATION_MISTMATCH
+      );
+
+    return $authorization;
+  }
+
+
+  /**
+   * Function: FlowAuthorizationCode()
+   *
+   *
+   * Parameters:
+   *  $grantType <String> -
+   *  $apiKey <String> -
+   *  $apiSecret <String> -
+   *  $apiCert <Array[Mixed]> -
+   *  $authorizationCode <String> -
+   *  $redirectUri <String> -
+   *  $remoteIp <String> -
+   *
+   * Return:
+   *  <Array[Mixed]> -
    */
   public static function FlowAuthorizationCode($grantType, $apiKey, $apiSecret, $apiCert, $authorizationCode, $redirectUri, $remoteIp) {
-    // Check if client with api-key exists
+    // Check if client with api-key exists (throws on problem)
     $client = Common::CheckApiKey($apiKey);
 
-    // Check grant-type is valid and enabled for this client
-    Common::CheckGrantType($client, $grantType);
+    // Check grant-type is valid and enabled for this client (throws on problem)
+    self::CheckGrantType($client, $grantType);
 
-    // Check client fullfills ip-restriction
+    // Check client fullfills ip-restriction (throws on problem)
     Common::CheckIP($client, Common::FetchUserAgentIP());
 
-    // Client client is authorized if enabled
+    // Client client is authorized if enabled (throws on problem)
     Common::CheckClientCredentials($client, $apiSecret, $apiCert, $redirectUri);
 
-    // Convert authorization-code into authorization-token (and check correctness of contained values)
-    $authorization = Common::CheckAuthorizationCode($authorizationCode, $apiKey, $redirectUri);
+    // Convert authorization-code into authorization-token (and check correctness of contained values) (throws on problem)
+    $authorization = self::CheckAuthorizationCode($authorizationCode, $apiKey, $redirectUri);
 
-    // Check resource-owner fullfills user-restriction
+    // Check resource-owner fullfills user-restriction (throws on problem)
     $iliasClient = $authorization->getIliasClient();
     $userId      = $authorization->getUserId();
     $scope       = $authorization->getScope();
     Common::CheckUserRestriction($apiKey, $userId);
 
-    // Check that authorization-token is still active in DB (throws otherwise)
+    // Check that authorization-token is still active in DB (throws otherwise) (throws on problem)
     $authorizationDB  = Database\RESTauthorization::fromToken($authorizationCode);
     $authorizationDB->delete();
 
@@ -123,7 +246,18 @@ class Token extends Libs\RESTModel {
 
 
   /**
+   * Function: GetAccessToken($client, $userId, $iliasClient, $apiKey, $scope)
    *
+   *
+   * Parameters:
+   *  $client <RESTclient> -
+   *  $userId <Integer> -
+   *  $iliasClient <String> -
+   *  $apiKey <String> -
+   *  $scope <String> -
+   *
+   * Return:
+   *  <Array[Mixed]> -
    */
   public static function GetAccessToken($client, $userId, $iliasClient, $apiKey, $scope) {
     // Generate access-token

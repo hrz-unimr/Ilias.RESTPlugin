@@ -55,7 +55,11 @@ class Common extends Libs\RESTModel {
 
 
   /**
+   * Function: FetchUserAgentIP()
    *
+   *
+   * Return:
+   *  <String> -
    */
   public static function FetchUserAgentIP() {
     return $_SERVER['REMOTE_ADDR'];
@@ -63,7 +67,11 @@ class Common extends Libs\RESTModel {
 
 
   /**
+   * Function: FetchILIASClient()
    *
+   *
+   * Return:
+   *  <String> -
    */
   public static function FetchILIASClient() {
     return CLIENT_ID;
@@ -71,7 +79,14 @@ class Common extends Libs\RESTModel {
 
 
   /**
+   * Function: CheckApiKey($apiKey)
    *
+   *
+   * Parameters:
+   *  $apiKey <String> -
+   *
+   * Return:
+   *  <RESTclient> -
    */
   public static function CheckApiKey($apiKey) {
     // Fecth client with given api-key (throws if non existent)
@@ -80,7 +95,12 @@ class Common extends Libs\RESTModel {
 
 
   /**
+   * Function: CheckIP($client, $remoteIp)
    *
+   *
+   * Parameters:
+   *  $client <RESTclient> -
+   *  $remoteIp <String> -
    */
   public static function CheckIP($client, $remoteIp) {
     // Check ip-restriction
@@ -98,7 +118,14 @@ class Common extends Libs\RESTModel {
 
 
   /**
+   * Function: CheckClientCredentials($client, $apiSecret, $apiCert, $redirectUri)
    *
+   *
+   * Parameters:
+   *  $client <RESTclient> -
+   *  $apiSecret <String> -
+   *  $apiCert <Array[Mixed]> -
+   *  $redirectUri <String> -
    */
   public static function CheckClientCredentials($client, $apiSecret, $apiCert, $redirectUri) {
     // Check wether the client needs to be and can be authorized
@@ -111,7 +138,14 @@ class Common extends Libs\RESTModel {
 
 
   /**
+   * Function: CheckUsername($userName)
    *
+   *
+   * Parameters:
+   *  $userName <String> -
+   *
+   * Return:
+   *  <Integer> -
    */
   public static function CheckUsername($userName) {
     // This throws for wrong username (case-sensitive!)
@@ -120,7 +154,12 @@ class Common extends Libs\RESTModel {
 
 
   /**
+   * Function: CheckUserRestriction($apiKey, $userId)
    *
+   *
+   * Parameters:
+   *  $apiKey <String> -
+   *  $userId <Integer> -
    */
   public static function CheckUserRestriction($apiKey, $userId) {
     // Check user restriction
@@ -136,7 +175,12 @@ class Common extends Libs\RESTModel {
 
 
   /**
+   * Function: CheckResourceOwner($userName, $passWord)
    *
+   *
+   * Parameters:
+   *  $userName <String> -
+   *  $passWord <String> -
    */
   public static function CheckResourceOwner($userName, $passWord) {
     // Check wether the resource owner credentials are valid
@@ -145,90 +189,5 @@ class Common extends Libs\RESTModel {
         self::MSG_WRONG_OWNER_CREDENTIALS,
         self::ID_WRONG_OWNER_CREDENTIALS
       );
-  }
-
-
-  /**
-   *
-   */
-  public static function CheckResponseType($client, $type) {
-    if (!in_array($type, array('code', 'token')))
-      throw new Exceptions\ResponseType(
-        self::MSG_RESPONSE_TYPE,
-        self::ID_RESPONSE_TYPE,
-        array(
-          'response_type' => $param['response_type']
-        )
-      );
-
-    if ($type == 'code' && $client->getKey('grant_authorization_code') != true)
-      throw new Exception\Denied(
-        self::MSG_AUTHORIZATION_CODE_DISABLED,
-        self::ID_AUTHORIZATION_CODE_DISABLED
-      );
-    if ($type == 'token' && $client->getKey('grant_implicit') != true)
-      throw new Exception\Denied(
-        self::MSG_IMPLICIT_DISABLED,
-        self::ID_IMPLICIT_DISABLED
-      );
-  }
-
-
-  /**
-   *
-   */
-  public static function CheckGrantType($client, $type) {
-    if (!in_array($type, array('authorization_code', 'password', 'client_credentials')))
-      throw new Exceptions\ResponseType(
-        self::MSG_GRANT_TYPE,
-        self::ID_GRANT_TYPE,
-        array(
-          'response_type' => $param['response_type']
-        )
-      );
-
-    if ($type == 'authorization_code' && $client->getKey('grant_authorization_code') != true)
-      throw new Exception\Denied(
-        self::MSG_AUTHORIZATION_CODE_DISABLED,
-        self::ID_AUTHORIZATION_CODE_DISABLED
-      );
-    if ($type == 'password' && $client->getKey('grant_resource_owner') != true)
-      throw new Exception\Denied(
-        self::MSG_RESOURCE_OWNER_DISABLED,
-        self::ID_RESOURCE_OWNER_DISABLED
-      );
-    if ($type == 'client_credentials' && $client->getKey('grant_client_credentials') != true)
-      throw new Exception\Denied(
-        self::MSG_CLIENT_CREDENTIALS_DISABLED,
-        self::ID_CLIENT_CREDENTIALS_DISABLED
-      );
-  }
-
-
-  /**
-   *
-   */
-  public static function CheckAuthorizationCode($authorizationCode, $apiKey, $redirectUri) {
-    $settings       = Tokens\Settings::load('authorization');
-    $authorization  = Tokens\Authorization::fromMixed($settings, $authorizationCode);
-
-    if ($authorization->isExpired())
-      throw new Exception\Denied(
-        self::MSG_AUTHORIZATION_EXPIRED,
-        self::ID_AUTHORIZATION_EXPIRED
-      );
-
-    $iliasClient = self::FetchILIASClient();
-    if (
-      $iliasClient  != $authorization->getIliasClient() ||
-      $apiKey       != $authorization->getApiKey() ||
-      $redirectUri  != $authorization->getMisc()
-    )
-      throw new Exception\Denied(
-        self::MSG_AUTHORIZATION_MISTMATCH,
-        self::ID_AUTHORIZATION_MISTMATCH
-      );
-
-    return $authorization;
   }
 }

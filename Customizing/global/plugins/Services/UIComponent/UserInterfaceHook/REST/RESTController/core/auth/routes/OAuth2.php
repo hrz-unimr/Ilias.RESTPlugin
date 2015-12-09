@@ -31,6 +31,8 @@ $app->group('/v1', function () use ($app) {
      *                 (If no default value is given for this client application, this value is MANDITORY!)
      *  scope - [Optional] Scope of requested access-token
      *  state - [Optional] State of client-application during authorization request
+     *  <Client-Credentials> - IFF the client is confidential (has a api_secret or crt_* stored)
+     *                         This includes either a valid api_secret or a ssl client-certificate.
      *
      * Returns:
      *  A website where the resource-owner can allow or deny the client access to is resources (via his account)
@@ -39,27 +41,33 @@ $app->group('/v1', function () use ($app) {
     $app->get('/authorize', function () use ($app) {
       try {
         // Fetch parameters...
-        $request      = $app->request();
-        $clientParam  = Authorize::FetchClientParameters($request);
+        $request  = $app->request();
+        $params   = Authorize::FetchGetRouteParameters($request);
 
-        // Check (and update) client-parameters
-        $client       = Database\RESTclient::fromApiKey($clientParam['api_key']);
-        $clientParam  = Authorize::CheckClientRequest($client, $clientParam);
+        // Check (and update) parameters
+        $responseType = $params['response_type'];
+        $redirectUri  = $params['redirect_uri'];
+        $apiSecret    = $params['api_secret'];
+        $apiCert      = Common::FetchClientCertificate();
+        $apiKey       = $params['api_key'];
+        $scope        = $params['scope'];
+        $state        = $params['state'];
+        $data         = Authorize::FlowGetAuthorize($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state);
 
         // Show permission website (should show login)
-        Authorize::showWebsite($clientParam);
+        Authorize::showWebsite($data);
       }
 
       // Database query failed (eg. no client with given api-key)
       catch (Libs\Exceptions\Database $e) {
-        $e->redirect($clientParam['redirect_uri'], 'unauthorized_client');
+        $e->redirect($params['redirect_uri'], 'unauthorized_client');
       }
       // Catch unsupported response_type (Exceptions\ResponseType)
       // Catch invalid request (Exceptions\InvalidRequest)
       // Catch if access is denied, by user of due to client settings (Exceptions\Denied)
       // Catch missing parameters (Libs\Exceptions\Parameter)
       catch (Libs\RESTException $e) {
-        $e->redirect($clientParam['redirect_uri']);
+        $e->redirect($params['redirect_uri']);
       }
     });
 
@@ -82,10 +90,12 @@ $app->group('/v1', function () use ($app) {
      *             (If omited a login dialog will be displayed)
      *  password - [Optional] Password of resource-owner, required to show 'allow/deny access to client'-Website
      *             (If omited a login dialog will be displayed)
-     *  grant - [Optional] Should be 'allow' or 'deny' (or null) and only be non-null AFTER resource-owner made his decision
+     *  answer - [Optional] Should be 'allow' or 'deny' (or null) and only be non-null AFTER resource-owner made his decision
      *  client_id - [Optional] Pass (via GET only!) to change the attached ILIAS client-id
      *              (This client_id will always be enforce when using the generated access-token, since it is part of the
      *               resource owner credentials!)
+     *  <Client-Credentials> - IFF the client is confidential (has a api_secret or crt_* stored)
+     *                         This includes either a valid api_secret or a ssl client-certificate.
      *
      * Returns:
      *  A website where the resource-owner can allow or deny the client access to is resources (via his account)
@@ -94,44 +104,48 @@ $app->group('/v1', function () use ($app) {
       try {
         // Fetch parameters...
         $request      = $app->request();
-        $clientParam  = Authorize::FetchClientParameters($request);
-        $owner        = Authorize::FetchResourceOwnerCredentials($request);
+        $params       = Authorize::FetchPostRouteParameters($request);
 
-        // Check (and update) client-parameters
-        $clientParam  = Authorize::CheckClientRequest($clientParam);
-        $owner        = Authorize::CheckResourceOwnerCredentials($owner);
-
-        // Combine all parameters
-        $grant        = $request->params('grant', null);
-        $param        = array_merge($clientParam, $owner, array('grant' => $grant));
+        // Check (and update) parameters
+        $responseType = $params['response_type'];
+        $redirectUri  = $params['redirect_uri'];
+        $apiSecret    = $params['api_secret'];
+        $apiCert      = Common::FetchClientCertificate();
+        $apiKey       = $params['api_key'];
+        $scope        = $params['scope'];
+        $state        = $params['state'];
+        $userName     = $params['username'];
+        $passWord     = $params['password'];
+        $answer       = $params['answer'];
+        $data         = Authorize::FlowPostAuthorize($responseType, $userName, $passWord, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $answer);
 
         // Either redirect user-agent (access was granted or denied) back to client...
-        if (isset($parameters['grant']))
-          Authorize::RedirectUserAgent($app, $param);
+        if (isset($answer))
+          Authorize::RedirectUserAgent($app, $data);
 
         // ... or display website to ask to allow/deny the client access
         else
-          Authorize::AskPermission($app, $param);
+          Authorize::AskPermission($app, $data);
       }
 
       // Catch wrong resource-owner username (case-sensitive)
       catch (Libs\Exceptions\ilUser $e) {
-        Authorize::LoginFailed($app, $clientParam, $e);
+        Authorize::LoginFailed($app, $params, $e);
       }
       // Catch wrong resource-owner credentials
       catch (Exception\Credentials $e) {
-        Authorize::LoginFailed($app, $clientParam, $e);
+        Authorize::LoginFailed($app, $params, $e);
       }
       // Database query failed (eg. no client with given api-key)
       catch (Libs\Exceptions\Database $e) {
-        $e->redirect($clientParam['redirect_uri'], 'unauthorized_client');
+        $e->redirect($params['redirect_uri'], 'unauthorized_client');
       }
       // Catch unsupported response_type
       // Catch invalid request
       // Catch if access is denied (by user of due to client settings)
       // Catch missing parameters
       catch (Libs\RESTException $e) {
-        $e->redirect($clientParam['redirect_uri']);
+        $e->redirect($params['redirect_uri']);
       }
     });
 
