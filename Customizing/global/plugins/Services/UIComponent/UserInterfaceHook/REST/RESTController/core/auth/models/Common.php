@@ -27,12 +27,6 @@ class Common extends Libs\RESTModel {
   const ID_WRONG_OWNER_CREDENTIALS      = 'RESTController\\core\\auth\\Authorize::ID_WRONG_OWNER_CREDENTIALS';
   const MSG_AUTHORIZATION_CODE_DISABLED = 'Authorization-Code grant is disabled for this client (api-key).';
   const ID_AUTHORIZATION_CODE_DISABLED  = 'RESTController\\core\\auth\\Authorize::ID_AUTHORIZATION_CODE_DISABLED';
-  const MSG_IMPLICIT_DISABLED           = 'Implicit grant is disabled for this client (api-key).';
-  const ID_IMPLICIT_DISABLED            = 'RESTController\\core\\auth\\Authorize::ID_IMPLICIT_DISABLED';
-  const MSG_RESOURCE_OWNER_DISABLED     = 'Resource-Owner grant is disabled for this client (api-key).';
-  const ID_RESOURCE_OWNER_DISABLED      = 'RESTController\\core\\auth\\Authorize::ID_RESOURCE_OWNER_DISABLED';
-  const MSG_CLIENT_CREDENTIALS_DISABLED = 'Client-Credentials grant is disabled for this client (api-key).';
-  const ID_CLIENT_CREDENTIALS_DISABLED  = 'RESTController\\core\\auth\\Authorize::ID_CLIENT_CREDENTIALS_DISABLED';
 
 
   /**
@@ -174,6 +168,9 @@ class Common extends Libs\RESTModel {
    *  $userId <Integer> - User-id that should be checked against given client
    */
   public static function CheckUserRestriction($apiKey, $userId) {
+    // Check user with given id exists in database (throws exception on problem)
+    Libs\RESTilias::getUserName($userId);
+
     // Check user restriction
     if (!Database\RESTuser::isUserAllowedByKey($apiKey, $userId))
       throw new Exceptions\Denied(

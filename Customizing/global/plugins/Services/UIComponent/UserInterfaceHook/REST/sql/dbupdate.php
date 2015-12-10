@@ -355,19 +355,19 @@
       'fixed'   => false,
       'notnull' => false
     ),
-    'refresh_token' => array(
+    'token' => array(
       'type'    => 'text',
       'length'  => 1024,
       'fixed'   => false,
       'notnull' => false
     ),
-    'last_refresh_timestamp'  => array(
+    'last_refresh'  => array(
       'type'    => 'timestamp'
     ),
-    'init_timestamp' => array(
+    'created' => array(
       'type'    => 'timestamp'
     ),
-    'num_resets' => array(
+    'refreshes' => array(
       'type'    => 'integer',
       'length'  => 4,
       'notnull' => true

@@ -21,8 +21,10 @@ use \RESTController\libs as Libs;
  */
 class Authorize extends Libs\RESTModel {
   // Allow to re-use status messages and codes
-  const MSG_RESPONSE_TYPE = 'Unknown response_type ({{response_type}}) needs to be \'code\' for Authorization-Code grant or \'token\' for Implicit grant.';
-  const ID_RESPONSE_TYPE  = 'RESTController\\core\\auth\\Authorize::ID_RESPONSE_TYPE';
+  const MSG_RESPONSE_TYPE     = 'Unknown response_type ({{response_type}}) needs to be \'code\' for Authorization-Code grant or \'token\' for Implicit grant.';
+  const ID_RESPONSE_TYPE      = 'RESTController\\core\\auth\\Authorize::ID_RESPONSE_TYPE';
+  const MSG_IMPLICIT_DISABLED = 'Implicit grant is disabled for this client (api-key).';
+  const ID_IMPLICIT_DISABLED  = 'RESTController\\core\\auth\\Authorize::ID_IMPLICIT_DISABLED';
 
 
   /**
@@ -92,8 +94,8 @@ class Authorize extends Libs\RESTModel {
       // Check if response_type is enabled for this client (Implicit)
       if ($type == 'token' && $client->getKey('grant_implicit') != true)
         throw new Exception\Denied(
-          Common::MSG_IMPLICIT_DISABLED,
-          Common::ID_IMPLICIT_DISABLED
+          self::MSG_IMPLICIT_DISABLED,
+          self::ID_IMPLICIT_DISABLED
         );
     }
   }

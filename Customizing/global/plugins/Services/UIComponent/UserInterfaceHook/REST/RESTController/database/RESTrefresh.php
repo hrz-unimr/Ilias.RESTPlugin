@@ -21,14 +21,33 @@ class RESTrefresh extends Libs\RESTDatabase {
   protected static $primaryKey  = 'id';
   protected static $tableName   = 'ui_uihk_rest_refresh';
   protected static $tableKeys   = array(
-    'id'                      => 'integer',
-    'user_id'                 => 'integer',
-    'api_id'                  => 'integer',
-    'refresh_token'           => 'text',
-    'last_refresh_timestamp'  => 'text',
-    'init_timestamp'          => 'text',
-    'num_resets'              => 'integer'
+    'id'            => 'integer',
+    'user_id'       => 'integer',
+    'api_id'        => 'integer',
+    'token'         => 'text',
+    'last_refresh'  => 'text',
+    'created'       => 'text',
+    'refreshes'     => 'integer'
   );
+
+
+  /**
+   * Function: fromApiKey($tokenString)
+   *  Creates a new instance of RESTrefresh representing the table-entry with given Refresh-Token.
+   *
+   * Parameters:
+   *  $tokenString <String> - Refresh-Token (as string) who's database entry should be returned
+   *
+   * Return:
+   *  <RESTrefresh> - A new instance of RESTrefresh representing the table-entry with given token
+   */
+  public static function fromToken($tokenString) {
+    // Generate a (save) where clause for the token ($tokenString can be malformed!)
+    $where  = sprintf('token = %s', self::quote($tokenString, 'text'));
+
+    // Fetch matching object
+    return self::fromWhere($where);
+  }
 
 
   /**
@@ -65,5 +84,20 @@ class RESTrefresh extends Libs\RESTDatabase {
 
     // Otherwise join on primary
     return parent::getJoinKey($joinTable);
+  }
+
+
+  /**
+   * Function: refreshed()
+   *  Call this function to update the last_refresh timer and the number of refresh for this token.
+   *  This will update the internally stored data as well as the database. (Needs valid primary-key)
+   */
+  public function refreshed() {
+    // Update internal values
+    $this->setKey('last_refresh', time());
+    $this->setKey('refreshes', $this->getKey('refreshes') + 1);
+
+    // Update database with internal values
+    $this->update();
   }
 }

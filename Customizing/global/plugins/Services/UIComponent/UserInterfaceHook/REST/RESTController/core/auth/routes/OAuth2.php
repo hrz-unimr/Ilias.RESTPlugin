@@ -15,6 +15,8 @@ use \RESTController\database as Database;
 
 /**
 
+TODO: Parameters need to be converted to correct type!
+
 Alle Routen:
   * IP restriction prüfen                   [Auth: X]
   * User-Restriction prüfen                 [Auth: X]
@@ -189,53 +191,62 @@ $app->group('/v1', function () use ($app) {
         // Fetch parameters required for all routes
         $request      = $app->request();
         $grantType    = $request->params('grant_type', null, true);
-        $apiKey       = $request->params('api_key', null, true);
         $apiSecret    = $request->params('api_secret');
         $apiCert      = Common::FetchClientCertificate();
         $iliasClient  = Common::FetchILIASClient();
         $remoteIp     = Common::FetchUserAgentIP();
 
-        // Check grant_type is supported
-        Token::CheckGrantType(null, $grantType);
-
-        // Grant-Type: Authorization Code
-        if ($grant_type == 'authorization_code') {
-          // Fetch additional parameters for Authorization-Code grant flow
-          $redirectUri  = $request->params('redirect_uri', null, true);
-          $code         = $request->params('code', null, true);
+        // Exchange refresh-token for access-token (and new refresh-token?)
+        if ($grant_type == 'refresh_token') {
+          // Fetch additional parameters for exchange (api-key is optional)
+          $apiKey = $request->params('api_key');
+          $code   = $request->params('refresh_token', null, true);
 
           // Proccess input-parameters according to (post) token flow (throws exception on problem)
-          $data = Token::FlowAuthorizationCode($grantType, $apiKey, $apiSecret, $apiCert, $authorizationCode, $redirectUri, $iliasClient, $remoteIp);
-
-          // Send generated token
-          $app->success($data);
+          $data = Token::FlowRefreshToken($grantType, $apiKey, $apiSecret, $apiCert, $code, $iliasClient, $remoteIp);
         }
 
-        // Grant-Type: Resource-Owner Credentials
-        elseif ($grant_type == 'password') {
-          // Fetch additional parameters for Resource-Owner Credentials grant flow
-          $username = $request->params('username', null, true);
-          $password = $request->params('password', null, true);
-          $scope    = $request->params('scope');
+        // Manage all of the other supported grant-types...
+        else {
+          // Fetch additional parameters for all other requests (api-key is manditory)
+          $apiKey       = $request->params('api_key', null, true);
 
-          // Proccess input-parameters according to (post) token flow (throws exception on problem)
-          $data = Token::FlowResourceOwnerCredentials();
+          // Check grant_type is supported
+          Token::CheckGrantType(null, $grantType);
 
-          // Send generated token
-          $app->success($data);
+          // Grant-Type: Authorization Code
+          if ($grant_type == 'authorization_code') {
+            // Fetch additional parameters for Authorization-Code grant flow
+            $redirectUri  = $request->params('redirect_uri', null, true);
+            $code         = $request->params('code', null, true);
+
+            // Proccess input-parameters according to (post) token flow (throws exception on problem)
+            $data = Token::FlowAuthorizationCode($grantType, $apiKey, $apiSecret, $apiCert, $code, $redirectUri, $iliasClient, $remoteIp);
+          }
+
+          // Grant-Type: Resource-Owner Credentials
+          elseif ($grant_type == 'password') {
+            // Fetch additional parameters for Resource-Owner Credentials grant flow
+            $userName = $request->params('username', null, true);
+            $passWord = $request->params('password', null, true);
+            $scope    = $request->params('scope');
+
+            // Proccess input-parameters according to (post) token flow (throws exception on problem)
+            $data = Token::FlowResourceOwnerCredentials($grantType, $userName, $passWord, $apiKey, $apiSecret, $apiCert, $iliasClient, $remoteIp, $scope);
+          }
+
+          // Grant-Type: Client Credentials
+          elseif ($grant_type == 'client_credentials') {
+            // Fetch additional parameters for Client Credentials grant flow
+            $scope    = $request->params('scope');
+
+            // Proccess input-parameters according to (post) token flow (throws exception on problem)
+            $data = Token::FlowClientCredentials($grantType, $apiKey, $apiSecret, $apiCert, $iliasClient, $scope, $remoteIp);
+          }
         }
 
-        // Grant-Type: Client Credentials
-        elseif ($grant_type == 'client_credentials') {
-          // Fetch additional parameters for Client Credentials grant flow
-          $scope    = $request->params('scope');
-
-          // Proccess input-parameters according to (post) token flow (throws exception on problem)
-          $data = Token::FlowClientCredentials();
-
-          // Send generated token
-          $app->success($data);
-        }
+        // Send generated token
+        $app->success($data);
       }
 
       // Catch all generated exceptions
