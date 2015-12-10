@@ -26,64 +26,17 @@ class Authorize extends Libs\RESTModel {
 
 
   /**
-   * Input-Function: FetchGetRouteParameters($app)
-   *  Fetch all parameters that are required for [GET] on /v1/oauth2/authorize endpoints.
-   *
-   * Parameters:
-   *  $request <RESTRequest> - Managed RESTRequest object
-   *
-   * Return:
-   *  <Array[String]> - See below for details...
-   */
-  public static function FetchGetRouteParameters($request) {
-    // Fetch parameters
-    return array(
-      'api_key'        => $request->params('api_key',       null, true),
-      'api_secret'     => $request->params('api_secret'),
-      'response_type'  => $request->params('response_type', null, true),
-      'redirect_uri'   => $request->params('redirect_uri'),
-      'scope'          => $request->params('scope'),
-      'state'          => $request->params('state')
-    );
-  }
-
-
-  /**
-   * Input-Function: FetchPostRouteParameters($app)
-   *  Fetch all parameters that are required for [POST] on /v1/oauth2/authorize endpoints.
-   *
-   * Parameters:
-   *  $request <RESTRequest> - Managed RESTRequest object
-   *
-   * Return:
-   *  <Array[String]> - See below for details...
-   */
-  public static function FetchPostRouteParameters($request) {
-    // Also fetch get-parameters
-    $data = self::FetchGetRouteParameters($request);
-
-    // Fetch parameters
-    // Note: ILIAS client can't be changed after initialization, so it needs to be fixed to the current one!
-    //       CLIENT_ID can only be controlled via GET (or COOKIE)...
-    return array_merge(array(
-      'username'        => $request->params('username'),
-      'password'        => $request->params('password'),
-      'client_id'       => CLIENT_ID,
-      'answer'          => $request->params('answer')
-    ), $data);
-  }
-
-
-  /**
    * Function: FetchRedirectUri($client, $redirectUri)
-   *
+   *  Returns the original redirect_uri given as parameter if non null or
+   *  fetches the clients stored redirect_uri from the database.
+   *  Throws an exception is both (stored and parameter) are null.
    *
    * Parameters:
-   *  $client <RESTclient> -
-   *  $redirectUri <String> -
+   *  $client <RESTclient> - Client object to fetch redirect_uri from if non was given
+   *  $redirectUri <String> - The redirect_uri that was given as request parameter
    *
    * Return:
-   *  <String> -
+   *  <String> - Original redirect_uri or the value stored inside the database if no request parameter was given
    */
   public static function FetchRedirectUri($client, $redirectUri) {
     // Fetch redirect_uri from client db-entry if non was given
@@ -109,13 +62,14 @@ class Authorize extends Libs\RESTModel {
 
   /**
    * Function: CheckResponseType($client, $type)
-   *
+   *  Check wether the given request response_type is supported and enabled for the given client
+   *  throws an exception if at least one of the above is false.
    *
    * Parameters:
-   *  $client <RESTclient> -
-   *  $type <String> -
+   *  $client <RESTclient> - Client object used to check wether given response_type is enabled
+   *  $type <String> - The response_type that was given as request parameter
    */
-  public static function CheckResponseType($client, $type) {
+  public static function CheckResponseType($client = null, $type) {
     // Check if it is a valid response_type
     if (!in_array($type, array('code', 'token')))
       throw new Exceptions\ResponseType(
@@ -126,39 +80,43 @@ class Authorize extends Libs\RESTModel {
         )
       );
 
-    // Check if response_type is enabled for this client (Autorization-Code)
-    if ($type == 'code' && $client->getKey('grant_authorization_code') != true)
-      throw new Exception\Denied(
-        Common::MSG_AUTHORIZATION_CODE_DISABLED,
-        Common::ID_AUTHORIZATION_CODE_DISABLED
-      );
+    // Without a given client, only check grant_type is supported
+    if (!isset($client)) {
+      // Check if response_type is enabled for this client (Autorization-Code)
+      if ($type == 'code' && $client->getKey('grant_authorization_code') != true)
+        throw new Exception\Denied(
+          Common::MSG_AUTHORIZATION_CODE_DISABLED,
+          Common::ID_AUTHORIZATION_CODE_DISABLED
+        );
 
-    // Check if response_type is enabled for this client (Implicit)
-    if ($type == 'token' && $client->getKey('grant_implicit') != true)
-      throw new Exception\Denied(
-        Common::MSG_IMPLICIT_DISABLED,
-        Common::ID_IMPLICIT_DISABLED
-      );
+      // Check if response_type is enabled for this client (Implicit)
+      if ($type == 'token' && $client->getKey('grant_implicit') != true)
+        throw new Exception\Denied(
+          Common::MSG_IMPLICIT_DISABLED,
+          Common::ID_IMPLICIT_DISABLED
+        );
+    }
   }
 
 
   /**
    * Function: FlowGetAuthorize($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state)
-   *
+   *  Handles the overall grant flow for the initial part (GET on /authorize) for the Authorization-Code and
+   *  Implicit grant.
    *
    * Parameters:
-   *  $responseType <String> -
-   *  $apiKey <String> -
-   *  $apiSecret <String> -
-   *  $apiCert - <Array[Mixed]> -
-   *  $redirectUri <String> -
-   *  $scope <String> -
-   *  $state <String> -
+   *  $responseType <String> - Given response_type request parameter
+   *  $apiKey <String> - Given api-key request parameter representing a client
+   *  $apiSecret <String> - Given api-secret used to authorize the client
+   *  $apiCert - <Array[Mixed]> - Given client-certificate values to authorize the client
+   *  $redirectUri <String> - Given redirect_uri used for redirection after termination of grant flow
+   *  $scope <String> - Requested scope
+   *  $state <String> - Additional state-information
    *
    * Return:
-   *  <Array[Mixed]> -
+   *  <Array[Mixed]> - List of parameters that will get passed to the template engine, see actual return-value for details
    */
-  public static function FlowGetAuthorize($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state) {
+  public static function FlowGetAuthorize($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP) {
     // Check if client with api-key exists (throws on problem)
     $client = Common::CheckApiKey($apiKey);
 
@@ -166,7 +124,7 @@ class Authorize extends Libs\RESTModel {
     self::CheckResponseType($client, $responseType);
 
     // Check client fullfills ip-restriction (throws on problem)
-    Common::CheckIP($client, Common::FetchUserAgentIP());
+    Common::CheckIP($client, $remoteIP);
 
     // Client client is authorized if enabled (throws on problem)
     Common::CheckClientCredentials($client, $apiSecret, $apiCert, $redirectUri);
@@ -188,26 +146,28 @@ class Authorize extends Libs\RESTModel {
 
   /**
    * Function: FlowGetAuthorize($responseType, $userName, $passWord, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $answer)
-   *
+   *  Handles the overall grant flow after the initial GET part (POST on /authorize) for the Authorization-Code and
+   *  Implicit grant.
    *
    * Parameters:
-   *  $responseType <String> -
-   *  $apiKey <String> -
-   *  $apiSecret <String> -
-   *  $apiCert - <Array[Mixed]> -
-   *  $redirectUri <String> -
-   *  $scope <String> -
-   *  $state <String> -
-   *  $userName <String> -
-   *  $passWord <String> -
-   *  $answer <String> -
+   *  $responseType <String> - Given response_type request parameter
+   *  $apiKey <String> - Given api-key request parameter representing a client
+   *  $apiSecret <String> - Given api-secret used to authorize the client
+   *  $apiCert - <Array[Mixed]> - Given client-certificate values to authorize the client
+   *  $redirectUri <String> - Given redirect_uri used for redirection after termination of grant flow
+   *  $scope <String> - Requested scope
+   *  $state <String> - Additional state-information
+   *  $userName <String> - Resource-Owner username used to grant permission
+   *  $passWord <String> - Resource-Owner password matching given username used to grant permission
+   *  $answer <String> -  Answer for the grant-permission request given by the user (null, 'allow', 'deny')
+   *                      (NULL means no answer was given yet, any other value other then 'allow' will be treated as 'deny')
    *
    * Return:
-   *  <Array[Mixed]> -
+   *  <Array[Mixed]> - List of parameters that will get passed to the template engine, see actual return-value for details
    */
-  public static function FlowPostAuthorize($responseType, $userName, $passWord, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $answer) {
+  public static function FlowPostAuthorize($responseType, $iliasClient, $userName, $passWord, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP, $answer) {
     // Fetch same template data as fro get requests (throws on problem)
-    $data = self::FlowGetAuthorize($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state);
+    $data = self::FlowGetAuthorize($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP);
 
     // Check username is correct (case-sensitive) (throws on problem)
     $userId = CheckUsername($userName);
@@ -220,43 +180,43 @@ class Authorize extends Libs\RESTModel {
 
     // Add additional fields to template data
     return array_merge(array(
-      'username'  => $userName,
-      'password'  => $passWord,
-      'user_id'   => $userId,
-      'answer'    => $answer
+      'ilias_client'  => $iliasClient,
+      'username'      => $userName,
+      'password'      => $passWord,
+      'user_id'       => $userId,
+      'answer'        => $answer
     ), $data);
   }
 
 
 
   /**
-   * Function: GetRedirectURI($response_type, $answer, $redirect_uri, $state, $user_id, $ilias_client, $api_key, $scope)
+   * Function: GetRedirectURI($responseType, $answer, $redirectUri, $state, $userId, $iliasClient, $apiKey, $scope)
    *  Generate final redirection URI (Step (C)) for implicit and authorization-Code grant.
    *
    * Parameters:
-   *  $response_type <String> -
-   *  $answer <String> -
-   *  $redirect_uri <String> -
-   *  $state <String> -
-   *  $user_id <Integer> -
-   *  $ilias_client <String> -
-   *  $api_key <String> -
-   *  $scope <String> -
+   *  $responseType <String> - Given response_type request parameter
+   *  $apiKey <String> - Given api-key request parameter representing a client
+   *  $apiSecret <String> - Given api-secret used to authorize the client
+   *  $apiCert - <Array[Mixed]> - Given client-certificate values to authorize the client
+   *  $redirectUri <String> - Given redirect_uri used for redirection after termination of grant flow
+   *  $scope <String> - Requested scope
+   *  $state <String> - Additional state-information
    *
    * Return:
    *  <String> - Generated redirection-url
    */
-  public static function GetRedirectURI($response_type, $answer, $redirect_uri, $state, $user_id, $ilias_client, $api_key, $scope) {
+  public static function GetRedirectURI($responseType, $answer, $redirectUri, $state, $userId, $iliasClient, $apiKey, $scope) {
     // Extract required parameters
-    $misc         = $redirect_uri;
+    $misc         = $redirectUri;
 
     // Authorization-Code Grant
-    if ($response_type == 'code') {
+    if ($responseType == 'code') {
       // Access granted?
       if (strtolower($answer) == 'allow') {
         // Generate Authorization-Code
         $settings       = Tokens\Settings::load('authorization');
-        $authorization  = Tokens\Authorization::fromFields($settings, $user_id, $ilias_client, $api_key, $scope, $misc);
+        $authorization  = Tokens\Authorization::fromFields($settings, $userId, $iliasClient, $apiKey, $scope, $misc);
         $authCode       = $authorization->getTokenString();
 
         // Store authorization-code token (rfx demands it only be used ONCE)
@@ -268,7 +228,7 @@ class Authorize extends Libs\RESTModel {
         // Return redirection-url with data (Authorization-Code)
         return sprintf(
           '%s?code=%s&state=%s',
-          $redirect_uri,
+          $redirectUri,
           $authCode,
           $state
         );
@@ -277,23 +237,23 @@ class Authorize extends Libs\RESTModel {
       // Access-denied
       else return sprintf(
         '%s?error=access_denied&state=%s',
-        $redirect_uri,
+        $redirectUri,
         $state
       );
     }
 
     // Implicit Grant
-    elseif ($response_type == 'token') {
+    elseif ($responseType == 'token') {
       // Access granted?
       if (strtolower($answer) == 'allow') {
         // Generate Access-Token
         $settings = Tokens\Settings::load('access');
-        $access   = Tokens\Access::fromFields($settings, $user_id, $ilias_client, $api_key, $scope);
+        $access   = Tokens\Access::fromFields($settings, $userId, $iliasClient, $apiKey, $scope);
 
         // Return redirection-url with data (Access-Token)
         return sprintf(
           '%s?access_token=%s&token_type=%s&expires_in=%s&scope=%s&state=%s',
-          $redirect_uri,
+          $redirectUri,
           $access->getTokenString(),
           'Bearer',
           $access->getRemainingTime(),
@@ -305,7 +265,7 @@ class Authorize extends Libs\RESTModel {
       // Access-denied
       else return sprintf(
         '%s#error=access_denied&state=%s',
-        $redirect_uri,
+        $redirectUri,
         $state
       );
     }
@@ -367,17 +327,17 @@ class Authorize extends Libs\RESTModel {
    */
   public static function RedirectUserAgent($app, $param) {
     // Extract parameters:
-    $response_type  = $param['response_type'];
+    $responseType   = $param['response_type'];
     $answer         = $param['answer'];
-    $redirect_uri   = $param['redirect_uri'];
+    $redirectUri    = $param['redirect_uri'];
     $state          = $param['state'];
-    $user_id        = $param['user_id'];
-    $ilias_client   = $param['ilias_client'];
-    $api_key        = $param['api_key'];
+    $userId         = $param['user_id'];
+    $iliasClient    = $param['ilias_client'];
+    $apiKey         = $param['api_key'];
     $scope          = $param['scope'];
 
     // Generate redirection url and redirect
-    $url = self::GetRedirectURI($response_type, $answer, $redirect_uri, $state, $user_id, $ilias_client, $api_key, $scope);
+    $url = self::GetRedirectURI($responseType, $answer, $redirectUri, $state, $userId, $iliasClient, $apiKey, $scope);
     $app->redirect($url);
   }
 

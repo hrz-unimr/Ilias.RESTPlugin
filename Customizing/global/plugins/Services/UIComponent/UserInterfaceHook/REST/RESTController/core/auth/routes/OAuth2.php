@@ -13,6 +13,24 @@ use \RESTController\libs     as Libs;
 use \RESTController\database as Database;
 
 
+/**
+
+Alle Routen:
+  * IP restriction prüfen                   [Auth: X]
+  * User-Restriction prüfen                 [Auth: X]
+  * Check client with api-key exists        [Auth: X]
+  * Check if client has grant-type enabled  [Auth: X]
+
+Token-Endpoint - Auth-Code:
+  * check client-credentials
+  * check auth-code values with client-parameters (eg. api-key, redirect_uri, etc.)
+  * check auth-code not expired (look up in DB, delete afterwards!)
+  * send access-token, send and store refresh-token
+  * SCOPE steckt im Auth-TOKEN
+
+**/
+
+
 // Group as version-1 implementation
 $app->group('/v1', function () use ($app) {
   // Group as oauth2 implementation
@@ -40,19 +58,19 @@ $app->group('/v1', function () use ($app) {
      */
     $app->get('/authorize', function () use ($app) {
       try {
-        // Fetch parameters...
+        // Check request-parameters
         $request  = $app->request();
-        $params   = Authorize::FetchGetRouteParameters($request);
-
-        // Check (and update) parameters
-        $responseType = $params['response_type'];
-        $redirectUri  = $params['redirect_uri'];
-        $apiSecret    = $params['api_secret'];
+        $responseType = $request->params('response_type', null, true);
+        $redirectUri  = $request->params('redirect_uri');
+        $apiSecret    = $request->params('api_secret');
+        $apiKey       = $request->params('api_key',       null, true);
+        $scope        = $request->params('scope');
+        $state        = $request->params('state');
         $apiCert      = Common::FetchClientCertificate();
-        $apiKey       = $params['api_key'];
-        $scope        = $params['scope'];
-        $state        = $params['state'];
-        $data         = Authorize::FlowGetAuthorize($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state);
+        $remoteIP     = Common::FetchUserAgentIP();
+
+        // Proccess input-parameters according to (get) authorziation flow (throws exception on problem)
+        $data         = Authorize::FlowGetAuthorize($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP);
 
         // Show permission website (should show login)
         Authorize::showWebsite($data);
@@ -102,22 +120,25 @@ $app->group('/v1', function () use ($app) {
      */
     $app->post('/authorize', function () use ($app) {
       try {
-        // Fetch parameters...
-        $request      = $app->request();
-        $params       = Authorize::FetchPostRouteParameters($request);
-
-        // Check (and update) parameters
-        $responseType = $params['response_type'];
-        $redirectUri  = $params['redirect_uri'];
-        $apiSecret    = $params['api_secret'];
+        // Check request-parameters (same as get)
+        $request  = $app->request();
+        $responseType = $request->params('response_type', null, true);
+        $redirectUri  = $request->params('redirect_uri');
+        $apiSecret    = $request->params('api_secret');
+        $apiKey       = $request->params('api_key',       null, true);
+        $scope        = $request->params('scope');
+        $state        = $request->params('state');
         $apiCert      = Common::FetchClientCertificate();
-        $apiKey       = $params['api_key'];
-        $scope        = $params['scope'];
-        $state        = $params['state'];
-        $userName     = $params['username'];
-        $passWord     = $params['password'];
-        $answer       = $params['answer'];
-        $data         = Authorize::FlowPostAuthorize($responseType, $userName, $passWord, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $answer);
+        $iliasClient  = Common::FetchILIASClient();
+        $remoteIP     = Common::FetchUserAgentIP();
+
+        // Check request-parameters (additional for post)
+        $userName     = $request->params('username');
+        $passWord     = $request->params('password');
+        $answer       = $request->params('answer');
+
+        // Proccess input-parameters according to (post) authorziation flow (throws exception on problem)
+        $data         = Authorize::FlowPostAuthorize($responseType, $iliasClient, $userName, $passWord, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP, $answer);
 
         // Either redirect user-agent (access was granted or denied) back to client...
         if (isset($answer))
@@ -165,72 +186,61 @@ $app->group('/v1', function () use ($app) {
      */
     $app->post('/token', function () use ($app) {
       try {
-        // Fetch RESTRequest object
-        $request        = $app->request();
+        // Fetch parameters required for all routes
+        $request      = $app->request();
+        $grantType    = $request->params('grant_type', null, true);
+        $apiKey       = $request->params('api_key', null, true);
+        $apiSecret    = $request->params('api_secret');
+        $apiCert      = Common::FetchClientCertificate();
+        $iliasClient  = Common::FetchILIASClient();
+        $remoteIp     = Common::FetchUserAgentIP();
 
-        // Fetch (manditory) oauth2 data
-        $api_key      = $request->params('api_key',       null, true);
-        $api_secret   = $request->params('api_secret',    null, true);
-        $grant_type   = $request->params('grant_type',    null, true);
-        $code         = $request->params('code',          null, true);
-        $redirect_uri = $request->params('redirect_uri'); // Unused?!
-
-        // Fetch information about client
-        $client       = Database\RESTclient::fromApiKey($api_key);
-        if ($client->getKey('api_secret') != $api_secret)
-          $app->halt(401, 'API-Secrets mismatch', '');
+        // Check grant_type is supported
+        Token::CheckGrantType(null, $grantType);
 
         // Grant-Type: Authorization Code
         if ($grant_type == 'authorization_code') {
-          // Generate authorization-token (from given string) and check validity
-          $settings       = Tokens\Settings::load('authorization');
-          $authorization  = Tokens\Authorization::fromMixed($settings, $code);
-          if ($authorization->isExpired())
-            $app->halt(401, 'Auth invalid or expired', '');
+          // Fetch additional parameters for Authorization-Code grant flow
+          $redirectUri  = $request->params('redirect_uri', null, true);
+          $code         = $request->params('code', null, true);
 
-          if ($authorization->getApiKey() != $api_key)
-            $app->halt(401, 'API-Key mismatch', '');
+          // Proccess input-parameters according to (post) token flow (throws exception on problem)
+          $data = Token::FlowAuthorizationCode($grantType, $apiKey, $apiSecret, $apiCert, $authorizationCode, $redirectUri, $iliasClient, $remoteIp);
 
-          //
-          $accessSettings   = Tokens\Settings::load('access');
-          $refreshSettings  = Tokens\Settings::load('refresh');
-          $userId           = $authorization->getUserId();
-          $iliasClient      = $authorization->getIliasClient();
-          $scope            = $authorization->getScope();
-          $bearer           = Tokens\Bearer::fromFields($accessSettings, $refreshSettings, $userId, $iliasClient, $apiKey, $scope);
-
-          //
-          $app->success($bearer->getResponseObject());
-
-          /**
-
-          Alle Routen:
-            * IP restriction prüfen                   [Auth: X]
-            * User-Restriction prüfen                 [Auth: X]
-            * Check client with api-key exists        [Auth: X]
-            * Check if client has grant-type enabled  [Auth: X]
-
-          Token-Endpoint - Auth-Code:
-            * check client-credentials
-            * check auth-code values with client-parameters (eg. api-key, redirect_uri, etc.)
-            * check auth-code not expired (look up in DB, delete afterwards!)
-            * send access-token, send and store refresh-token
-            * SCOPE steckt im Auth-TOKEN
-
-          **/
+          // Send generated token
+          $app->success($data);
         }
 
-        // Unsupported grant-type
-        else
-          $app->halt(422, 'Wrong grant_type', '');
+        // Grant-Type: Resource-Owner Credentials
+        elseif ($grant_type == 'password') {
+          // Fetch additional parameters for Resource-Owner Credentials grant flow
+          $username = $request->params('username', null, true);
+          $password = $request->params('password', null, true);
+          $scope    = $request->params('scope');
+
+          // Proccess input-parameters according to (post) token flow (throws exception on problem)
+          $data = Token::FlowResourceOwnerCredentials();
+
+          // Send generated token
+          $app->success($data);
+        }
+
+        // Grant-Type: Client Credentials
+        elseif ($grant_type == 'client_credentials') {
+          // Fetch additional parameters for Client Credentials grant flow
+          $scope    = $request->params('scope');
+
+          // Proccess input-parameters according to (post) token flow (throws exception on problem)
+          $data = Token::FlowClientCredentials();
+
+          // Send generated token
+          $app->success($data);
+        }
       }
 
-      // TokenInvalid
-      // ilUser
-
-      // Catch missing parameters and inform client
-      catch (Libs\Exceptions\MissingParameter $e) {
-        $e->send(400);
+      // Catch all generated exceptions
+      catch (Libs\RESTException $e) {
+        $e->send(500);
       }
     });
 
