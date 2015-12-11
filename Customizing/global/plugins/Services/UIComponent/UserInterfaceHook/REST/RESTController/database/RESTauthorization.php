@@ -22,7 +22,48 @@ class RESTauthorization extends Libs\RESTDatabase {
   protected static $tableName   = 'ui_uihk_rest_authcode';
   protected static $tableKeys   = array(
     'id'      => 'integer',
+    'user_id' => 'integer',
+    'api_id'  => 'integer',
     'token'   => 'text',
     'expires' => 'text'
   );
+
+
+  /**
+   * Function: fromToken($tokenString)
+   *  Creates a new instance of RESTclient representing the table-entry with given token representation.
+   *
+   * Parameters:
+   *  $tokenString <String> - token representation who's database entry should be returned
+   *
+   * Return:
+   *  <RESTclient> - A new instance of RESTclient representing the table-entry with given token representation
+   */
+  public static function fromToken($tokenString) {
+    // Generate a (save) where clause for the api-key ($tokenString can be malformed!)
+    $where  = sprintf(
+      'token IN (%s, %s, %s)',
+      self::quote($tokenString, 'text'),
+      self::quote(urlencode($tokenString), 'text'),
+      self::quote(urldecode($tokenString), 'text')
+    );
+
+    // Fetch matching object
+    return self::fromWhere($where);
+  }
+
+
+  /**
+   * Function: store()
+   *  Insert a new table-entry for the internal authorization-code and removes
+   *  all existing codes for the same user and client (api-key).
+   */
+  public function store() {
+    // Delete all existing entries for resource-owner and api-key
+    $where = 'api_id = {{api_id}} AND user_id = {{user_id}}';
+    $this->delete($where);
+
+    // Insert a new entry into DB
+    $this->insert();
+  }
 }

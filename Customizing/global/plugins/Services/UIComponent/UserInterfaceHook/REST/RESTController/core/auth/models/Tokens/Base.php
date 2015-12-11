@@ -18,8 +18,10 @@ use \RESTController\core\auth\Exceptions as Exceptions;
  */
 class Base {
   // Allow to re-use status messages and codes
-  const MSG_EXPIRED         = 'Token has expired.';
+  const MSG_EXPIRED         = 'Token has expired (Type: {{type}}).';
   const ID_EXPIRED          = 'RESTController\\core\\auth\\Base::ID_EXPIRED';
+  const MSG_INVALID_SIZE    = 'Token contains invalid number of fields. (Required: {{required}} / Given: {{given}})';
+  const ID_INVALID_SIZE     = 'RESTController\\core\\auth\\Base::ID_INVALID_SIZE';
   const MSG_INVALID         = 'Token is invalid.';
   const ID_INVALID          = 'RESTController\\core\\auth\\Base::ID_INVALID';
 
@@ -47,8 +49,6 @@ class Base {
 
   // Store username in addition to user-id (only looked-up once)
   protected $username = null;
-
-  // TODO: Support static::$field everywhere!
 
 
   /**
@@ -504,6 +504,13 @@ class Base {
 
     // Not good...
     else
-      throw new Exceptions\TokenInvalid(self::MSG_INVALID_SIZE, self::ID_INVALID_SIZE);
+      throw new Exceptions\TokenInvalid(
+        self::MSG_INVALID_SIZE,
+        self::ID_INVALID_SIZE,
+        array(
+          'given'     => count($tokenPartArray),
+          'required'  => count(self::$fields)
+        )
+      );
   }
 }

@@ -131,7 +131,7 @@ class Authorize extends Libs\RESTModel {
    */
   public static function FlowGetAuthorize($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP) {
     // Check if client with api-key exists (throws on problem)
-    $client = Common::CheckApiKey($apiKey);
+    $client       = Common::CheckApiKey($apiKey);
 
     // Check response-type is valid and enabled for this client (throws on problem)
     self::CheckResponseType($client, $responseType);
@@ -150,6 +150,7 @@ class Authorize extends Libs\RESTModel {
       'response_type'   => $responseType,
       'redirect_uri'    => $redirectUri,
       'api_key'         => $apiKey,
+      'api_id'          => $client->getKey('id'),
       'scope'           => $scope,
       'state'           => $state,
       'consent_message' => $client->getKey('consent_message')
@@ -223,7 +224,7 @@ class Authorize extends Libs\RESTModel {
    * Return:
    *  <String> - Generated redirection-url
    */
-  public static function GetRedirectURI($responseType, $answer, $redirectUri, $state, $userId, $iliasClient, $apiKey, $scope) {
+  public static function GetRedirectURI($responseType, $answer, $redirectUri, $state, $userId, $iliasClient, $apiKey, $apiId, $scope) {
     // Extract required parameters
     $misc         = $redirectUri;
 
@@ -239,9 +240,11 @@ class Authorize extends Libs\RESTModel {
         // Store authorization-code token (rfx demands it only be used ONCE)
         $authDB         = Database\RESTauthorization::fromRow(array(
           'token'       => $authCode,
-          'expires'     => date("Y-m-d H:i:s", time() + $authCode->getRemainingTime())
+          'api_id'      => $apiId,
+          'user_id'     => $userId,
+          'expires'     => date("Y-m-d H:i:s", time() + $authorization->getRemainingTime())
         ));
-        $authDB->insert();
+        $authDB->store();
 
         // Return redirection-url with data (Authorization-Code)
         return sprintf(
@@ -352,10 +355,11 @@ class Authorize extends Libs\RESTModel {
     $userId         = $param['user_id'];
     $iliasClient    = $param['ilias_client'];
     $apiKey         = $param['api_key'];
+    $apiId          = $param['api_id'];
     $scope          = $param['scope'];
 
     // Generate redirection url and redirect
-    $url = self::GetRedirectURI($responseType, $answer, $redirectUri, $state, $userId, $iliasClient, $apiKey, $scope);
+    $url = self::GetRedirectURI($responseType, $answer, $redirectUri, $state, $userId, $iliasClient, $apiKey, $apiId, $scope);
     $app->redirect($url);
   }
 

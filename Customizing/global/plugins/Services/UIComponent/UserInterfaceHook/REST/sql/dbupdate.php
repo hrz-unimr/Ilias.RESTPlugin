@@ -83,7 +83,7 @@
   ));
   $ilDB->insert('ui_uihk_rest_config', array(
     'setting_name'  => array('text', 'authorization_token_ttl'),
-    'setting_value' => array('text', 1)
+    'setting_value' => array('text', '5')
   ));
   $ilDB->insert('ui_uihk_rest_config', array(
     'setting_name'  => array('text', 'short_token_ttl'),
@@ -377,6 +377,16 @@
 <?php
   $fields = array(
     'id' => array(
+      'type'    => 'integer',
+      'length'  => 4,
+      'notnull' => true
+    ),
+    'api_id' => array(
+      'type'    => 'integer',
+      'length'  => 4,
+      'notnull' => true
+    ),
+    'user_id' => array(
       'type'    => 'integer',
       'length'  => 4,
       'notnull' => true

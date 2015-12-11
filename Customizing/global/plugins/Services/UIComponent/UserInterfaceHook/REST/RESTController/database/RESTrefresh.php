@@ -43,7 +43,12 @@ class RESTrefresh extends Libs\RESTDatabase {
    */
   public static function fromToken($tokenString) {
     // Generate a (save) where clause for the token ($tokenString can be malformed!)
-    $where  = sprintf('token = %s', self::quote($tokenString, 'text'));
+    $where  = sprintf(
+      'token IN (%s, %s, %s)',
+      self::quote($tokenString, 'text'),
+      self::quote(urlencode($tokenString), 'text'),
+      self::quote(urldecode($tokenString), 'text')
+    );
 
     // Fetch matching object
     return self::fromWhere($where);

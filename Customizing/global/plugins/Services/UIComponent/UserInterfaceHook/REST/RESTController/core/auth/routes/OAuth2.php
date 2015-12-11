@@ -181,13 +181,14 @@ $app->group('/v1', function () use ($app) {
         $remoteIp     = Common::FetchUserAgentIP();
 
         // Exchange refresh-token for access-token (and new refresh-token?)
-        if ($grant_type == 'refresh_token') {
+        if ($grantType == 'refresh_token') {
           // Fetch additional parameters for exchange (api-key is optional)
           $apiKey = $request->params('api_key');
+          $scope    = $request->params('scope');
           $code   = $request->params('refresh_token', null, true);
 
           // Proccess input-parameters according to (post) token flow (throws exception on problem)
-          $data = Token::FlowRefreshToken($grantType, $apiKey, $apiSecret, $apiCert, $code, $iliasClient, $remoteIp);
+          $data = Token::FlowRefreshToken($grantType, $apiKey, $apiSecret, $apiCert, $code, $iliasClient, $scope, $remoteIp);
         }
 
         // Manage all of the other supported grant-types...

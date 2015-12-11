@@ -29,8 +29,9 @@ class Token extends Libs\RESTModel {
   const ID_AUTHORIZATION_MISTMATCH      = 'RESTController\\core\\auth::ID_AUTHORIZATION_MISTMATCH';
   const MSG_GRANT_TYPE                  = 'Invalid grant_type \'{{grant_type}}\', must be one of ' .
                                           '\'authorization_code\' for Authorization-Code, ' .
-                                          '\'password\' for Resource-Owner Credentials or ' .
-                                          '\'client_credentials\' for Client-Credentials';
+                                          '\'password\' for Resource-Owner Credentials,' .
+                                          '\'client_credentials\' for Client-Credentials or'.
+                                          '\'refresh_token\' for exchaning a Refresh-Token.';
   const ID_GRANT_TYPE                   = 'RESTController\\core\\auth::ID_GRANT_TYPE';
   const MSG_RESOURCE_OWNER_DISABLED     = 'Resource-Owner grant is disabled for this client (api-key).';
   const ID_RESOURCE_OWNER_DISABLED      = 'RESTController\\core\\auth\\Authorize::ID_RESOURCE_OWNER_DISABLED';
@@ -61,7 +62,7 @@ class Token extends Libs\RESTModel {
         self::MSG_GRANT_TYPE,
         self::ID_GRANT_TYPE,
         array(
-          'response_type' => $param['response_type']
+          'grant_type' => $type
         )
       );
 
@@ -128,11 +129,16 @@ class Token extends Libs\RESTModel {
     $authorization  = Tokens\Authorization::fromMixed($settings, $authorizationCode);
 
     // Check the authorization-code has not expired
-    if ($authorization->isExpired())
+    if ($authorization->isExpired()) {
+      // Cleanup database
+      Authorize::DatabaseCleanup();
+
+      // Throw exception
       throw new Exceptions\Denied(
         self::MSG_AUTHORIZATION_EXPIRED,
         self::ID_AUTHORIZATION_EXPIRED
       );
+    }
 
     // Compare authorization-code values with those given as parameters
     if (
@@ -352,7 +358,9 @@ class Token extends Libs\RESTModel {
     $refreshDB->refreshed();
 
     // Return success-data
-    return self::GetAccessToken($grantType, $client, $userId, $iliasClient, $apiKey, $scope);
+    $data                   = self::GetAccessToken($grantType, $client, $userId, $iliasClient, $apiKey, $scope);
+    $data['refresh_token']  = urlencode($refreshCode);
+    return $data;
   }
 
 
@@ -423,7 +431,7 @@ class Token extends Libs\RESTModel {
       'refresh_token' => (isset($refreshCode)) ? $refreshCode : null,
       'expires_in'    => $access->getRemainingTime(),
       'token_type'    => 'Bearer',
-      'scope'         => $scope
+      'scope'         => (isset($scope) && strlen($scope) > 0) ? $scope : null
     );
   }
 }
