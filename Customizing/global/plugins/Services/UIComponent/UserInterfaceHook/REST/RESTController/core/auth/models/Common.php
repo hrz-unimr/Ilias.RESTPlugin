@@ -20,7 +20,7 @@ use \RESTController\database as Database;
  */
 class Common extends Libs\RESTModel {
   // Allow to re-use status messages and codes
-  const MSG_RESTRICTED_IP               = 'This client (api-key) is not allowed to be used from {{ip}} IP-Address.';
+  const MSG_RESTRICTED_IP               = 'This client (api-key) is not allowed to be used from IP: {{ip}}';
   const ID_RESTRICTED_IP                = 'RESTController\\core\\auth\\Authorize::ID_RESTRICTED_IP';
   const MSG_RESTRICTED_USER             = 'Resource-Owner \'{{username}}\' is not allowed to use this client (api-key).';
   const ID_RESTRICTED_USER              = 'RESTController\\core\\auth\\Authorize::ID_RESTRICTED_USER';
@@ -136,7 +136,7 @@ class Common extends Libs\RESTModel {
    */
   public static function CheckClientCredentials($client, $apiSecret, $apiCert, $redirectUri) {
     // Check wether the client needs to be and can be authorized
-    if (!$client->checkCredentials($apiSecret, $apiCert, $redirectUri)) 
+    if (!$client->checkCredentials($apiSecret, $apiCert, $redirectUri))
       throw new Exceptions\Denied(
         self::MSG_UNAUTHORIZED_CLIENT,
         self::ID_UNAUTHORIZED_CLIENT
