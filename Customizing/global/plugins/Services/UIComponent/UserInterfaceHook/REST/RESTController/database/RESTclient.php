@@ -24,6 +24,9 @@ class RESTclient extends Libs\RESTDatabase {
     'id'                          => 'integer',
     'api_key'                     => 'text',
     'api_secret'                  => 'text',
+    'cert_serial'                 => 'text',
+    'cert_issuer'                 => 'text',
+    'cert_subject'                => 'text',
     'redirect_uri'                => 'text',
     'ips'                         => 'text',
     'consent_message'             => 'text',
@@ -165,7 +168,7 @@ class RESTclient extends Libs\RESTDatabase {
    */
   protected function checkClientSecret($givenSecret = null) {
     // Compare client-secret, if one was set for this client
-    $secret = $this->getKey('secret');
+    $secret = $this->getKey('api_secret');
     if ($secret == null || $secret == $givenSecret)
       return true;
 

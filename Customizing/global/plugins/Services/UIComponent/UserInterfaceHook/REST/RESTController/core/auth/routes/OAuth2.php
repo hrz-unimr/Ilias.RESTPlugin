@@ -10,27 +10,6 @@ namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs     as Libs;
-use \RESTController\database as Database;
-
-
-/**
-
-TODO: Parameters need to be converted to correct type!
-
-Alle Routen:
-  * IP restriction prüfen                   [Auth: X]
-  * User-Restriction prüfen                 [Auth: X]
-  * Check client with api-key exists        [Auth: X]
-  * Check if client has grant-type enabled  [Auth: X]
-
-Token-Endpoint - Auth-Code:
-  * check client-credentials
-  * check auth-code values with client-parameters (eg. api-key, redirect_uri, etc.)
-  * check auth-code not expired (look up in DB, delete afterwards!)
-  * send access-token, send and store refresh-token
-  * SCOPE steckt im Auth-TOKEN
-
-**/
 
 
 // Group as version-1 implementation
@@ -61,7 +40,7 @@ $app->group('/v1', function () use ($app) {
     $app->get('/authorize', function () use ($app) {
       try {
         // Check request-parameters
-        $request  = $app->request();
+        $request      = $app->request();
         $responseType = $request->params('response_type', null, true);
         $redirectUri  = $request->params('redirect_uri');
         $apiSecret    = $request->params('api_secret');
@@ -75,20 +54,23 @@ $app->group('/v1', function () use ($app) {
         $data         = Authorize::FlowGetAuthorize($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP);
 
         // Show permission website (should show login)
-        Authorize::showWebsite($data);
+        Authorize::showWebsite($app, $data);
       }
 
       // Database query failed (eg. no client with given api-key)
       catch (Libs\Exceptions\Database $e) {
-        $e->redirect($params['redirect_uri'], 'unauthorized_client');
+        $e->redirect($redirectUri, 'unauthorized_client');
       }
       // Catch unsupported response_type (Exceptions\ResponseType)
       // Catch invalid request (Exceptions\InvalidRequest)
       // Catch if access is denied, by user of due to client settings (Exceptions\Denied)
       // Catch missing parameters (Libs\Exceptions\Parameter)
       catch (Libs\RESTException $e) {
-        $e->redirect($params['redirect_uri']);
+        $e->redirect($redirectUri);
       }
+
+      // invalid api-key
+      // Different exception for missing and wrong client-auth?
     });
 
 
@@ -143,8 +125,10 @@ $app->group('/v1', function () use ($app) {
         $data         = Authorize::FlowPostAuthorize($responseType, $iliasClient, $userName, $passWord, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP, $answer);
 
         // Either redirect user-agent (access was granted or denied) back to client...
-        if (isset($answer))
+        if (isset($answer)) {
           Authorize::RedirectUserAgent($app, $data);
+          Authorize::DatabaseCleanup();
+        }
 
         // ... or display website to ask to allow/deny the client access
         else
@@ -156,19 +140,19 @@ $app->group('/v1', function () use ($app) {
         Authorize::LoginFailed($app, $params, $e);
       }
       // Catch wrong resource-owner credentials
-      catch (Exception\Credentials $e) {
+      catch (Exceptions\Credentials $e) {
         Authorize::LoginFailed($app, $params, $e);
       }
       // Database query failed (eg. no client with given api-key)
       catch (Libs\Exceptions\Database $e) {
-        $e->redirect($params['redirect_uri'], 'unauthorized_client');
+        $e->redirect($redirectUri, 'unauthorized_client');
       }
       // Catch unsupported response_type
       // Catch invalid request
       // Catch if access is denied (by user of due to client settings)
       // Catch missing parameters
       catch (Libs\RESTException $e) {
-        $e->redirect($params['redirect_uri']);
+        $e->redirect($redirectUri);
       }
     });
 
@@ -209,23 +193,26 @@ $app->group('/v1', function () use ($app) {
         // Manage all of the other supported grant-types...
         else {
           // Fetch additional parameters for all other requests (api-key is manditory)
-          $apiKey       = $request->params('api_key', null, true);
+          $apiKey = $request->params('api_key', null, true);
 
           // Check grant_type is supported
           Token::CheckGrantType(null, $grantType);
 
           // Grant-Type: Authorization Code
-          if ($grant_type == 'authorization_code') {
+          if ($grantType == 'authorization_code') {
             // Fetch additional parameters for Authorization-Code grant flow
             $redirectUri  = $request->params('redirect_uri', null, true);
             $code         = $request->params('code', null, true);
 
             // Proccess input-parameters according to (post) token flow (throws exception on problem)
             $data = Token::FlowAuthorizationCode($grantType, $apiKey, $apiSecret, $apiCert, $code, $redirectUri, $iliasClient, $remoteIp);
+
+            // Clear expired Authorization-Code tokens
+            Authorize::DatabaseCleanup();
           }
 
           // Grant-Type: Resource-Owner Credentials
-          elseif ($grant_type == 'password') {
+          elseif ($grantType == 'password') {
             // Fetch additional parameters for Resource-Owner Credentials grant flow
             $userName = $request->params('username', null, true);
             $passWord = $request->params('password', null, true);
@@ -236,7 +223,7 @@ $app->group('/v1', function () use ($app) {
           }
 
           // Grant-Type: Client Credentials
-          elseif ($grant_type == 'client_credentials') {
+          elseif ($grantType == 'client_credentials') {
             // Fetch additional parameters for Client Credentials grant flow
             $scope    = $request->params('scope');
 

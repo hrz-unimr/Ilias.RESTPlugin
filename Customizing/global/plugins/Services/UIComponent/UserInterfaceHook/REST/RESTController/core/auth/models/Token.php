@@ -9,6 +9,7 @@ namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
+use \RESTController\database as Database;
 
 
 /**
@@ -65,24 +66,24 @@ class Token extends Libs\RESTModel {
       );
 
     // Without a given client, only check grant_type is supported
-    if (!isset($client)) {
+    if (isset($client)) {
       // Authorization-Code is disabled?
       if ($type == 'authorization_code' && $client->getKey('grant_authorization_code') != true)
-        throw new Exception\Denied(
+        throw new Exceptions\Denied(
           Common::MSG_AUTHORIZATION_CODE_DISABLED,
           Common::ID_AUTHORIZATION_CODE_DISABLED
         );
 
       // Resource-Owner Credentials is disabled?
       if ($type == 'password' && $client->getKey('grant_resource_owner') != true)
-        throw new Exception\Denied(
+        throw new Exceptions\Denied(
           self::MSG_RESOURCE_OWNER_DISABLED,
           self::ID_RESOURCE_OWNER_DISABLED
         );
 
       // Client Credentials is disabled?
       if ($type == 'client_credentials' && $client->getKey('grant_client_credentials') != true)
-        throw new Exception\Denied(
+        throw new Exceptions\Denied(
           self::MSG_CLIENT_CREDENTIALS_DISABLED,
           self::ID_CLIENT_CREDENTIALS_DISABLED
         );
@@ -98,7 +99,7 @@ class Token extends Libs\RESTModel {
           $client->getKey('refresh_authorization_code') == false && $client->getKey('refresh_resource_owner') == false
         )
       )
-        throw new Exception\Denied(
+        throw new Exceptions\Denied(
           self::MSG_REFRESH_DISABLED,
           self::ID_REFRESH_DISABLED
         );
@@ -128,7 +129,7 @@ class Token extends Libs\RESTModel {
 
     // Check the authorization-code has not expired
     if ($authorization->isExpired())
-      throw new Exception\Denied(
+      throw new Exceptions\Denied(
         self::MSG_AUTHORIZATION_EXPIRED,
         self::ID_AUTHORIZATION_EXPIRED
       );
@@ -139,7 +140,7 @@ class Token extends Libs\RESTModel {
       $apiKey       != $authorization->getApiKey() ||
       $redirectUri  != $authorization->getMisc()
     )
-      throw new Exception\Denied(
+      throw new Exceptions\Denied(
         self::MSG_AUTHORIZATION_MISTMATCH,
         self::ID_AUTHORIZATION_MISTMATCH
       );
@@ -169,24 +170,24 @@ class Token extends Libs\RESTModel {
 
     // Check the refresh-token has not expired
     if ($refresh->isExpired())
-      throw new Exception\Denied(
+      throw new Exceptions\Denied(
         self::MSG_REFRESH_EXPIRED,
         self::ID_REFRESH_EXPIRED
       );
 
     // Compare refresh-token values with those given as parameters
     if (
-      $iliasClient     != $refresh->getIliasClient() ||
-      $apiKey          != $refresh->getApiKey()
+      $iliasClient  != $refresh->getIliasClient() ||
+      $apiKey       != $refresh->getApiKey()
     )
-      throw new Exception\Denied(
+      throw new Exceptions\Denied(
         self::MSG_REFRESH_MISTMATCH,
         self::ID_REFRESH_MISTMATCH
       );
 
     // Compare refresh-token values with those given as parameters (scope is covered?)
     if (isset($scope) && !$refresh->hasScope($scope))
-      throw new Exception\Denied(
+      throw new Exceptions\Denied(
         self::MSG_REFRESH_SCOPE,
         self::ID_REFRESH_SCOPE
       );
@@ -271,7 +272,7 @@ class Token extends Libs\RESTModel {
 
     // Check username and authorize RO
     $userId = Common::CheckUsername($userName);
-    CheckResourceOwner($userName, $passWord);
+    Common::CheckResourceOwner($userName, $passWord);
 
     // Check resource-owner fullfills user-restriction (throws on problem)
     Common::CheckUserRestriction($apiKey, $userId);
@@ -382,27 +383,44 @@ class Token extends Libs\RESTModel {
       $grantType == 'authorization_code' && $client->getKey('refresh_authorization_code') ||
       $grantType == 'password' && $client->getKey('refresh_resource_owner')
     ) {
-      // Load settings for refresh-token and create ne object from parameters
-      $refreshSettings  = Tokens\Settings::load('refresh');
-      $refresh          = Tokens\Refresh::fromFields($refreshSettings, $userId, $iliasClient, $apiKey, $scope);
+      // Load refresh-settings
+      $refreshSettings = Tokens\Settings::load('refresh');
 
-      // Store token in database
-      $time = time();
-      $refreshDB = Database\RESTrefresh::fromRow(array(
-        'user_id'       => $userId,
-        'api_id'        => $client->getKey('id)'),
-        'token'         => $refresh->getTokenString(),
-        'last_refresh'  => $time,
-        'created'       => $time,
-        'refreshes'     => 0
-      ));
-      $refreshDB->insert();
+      // Extract primary-key of given client
+      $apiId = $client->getKey('id');
+
+      // Used to catch if no existing refresh-key was found...
+      try {
+        // Check wether a refresh-token was already generated
+        $refreshDB = Database\RESTrefresh::fromIDs($userId, $apiId);
+        $refreshDB->refreshed();
+
+        // Return existing refresh-token
+        $refreshCode = $refreshDB->getKey('token');
+      }
+      catch (Libs\Exceptions\Database $e) {
+        // Create a new refresh-token
+        $refresh      = Tokens\Refresh::fromFields($refreshSettings, $userId, $iliasClient, $apiKey, $scope);
+        $refreshCode  = $refresh->getTokenString();
+
+        // Store token in database
+        $time = date("Y-m-d H:i:s");
+        $refreshDB = Database\RESTrefresh::fromRow(array(
+          'user_id'       => $userId,
+          'api_id'        => $apiId,
+          'token'         => $refreshCode,
+          'last_refresh'  => $time,
+          'created'       => $time,
+          'refreshes'     => 0
+        ));
+        $refreshDB->insert();
+      }
     }
 
     // Return success-data
     return array(
       'access_token'  => $access->getTokenString(),
-      'refresh_token' => (isset($refresh)) ? $refresh->getTokenString() : null,
+      'refresh_token' => (isset($refreshCode)) ? $refreshCode : null,
       'expires_in'    => $access->getRemainingTime(),
       'token_type'    => 'Bearer',
       'scope'         => $scope

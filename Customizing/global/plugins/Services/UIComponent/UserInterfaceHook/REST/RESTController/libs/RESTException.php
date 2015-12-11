@@ -180,7 +180,7 @@ class RESTException extends \Exception {
   public function redirect($redirect_uri, $typeOverwrite = null) {
     // A redirect_uri is absolutely required
     if (!isset($redirect_uri))
-      $this->halt(500);
+      $this->send(500);
 
     // Fect instance of the RESTController
     $app = \RESTController\RESTController::getInstance();

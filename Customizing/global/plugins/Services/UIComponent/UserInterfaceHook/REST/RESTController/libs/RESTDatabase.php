@@ -26,9 +26,9 @@ abstract class RESTDatabase {
   // Allow to re-use status messages and codes
   const MSG_WRONG_ROW_TYPE  = 'Constructor requires first parameter of type array, but it is: {{type}}.';
   const ID_WRONG_ROW_TYPE   = 'RESTController\\libs\\RESTDatabase::ID_WRONG_ROW_TYPE';
-  const MSG_WRONG_ROW_SIZE  = 'Constructor requires first parameter to be an array of size {{required}}, but it is {{input}}.';
+  const MSG_WRONG_ROW_SIZE  = 'Constructor requires first parameter to be an array of size {{required}} (with optional primary-key), but it is {{input}}.';
   const ID_WRONG_ROW_SIZE   = 'RESTController\\libs\\RESTDatabase::ID_WRONG_ROW_SIZE';
-  const MSG_NO_ENTRY        = 'Could not find entry for query: {{sql}}.';
+  const MSG_NO_ENTRY        = 'Could not find entry for query: {{sql}}';
   const ID_NO_ENTRY         = 'RESTController\\libs\\RESTDatabase::ID_NO_ENTRY';
   const MSG_NO_KEY          = 'There is no key "{{key}}" in table "{{table}}".';
   const ID_NO_KEY           = 'RESTController\\libs\\RESTDatabase::ID_NO_KEY';
@@ -134,7 +134,7 @@ abstract class RESTDatabase {
 
 
   /**
-   * Factory-Method: RESTDatabase::fromWhere($where, $joinWith, $limit)
+   * Factory-Method: RESTDatabase::fromWhere($where, $joinSettings, $limit, $offset)
    *  Creates a new RESTDatabase-Instance from given input parameters.
    *  This method recieves the table-data by fetching the table
    *  entry via a simple
@@ -154,21 +154,21 @@ abstract class RESTDatabase {
    *
    * Parameters:
    *  $where <String> - Valid SQL where-clause (Needs to be validated by the caller!)
-   *  $joinWith <String> - [Optional] Allows to run a INNER-JOIN query on supported join-tables, use fully quantified classname
+   *  $joinSettings <Array[String]> - [Optional] Allows to run a INNER-JOIN query (key = table-name, value = joined-keys)
    *  $limit <Boolean/Integer> - [Optional] Limit the number of fetches entries (default: 1)
    *  $offset <Boolean/Integer> - [Optional] Can be used in conjuction with $limit to fetch additional entries.
    *
    * Return:
    *  <RESTDatabase/Array[RESTDatabase]> - New instance(s) of RESTDatabase fetched via input parameters
    */
-  public static function fromWhere($where, $joinWith = null, $limit = false, $offset = false) {
+  public static function fromWhere($where, $joinSettings = null, $limit = false, $offset = false) {
     // Static-Parse the where-clause (replacing {{table}} and {{primary}})
     $where = self::parseStaticSQL($where);
 
     // Optional additions to sql-query
     $limitSQL   = '';
     $offsetSQL  = '';
-    $joinSql    = '';
+    $joinSQL    = '';
     $sql        = '';
 
     // Generate LIMIT and OFFSET sql sub-queries
@@ -179,16 +179,13 @@ abstract class RESTDatabase {
 
     // Generate JOIN sql sub-query
     $table        = static::getTableName();
-    if (isset($joinWith)) {
-      // Fetch table-name and table-key which should be joined against
-      $joinTable  = call_user_func(array($joinWith, 'getTableName'));
-      $joinKey    = call_user_func(array($joinWith, 'getJoinKey'), $table);
-
-      // Fetch key which should be joined against
-      $key        = static::getJoinKey($joinWith);
+    if (isset($joinSettings)) {
+      // JoinSettings keys are treaded as table-names and its values as joined-keys
+      $joinTables = implode(', ',    array_keys($joinSettings));
+      $joinKeys   = implode(' AND ', array_values($joinSettings));
 
       // Build JOIN sub-query
-      $joinSql    = sprintf('JOIN %s ON %s.%s = %s.%s', $joinTable, $table, $key, $joinTable, $joinKey);
+      $joinSQL    = sprintf('JOIN %s ON %s', $joinTables, $joinKeys);
     }
 
     // Combine all sub-queries into final sql-query
@@ -214,6 +211,9 @@ abstract class RESTDatabase {
         return new static($row);
 
     // If the function hasn't returned until here, the query must have failed
+    // Note: This is intenionally NEVER thrown when $limit is used! The Idea is, that requesting exactly
+    //       one table-row should always return said row (or fail completely), while requesting multiple
+    //       should 'fail gracefully' (or better not fail), since queries might represent countable lookups.
     throw new Exceptions\Database(
       self::MSG_NO_ENTRY,
       self::ID_NO_ENTRY,
@@ -893,7 +893,7 @@ abstract class RESTDatabase {
     if (isset($key)) {
       // Fetch type and value
       $value      = $this->row[$key];
-      $type       = $this->keys[$key];
+      $type       = static::$tableKeys[$key];
 
       // Combine (type, value) into pair
       $row[$key]  = array($type, $value);
@@ -903,7 +903,7 @@ abstract class RESTDatabase {
     else
       foreach($this->row as $key => $value) {
         // Fetch type and combine (type, value) into pair
-        $type       = $this->keys[$key];
+        $type       = static::$tableKeys[$key];
         $row[$key]  = array($type, $value);
       }
 
@@ -930,7 +930,7 @@ abstract class RESTDatabase {
     // Fetch type and value of the primary-key
     $key    = static::$primaryKey;
     $value  = $this->row[$key];
-    $type   = $this->keys[$key];
+    $type   = static::$tableKeys[$key];
 
     // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
     if ($value == false)

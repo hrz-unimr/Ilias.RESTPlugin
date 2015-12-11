@@ -9,6 +9,7 @@ namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
+use \RESTController\database as Database;
 
 
 /**
@@ -23,10 +24,12 @@ class Common extends Libs\RESTModel {
   const ID_RESTRICTED_IP                = 'RESTController\\core\\auth\\Authorize::ID_RESTRICTED_IP';
   const MSG_RESTRICTED_USER             = 'Resource-Owner \'{{username}}\' is not allowed to use this client (api-key).';
   const ID_RESTRICTED_USER              = 'RESTController\\core\\auth\\Authorize::ID_RESTRICTED_USER';
-  const MSG_WRONG_OWNER_CREDENTIALS     = 'Resource-Owner credentials (Username & Password) could not be authenticated.';
+  const MSG_WRONG_OWNER_CREDENTIALS     = 'Resource-Owner ({{username}}) could not be authenticated given his username and password.';
   const ID_WRONG_OWNER_CREDENTIALS      = 'RESTController\\core\\auth\\Authorize::ID_WRONG_OWNER_CREDENTIALS';
   const MSG_AUTHORIZATION_CODE_DISABLED = 'Authorization-Code grant is disabled for this client (api-key).';
   const ID_AUTHORIZATION_CODE_DISABLED  = 'RESTController\\core\\auth\\Authorize::ID_AUTHORIZATION_CODE_DISABLED';
+  const MSG_UNAUTHORIZED_CLIENT         = 'Client is required to authorize using his client-secret or his client-certificate.';
+  const ID_UNAUTHORIZED_CLIENT          = 'RESTController\\core\\auth\\Authorize::ID_UNAUTHORIZED_CLIENT';
 
 
   /**
@@ -133,11 +136,12 @@ class Common extends Libs\RESTModel {
    */
   public static function CheckClientCredentials($client, $apiSecret, $apiCert, $redirectUri) {
     // Check wether the client needs to be and can be authorized
-    if (!$client->checkCredentials($apiSecret, $apiCert, $redirectUri))
+    if (!$client->checkCredentials($apiSecret, $apiCert, $redirectUri)) 
       throw new Exceptions\Denied(
         self::MSG_UNAUTHORIZED_CLIENT,
         self::ID_UNAUTHORIZED_CLIENT
       );
+
   }
 
 
@@ -169,7 +173,7 @@ class Common extends Libs\RESTModel {
    */
   public static function CheckUserRestriction($apiKey, $userId) {
     // Check user with given id exists in database (throws exception on problem)
-    Libs\RESTilias::getUserName($userId);
+    $username = Libs\RESTilias::getUserName($userId);
 
     // Check user restriction
     if (!Database\RESTuser::isUserAllowedByKey($apiKey, $userId))
@@ -177,7 +181,8 @@ class Common extends Libs\RESTModel {
         self::MSG_RESTRICTED_USER,
         self::ID_RESTRICTED_USER,
         array(
-          'userID'    => $userId
+          'userID'    => $userId,
+          'username'  => $username
         )
       );
   }
@@ -195,9 +200,12 @@ class Common extends Libs\RESTModel {
   public static function CheckResourceOwner($userName, $passWord) {
     // Check wether the resource owner credentials are valid
     if (!Libs\RESTilias::authenticate($userName, $passWord))
-      throw new Exception\Credentials(
+      throw new Exceptions\Credentials(
         self::MSG_WRONG_OWNER_CREDENTIALS,
-        self::ID_WRONG_OWNER_CREDENTIALS
+        self::ID_WRONG_OWNER_CREDENTIALS,
+        array(
+          'username' => $userName
+        )
       );
   }
 }

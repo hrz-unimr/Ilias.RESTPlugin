@@ -51,6 +51,26 @@ class RESTrefresh extends Libs\RESTDatabase {
 
 
   /**
+   * Function: fromIDs($userId, $apiId)
+   *  Creates a new instance of RESTrefresh representing the table-entry with given user-id and api-key id.
+   *
+   * Parameters:
+   *  $userId <Integer> - User-id whose refresh-token entry should be fetched
+   *  $apiId <Integer> - API-Key id whose refresh-token entry should be fetched
+   *
+   * Return:
+   *  <RESTrefresh> - A new instance of RESTrefresh representing the table-entry with given user-id and api-key id.
+   */
+  public static function fromIDs($userId, $apiId) {
+    // Generate a (save) where clause for the token ($userId, $apiId can be malformed!)
+    $where  = sprintf('user_id = %d AND api_id = %d', self::quote(intval($userId), 'integer'), self::quote(intval($apiId), 'integer'));
+
+    // Fetch matching object
+    return self::fromWhere($where);
+  }
+
+
+  /**
    * Function: setKey($key, $value, $write)
    *  @See RESTDatabase->setKey(...)
    */
@@ -74,27 +94,13 @@ class RESTrefresh extends Libs\RESTDatabase {
 
 
   /**
-   * Function: setKey($joinTable)
-   *  @See RESTDatabase::getJoinKey(...)
-   */
-  public static function getJoinKey($joinTable) {
-    // JOIN ui_uihk_rest_client ON ui_uihk_rest_client.id = ui_uihk_rest_refresh.api_id
-    if ($joinTable == 'RESTclient')
-      return 'api_id';
-
-    // Otherwise join on primary
-    return parent::getJoinKey($joinTable);
-  }
-
-
-  /**
    * Function: refreshed()
    *  Call this function to update the last_refresh timer and the number of refresh for this token.
    *  This will update the internally stored data as well as the database. (Needs valid primary-key)
    */
   public function refreshed() {
     // Update internal values
-    $this->setKey('last_refresh', time());
+    $this->setKey('last_refresh', date("Y-m-d H:i:s"));
     $this->setKey('refreshes', $this->getKey('refreshes') + 1);
 
     // Update database with internal values

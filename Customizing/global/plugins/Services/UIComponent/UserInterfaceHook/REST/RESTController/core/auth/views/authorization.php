@@ -1,9 +1,3 @@
-<!--
-Login -> Username, Password
-- Exception
-Permission -> Allow/Deny
-- Client
-- Scope
-- Resource owner
-- Consent
--->
+<?php
+print_r($parameters);
+?>

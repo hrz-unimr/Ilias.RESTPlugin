@@ -16,7 +16,7 @@ use \RESTController\core\auth\Exceptions as Exceptions;
  * Class: Base (-Token)
  *  (Convieved) Abstract class for common access- and refresh-token code.
  */
-class Base extends Base {
+class Base {
   // Allow to re-use status messages and codes
   const MSG_EXPIRED         = 'Token has expired.';
   const ID_EXPIRED          = 'RESTController\\core\\auth\\Base::ID_EXPIRED';

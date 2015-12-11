@@ -21,7 +21,8 @@ class RESTauthorization extends Libs\RESTDatabase {
   protected static $primaryKey  = 'id';
   protected static $tableName   = 'ui_uihk_rest_authcode';
   protected static $tableKeys   = array(
-    'id'    => 'integer',
-    'token' => 'text'
+    'id'      => 'integer',
+    'token'   => 'text',
+    'expires' => 'text'
   );
 }

@@ -9,6 +9,7 @@ namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
+use \RESTController\database as Database;
 
 
 /**
@@ -78,26 +79,36 @@ class Authorize extends Libs\RESTModel {
         self::MSG_RESPONSE_TYPE,
         self::ID_RESPONSE_TYPE,
         array(
-          'response_type' => $param['response_type']
+          'response_type' => $type
         )
       );
 
     // Without a given client, only check grant_type is supported
-    if (!isset($client)) {
+    if (isset($client)) {
       // Check if response_type is enabled for this client (Autorization-Code)
       if ($type == 'code' && $client->getKey('grant_authorization_code') != true)
-        throw new Exception\Denied(
+        throw new Exceptions\Denied(
           Common::MSG_AUTHORIZATION_CODE_DISABLED,
           Common::ID_AUTHORIZATION_CODE_DISABLED
         );
 
       // Check if response_type is enabled for this client (Implicit)
       if ($type == 'token' && $client->getKey('grant_implicit') != true)
-        throw new Exception\Denied(
+        throw new Exceptions\Denied(
           self::MSG_IMPLICIT_DISABLED,
           self::ID_IMPLICIT_DISABLED
         );
     }
+  }
+
+
+  /**
+   * Function: DatabaseCleanup()
+   *  Clears expired expiration-tokens from database.
+   */
+  public static function DatabaseCleanup() {
+    // Delete expired tokens
+    Database\RESTauthorization::deleteByWhere('expires < NOW()');
   }
 
 
@@ -171,14 +182,18 @@ class Authorize extends Libs\RESTModel {
     // Fetch same template data as fro get requests (throws on problem)
     $data = self::FlowGetAuthorize($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP);
 
-    // Check username is correct (case-sensitive) (throws on problem)
-    $userId = CheckUsername($userName);
+    // Only continue with this path if username was given
+    if (isset($userName)) {
+      // Check username is correct (case-sensitive) (throws on problem)
+      $userId = Common::CheckUsername($userName);
 
-    // Check that resource-owner is allowed to use this client (throws on problem)
-    CheckUserRestriction($apiKey, $userId);
+      // Check that resource-owner is allowed to use this client (throws on problem)
+      Common::CheckUserRestriction($apiKey, $userId);
 
-    // Check username and password match an ILIAS account (throws on problem)
-    CheckResourceOwner($userName, $passWord);
+      // Check username and password match an ILIAS account (throws on problem)
+      if (isset($passWord))
+        Common::CheckResourceOwner($userName, $passWord);
+    }
 
     // Add additional fields to template data
     return array_merge(array(
@@ -223,7 +238,8 @@ class Authorize extends Libs\RESTModel {
 
         // Store authorization-code token (rfx demands it only be used ONCE)
         $authDB         = Database\RESTauthorization::fromRow(array(
-          'token'       => $authCode
+          'token'       => $authCode,
+          'expires'     => date("Y-m-d H:i:s", time() + $authCode->getRemainingTime())
         ));
         $authDB->insert();
 

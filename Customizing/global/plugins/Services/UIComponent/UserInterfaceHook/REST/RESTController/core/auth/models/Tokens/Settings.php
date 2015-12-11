@@ -67,7 +67,7 @@ class Settings {
     switch ($type) {
       // Short-(Lived-)Token
       case 'short':
-        $settings  = Database\RESTConfig::fetchSettings(array(
+        $settings  = Database\RESTconfig::fetchSettings(array(
           'short_token_ttl',
           'salt'
         ));
@@ -76,7 +76,7 @@ class Settings {
 
       // Access-Token
       case 'access':
-        $settings  = Database\RESTConfig::fetchSettings(array(
+        $settings  = Database\RESTconfig::fetchSettings(array(
           'access_token_ttl',
           'salt'
         ));
@@ -85,7 +85,7 @@ class Settings {
 
       // Refresh-Token
       case 'refresh':
-        $settings  = Database\RESTConfig::fetchSettings(array(
+        $settings  = Database\RESTconfig::fetchSettings(array(
           'refresh_token_ttl',
           'salt'
         ));
@@ -94,7 +94,7 @@ class Settings {
 
       // Authorization-Token
       case 'authorization':
-        $settings  = Database\RESTConfig::fetchSettings(array(
+        $settings  = Database\RESTconfig::fetchSettings(array(
           'authorization_token_ttl',
           'salt'
         ));

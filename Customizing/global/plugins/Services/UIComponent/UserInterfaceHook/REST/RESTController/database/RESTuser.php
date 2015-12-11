@@ -59,9 +59,12 @@ class RESTuser extends Libs\RESTDatabase {
   public static function fromApiKey($apiKey) {
     // Generate a (save) where clause for the api-key ($apiKey can be malformed!)
     $where  = sprintf('ui_uihk_rest_client.api_key = %s', self::quote($apiKey, 'text'));
+    $join   = array(
+      'ui_uihk_rest_client' => 'ui_uihk_rest_client.id = ui_uihk_rest_user.api_id'
+    );
 
     // Fetch matching object(s), could be multiple rows (joined on api_id = api_key)
-    return self::fromWhere($where, 'ui_uihk_rest_client', true);
+    return self::fromWhere($where, $join, true);
   }
 
 
@@ -84,20 +87,6 @@ class RESTuser extends Libs\RESTDatabase {
 
     // Store key's value after convertion
     return parent::setKey($key, $value, $write);
-  }
-
-
-  /**
-   * Function: setKey($joinTable)
-   *  @See RESTDatabase::getJoinKey(...)
-   */
-  public static function getJoinKey($joinTable) {
-    // JOIN ui_uihk_rest_client ON ui_uihk_rest_client.id = ui_uihk_rest_user.api_id
-    if ($joinTable == 'RESTclient')
-      return 'api_id';
-
-    // Otherwise join on primary
-    return parent::getJoinKey($joinTable);
   }
 
 
