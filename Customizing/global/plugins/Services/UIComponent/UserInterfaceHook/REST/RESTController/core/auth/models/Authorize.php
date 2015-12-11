@@ -48,7 +48,7 @@ class Authorize extends Libs\RESTModel {
       $redirectUri = $client->getKey('redirect_uri');
 
       // If no redirect_uri was given and non is attached to the client, exit!
-      if (!isset($redirectUri))
+      if (!(isset($redirectUri) && $redirectUri != false))
         throw new Exceptions\InvalidRequest(
           Libs\RESTRequest::MSG_MISSING,
           Libs\RESTRequest::ID_MISSING,
@@ -131,7 +131,7 @@ class Authorize extends Libs\RESTModel {
    */
   public static function FlowGetAuthorize($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP) {
     // Check if client with api-key exists (throws on problem)
-    $client       = Common::CheckApiKey($apiKey);
+    $client = Common::CheckApiKey($apiKey);
 
     // Check response-type is valid and enabled for this client (throws on problem)
     self::CheckResponseType($client, $responseType);

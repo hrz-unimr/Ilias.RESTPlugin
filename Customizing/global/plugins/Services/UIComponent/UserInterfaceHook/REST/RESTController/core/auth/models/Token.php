@@ -405,6 +405,18 @@ class Token extends Libs\RESTModel {
 
         // Return existing refresh-token
         $refreshCode = $refreshDB->getKey('token');
+        $refresh     = Tokens\Refresh::fromMixed($refreshSettings, $refreshCode);
+
+        // Need to update scope? (This has the side-effect of invalidating other)
+        if (!$refresh->hasScope($scope)) {
+          // Update refresh-token
+          $refresh->setScope($scope);
+          $refreshCode = $refresh->getTokenString();
+
+          // Update DB with updated refresh-token
+          $refreshDB->setKey('token', $refreshCode);
+          $refreshDB->update();
+        }
       }
       catch (Libs\Exceptions\Database $e) {
         // Create a new refresh-token
