@@ -222,7 +222,7 @@ class Base {
   public function getUserName() {
     // Fetch username once
     if (!$this->username)
-      $this->username = Libs\RESTLib::getUserName($this->tokenArray['user_id']);
+      $this->username = Libs\RESTilias::getUserName($this->tokenArray['user_id']);
 
     // Afterwars simply return stored value
     return $this->username;

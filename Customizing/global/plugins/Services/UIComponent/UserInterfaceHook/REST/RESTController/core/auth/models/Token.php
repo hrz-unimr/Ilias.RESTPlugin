@@ -153,16 +153,17 @@ class Token extends Libs\RESTModel {
 
   /**
    * Function: CheckRefreshToken($refreshCode, $apiKey, $iliasClient, $scope)
-   *
+   *  Checks wether the given refresh token is valid and matches with the request parameters.
+   *  Throws an exceptions if any of the checks fail...
    *
    * Parameters:
-   *  $refreshCode <> -
-   *  $apiKey <> -
-   *  $iliasClient <> -
-   *  $scope <> -
+   *  $refreshCode <String> - String representation of refresh-token
+   *  $apiKey <String> - API-Key of requesting client (needs to match refresh-token's client)
+   *  $iliasClient <String> - ILIAS client-id of current ILIAS run-time (needs to match refresh-tokens ILIAS client-id)
+   *  $scope <String> - Requested scope (must be covered by refresh-tokens scope)
    *
    * Return:
-   *  <RefreshToken> -
+   *  <RefreshToken> - Object representation of given refresh-token
    */
   public static function CheckRefreshToken($refreshCode, $apiKey, $iliasClient, $scope) {
     // Convert refresh-token (string) to refresh-token (Token-Object)
@@ -240,7 +241,7 @@ class Token extends Libs\RESTModel {
    *  Handles the overall grant flow for the token endpoint for the Authorization-Code grant type.
    *
    * Parameters:
-   *  $grantType <String> - The grant_type that was given as request parameter
+   *  $grantType <String> - The grant_type that was given as request parameter (needs to be 'authorization')
    *  $apiSecret <String> - The client secret used to authorize the given client
    *  $apiCert <Array[Mixed]> - The client-certificate used to authorize the given client
    *  $authorizationCode <String> - The Authorization-Code that was given as request parameter
@@ -292,13 +293,21 @@ class Token extends Libs\RESTModel {
 
   /**
    * Function: FlowResourceOwnerCredentials($grantType, $userName, $passWord, $apiKey, $apiSecret, $apiCert, $iliasClient, $remoteIp, $scope)
-   *  Handles the overall grant flow for the token endpoint for the Resource-Owner Credentials grant type
+   *  Handles the overall grant flow for the token endpoint for the Resource-Owner Credentials grant type.
    *
    * Parameters:
-   *  <> -
+   *  $grantType <String> - The grant_type that was given as request parameter (needs to be 'password')
+   *  $apiSecret <String> - The client secret used to authorize the given client
+   *  $apiCert <Array[Mixed]> - The client-certificate used to authorize the given client
+   *  $apiKey <String> - The API-Key that was given as request parameter
+   *  $iliasClient <String> - The current ilias client
+   *  $remoteIp <String> - The ip-address of the user-agent used by the resource-owner
+   *  $scope <String> - Requested scope by the given client
+   *  $userName <String> - Username of resource-owner to allow access to his resources
+   *  $passWord <String> - Password assiciated with username of resource-owner to allow access to his resources
    *
    * Return:
-   *  <Array[Mixed]> -
+   *  <Array[Mixed]> - Data containing access- (and possibly refresh-) token upon successfull grant flow
    */
   public static function FlowResourceOwnerCredentials($grantType, $userName, $passWord, $apiKey, $apiSecret, $apiCert, $iliasClient, $remoteIp, $scope) {
     // Check if client with api-key exists (throws on problem)
@@ -323,10 +332,16 @@ class Token extends Libs\RESTModel {
    *  Handles the overall grant flow for the token endpoint for the Client Credentials grant type
    *
    * Parameters:
-   *  <> -
+   *  $grantType <String> - The grant_type that was given as request parameter (needs to be 'client_credentials')
+   *  $apiSecret <String> - The client secret used to authorize the given client
+   *  $apiCert <Array[Mixed]> - The client-certificate used to authorize the given client
+   *  $apiKey <String> - The API-Key that was given as request parameter
+   *  $iliasClient <String> - The current ilias client
+   *  $remoteIp <String> - The ip-address of the user-agent used by the resource-owner
+   *  $scope <String> - Requested scope by the given client
    *
    * Return:
-   *  <Array[Mixed]> -
+   *  <Array[Mixed]> - Data containing access- (and possibly refresh-) token upon successfull grant flow
    */
   public static function FlowClientCredentials($grantType, $apiKey, $apiSecret, $apiCert, $iliasClient, $scope, $remoteIp) {
     // Check if client with api-key exists (throws on problem)
@@ -344,10 +359,17 @@ class Token extends Libs\RESTModel {
    *  Handles the overall grant flow for the token endpoint for the exchange of refresh-token for a new access-token.
    *
    * Parameters:
-   *  <> -
+   *  $grantType <String> - The grant_type that was given as request parameter (needs to be 'refresh_token')
+   *  $apiSecret <String> - The client secret used to authorize the given client
+   *  $apiCert <Array[Mixed]> - The client-certificate used to authorize the given client
+   *  $apiKey <String> - The API-Key that was given as request parameter
+   *  $iliasClient <String> - The current ilias client
+   *  $remoteIp <String> - The ip-address of the user-agent used by the resource-owner
+   *  $scope <String> - Requested scope by the given client
+   *  $refreshCode <String> - String representation of refresh-token that should be exchanged for an access-token
    *
    * Return:
-   *  <Array[Mixed]> -
+   *  <Array[Mixed]> - Data containing access- (and possibly refresh-) token upon successfull grant flow
    */
   public static function FlowRefreshToken($grantType, $apiKey, $apiSecret, $apiCert, $refreshCode, $iliasClient, $scope, $remoteIp) {
     // Use refresh-token scope if non was given

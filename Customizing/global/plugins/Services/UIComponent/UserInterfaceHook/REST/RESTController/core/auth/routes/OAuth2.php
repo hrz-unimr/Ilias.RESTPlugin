@@ -169,6 +169,14 @@ $app->group('/v1', function () use ($app) {
      * Parameters:
      *  <Client-Credentials> - IFF the client is confidential (has a api_secret or crt_* stored)
      *                         This includes either a valid api_secret or a ssl client-certificate.
+     * Returns:
+     *  {
+     *   "access_token": <String> - Generated access-token allowing access to certain scopes/routes
+     *   "refresh_token": <String> - Generated refresh-token that has a longer ttl than an access-token and can be used to create new access-tokens
+     *   "expires_in": <Integer> - Number of seconds until access-token expires
+     *   "token_type": "Bearer" (Only tokens of type Bearer are supported)
+     *   "scope": <String> - Space separated list of allowed scopes for the given access-token
+     *  }
      */
     $app->post('/token', function () use ($app) {
       try {
@@ -247,49 +255,77 @@ $app->group('/v1', function () use ($app) {
 
     /**
      * Route: /v1/oauth2/token
-     *  This endpoint allows a user to invalidate his refresh-token.
+     *  This endpoint allows a user to invalidate their access- and refresh-token in case they were compromised.
+     *  This is not (directly) covered by the oAuth2 RFC (but implementing such functionality is recommended)
      *
      * Parameters:
      *
      *
-     * Response:
-     *
+     * Returns:
+     *  HTTP 1.1/OK
      */
     $app->delete('/token', function () use ($app) { });
 
 
     /**
-     * Route: [GET] /v1/oauth2/tokeninfo
-     *  Token-info route, Tokens obtained via the implicit code grant
-     *  MUST by validated by the Javascript client to prevent the
-     *  "confused deputy problem".
+     * Route: [GET] /v1/oauth2/info
+     *  Allows an end-user or client to get information about his refresh- or access-token.
+     *  This is not (directly) covered by the oAuth2 RFC (but implementing such functionality is recommended)
      *
      * Parameters:
+     *  access_token <String> - [Optional] Shows information about this access-token
+     *  refresh_token <String> - [Optional] Shows information about this refresh-token
+     *  (At least one of the parameters needs to be given!)
      *
-     *
-     * Response:
-     *
+     * Returns:
+     *  {
+     *    "user_id": <Integer> - ILIAS User-Id of the attached resource-owner
+     *    "user_name": <String> - ILIAS user-Name of the attached resource-owner
+     *    "ilias_client": <String> - ILIAS client_id of the attached resource-owner
+     *    "api_key": <String> - API-Key used to generate this token
+     *    "scope": <String> - Scope attached to this token
+     *    "misc": <String> - Misc information attached to this token
+     *    "expires": <String> - Date (Server-Timer) when the token will expire
+     *    "ttl": <Integer> - Number of seconds till the token expires
+     *  }
      */
     $app->get('/info', function () use ($app) {
       // Fetch parameters required for all routes
-      $request      = $app->request();
-      $grantType    = $request->params('grant_type', null, true);
+      $request  = $app->request();
+      $access   = $request->params('access_token');
+      $refresh  = $request->params('refresh_token');
+
+      // Generate token-info data
+      $data     = Misc::GetToken($access, $refresh);
+      $app->success($data);
     });
+  // End-Of /oauth2-group
+  });
 
 
+  // Group as oauth2 implementation
+  $app->group('/bridge', function () use ($app) {
     /**
-     * Route: [POST] /v1/ilauth/ilias2bearer
-     *  Allows for exchanging an ilias session with a bearer token.
-     *  This is used for administration purposes.
+     * Route: [POST] /v1/bridge/ilias
+     *  Allows for exchanging an ilias session with an oauth2 token.
      *
      * Parameters:
      *
-     *
-     * Response:
-     *
+     * Returns:
      */
     $app->post('/ilias', function () use ($app) { });
-  // End-Of /oauth2-group
+
+
+    /**
+     * Route: [POST] /v1/bridge/oauth2
+     *  Allows for exchanging an oauth2 token with an ilias session.
+     *
+     * Parameters:
+     *
+     * Returns:
+     */
+    $app->post('/oauth2', function () use ($app) { });
   });
+  // End-Of /bridge-group
 // End-Of /v1-group
 });

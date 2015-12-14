@@ -201,7 +201,20 @@ class Authorize extends Libs\RESTModel {
 
 
   /**
+   * Function: GetAuthorizationCode($userId, $iliasClient, $apiKey, $scope, $redirectUri)
+   *  Generates a new Authorization-Code with the given parameters and stores it inside the Database
+   *  for later lookup/comparison.
    *
+   * Parameters:
+   *  $apiKey <String> - Given api-key request parameter representing a client
+   *  $redirectUri <String> - Given redirect_uri used for redirection after termination of grant flow
+   *  $scope <String> - Requested scope
+   *  $iliasClient - Given ILIAS client-id
+   *  $answer - [Optional] Answer given by the resource-owner in regards to denying/allowing client access to his resources
+   *  $userId - ILIAS User-ID of the resource-owner
+   *
+   * Return:
+   *  <AuthorizationToken> - The generated Authorization-Code token that is required by the /token endpoint
    */
   public static function GetAuthorizationCode($userId, $iliasClient, $apiKey, $scope, $redirectUri) {
     // Generate Authorization-Code
@@ -233,11 +246,14 @@ class Authorize extends Libs\RESTModel {
    *  $redirectUri <String> - Given redirect_uri used for redirection after termination of grant flow
    *  $scope <String> - Requested scope
    *  $state <String> - Additional state-information
+   *  $iliasClient - Given ILIAS client-id
+   *  $answer - [Optional] Answer given by the resource-owner in regards to denying/allowing client access to his resources
+   *  $userId - ILIAS User-ID of the resource-owner
    *
    * Return:
    *  <String> - Generated redirection-url
    */
-  public static function GetRedirectURI($responseType, $answer, $redirectUri, $state, $userId, $iliasClient, $apiKey, $apiId, $scope) {
+  public static function GetRedirectURI($responseType, $answer, $redirectUri, $state, $userId, $iliasClient, $apiKey, $scope) {
     // Authorization-Code Grant
     if ($responseType == 'code') {
       // Access granted?
@@ -353,11 +369,10 @@ class Authorize extends Libs\RESTModel {
     $userId         = $param['user_id'];
     $iliasClient    = $param['ilias_client'];
     $apiKey         = $param['api_key'];
-    $apiId          = $param['api_id'];
     $scope          = $param['scope'];
 
     // Generate redirection url and redirect
-    $url = self::GetRedirectURI($responseType, $answer, $redirectUri, $state, $userId, $iliasClient, $apiKey, $apiId, $scope);
+    $url = self::GetRedirectURI($responseType, $answer, $redirectUri, $state, $userId, $iliasClient, $apiKey, $scope);
     $app->redirect($url);
   }
 
