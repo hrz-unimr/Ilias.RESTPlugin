@@ -331,7 +331,7 @@ abstract class RESTDatabase {
     $value  = $this->row[$key];
 
     // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
-    if ($value == false)
+    if ($value === false)
       throw new Exceptions\Database(
         self::MSG_NO_PRIMARY,
         self::ID_NO_PRIMARY,
@@ -441,7 +441,7 @@ abstract class RESTDatabase {
     $row = $this->getDBRow();
 
     // Remove primary-key from query-parameter? ('FALSE' primary-key means: non was set in the first place)
-    if ($newPrimary || $row[static::$primaryKey] == false)
+    if ($newPrimary || $row[static::$primaryKey] === false)
       unset($row[static::$primaryKey]);
 
     // Insert data into db table and update internal primary-key
@@ -495,7 +495,7 @@ abstract class RESTDatabase {
       $value  = $this->row[$key];
 
       // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
-      if ($value == false)
+      if ($value === false)
         throw new Exceptions\Database(
           self::MSG_NO_PRIMARY,
           self::ID_NO_PRIMARY,
@@ -610,7 +610,7 @@ abstract class RESTDatabase {
       $value  = $this->row[$key];
 
       // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
-      if ($value == false)
+      if ($value === false)
         throw new Exceptions\Database(
           self::MSG_NO_PRIMARY,
           self::ID_NO_PRIMARY,
@@ -933,7 +933,7 @@ abstract class RESTDatabase {
     $type   = static::$tableKeys[$key];
 
     // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
-    if ($value == false)
+    if ($value === false)
       throw new Exceptions\Database(sprintf(self::MSG_NO_PRIMARY, static::$tableName, static::$primaryKey), self::ID_NO_PRIMARY);
 
     // Combine (type, value) into pair and pack into associative array

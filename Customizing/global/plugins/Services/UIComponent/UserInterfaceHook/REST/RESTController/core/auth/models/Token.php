@@ -96,10 +96,10 @@ class Token extends Libs\RESTModel {
         $type == 'refresh_token' &&
         (
           // All grant-types which support refresh-tokens are disabled
-          $client->getKey('grant_authorization_code') == false && $client->getKey('grant_resource_owner') == false
+          $client->getKey('grant_authorization_code') === false && $client->getKey('grant_resource_owner') === false
           ||
           // Refresh tokens for all supported grant types are disabled
-          $client->getKey('refresh_authorization_code') == false && $client->getKey('refresh_resource_owner') == false
+          $client->getKey('refresh_authorization_code') === false && $client->getKey('refresh_resource_owner') === false
         )
       )
         throw new Exceptions\Denied(

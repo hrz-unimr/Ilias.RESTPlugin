@@ -112,7 +112,7 @@ class RESTclient extends Libs\RESTDatabase {
       case 'users':
       case 'scopes':
       case 'consent_message':
-        $value = ($value == false) ? null : $value;
+        $value = ($value === false) ? null : $value;
         break;
 
       // Convert int values
@@ -266,7 +266,7 @@ class RESTclient extends Libs\RESTDatabase {
    */
   public function isIpAllowed($ip) {
     // For security
-    if (filter_var($ip, FILTER_VALIDATE_IP) == false)
+    if (filter_var($ip, FILTER_VALIDATE_IP) === false)
       return false;
 
     // fetch allowed-ips regex

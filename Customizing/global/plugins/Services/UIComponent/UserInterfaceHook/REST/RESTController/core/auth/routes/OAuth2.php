@@ -184,7 +184,7 @@ $app->group('/v1', function () use ($app) {
         if ($grantType == 'refresh_token') {
           // Fetch additional parameters for exchange (api-key is optional)
           $apiKey = $request->params('api_key');
-          $scope    = $request->params('scope');
+          $scope  = $request->params('scope');
           $code   = $request->params('refresh_token', null, true);
 
           // Proccess input-parameters according to (post) token flow (throws exception on problem)
@@ -270,7 +270,11 @@ $app->group('/v1', function () use ($app) {
      * Response:
      *
      */
-    $app->get('/info', function () use ($app) {  });
+    $app->get('/info', function () use ($app) {
+      // Fetch parameters required for all routes
+      $request      = $app->request();
+      $grantType    = $request->params('grant_type', null, true);
+    });
 
 
     /**

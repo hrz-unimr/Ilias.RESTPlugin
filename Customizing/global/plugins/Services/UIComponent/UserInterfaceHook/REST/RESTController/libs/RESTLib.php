@@ -72,7 +72,7 @@ class RESTLib {
       $subjects = array($subjects);
 
     // No pattern set -> no restriction set
-    if (!isset($pattern) || $pattern == false || strlen($pattern) == 0)
+    if (!isset($pattern) || $pattern === false || strlen($pattern) == 0)
       return true;
 
     // Restriction is given as regex?
@@ -112,7 +112,7 @@ class RESTLib {
    *  <Boolean> True if subject matches pattern (or pattern or subject is disabled), false otherwise
    */
   public static function CheckSimpleRestriction($pattern, $subject) {
-    if ($subject == false || $pattern == null || $pattern == $subject)
+    if ($subject === false || $pattern == null || $pattern == $subject)
       return true;
     else
       return false;
