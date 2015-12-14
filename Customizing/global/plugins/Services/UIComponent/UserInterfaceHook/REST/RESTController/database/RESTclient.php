@@ -29,6 +29,8 @@ class RESTclient extends Libs\RESTDatabase {
     'cert_subject'                => 'text',
     'redirect_uri'                => 'text',
     'ips'                         => 'text',
+    'users'                       => 'text',
+    'scopes'                      => 'text',
     'consent_message'             => 'text',
     'client_credentials_userid'   => 'integer',
     'grant_client_credentials'    => 'integer',
@@ -74,6 +76,15 @@ class RESTclient extends Libs\RESTDatabase {
       // Convert string/boolean values
       case 'consent_message':
       case 'redirect_uri':
+      case 'api_secret':
+      case 'cert_serial':
+      case 'cert_issuer':
+      case 'cert_subject':
+      case 'redirect_uri':
+      case 'ips':
+      case 'users':
+      case 'scopes':
+      case 'consent_message':
         return ($value == null) ? false : $value;
 
       default:
@@ -92,6 +103,15 @@ class RESTclient extends Libs\RESTDatabase {
       // Convert string/boolean values
       case 'consent_message':
       case 'redirect_uri':
+      case 'api_secret':
+      case 'cert_serial':
+      case 'cert_issuer':
+      case 'cert_subject':
+      case 'redirect_uri':
+      case 'ips':
+      case 'users':
+      case 'scopes':
+      case 'consent_message':
         $value = ($value == false) ? null : $value;
         break;
 
@@ -102,7 +122,6 @@ class RESTclient extends Libs\RESTDatabase {
 
       // Convert (empty) string value
       case 'api_key':
-      case 'api_secret':
       case 'description':
         $value = ($value == null) ? '' : $value;
         break;
@@ -169,10 +188,7 @@ class RESTclient extends Libs\RESTDatabase {
   protected function checkClientSecret($givenSecret = null) {
     // Compare client-secret, if one was set for this client
     $secret = $this->getKey('api_secret');
-    if ($secret == null || $secret == $givenSecret)
-      return true;
-
-    return false;
+    return Libs\RESTLib::CheckSimpleRestriction($secret, $givenSecret);
   }
 
 
@@ -193,10 +209,7 @@ class RESTclient extends Libs\RESTDatabase {
   protected function checkClientRedirect($givenRedirect = false) {
     // Compare clients redirect_uri, if one was set for this client
     $redirect = $this->getKey('redirect_uri');
-    if ($givenRedirect == false || $redirect == null || $redirect == $givenRedirect)
-      return true;
-
-    return false;
+    return Libs\RESTLib::CheckSimpleRestriction($redirect, $givenRedirect);
   }
 
 
@@ -229,19 +242,12 @@ class RESTclient extends Libs\RESTDatabase {
     if (!isset($givenCert) || $givenCert['verify'] != 'SUCCESS' || !isset($givenCert['expires']) || $givenCert['ttl'] <= 0)
       return false;
 
-    // Given client-sertificate does not match (with serial)
-    if ($cert_serial != null && preg_match($cert_serial, $givenCert['serial']) != 1)
-      return false;
+    // Check serial, issuer and subject fields
+    if (!Libs\RESTLib::CheckComplexRestriction($cert_serial,  $givenCert['serial']))  return false;
+    if (!Libs\RESTLib::CheckComplexRestriction($cert_issuer,  $givenCert['issuer']))  return false;
+    if (!Libs\RESTLib::CheckComplexRestriction($cert_subject, $givenCert['subject'])) return false;
 
-    // Given client-sertificate does not match (with serial)
-    if ($cert_issuer != null && preg_match($cert_issuer, $givenCert['issuer']) != 1)
-      return false;
-
-    // Given client-sertificate does not match (with serial)
-    if ($cert_subject != null && preg_match($cert_subject, $givenCert['subject']) != 1)
-      return false;
-
-    // Seems to have been a success...
+    // Not returned by now -> all fields match or are disabled...
     return true;
   }
 
@@ -259,10 +265,62 @@ class RESTclient extends Libs\RESTDatabase {
    *  <Boolean> - True if the given ip is allowed to use this key
    */
   public function isIpAllowed($ip) {
+    // For security
+    if (filter_var($ip, FILTER_VALIDATE_IP) == false)
+      return false;
+
     // fetch allowed-ips regex
     $allowed = $this->getKey('ips');
 
-    // False means unset, otherwise ip needs to regex-match!
-    return $allowed == false || preg_match($allowed, $ip) == 1;
+    // Delegate to restriction-check
+    return Libs\RESTLib::CheckComplexRestriction($allowed, $ip);
+  }
+
+
+  /**
+   * Function: isUserAllowed($userId)
+   *  First checks if there exists any entries for this client.
+   *  If not, no restriction is active, otherwise only users with
+   *  their user-id (and given api-key / api-key id) who have an entry are allowed.
+   *
+   * Parameters:
+   *  $userId <Integer> - User-Id to check wether he is allowed to use this api-key
+   *
+   * Return:
+   *  <Boolean> - True if the user is allowed to use the given api-key / api-key id, false otherwise
+   */
+  public function isUserAllowed($userId) {
+    // For security...
+    if (!ctype_digit($userId))
+      return false;
+
+    // Fetch list (regex) of allowed users
+    $users = $this->getKey('users');
+
+    // Delegate to restriction-check
+    return Libs\RESTLib::CheckComplexRestriction($users, $userId);
+  }
+
+
+  /**
+   * Function: isScopeAllowed($scope)
+   *  Checks wether the requested scope is allowed to be used by the
+   *  this client. Only returns true if all requested scopes are allowed for this client.
+   *
+   * Parameters:
+   *  $scope <String>/<Array[String]> - Requested scope (or list of requested scopes)
+   *
+   * Return:
+   *  <Boolean> - True if all given scopes are allowed for this client, false otherwise
+   */
+  public function isScopeAllowed($scope) {
+    // Fetch list (regex) of allowed scopes
+    $allowed = $this->getKey('scopes');
+
+    // Extract requested scopes
+    $scopes = explode(' ', $scope);
+
+    // Delegate to restriction-check
+    return Libs\RESTLib::CheckComplexRestriction($allowed, $scopes, ' ');
   }
 }

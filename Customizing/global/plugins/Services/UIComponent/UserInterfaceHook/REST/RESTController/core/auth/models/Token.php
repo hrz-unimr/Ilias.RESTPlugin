@@ -24,27 +24,29 @@ use \RESTController\database as Database;
 class Token extends Libs\RESTModel {
   // Allow to re-use status messages and codes
   const MSG_AUTHORIZATION_EXPIRED       = 'The Authorization-Code token has expired.';
-  const ID_AUTHORIZATION_EXPIRED        = 'RESTController\\core\\auth::ID_AUTHORIZATION_EXPIRED';
+  const ID_AUTHORIZATION_EXPIRED        = 'RESTController\\core\\auth\\Token::ID_AUTHORIZATION_EXPIRED';
   const MSG_AUTHORIZATION_MISTMATCH     = 'The Authorization-Code token content does not match the request parameters.';
-  const ID_AUTHORIZATION_MISTMATCH      = 'RESTController\\core\\auth::ID_AUTHORIZATION_MISTMATCH';
+  const ID_AUTHORIZATION_MISTMATCH      = 'RESTController\\core\\auth\\Token::ID_AUTHORIZATION_MISTMATCH';
   const MSG_GRANT_TYPE                  = 'Invalid grant_type \'{{grant_type}}\', must be one of ' .
                                           '\'authorization_code\' for Authorization-Code, ' .
                                           '\'password\' for Resource-Owner Credentials,' .
                                           '\'client_credentials\' for Client-Credentials or'.
                                           '\'refresh_token\' for exchaning a Refresh-Token.';
-  const ID_GRANT_TYPE                   = 'RESTController\\core\\auth::ID_GRANT_TYPE';
+  const ID_GRANT_TYPE                   = 'RESTController\\core\\auth\\Token::ID_GRANT_TYPE';
   const MSG_RESOURCE_OWNER_DISABLED     = 'Resource-Owner grant is disabled for this client (api-key).';
-  const ID_RESOURCE_OWNER_DISABLED      = 'RESTController\\core\\auth\\Authorize::ID_RESOURCE_OWNER_DISABLED';
+  const ID_RESOURCE_OWNER_DISABLED      = 'RESTController\\core\\auth\\Token::ID_RESOURCE_OWNER_DISABLED';
   const MSG_CLIENT_CREDENTIALS_DISABLED = 'Client-Credentials grant is disabled for this client (api-key).';
-  const ID_CLIENT_CREDENTIALS_DISABLED  = 'RESTController\\core\\auth\\Authorize::ID_CLIENT_CREDENTIALS_DISABLED';
+  const ID_CLIENT_CREDENTIALS_DISABLED  = 'RESTController\\core\\auth\\Token::ID_CLIENT_CREDENTIALS_DISABLED';
   const MSG_REFRESH_DISABLED            = 'All Grant-Types with Refresh-Tokens are disabled for this client (api-key).';
-  const ID_REFRESH_DISABLED             = 'RESTController\\core\\auth\\Authorize::ID_REFRESH_DISABLED';
+  const ID_REFRESH_DISABLED             = 'RESTController\\core\\auth\\Token::ID_REFRESH_DISABLED';
   const MSG_REFRESH_EXPIRED             = 'The given Refresh-Token has expired.';
-  const ID_REFRESH_EXPIRED              = 'RESTController\\core\\auth\\Authorize::ID_REFRESH_EXPIRED';
+  const ID_REFRESH_EXPIRED              = 'RESTController\\core\\auth\\Token::ID_REFRESH_EXPIRED';
   const MSG_REFRESH_MISTMATCH           = 'The Refresh-Token content does not match with the given parameters.';
-  const ID_REFRESH_MISTMATCH            = 'RESTController\\core\\auth\\Authorize::ID_REFRESH_MISTMATCH';
+  const ID_REFRESH_MISTMATCH            = 'RESTController\\core\\auth\\Token::ID_REFRESH_MISTMATCH';
   const MSG_REFRESH_SCOPE               = 'The requested scope is not within the scope of the given Refresh-Token.';
-  const ID_REFRESH_SCOPE                = 'RESTController\\core\\auth\\Authorize::ID_REFRESH_SCOPE';
+  const ID_REFRESH_SCOPE                = 'RESTController\\core\\auth\\Token::ID_REFRESH_SCOPE';
+  const MSG_AUTHORIZATION_USED          = 'This Authorization-Code has already been used.';
+  const ID_AUTHORIZATION_USED           = 'RESTController\\core\\auth\\Token::ID_AUTHORIZATION_USED';
 
 
   /**
@@ -123,15 +125,11 @@ class Token extends Libs\RESTModel {
    * Return:
    *  <AuthorizationToken> - The given Authorization-Code converted to a Token-Object
    */
-  public static function CheckAuthorizationCode($authorizationCode, $apiKey, $redirectUri, $iliasClient) {
-    // Convert authorization-code (string) to authorization-code (Token-Object)
-    $settings       = Tokens\Settings::load('authorization');
-    $authorization  = Tokens\Authorization::fromMixed($settings, $authorizationCode);
-
+  public static function CheckAuthorizationCode($authorization, $apiKey, $redirectUri, $iliasClient) {
     // Check the authorization-code has not expired
     if ($authorization->isExpired()) {
       // Cleanup database
-      Authorize::DatabaseCleanup();
+      Common::DatabaseCleanup();
 
       // Throw exception
       throw new Exceptions\Denied(
@@ -150,9 +148,6 @@ class Token extends Libs\RESTModel {
         self::MSG_AUTHORIZATION_MISTMATCH,
         self::ID_AUTHORIZATION_MISTMATCH
       );
-
-    // Return authorization-code (object)
-    return $authorization;
   }
 
 
@@ -204,6 +199,43 @@ class Token extends Libs\RESTModel {
 
 
   /**
+   * Function: FlowAll()
+   *  Handles common tasks for all grant flows to check validity of request-parameters...
+   *
+   * Parameters:
+   *  $grantType <String> - The grant_type that was given as request parameter
+   *  $apiSecret <String> - The client secret used to authorize the given client
+   *  $apiCert <Array[Mixed]> - The client-certificate used to authorize the given client
+   *  $authorizationCode <String> - The Authorization-Code that was given as request parameter
+   *  $apiKey <String> - The API-Key that was given as request parameter
+   *  $redirectUri <String> - The redirect_uri that was given as request parameter
+   *  $remoteIp <String> - The ip-address of the user-agent used by the resource-owner
+   *
+   * Return:
+   *  <RESTclient> - RESTclient entry representing given api-key
+   */
+  protected static function FlowAll($grantType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $remoteIp) {
+    // Check if client with api-key exists (throws on problem)
+    $client = Common::CheckApiKey($apiKey);
+
+    // Check grant-type is valid and enabled for this client (throws on problem)
+    self::CheckGrantType($client, $grantType);
+
+    // Check client fullfills ip-restriction (throws on problem)
+    Common::CheckIP($client, $remoteIp);
+
+    // Check requested scope...
+    Common::CheckScope($client, $scope);
+
+    // Client client is authorized if enabled (throws on problem)
+    Common::CheckClientCredentials($client, $apiSecret, $apiCert, $redirectUri);
+
+    // Return reference to fetched RESTclient entry
+    return $client;
+  }
+
+
+  /**
    * Function: FlowAuthorizationCode()
    *  Handles the overall grant flow for the token endpoint for the Authorization-Code grant type.
    *
@@ -221,34 +253,40 @@ class Token extends Libs\RESTModel {
    *  <Array[Mixed]> - Data containing access- (and possibly refresh-) token upon successfull grant flow
    */
   public static function FlowAuthorizationCode($grantType, $apiKey, $apiSecret, $apiCert, $authorizationCode, $redirectUri, $iliasClient, $remoteIp) {
+    // Convert authorization-code (string) to authorization-code (Token-Object)
+    $settings       = Tokens\Settings::load('authorization');
+    $authorization  = Tokens\Authorization::fromMixed($settings, $authorizationCode);
+
     // Check if client with api-key exists (throws on problem)
-    $client = Common::CheckApiKey($apiKey);
+    $type   = ($grantType == 'authorization_code') ? $grantType : null;
+    $scope  = $authorization->getScope();
+    $client = self::FlowAll($type, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $remoteIp);
 
-    // Check grant-type is valid and enabled for this client (throws on problem)
-    $type = ($grantType == 'authorization_code') ? $grantType : null;
-    self::CheckGrantType($client, $type);
+    // Update redirectUri using stored client information (throws on problem)
+    $redirectUri = Common::FetchRedirectUri($client, $redirectUri);
 
-    // Check client fullfills ip-restriction (throws on problem)
-    Common::CheckIP($client, $remoteIp);
-
-    // Client client is authorized if enabled (throws on problem)
-    Common::CheckClientCredentials($client, $apiSecret, $apiCert, $redirectUri);
-
-    // Convert authorization-code into authorization-token (and check correctness of contained values) (throws on problem)
-    $authorization = self::CheckAuthorizationCode($authorizationCode, $apiKey, $redirectUri, $iliasClient);
+    // Check authorization-code content (throws exception on issue)
+    self::CheckAuthorizationCode($authorization, $apiKey, $redirectUri, $iliasClient);
 
     // Check resource-owner fullfills user-restriction (throws on problem)
-    $iliasClient = $authorization->getIliasClient();
-    $userId      = $authorization->getUserId();
-    $scope       = $authorization->getScope();
-    Common::CheckUserRestriction($apiKey, $userId);
+    $userId = $authorization->getUserId();
+    Common::CheckUserRestriction($client, $userId);
 
     // Check that authorization-token is still active in DB (throws otherwise) (throws on problem)
-    $authorizationDB  = Database\RESTauthorization::fromToken($authorizationCode);
-    $authorizationDB->delete();
+    try {
+      $authorizationDB  = Database\RESTauthorization::fromToken($authorizationCode);
+      $authorizationDB->delete();
+    }
+    catch(Libs\Exceptions\Database $e) {
+      throw new Exceptions\TokenInvalid(
+        self::MSG_AUTHORIZATION_USED,
+        self::ID_AUTHORIZATION_USED
+      );
+    }
 
     // Return success-data
-    return self::GetAccessToken($grantType, $client, $userId, $iliasClient, $apiKey, $scope);
+    $withRefresh = $client->getKey('refresh_authorization_code');
+    return self::GetResponse($apiKey, $userId, $iliasClient, $scope, $withRefresh);
   }
 
 
@@ -264,27 +302,19 @@ class Token extends Libs\RESTModel {
    */
   public static function FlowResourceOwnerCredentials($grantType, $userName, $passWord, $apiKey, $apiSecret, $apiCert, $iliasClient, $remoteIp, $scope) {
     // Check if client with api-key exists (throws on problem)
-    $client = Common::CheckApiKey($apiKey);
-
-    // Check grant-type is valid and enabled for this client (throws on problem)
-    $type = ($grantType == 'password') ? $grantType : null;
-    self::CheckGrantType($client, $type);
-
-    // Check client fullfills ip-restriction (throws on problem)
-    Common::CheckIP($client, $remoteIp);
-
-    // Client client is authorized if enabled (throws on problem)
-    Common::CheckClientCredentials($client, $apiSecret, $apiCert, $redirectUri);
+    $type   = ($grantType == 'password') ? $grantType : null;
+    $client = self::FlowAll($type, $apiKey, $apiSecret, $apiCert, false, $scope, $remoteIp);
 
     // Check username and authorize RO
     $userId = Common::CheckUsername($userName);
     Common::CheckResourceOwner($userName, $passWord);
 
     // Check resource-owner fullfills user-restriction (throws on problem)
-    Common::CheckUserRestriction($apiKey, $userId);
+    Common::CheckUserRestriction($client, $userId);
 
     // Return success-data
-    return self::GetAccessToken($grantType, $client, $userId, $iliasClient, $apiKey, $scope);
+    $withRefresh = $client->getKey('refresh_resource_owner');
+    return self::GetResponse($apiKey, $userId, $iliasClient, $scope, $withRefresh);
   }
 
 
@@ -300,21 +330,12 @@ class Token extends Libs\RESTModel {
    */
   public static function FlowClientCredentials($grantType, $apiKey, $apiSecret, $apiCert, $iliasClient, $scope, $remoteIp) {
     // Check if client with api-key exists (throws on problem)
-    $client = Common::CheckApiKey($apiKey);
-
-    // Check grant-type is valid and enabled for this client (throws on problem)
-    $type = ($grantType == 'client_credentials') ? $grantType : null;
-    self::CheckGrantType($client, $type);
-
-    // Check client fullfills ip-restriction (throws on problem)
-    Common::CheckIP($client, $remoteIp);
-
-    // Client client is authorized if enabled (throws on problem)
-    Common::CheckClientCredentials($client, $apiSecret, $apiCert, $redirectUri);
+    $type   = ($grantType == 'client_credentials') ? $grantType : null;
+    $client = self::FlowAll($type, $apiKey, $apiSecret, $apiCert, false, $scope, $remoteIp);
 
     // Return success-data
     $userId = $client->getKey('client_credentials_userid');
-    return self::GetAccessToken($grantType, $client, $userId, $iliasClient, $apiKey, $scope);
+    return self::GetResponse($apiKey, $userId, $iliasClient, $scope, false);
   }
 
 
@@ -329,121 +350,112 @@ class Token extends Libs\RESTModel {
    *  <Array[Mixed]> -
    */
   public static function FlowRefreshToken($grantType, $apiKey, $apiSecret, $apiCert, $refreshCode, $iliasClient, $scope, $remoteIp) {
-    // Convert refresh-token (string) into refresh-token (object) (throws on problem or mismatched entries)
-    $refresh = self::CheckRefreshToken($refreshCode, $apiKey, $iliasClient, $scope);
-
     // Use refresh-token scope if non was given
     if (!isset($scope))
       $scope = $refresh->getScope();
 
     // Check if client with api-key exists (throws on problem)
-    $client = Common::CheckApiKey($apiKey);
+    $type   = ($grantType == 'refresh_token') ? $grantType : null;
+    $client = self::FlowAll($type, $apiKey, $apiSecret, $apiCert, false, $scope, $remoteIp);
 
-    // Check grant-type is valid and enabled for this client (throws on problem)
-    $type = ($grantType == 'refresh_token') ? $grantType : null;
-    self::CheckGrantType($client, $type);
-
-    // Check client fullfills ip-restriction (throws on problem)
-    Common::CheckIP($client, $remoteIp);
-
-    // Client client is authorized if enabled (throws on problem)
-    Common::CheckClientCredentials($client, $apiSecret, $apiCert, $redirectUri);
+    // Convert refresh-token (string) into refresh-token (object) (throws on problem or mismatched entries)
+    $refresh = self::CheckRefreshToken($refreshCode, $apiKey, $iliasClient, $scope);
 
     // Check resource-owner fullfills user-restriction (throws on problem)
     $userId = $refresh->getUserId();
-    Common::CheckUserRestriction($apiKey, $userId);
+    Common::CheckUserRestriction($client, $userId);
 
     // Check that refresh-token is still active in DB (throws otherwise) and update DB entries (timestamp, #refreshs)
-    $refreshDB  = Database\RESTrefresh::fromToken($refreshCode);
+    $refreshDB = Database\RESTrefresh::fromToken($refreshCode);
     $refreshDB->refreshed();
 
     // Return success-data
-    $data                   = self::GetAccessToken($grantType, $client, $userId, $iliasClient, $apiKey, $scope);
-    $data['refresh_token']  = urlencode($refreshCode);
-    return $data;
+    return self::GetResponse($apiKey, $userId, $iliasClient, $scope, urlencode($refreshCode));
   }
 
 
   /**
-   * Function: GetAccessToken($client, $userId, $iliasClient, $apiKey, $scope)
+   * Function: GetAccessToken($apiKey, $userId, $iliasClient, $scope, $withRefresh)
    *  Utility function used to create the Access-Token response, containing the access-
    *  and if enabled also the refresh-token, the expiration time note, type of token
    *  as well as scope note. (Note because the important values are stored inside the tokens themself!)
    *
    * Parameters:
-   *  $grantType <String> - Grant-Type used to request the access-token
-   *  $client <RESTclient> - Stored client-settings (required to query wether refresh-tokens are enabled)
+   *  $apiKey <String> - Client used to generate the tokens (will be attached to tokens)
    *  $userId <Integer> - User-Id (inside ILIAS) of the resource-owner
    *  $iliasClient <String> - Current ILIAS client-id (will be attached to the tokens)
-   *  $apiKey <String> - Client used to generate the tokens (will be attached to tokens)
    *  $scope <String> - Requested scope for the generated tokens (will be attached to tokens)
+   *  $withRefresh <Boolean> - [Optional] Wether to generate a refresh-token (Default: false)
    *
    * Return:
    *  <Array[Mixed]> - Formated data that can be send to the client as Access-Token response
    */
-  public static function GetAccessToken($grantType, $client, $userId, $iliasClient, $apiKey, $scope) {
+  public static function GetResponse($apiKey, $userId, $iliasClient, $scope, $withRefresh = null) {
     // Generate access-token
-    $accessSettings     = Tokens\Settings::load('access');
-    $access             = Tokens\Access::fromFields($accessSettings, $userId, $iliasClient, $apiKey, $scope);
+    $access = Common::GetAccessToken($apiKey, $userId, $iliasClient, $scope);
+
+    // Cleanup database
+    Common::DatabaseCleanup();
 
     // Generate refresh-token (if enabled)
-    if (
-      $grantType == 'authorization_code' && $client->getKey('refresh_authorization_code') ||
-      $grantType == 'password' && $client->getKey('refresh_resource_owner')
-    ) {
-      // Load refresh-settings
-      $refreshSettings = Tokens\Settings::load('refresh');
-
-      // Extract primary-key of given client
-      $apiId = $client->getKey('id');
-
-      // Used to catch if no existing refresh-key was found...
-      try {
-        // Check wether a refresh-token was already generated
-        $refreshDB = Database\RESTrefresh::fromIDs($userId, $apiId);
-        $refreshDB->refreshed();
-
-        // Return existing refresh-token
-        $refreshCode = $refreshDB->getKey('token');
-        $refresh     = Tokens\Refresh::fromMixed($refreshSettings, $refreshCode);
-
-        // Need to update scope? (This has the side-effect of invalidating other)
-        if (!$refresh->hasScope($scope)) {
-          // Update refresh-token
-          $refresh->setScope($scope);
-          $refreshCode = $refresh->getTokenString();
-
-          // Update DB with updated refresh-token
-          $refreshDB->setKey('token', $refreshCode);
-          $refreshDB->update();
-        }
-      }
-      catch (Libs\Exceptions\Database $e) {
-        // Create a new refresh-token
-        $refresh      = Tokens\Refresh::fromFields($refreshSettings, $userId, $iliasClient, $apiKey, $scope);
-        $refreshCode  = $refresh->getTokenString();
-
-        // Store token in database
-        $time = date("Y-m-d H:i:s");
-        $refreshDB = Database\RESTrefresh::fromRow(array(
-          'user_id'       => $userId,
-          'api_id'        => $apiId,
-          'token'         => $refreshCode,
-          'last_refresh'  => $time,
-          'created'       => $time,
-          'refreshes'     => 0
-        ));
-        $refreshDB->insert();
-      }
-    }
+    if ($withRefresh == true)
+      $refresh = self::GetRefreshToken($apiKey, $userId, $iliasClient, $scope);
 
     // Return success-data
     return array(
       'access_token'  => $access->getTokenString(),
-      'refresh_token' => (isset($refreshCode)) ? $refreshCode : null,
+      'refresh_token' => (isset($refresh)) ? $refresh->getTokenString() : $withRefresh,
       'expires_in'    => $access->getRemainingTime(),
       'token_type'    => 'Bearer',
       'scope'         => (isset($scope) && strlen($scope) > 0) ? $scope : null
     );
+  }
+
+
+  /**
+   * Function: GetRefreshToken($apiKey, $userId, $iliasClient, $scope)
+   *  Returns existing refresh-token from in database or generate a new one and store in database.
+   *
+   * Parameters:
+   *  $apiKey <String> - Client used to generate the tokens (will be attached to tokens)
+   *  $userId <Integer> - User-Id (inside ILIAS) of the resource-owner
+   *  $iliasClient <String> - Current ILIAS client-id (will be attached to the tokens)
+   *  $scope <String> - Requested scope for the generated tokens (will be attached to tokens)
+   *  $withRefresh <Boolean> - [Optional] Wether to generate a refresh-token (Default: false)
+   *
+   * Return:
+   *  <RefreshToken> - Generated Refresh-Token
+   */
+  public static function GetRefreshToken($apiKey, $userId, $iliasClient, $scope) {
+    // Load refresh-token settings
+    $settings  = Tokens\Settings::load('refresh');
+    $refresh   = Tokens\Refresh::fromFields($settings, $userId, $iliasClient, $apiKey, $scope);
+    $hash      = $refresh->getUniqueHash();
+
+    // Used to catch if no existing refresh-key was found...
+    try {
+      // Check wether a refresh-token was already generated (throws on failure)
+      $refreshDB = Database\RESTrefresh::fromHash($hash);
+      $refreshDB->refreshed();
+
+      // Use existing refresh-token instead
+      $token    = $refreshDB->getKey('token');
+      $refresh  = Tokens\Refresh::fromMixed($settings, $token);
+    }
+    catch (Libs\Exceptions\Database $e) {
+      // Store newly generated refresh-token in database
+      $time       = date("Y-m-d H:i:s");
+      $refreshDB  = Database\RESTrefresh::fromRow(array(
+        'hash'          => $hash,
+        'token'         => $refresh->getTokenString(),
+        'last_refresh'  => $time,
+        'created'       => $time,
+        'refreshes'     => 0
+      ));
+      $refreshDB->insert();
+    }
+
+    // Return existing or new refresh-token
+    return $refresh;
   }
 }

@@ -12,14 +12,14 @@ use \RESTController\libs as Libs;
 
 
 /**
- * Class: RESTauthorization (Database-Table)
- *  Abstraction for 'ui_uihk_rest_authcode' database table.
+ * Class: RESTaccess (Database-Table)
+ *  Abstraction for 'ui_uihk_rest_access' database table.
  *  See RESTDatabase class for additional information.
  */
-class RESTauthorization extends Libs\RESTDatabase {
+class RESTaccess extends Libs\RESTDatabase {
   // This three variables contain information about the table layout
   protected static $primaryKey  = 'id';
-  protected static $tableName   = 'ui_uihk_rest_authcode';
+  protected static $tableName   = 'ui_uihk_rest_access';
   protected static $tableKeys   = array(
     'id'      => 'integer',
     'hash'    => 'text',
@@ -77,7 +77,7 @@ class RESTauthorization extends Libs\RESTDatabase {
    *  all existing codes for the same user and client (api-key).
    */
   public function store() {
-    // Delete all existing entries for resource-owner, api-key and scope
+    // Delete all existing entries for resource-owner and api-key
     $where = 'hash = {{hash}}';
     $this->delete($where);
 

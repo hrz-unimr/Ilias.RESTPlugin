@@ -70,7 +70,7 @@ class RESTconfig extends Libs\RESTDatabase {
     // This table is a bit special, as a keys value can have many different types
     // For simplicity and extenability we only convert strings to integer/floats where
     // it looks feasable. (Sadly booleans look just like integers when fetching from database...)
-    if (is_int($value))
+    if (ctype_digit($value))
       $value = intval($value);
     if (is_float($value))
       $value = floatval($value);

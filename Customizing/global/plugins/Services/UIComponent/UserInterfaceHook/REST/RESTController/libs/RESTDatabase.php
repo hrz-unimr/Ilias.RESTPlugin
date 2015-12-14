@@ -172,9 +172,9 @@ abstract class RESTDatabase {
     $sql        = '';
 
     // Generate LIMIT and OFFSET sql sub-queries
-    if (is_int($limit))
+    if (ctype_digit($limit))
       $limitSQL   = sprintf('LIMIT %d', intval($limit));
-    if (is_int($offset))
+    if (ctype_digit($offset))
       $offsetSQL  = sprintf('OFFSET %d', intval($offset));
 
     // Generate JOIN sql sub-query
@@ -1069,7 +1069,7 @@ abstract class RESTDatabase {
       return self::getDB()->quote($value, 'boolean');
 
     // Return by detected type: Integer
-    elseif (is_int($value) || is_integer($value))
+    elseif (ctype_digit($value))
       return self::getDB()->quote($value, 'integer');
 
     // Return by detected type: Float/double

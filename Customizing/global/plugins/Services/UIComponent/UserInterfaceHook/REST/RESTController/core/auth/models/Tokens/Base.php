@@ -77,7 +77,7 @@ class Base {
    */
   public static function fromMixed($tokenSettings, $tokenArray) {
     // Generate new token from token-data as array
-    $baseToken = new self($tokenSettings);
+    $baseToken = new static($tokenSettings);
     $baseToken->setToken($tokenArray);
 
     // Return new object
@@ -104,7 +104,7 @@ class Base {
    */
   public static function fromFields($tokenSettings, $user_id, $ilias_client = null, $api_key, $scope = null, $misc = null, $lifetime = null) {
     // Generate new token from token-data as parameters
-    $baseToken  = new self($tokenSettings);
+    $baseToken  = new static($tokenSettings);
     $tokenArray = $baseToken->generateTokenArray($user_id, $ilias_client, $api_key, $scope, $misc, $lifetime);
     $baseToken->setToken($tokenArray);
 
@@ -244,6 +244,8 @@ class Base {
   /**
    * Function: hasScope($scope)
    *  Return true if this tokens scope contains all scopes given by the input parameter.
+   *  Note: The allowed scope of the token is either a list of space-delimited strings or
+   *        a regex who gets matched against the requested scope.
    *
    * Parameters:
    *  $scope <String/Array[String]> - List of scopes to check (ALL need be be contained)
@@ -252,19 +254,11 @@ class Base {
    *  <Boolean> - True if ALL scopes in $scope are allowed by the tokens scope
    */
   public function hasScope($requested) {
-    // Input should always be an array
-    if (!is_array($requested))
-      $requested = array($requested);
+    // Fetch list/regex of allowed scope
+    $scope = $this->tokenArray['scope'];
 
-    // Convert scope-string to list/array of scopes
-    $allowed = explode(' ', $this->tokenArray['scope']);
-    foreach ($requested as $request)
-      // Check all requested scopes are in token (fail if not)
-      if (!in_array($request, $allowed))
-        return false;
-
-    // By now, all requested scopes are covert by the tokens scope
-    return true;
+    // Delegate to restriction-check
+    return RESTLib::CheckComplexRestriction($scope, $requested, ' ');
   }
 
 
@@ -382,6 +376,32 @@ class Base {
     // Return created token-array
     return $tokenArray;
   }
+
+
+  /**
+   * Function: getUniqueHash()
+   *  Calculates a simple md5 hash of all customizable keys
+   *  of the underlying token. Usefull to compare tokens
+   *  via one string value. (eg. Database lookup)
+   *
+   * Return:
+   *  <String> - MD5 hash of userId, iliasClient, apiKey, scope and misc data of this token
+   */
+  public function getUniqueHash() {
+    // Concat all 'custom-keys' to string
+    $hashStr = sprintf(
+      '%s-%s-%s-%s-%s',
+      $this->tokenArray['user_id'],
+      $this->tokenArray['ilias_client'],
+      $this->tokenArray['api_key'],
+      $this->tokenArray['scope'],
+      $this->tokenArray['misc']
+    );
+
+    // Generate md5 hash used to uniquely identify this token
+    return md5($hashStr);
+  }
+
 
 
   /**

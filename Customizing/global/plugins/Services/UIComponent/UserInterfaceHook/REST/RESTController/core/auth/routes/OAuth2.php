@@ -47,8 +47,8 @@ $app->group('/v1', function () use ($app) {
         $apiKey       = $request->params('api_key',       null, true);
         $scope        = $request->params('scope');
         $state        = $request->params('state');
-        $apiCert      = Common::FetchClientCertificate();
-        $remoteIP     = Common::FetchUserAgentIP();
+        $apiCert      = Libs\RESTLib::FetchClientCertificate();
+        $remoteIP     = Libs\RESTLib::FetchUserAgentIP();
 
         // Proccess input-parameters according to (get) authorziation flow (throws exception on problem)
         $data         = Authorize::FlowGetAuthorize($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP);
@@ -112,9 +112,9 @@ $app->group('/v1', function () use ($app) {
         $apiKey       = $request->params('api_key',       null, true);
         $scope        = $request->params('scope');
         $state        = $request->params('state');
-        $apiCert      = Common::FetchClientCertificate();
-        $iliasClient  = Common::FetchILIASClient();
-        $remoteIP     = Common::FetchUserAgentIP();
+        $apiCert      = Libs\RESTLib::FetchClientCertificate();
+        $remoteIP     = Libs\RESTLib::FetchUserAgentIP();
+        $iliasClient  = Libs\RESTilias::FetchILIASClient();
 
         // Check request-parameters (additional for post)
         $userName     = $request->params('username');
@@ -127,7 +127,7 @@ $app->group('/v1', function () use ($app) {
         // Either redirect user-agent (access was granted or denied) back to client...
         if (isset($answer)) {
           Authorize::RedirectUserAgent($app, $data);
-          Authorize::DatabaseCleanup();
+          Common::DatabaseCleanup();
         }
 
         // ... or display website to ask to allow/deny the client access
@@ -176,9 +176,9 @@ $app->group('/v1', function () use ($app) {
         $request      = $app->request();
         $grantType    = $request->params('grant_type', null, true);
         $apiSecret    = $request->params('api_secret');
-        $apiCert      = Common::FetchClientCertificate();
-        $iliasClient  = Common::FetchILIASClient();
-        $remoteIp     = Common::FetchUserAgentIP();
+        $apiCert      = Libs\RESTLib::FetchClientCertificate();
+        $remoteIp     = Libs\RESTLib::FetchUserAgentIP();
+        $iliasClient  = Libs\RESTilias::FetchILIASClient();
 
         // Exchange refresh-token for access-token (and new refresh-token?)
         if ($grantType == 'refresh_token') {
@@ -202,14 +202,14 @@ $app->group('/v1', function () use ($app) {
           // Grant-Type: Authorization Code
           if ($grantType == 'authorization_code') {
             // Fetch additional parameters for Authorization-Code grant flow
-            $redirectUri  = $request->params('redirect_uri', null, true);
+            $redirectUri  = $request->params('redirect_uri');
             $code         = $request->params('code', null, true);
 
             // Proccess input-parameters according to (post) token flow (throws exception on problem)
             $data = Token::FlowAuthorizationCode($grantType, $apiKey, $apiSecret, $apiCert, $code, $redirectUri, $iliasClient, $remoteIp);
 
             // Clear expired Authorization-Code tokens
-            Authorize::DatabaseCleanup();
+            Common::DatabaseCleanup();
           }
 
           // Grant-Type: Resource-Owner Credentials
@@ -234,6 +234,7 @@ $app->group('/v1', function () use ($app) {
         }
 
         // Send generated token
+        Common::DatabaseCleanup();
         $app->success($data);
       }
 

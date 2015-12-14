@@ -22,8 +22,7 @@ class RESTrefresh extends Libs\RESTDatabase {
   protected static $tableName   = 'ui_uihk_rest_refresh';
   protected static $tableKeys   = array(
     'id'            => 'integer',
-    'user_id'       => 'integer',
-    'api_id'        => 'integer',
+    'hash'          => 'text',
     'token'         => 'text',
     'last_refresh'  => 'text',
     'created'       => 'text',
@@ -56,19 +55,18 @@ class RESTrefresh extends Libs\RESTDatabase {
 
 
   /**
-   * Function: fromIDs($userId, $apiId)
-   *  Creates a new instance of RESTrefresh representing the table-entry with given user-id and api-key id.
+   * Function: fromHash($hash)
+   *  Creates a new instance of RESTclient representing the table-entry with given hash.
    *
    * Parameters:
-   *  $userId <Integer> - User-id whose refresh-token entry should be fetched
-   *  $apiId <Integer> - API-Key id whose refresh-token entry should be fetched
+   *  $hash <String> - Hash who's token database entry should be returned
    *
    * Return:
-   *  <RESTrefresh> - A new instance of RESTrefresh representing the table-entry with given user-id and api-key id.
+   *  <RESTclient> - A new instance of RESTclient representing the table-entry with given hash
    */
-  public static function fromIDs($userId, $apiId) {
-    // Generate a (save) where clause for the token ($userId, $apiId can be malformed!)
-    $where  = sprintf('user_id = %d AND api_id = %d', self::quote(intval($userId), 'integer'), self::quote(intval($apiId), 'integer'));
+  public static function fromHash($hash) {
+    // Generate a (save) where clause for the hash ($hash can be malformed!)
+    $where  = sprintf('hash = %s', self::quote($hash, 'text'));
 
     // Fetch matching object
     return self::fromWhere($where);
@@ -83,8 +81,6 @@ class RESTrefresh extends Libs\RESTDatabase {
     // Parse input based on key
     switch ($key) {
       // Convert int values
-      case 'api_id':
-      case 'user_id':
       case 'num_resets':
         $value = intval($value);
         break;

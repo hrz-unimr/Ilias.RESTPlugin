@@ -223,7 +223,7 @@ class RESTRequest extends \Slim\Http\Request {
     $throws = array();
     foreach($ids as $key => $id) {
       // Can be converted to int?
-      if (is_int($id))
+      if (ctype_digit($id))
         $ids[$key] = intval($id);
 
       // Drop value (and throw exception)

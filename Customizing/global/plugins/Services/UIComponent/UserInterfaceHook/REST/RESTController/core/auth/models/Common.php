@@ -21,64 +21,64 @@ use \RESTController\database as Database;
 class Common extends Libs\RESTModel {
   // Allow to re-use status messages and codes
   const MSG_RESTRICTED_IP               = 'This client (api-key) is not allowed to be used from IP: {{ip}}';
-  const ID_RESTRICTED_IP                = 'RESTController\\core\\auth\\Authorize::ID_RESTRICTED_IP';
+  const ID_RESTRICTED_IP                = 'RESTController\\core\\auth\\Common::ID_RESTRICTED_IP';
   const MSG_RESTRICTED_USER             = 'Resource-Owner \'{{username}}\' is not allowed to use this client (api-key).';
-  const ID_RESTRICTED_USER              = 'RESTController\\core\\auth\\Authorize::ID_RESTRICTED_USER';
+  const ID_RESTRICTED_USER              = 'RESTController\\core\\auth\\Common::ID_RESTRICTED_USER';
   const MSG_WRONG_OWNER_CREDENTIALS     = 'Resource-Owner ({{username}}) could not be authenticated given his username and password.';
-  const ID_WRONG_OWNER_CREDENTIALS      = 'RESTController\\core\\auth\\Authorize::ID_WRONG_OWNER_CREDENTIALS';
+  const ID_WRONG_OWNER_CREDENTIALS      = 'RESTController\\core\\auth\\Common::ID_WRONG_OWNER_CREDENTIALS';
   const MSG_AUTHORIZATION_CODE_DISABLED = 'Authorization-Code grant is disabled for this client (api-key).';
-  const ID_AUTHORIZATION_CODE_DISABLED  = 'RESTController\\core\\auth\\Authorize::ID_AUTHORIZATION_CODE_DISABLED';
+  const ID_AUTHORIZATION_CODE_DISABLED  = 'RESTController\\core\\auth\\Common::ID_AUTHORIZATION_CODE_DISABLED';
   const MSG_UNAUTHORIZED_CLIENT         = 'Client is required to authorize using his client-secret or his client-certificate.';
-  const ID_UNAUTHORIZED_CLIENT          = 'RESTController\\core\\auth\\Authorize::ID_UNAUTHORIZED_CLIENT';
+  const ID_UNAUTHORIZED_CLIENT          = 'RESTController\\core\\auth\\Common::ID_UNAUTHORIZED_CLIENT';
+  const MSG_BAD_SCOPE                   = 'Requested scope is not covered by the clients allowed scope.';
+  const ID_BAD_SCOPE                    = 'RESTController\\core\\auth\\Common::MSG_BAD_SCOPE';
+  const MSG_INVALID_CLIENT              = 'There is no client with api-key: {{api_key}}';
+  const ID_INVALID_CLIENT               = 'RESTController\\core\\auth\\Common::ID_INVALID_CLIENT';
 
 
   /**
-   * Function: getClientCertificate()
-   *  Utility method to nicely fetch client-certificate (ssl) data from
-   *  gfobal namespace and preformat it...
-   *
-   * Return:
-   *  <Array[String]> - See below...
+   * Function: DatabaseCleanup()
+   *  Clears expired Authorization-Code and Access-Tokens from database.
    */
-  public static function FetchClientCertificate() {
-    // Build a more readable ssl client-certificate array...
-    return array(
-      verify  => $_SERVER['SSL_CLIENT_VERIFY'],
-      serial  => $_SERVER['SSL_CLIENT_M_SERIAL'],
-      issuer  => $_SERVER['SSL_CLIENT_I_DN'],
-      subject => $_SERVER['SSL_CLIENT_S_DN'],
-      expires => $_SERVER['SSL_CLIENT_V_END'],
-      ttl     => $_SERVER['SSL_CLIENT_V_REMAIN']
-    );
+  public static function DatabaseCleanup() {
+    // Delete expired tokens
+    Database\RESTauthorization::deleteByWhere('expires < NOW()');
+    Database\RESTaccess::deleteByWhere('expires < NOW()');
   }
 
 
   /**
-   * Function: FetchUserAgentIP()
-   *  Return IP-Address of resource-owner user-agent.
-   *  For Reverse-Proxied servers the workers require a module such as mod_rpaf
-   *  that makes sure $_SERVER['REMOTE_ADDR'] does not contain the reverse-proxy
-   *  but the user-agents ip.
+   * Function: FetchRedirectUri($client, $redirectUri)
+   *  Returns the original redirect_uri given as parameter if non null or
+   *  fetches the clients stored redirect_uri from the database.
+   *  Throws an exception is both (stored and parameter) are null.
+   *
+   * Parameters:
+   *  $client <RESTclient> - Client object to fetch redirect_uri from if non was given
+   *  $redirectUri <String> - The redirect_uri that was given as request parameter
    *
    * Return:
-   *  <String> - IP-Address of resource-owner user-agent
+   *  <String> - Original redirect_uri or the value stored inside the database if no request parameter was given
    */
-  public static function FetchUserAgentIP() {
-    return $_SERVER['REMOTE_ADDR'];
-  }
+  public static function FetchRedirectUri($client, $redirectUri) {
+    // Fetch redirect_uri from client db-entry if non was given
+    if (!isset($redirectUri)) {
+      // Fetch redirect_uri from client db-entry
+      $redirectUri = $client->getKey('redirect_uri');
 
+      // If no redirect_uri was given and non is attached to the client, exit!
+      if (!(isset($redirectUri) && $redirectUri != false))
+        throw new Exceptions\InvalidRequest(
+          Libs\RESTRequest::MSG_MISSING,
+          Libs\RESTRequest::ID_MISSING,
+          array(
+            'key' => 'redirect_uri'
+          )
+        );
+    }
 
-  /**
-   * Function: FetchILIASClient()
-   *  Returns the current ILIAS Client-ID. This cannot be changed
-   *  and can only be controlled by setting $_GET['ilias_client_id']
-   *  (see restplugin.php) or via $_COOKIE['client_id'] (See ilInitialize)
-   *
-   * Return:
-   *  <String> - ILIAS Client-ID (fixed)
-   */
-  public static function FetchILIASClient() {
-    return CLIENT_ID;
+    // Fetch (updated) redirect_uri
+    return $redirectUri;
   }
 
 
@@ -94,8 +94,19 @@ class Common extends Libs\RESTModel {
    *  <RESTclient> - Fetches client from database
    */
   public static function CheckApiKey($apiKey) {
-    // Fecth client with given api-key (throws if non existent)
-    return Database\RESTclient::fromApiKey($apiKey);
+    try {
+      // Fecth client with given api-key (throws if non existent)
+      return Database\RESTclient::fromApiKey($apiKey);
+    }
+    catch (Libs\Exceptions\Database $e) {
+      throw new Exceptions\InvalidRequest(
+        self::MSG_INVALID_CLIENT,
+        self::ID_INVALID_CLIENT,
+        array(
+          'api_key' => $apiKey
+        )
+      );
+    }
   }
 
 
@@ -171,12 +182,12 @@ class Common extends Libs\RESTModel {
    *  $apiKey <String> - API-Key of client to check user-restriction for
    *  $userId <Integer> - User-id that should be checked against given client
    */
-  public static function CheckUserRestriction($apiKey, $userId) {
+  public static function CheckUserRestriction($client, $userId) {
     // Check user with given id exists in database (throws exception on problem)
     $username = Libs\RESTilias::getUserName($userId);
 
     // Check user restriction
-    if (!Database\RESTuser::isUserAllowedByKey($apiKey, $userId))
+    if (!$client->isUserAllowed($userId))
       throw new Exceptions\Denied(
         self::MSG_RESTRICTED_USER,
         self::ID_RESTRICTED_USER,
@@ -207,5 +218,59 @@ class Common extends Libs\RESTModel {
           'username' => $userName
         )
       );
+  }
+
+
+  /**
+   * Function: CheckScope($client, $scope)
+   *  Checks wether the given scope is allowed for the given client.
+   *  Throws an exception if this is not the case.
+   *
+   * Parameters:
+   *  $client <RESTclient> - RESTclient who's scope is used to check requested scope
+   *  $scope <String> - Requested scope (string or string-list)
+   */
+  public static function CheckScope($client, $scope) {
+    if (!$client->isScopeAllowed($scope))
+      throw new Exceptions\Denied(
+        self::MSG_BAD_SCOPE,
+        self::ID_BAD_SCOPE,
+        array(
+          'requested' => $scope,
+          'allowed'   => $client->getKey('scopes')
+        )
+      );
+  }
+
+
+  /**
+   * Function: GetAccessToken($apiKey, $userId, $iliasClient, $scope)
+   *  Generate access-token and store in database.
+   *
+   * Parameters:
+   *  $apiKey <String> - Client used to generate the tokens (will be attached to tokens)
+   *  $userId <Integer> - User-Id (inside ILIAS) of the resource-owner
+   *  $iliasClient <String> - Current ILIAS client-id (will be attached to the tokens)
+   *  $scope <String> - Requested scope for the generated tokens (will be attached to tokens)
+   *  $withRefresh <Boolean> - [Optional] Wether to generate a refresh-token (Default: false)
+   *
+   * Return:
+   *  <AccessToken> - Generated Access-Token
+   */
+  public static function GetAccessToken($apiKey, $userId, $iliasClient, $scope) {
+    // Load access-token settings
+    $settings  = Tokens\Settings::load('access');
+    $access    = Tokens\Access::fromFields($settings, $userId, $iliasClient, $apiKey, $scope);
+
+    // Inset token into DB
+    $accessDB = Database\RESTaccess::fromRow(array(
+      'hash'    => $access->getUniqueHash(),
+      'token'   => $access->getTokenString(),
+      'expires' => date("Y-m-d H:i:s", time() + $access->getRemainingTime())
+    ));
+    $accessDB->insert();
+
+    // Return new access-token
+    return $access;
   }
 }

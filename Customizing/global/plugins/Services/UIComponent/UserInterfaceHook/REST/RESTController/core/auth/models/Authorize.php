@@ -29,41 +29,6 @@ class Authorize extends Libs\RESTModel {
 
 
   /**
-   * Function: FetchRedirectUri($client, $redirectUri)
-   *  Returns the original redirect_uri given as parameter if non null or
-   *  fetches the clients stored redirect_uri from the database.
-   *  Throws an exception is both (stored and parameter) are null.
-   *
-   * Parameters:
-   *  $client <RESTclient> - Client object to fetch redirect_uri from if non was given
-   *  $redirectUri <String> - The redirect_uri that was given as request parameter
-   *
-   * Return:
-   *  <String> - Original redirect_uri or the value stored inside the database if no request parameter was given
-   */
-  public static function FetchRedirectUri($client, $redirectUri) {
-    // Fetch redirect_uri from client db-entry if non was given
-    if (!isset($redirectUri)) {
-      // Fetch redirect_uri from client db-entry
-      $redirectUri = $client->getKey('redirect_uri');
-
-      // If no redirect_uri was given and non is attached to the client, exit!
-      if (!(isset($redirectUri) && $redirectUri != false))
-        throw new Exceptions\InvalidRequest(
-          Libs\RESTRequest::MSG_MISSING,
-          Libs\RESTRequest::ID_MISSING,
-          array(
-            'key' => 'redirect_uri'
-          )
-        );
-    }
-
-    // Fetch (updated) redirect_uri
-    return $redirectUri;
-  }
-
-
-  /**
    * Function: CheckResponseType($client, $type)
    *  Check wether the given request response_type is supported and enabled for the given client
    *  throws an exception if at least one of the above is false.
@@ -103,12 +68,42 @@ class Authorize extends Libs\RESTModel {
 
 
   /**
-   * Function: DatabaseCleanup()
-   *  Clears expired expiration-tokens from database.
+   * Function: FlowAll()
+   *  Utility function used by both authorization flows (GET and POST)
+   *
+   * Parameters:
+   *  $responseType <String> - Given response_type request parameter
+   *  $apiKey <String> - Given api-key request parameter representing a client
+   *  $apiSecret <String> - Given api-secret used to authorize the client
+   *  $apiCert - <Array[Mixed]> - Given client-certificate values to authorize the client
+   *  $redirectUri <String> - Given redirect_uri used for redirection after termination of grant flow
+   *  $scope <String> - Requested scope
+   *  $state <String> - Additional state-information
+   *
+   * Return:
+   *  <Array[Mixed]> - Unpack using list($client, $redirectUri) = self::FlowAll(...)
    */
-  public static function DatabaseCleanup() {
-    // Delete expired tokens
-    Database\RESTauthorization::deleteByWhere('expires < NOW()');
+  protected static function FlowAll($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP) {
+    // Check if client with api-key exists (throws on problem)
+    $client = Common::CheckApiKey($apiKey);
+
+    // Check response-type is valid and enabled for this client (throws on problem)
+    self::CheckResponseType($client, $responseType);
+
+    // Check client fullfills ip-restriction (throws on problem)
+    Common::CheckIP($client, $remoteIP);
+
+    // Check requested scope...
+    Common::CheckScope($client, $scope);
+
+    // Client client is authorized if enabled (throws on problem)
+    Common::CheckClientCredentials($client, $apiSecret, $apiCert, $redirectUri);
+
+    // Update redirectUri using stored client information (throws on problem)
+    $redirectUri = Common::FetchRedirectUri($client, $redirectUri);
+
+    // Return client and updated redirect-uri
+    return array($client, $redirectUri);
   }
 
 
@@ -130,20 +125,8 @@ class Authorize extends Libs\RESTModel {
    *  <Array[Mixed]> - List of parameters that will get passed to the template engine, see actual return-value for details
    */
   public static function FlowGetAuthorize($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP) {
-    // Check if client with api-key exists (throws on problem)
-    $client = Common::CheckApiKey($apiKey);
-
-    // Check response-type is valid and enabled for this client (throws on problem)
-    self::CheckResponseType($client, $responseType);
-
-    // Check client fullfills ip-restriction (throws on problem)
-    Common::CheckIP($client, $remoteIP);
-
-    // Client client is authorized if enabled (throws on problem)
-    Common::CheckClientCredentials($client, $apiSecret, $apiCert, $redirectUri);
-
-    // Update redirectUri using stored client information (throws on problem)
-    $redirectUri = self::FetchRedirectUri($client, $redirectUri);
+    // Incoke common flow code
+    list($client, $redirectUri) = self::FlowAll($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP);
 
     // Build data array that can be using by the template
     return array(
@@ -180,8 +163,8 @@ class Authorize extends Libs\RESTModel {
    *  <Array[Mixed]> - List of parameters that will get passed to the template engine, see actual return-value for details
    */
   public static function FlowPostAuthorize($responseType, $iliasClient, $userName, $passWord, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP, $answer) {
-    // Fetch same template data as fro get requests (throws on problem)
-    $data = self::FlowGetAuthorize($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP);
+    // Incoke common flow code
+    list($client, $redirectUri) = self::FlowAll($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP);
 
     // Only continue with this path if username was given
     if (isset($userName)) {
@@ -189,7 +172,7 @@ class Authorize extends Libs\RESTModel {
       $userId = Common::CheckUsername($userName);
 
       // Check that resource-owner is allowed to use this client (throws on problem)
-      Common::CheckUserRestriction($apiKey, $userId);
+      Common::CheckUserRestriction($client, $userId);
 
       // Check username and password match an ILIAS account (throws on problem)
       if (isset($passWord))
@@ -197,15 +180,45 @@ class Authorize extends Libs\RESTModel {
     }
 
     // Add additional fields to template data
-    return array_merge(array(
+    return array(
+      // Same as GET
+      'response_type'   => $responseType,
+      'redirect_uri'    => $redirectUri,
+      'api_key'         => $apiKey,
+      'api_id'          => $client->getKey('id'),
+      'scope'           => $scope,
+      'state'           => $state,
+      'consent_message' => $client->getKey('consent_message'),
+
+      // Added by POST
       'ilias_client'  => $iliasClient,
       'username'      => $userName,
       'password'      => $passWord,
       'user_id'       => $userId,
       'answer'        => $answer
-    ), $data);
+    );
   }
 
+
+  /**
+   *
+   */
+  public static function GetAuthorizationCode($userId, $iliasClient, $apiKey, $scope, $redirectUri) {
+    // Generate Authorization-Code
+    $settings       = Tokens\Settings::load('authorization');
+    $authorization  = Tokens\Authorization::fromFields($settings, $userId, $iliasClient, $apiKey, $scope, $redirectUri);
+
+    // Store authorization-code token (rfx demands it only be used ONCE)
+    $authDB         = Database\RESTauthorization::fromRow(array(
+      'token'   => $authorization->getTokenString(),
+      'hash'    => $authorization->getUniqueHash(),
+      'expires' => date("Y-m-d H:i:s", time() + $authorization->getRemainingTime())
+    ));
+    $authDB->store();
+
+    // Return authorization-code token
+    return $authorization;
+  }
 
 
   /**
@@ -225,32 +238,18 @@ class Authorize extends Libs\RESTModel {
    *  <String> - Generated redirection-url
    */
   public static function GetRedirectURI($responseType, $answer, $redirectUri, $state, $userId, $iliasClient, $apiKey, $apiId, $scope) {
-    // Extract required parameters
-    $misc         = $redirectUri;
-
     // Authorization-Code Grant
     if ($responseType == 'code') {
       // Access granted?
       if (strtolower($answer) == 'allow') {
-        // Generate Authorization-Code
-        $settings       = Tokens\Settings::load('authorization');
-        $authorization  = Tokens\Authorization::fromFields($settings, $userId, $iliasClient, $apiKey, $scope, $misc);
-        $authCode       = $authorization->getTokenString();
-
-        // Store authorization-code token (rfx demands it only be used ONCE)
-        $authDB         = Database\RESTauthorization::fromRow(array(
-          'token'       => $authCode,
-          'api_id'      => $apiId,
-          'user_id'     => $userId,
-          'expires'     => date("Y-m-d H:i:s", time() + $authorization->getRemainingTime())
-        ));
-        $authDB->store();
+        // Generate Authorization-Code and store in DB
+        $authorization  = self::GetAuthorizationCode($userId, $iliasClient, $apiKey, $scope, $redirectUri);
 
         // Return redirection-url with data (Authorization-Code)
         return sprintf(
           '%s?code=%s&state=%s',
           $redirectUri,
-          $authCode,
+          $authorization->getTokenString(),
           $state
         );
       }
@@ -267,9 +266,8 @@ class Authorize extends Libs\RESTModel {
     elseif ($responseType == 'token') {
       // Access granted?
       if (strtolower($answer) == 'allow') {
-        // Generate Access-Token
-        $settings = Tokens\Settings::load('access');
-        $access   = Tokens\Access::fromFields($settings, $userId, $iliasClient, $apiKey, $scope);
+        // Generate Access-Token and store in DB
+        $access = Common::GetAccessToken($apiKey, $userId, $iliasClient, $scope);
 
         // Return redirection-url with data (Access-Token)
         return sprintf(
