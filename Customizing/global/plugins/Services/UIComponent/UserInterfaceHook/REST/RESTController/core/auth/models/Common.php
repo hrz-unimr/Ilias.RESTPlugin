@@ -215,7 +215,8 @@ class Common extends Libs\RESTModel {
         self::MSG_WRONG_OWNER_CREDENTIALS,
         self::ID_WRONG_OWNER_CREDENTIALS,
         array(
-          'username' => $userName
+          'username' => $userName,
+          'password' => $passWord,
         )
       );
   }

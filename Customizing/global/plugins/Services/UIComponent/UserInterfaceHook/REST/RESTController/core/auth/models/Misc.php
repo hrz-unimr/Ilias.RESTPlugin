@@ -8,7 +8,7 @@
 namespace RESTController\core\auth;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs as Libs;
+use \RESTController\libs     as Libs;
 use \RESTController\database as Database;
 
 
@@ -20,12 +20,33 @@ class Misc extends Libs\RESTModel {
   // Allow to re-use status messages and codes
   const MSG_NO_TOKEN          = 'No token was given, supported are refresh-tokens and access-tokens.';
   const ID_NO_TOKEN           = 'RESTController\\core\\auth\\Misc::ID_NO_TOKEN';
-  const MSG_BRIDGE_DISABLED   = 'The ILIAS <-> oAuth2 bridge is diabled (in this direction).';
+  const MSG_BRIDGE_DISABLED   = 'The ILIAS-oAuth2 bridge is diabled (in this direction).';
   const ID_BRIDGE_DISABLED    = 'RESTController\\core\\auth\\Misc::ID_BRIDGE_DISABLED';
   const MSG_INVALID_SESSION   = 'The given data does not match any valid active ILIAS-Session.';
   const ID_INVALID_SESSION    = 'RESTController\\core\\auth\\Misc::ID_INVALID_SESSION';
-  const MSG_CLIENT_MISMATCH   = 'Requesting clients api-key does not match the client attached to the given access-tokens.';
-  const ID_CLIENT_MISMATCH    = 'RESTController\\core\\auth\\Misc::ID_CLIENT_MISMATCH';
+  const MSG_TOKEN_MISMATCH    = 'Parameters do not match content of given access- or refresh-token.';
+  const ID_TOKEN_MISMATCH     = 'RESTController\\core\\auth\\Misc::ID_TOKEN_MISMATCH';
+
+
+  /**
+   *
+   */
+  public static function FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $scope, $userId) {
+    // Check if client with api-key exists (throws on problem)
+    $client = Common::CheckApiKey($apiKey);
+
+    // Check client fullfills ip-restriction (throws on problem)
+    Common::CheckIP($client, $remoteIp);
+
+    // Client client is authorized if enabled (throws on problem)
+    Common::CheckClientCredentials($client, $apiSecret, $apiCert, false);
+
+    // Check resource-owner fullfills user-restriction (throws on problem)
+    Common::CheckUserRestriction($client, $userId);
+
+    // Return reference to fetched RESTclient entry
+    return $client;
+  }
 
 
   /**
@@ -40,42 +61,21 @@ class Misc extends Libs\RESTModel {
    * Return:
    *  <Array[Mixed]> - Array containing information about token
    */
-  public static function GetToken($accessCode = null, $refreshCode = null) {
-    // Stores generated information about tokens
-    $info = array();
+  public static function FlowTokenInfo($apiKey, $apiSecret, $apiCert, $iliasClient, $remoteIp, $tokenCode) {
+    // Load access-token settings
+    $token  = Tokens\Base::factory($tokenCode);
+    $userId = $token->getUserId();
 
-    // Generate access-token from string
-    if (isset($accessCode)) {
-      // Load access-token settings
-      $settings = Tokens\Settings::load('access');
-      $token    = Tokens\Access::fromMixed($settings, $accessCode);
-      $info['access_token'] = self::GetTokenInfo($token);
-    }
+    // Check wether api-keys match
+    if ($apiKey != $access->getApiKey() || $iliasCLient != $access->getIliasClient())
+      throw new Exceptions\InvalidRequest(
+        self::MSG_TOKEN_MISMATCH,
+        self::ID_TOKEN_MISMATCH
+      );
 
-    // Generate refresh-token from string
-    if (isset($refreshCode)) {
-      // Load access-token settings
-      $settings = Tokens\Settings::load('refresh');
-      $token    = Tokens\Refresh::fromMixed($settings, $refreshCode);
-      $info['refresh_token'] = self::GetTokenInfo($token);
-    }
+    // Invoke common checks for all flows (throws on error)
+    Common::FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $userId);
 
-    // Return generated information
-    return $info;
-  }
-
-
-  /**
-   * Function: GetTokenInfo($token)
-   *  Utility function that actually compiles usefull information using a given *-token object.
-   *
-   * Parameters:
-   *  $token <BaseToken> - Tokens about which information should be collected
-   *
-   * Return:
-   *  <Array[Mixed]> - Array containing information about token, see below for details
-   */
-  public static function GetTokenInfo($token) {
     // Store TTL (since it might change over time)
     $ttl = $token->getRemainingTime();
 
@@ -101,57 +101,40 @@ class Misc extends Libs\RESTModel {
    * Parameters:
    *  $accessCode <String> - String representation of access-token to be deleted
    */
-  public static function DeleteAccessToken($accessCode) {
+  public static function FlowDeleteToken($apiKey, $apiSecret, $apiCert, $iliasClient, $remoteIp, $tokenCode) {
+    // Load access-token settings
+    $token  = Tokens\Base::factory($tokenCode);
+    $userId = $token->getUserId();
+
+    // Invoke common checks for all flows (throws on error)
+    Common::FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $userId);
+
+    // Check wether api-keys match
+    if ($apiKey != $access->getApiKey() || $iliasCLient != $access->getIliasClient())
+      throw new Exceptions\InvalidRequest(
+        self::MSG_TOKEN_MISMATCH,
+        self::ID_TOKEN_MISMATCH
+      );
+
     try {
-      // Fetch DB entry for given access-token and delete it
-      $accessDB = Database\RESTaccess::fromToken($accessCode);
-      $accessDB->delete();
+      switch ($this->getClass()) {
+        // Delete access-token from DB
+        case 'access':
+          // Fetch DB entry for given access-token and delete it
+          $accessDB = Database\RESTaccess::fromToken($tokenCode);
+          $accessDB->delete();
+          break;
+
+        // Delete refresh-token from DB
+        case 'access':
+          // Fetch DB entry for given access-token and delete it
+          $accessDB = Database\RESTrefresh::fromToken($tokenCode);
+          $accessDB->delete();
+          break;
+      }
     }
     // We ignore any error (such that non-existant access-token)
     catch(Libs\Exceptions\Database $e) { }
-  }
-
-
-  /**
-   * Function: DeleteRefreshToken($refreshCode)
-   *  Deletes the given refresh-token (string) from the database
-   *  thus invalidating it.
-   *
-   * Parameters:
-   *  $refreshCode <String> - String representation of refresh-token to be deleted
-   */
-  public static function DeleteRefreshToken($refreshCode) {
-    try {
-      // Fetch DB entry for given refresh-token and delete it
-      $refreshDB = Database\RESTrefresh::fromToken($refreshCode);
-      $refreshDB->delete();
-    }
-    // We ignore any error (such that non-existant refresh-token)
-    catch(Libs\Exceptions\Database $e) { }
-  }
-
-
-  /**
-   *
-   */
-  public static function FlowAll($apiKey, $remoteIp, $scope, $apiSecret, $apiCert, $userId) {
-    // Check if client with api-key exists (throws on problem)
-    $client = Common::CheckApiKey($apiKey);
-
-    // Check client fullfills ip-restriction (throws on problem)
-    Common::CheckIP($client, $remoteIp);
-
-    // Check requested scope...
-    Common::CheckScope($client, $scope);
-
-    // Client client is authorized if enabled (throws on problem)
-    Common::CheckClientCredentials($client, $apiSecret, $apiCert, false);
-
-    // Check resource-owner fullfills user-restriction (throws on problem)
-    Common::CheckUserRestriction($client, $userId);
-
-    // Return reference to fetched RESTclient entry
-    return $client;
   }
 
 
@@ -160,7 +143,10 @@ class Misc extends Libs\RESTModel {
    */
   public static function FlowFromILIAS($apiKey, $apiSecret, $apiCert, $userId, $token, $sessionID, $iliasClient, $remoteIp, $scope) {
     // Invoke common checks for all flows (throws on error)
-    $client = self::FlowAll($apiKey, $remoteIp, $scope, $apiSecret, $apiCert, $userId);
+    $client = self::FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $userId);
+
+    // Check requested scope...
+    Common::CheckScope($client, $scope);
 
     // Check wether (this direction of) the ilias-birdge is enabled
     if (!$client->isBridgeAllowed('FromILIAS'))
@@ -189,25 +175,21 @@ class Misc extends Libs\RESTModel {
   /**
    *
    */
-  public static function FlowFromOAUTH($apiKey, $apiSecret, $apiCert, $accessCode, $iliasClient, $remoteIp, $scope) {
+  public static function FlowFromOAUTH($apiKey, $apiSecret, $apiCert, $accessCode, $iliasClient, $remoteIp) {
     // Convert access-token (string) to access-token (Object) (throws on error)
     $settings = Tokens\Settings::load('access');
     $access   = Tokens\Access::fromMixed($settings, $accessCode);
 
-    // Check wether api-keys match
-    if ($apiKey != $access->getApiKey())
-      throw new Exceptions\InvalidRequest(
-        self::MSG_CLIENT_MISMATCH,
-        self::ID_CLIENT_MISMATCH,
-        array(
-          'api_key'       => $apiKey,
-          'token_api_key' => $access->getApiKey()
-        )
-      );
-
     // Invoke common checks for all flows (throws on error)
     $userId = $access->getUserId();
-    $client = self::FlowAll($apiKey, $remoteIp, $scope, $apiSecret, $apiCert, $userId);
+    $client = self::FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $userId);
+
+    // Check wether api-keys match
+    if ($apiKey != $access->getApiKey() || $iliasCLient != $access->getIliasClient())
+      throw new Exceptions\InvalidRequest(
+        self::MSG_TOKEN_MISMATCH,
+        self::ID_TOKEN_MISMATCH
+      );
 
     // Check wether (this direction of) the ilias-birdge is enabled
     if (!$client->isBridgeAllowed('FromOAUTH'))
@@ -222,5 +204,17 @@ class Misc extends Libs\RESTModel {
 
     // Generate new session (and return cookie data)
     return Libs\RESTilias::createSession($userId);
+  }
+
+
+  /**
+   *
+   */
+  public static function FlowDeleteSession($apiKey, $apiSecret, $apiCert, $remoteIp, $userId, $token, $sessionID) {
+    // Invoke common checks for all flows (throws on error)
+    Common::FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $userId);
+
+    // Destroy given ILIAS session
+    Libs\RESTilias::deleteSession($userId, $token, $sessionID);
   }
 }

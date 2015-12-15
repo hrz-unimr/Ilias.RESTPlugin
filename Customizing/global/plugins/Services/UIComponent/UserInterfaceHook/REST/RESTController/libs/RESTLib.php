@@ -112,7 +112,7 @@ class RESTLib {
    *  <Boolean> True if subject matches pattern (or pattern or subject is disabled), false otherwise
    */
   public static function CheckSimpleRestriction($pattern, $subject) {
-    if ($subject === false || !isset($pattern) || $pattern === false || strlen($pattern) == 0 || $pattern == $subject)
+    if (!isset($pattern) || $pattern === false || strlen($pattern) == 0 || $pattern == $subject)
       return true;
     else
       return false;

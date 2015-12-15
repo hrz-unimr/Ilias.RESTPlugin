@@ -96,11 +96,11 @@ class Authorize extends Libs\RESTModel {
     // Check requested scope...
     Common::CheckScope($client, $scope);
 
-    // Client client is authorized if enabled (throws on problem)
-    Common::CheckClientCredentials($client, $apiSecret, $apiCert, $redirectUri);
-
     // Update redirectUri using stored client information (throws on problem)
     $redirectUri = Common::FetchRedirectUri($client, $redirectUri);
+
+    // Client client is authorized if enabled (throws on problem)
+    Common::CheckClientCredentials($client, $apiSecret, $apiCert, $redirectUri);
 
     // Return client and updated redirect-uri
     return array($client, $redirectUri);

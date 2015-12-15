@@ -24,6 +24,8 @@ class Base {
   const ID_INVALID_SIZE     = 'RESTController\\core\\auth\\Base::ID_INVALID_SIZE';
   const MSG_INVALID         = 'Token is invalid.';
   const ID_INVALID          = 'RESTController\\core\\auth\\Base::ID_INVALID';
+  const MSG_UNKNOWN_CLASS   = 'Cannot detect type of token with class: {{class}}';
+  const ID_UNKNOWN_CLASS    = 'RESTController\\core\\auth\\Base::ID_UNKNOWN_CLASS';
 
 
   // Stores the settings attached to this token (salt and default TTL)
@@ -110,6 +112,45 @@ class Base {
 
     // Return new object
     return $baseToken;
+  }
+
+
+  /**
+   *
+   */
+  public static function factory($tokenArray) {
+    // Extract token array
+    if (!is_array($tokenArray))
+      $tokenArray = Tokens\Base::deserializeToken($tokenArray);
+
+    // Detect type of token...
+    switch($tokenArray['class']) {
+      // Create new rfresh-token
+      case 'refresh':
+        $settings = Tokens\Settings::load('refresh');
+        return Tokens\Refresh::fromMixed($settings, $tokenArray);
+
+      // Create new access-token
+      case 'access':
+        $settings = Tokens\Settings::load('access');
+        return Tokens\Access::fromMixed($settings, $tokenArray);
+
+
+      // Create new access-token
+      case 'authorization':
+        $settings = Tokens\Settings::load('authorization');
+        return Tokens\Authorization::fromMixed($settings, $tokenArray);
+
+      // Fallback
+      default:
+        throw new Exceptions\TokenInvalid(
+          self::MSG_UNKNOWN_CLASS,
+          self::ID_UNKNOWN_CLASS,
+          array(
+            'class' => tokenArray['class']
+          )
+        );
+    }
   }
 
 
@@ -215,6 +256,7 @@ class Base {
    *  getIliasClient() - Return stored ilias client-id
    *  getApiKey() - Return stored api-key
    *  getScope() - Returns scope attached to this token
+   *  getClass() - Returns the interal class of this token
    */
   public function getUserId() {
     return $this->tokenArray['user_id'];
@@ -238,6 +280,9 @@ class Base {
   }
   public function getMisc() {
     return $this->tokenArray['misc'];
+  }
+  public function getClass() {
+    return static::$class;
   }
 
 

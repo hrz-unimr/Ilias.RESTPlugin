@@ -256,8 +256,10 @@ $app->group('/v2', function () use ($app) {
      *  This is not (directly) covered by the oAuth2 RFC (but implementing such functionality is recommended)
      *
      * Parameters:
-     *  access_token <String> - [Optional] Access-Token that should be removed from database (invalidted)
-     *  refresh_token <String> - [Optional] Refresh-Token that should be removed from database (invalidted)
+     *  api_key <String> - Api-Key used to identify requesting client
+     *  token <String> - Access- or Refresh-Token that should be removed from database (invalidted)
+     *  <Client-Credentials> - IFF the client is confidential (has a api_secret or crt_* stored)
+     *                         This includes either a valid api_secret or a ssl client-certificate.
      *
      * Returns:
      *  HTTP 1.1/OK 200
@@ -265,14 +267,15 @@ $app->group('/v2', function () use ($app) {
     $app->delete('/token', function () use ($app) {
       // Fetch parameters required for all routes
       $request      = $app->request();
-      $accessCode   = $request->params('access_token');
-      $refreshCode  = $request->params('refresh_token');
+      $apiKey       = $request->params('api_key', null, true);
+      $apiSecret    = $request->params('api_secret');
+      $tokenCode    = $request->params('token', null, true);
+      $apiCert      = Libs\RESTLib::FetchClientCertificate();
+      $remoteIp     = Libs\RESTLib::FetchUserAgentIP();
+      $iliasClient  = Libs\RESTilias::FetchILIASClient();
 
       // Delete all tokens/sessions that where given
-      if (isset($accessCode))
-        Misc::DeleteAccessToken($accessCode);
-      if (isset($refreshCode))
-        Misc::DeleteRefreshToken($refreshCode);
+      Misc::FlowDeleteToken($apiKey, $apiSecret, $apiCert, $iliasClient, $remoteIp, $accessCode);
 
       // Show result of all actions
       $app->success(null);
@@ -285,9 +288,11 @@ $app->group('/v2', function () use ($app) {
      *  This is not (directly) covered by the oAuth2 RFC (but implementing such functionality is recommended)
      *
      * Parameters:
-     *  access_token <String> - [Optional] Shows information about this access-token
-     *  refresh_token <String> - [Optional] Shows information about this refresh-token
+     *  api_key <String> - Api-Key used to identify requesting client
+     *  token <String> - Shows information about this access-token
      *  (At least one of the parameters needs to be given!)
+     *  <Client-Credentials> - IFF the client is confidential (has a api_secret or crt_* stored)
+     *                         This includes either a valid api_secret or a ssl client-certificate.
      *
      * Returns:
      *  {
@@ -303,12 +308,16 @@ $app->group('/v2', function () use ($app) {
      */
     $app->get('/info', function () use ($app) {
       // Fetch parameters required for all routes
-      $request  = $app->request();
-      $access   = $request->params('access_token');
-      $refresh  = $request->params('refresh_token');
+      $request      = $app->request();
+      $apiKey       = $request->params('api_key', null, true);
+      $apiSecret    = $request->params('api_secret');
+      $token        = $request->params('token', null, true);
+      $apiCert      = Libs\RESTLib::FetchClientCertificate();
+      $remoteIp     = Libs\RESTLib::FetchUserAgentIP();
+      $iliasClient  = Libs\RESTilias::FetchILIASClient();
 
       // Generate token-info data
-      $data     = Misc::GetToken($access, $refresh);
+      $data         = Misc::FlowTokenInfo($apiKey, $apiSecret, $apiCert, $iliasClient, $remoteIp, $token);
       $app->success($data);
     });
   // End-Of /oauth2-group
@@ -398,13 +407,13 @@ $app->group('/v2', function () use ($app) {
         $apiKey       = $request->params('api_key', null, true);
         $apiSecret    = $request->params('api_secret');
         $accessCode   = $request->params('access_token', null, true);
+        $goto         = $request->params('goto');
         $apiCert      = Libs\RESTLib::FetchClientCertificate();
         $remoteIp     = Libs\RESTLib::FetchUserAgentIP();
         $iliasClient  = Libs\RESTilias::FetchILIASClient();
-        $goto         = $request->params('goto');
 
         // Proccess input-parameters to generate access-token
-        $cookies = Misc::FlowFromOAUTH($apiKey, $apiSecret, $apiCert, $accessCode, $iliasClient, $remoteIp, $scope);
+        $cookies = Misc::FlowFromOAUTH($apiKey, $apiSecret, $apiCert, $accessCode, $iliasClient, $remoteIp);
 
         // Redirect somewhere? (usefull if accessing via a user-agent)
         if (isset($goto)) {
@@ -448,14 +457,17 @@ $app->group('/v2', function () use ($app) {
     $app->delete('/session', function () use ($app) {
       // Fetch parameters required for all routes
       $request      = $app->request();
+      $apiKey       = $request->params('api_key', null, true);
+      $apiSecret    = $request->params('api_secret');
       $userId       = $request->params('user', null, true);
       $token        = $request->params('token', null, true);
       $sessionID    = $request->params('session', null, true);
+      $apiCert      = Libs\RESTLib::FetchClientCertificate();
+      $remoteIp     = Libs\RESTLib::FetchUserAgentIP();
+      $iliasClient  = Libs\RESTilias::FetchILIASClient();
 
-      // TODO: Use api-key (and CC)
-
-      // Destroy given ILIAS session
-      Libs\RESTilias::deleteSession($userId, $token, $sessionID);
+      // Check client-credentials etc. and delete session afterwards
+      Common::FlowDeleteSession($apiKey, $apiSecret, $apiCert, $remoteIp, $userId, $token, $sessionID);
 
       // Show result of all actions
       $app->success(null);

@@ -166,11 +166,11 @@ class RESTclient extends Libs\RESTDatabase {
    */
   public function checkCredentials($givenSecret = null, $givenCert = null, $givenRedirect = false) {
     // Delegate actual checks...
-    if (!$this->checkClientSecret($givenSecret))
+    if ($givenSecret   !== false && !$this->checkClientSecret($givenSecret))
       return false;
-    if (!$this->checkClientRedirect($givenRedirect))
+    if ($givenCert     !== false && !$this->checkClientCertificate($givenCert))
       return false;
-    if (!$this->checkClientCertificate($givenCert))
+    if ($givenRedirect !== false && !$this->checkClientRedirect($givenRedirect))
       return false;
     return true;
   }
