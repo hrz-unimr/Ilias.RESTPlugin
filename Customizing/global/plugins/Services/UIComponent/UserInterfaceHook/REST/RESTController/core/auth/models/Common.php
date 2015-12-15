@@ -244,6 +244,44 @@ class Common extends Libs\RESTModel {
 
 
   /**
+   * Function: GetAccessToken($apiKey, $userId, $iliasClient, $scope, $withRefresh)
+   *  Utility function used to create the Access-Token response, containing the access-
+   *  and if enabled also the refresh-token, the expiration time note, type of token
+   *  as well as scope note. (Note because the important values are stored inside the tokens themself!)
+   *
+   * Parameters:
+   *  $apiKey <String> - Client used to generate the tokens (will be attached to tokens)
+   *  $userId <Integer> - User-Id (inside ILIAS) of the resource-owner
+   *  $iliasClient <String> - Current ILIAS client-id (will be attached to the tokens)
+   *  $scope <String> - Requested scope for the generated tokens (will be attached to tokens)
+   *  $withRefresh <Boolean> - [Optional] Wether to generate a refresh-token (Default: false)
+   *
+   * Return:
+   *  <Array[Mixed]> - Formated data that can be send to the client as Access-Token response
+   */
+  public static function GetResponse($apiKey, $userId, $iliasClient, $scope, $withRefresh = false) {
+    // Generate access-token
+    $access = self::GetAccessToken($apiKey, $userId, $iliasClient, $scope);
+
+    // Cleanup database
+    self::DatabaseCleanup();
+
+    // Generate refresh-token (if enabled)
+    if ($withRefresh == true)
+      $refresh = self::GetRefreshToken($apiKey, $userId, $iliasClient, $scope);
+
+    // Return success-data
+    return array(
+      'access_token'  => $access->getTokenString(),
+      'refresh_token' => (isset($refresh)) ? $refresh->getTokenString() : $withRefresh,
+      'expires_in'    => $access->getRemainingTime(),
+      'token_type'    => 'Bearer',
+      'scope'         => (isset($scope) && strlen($scope) > 0) ? $scope : null
+    );
+  }
+
+
+  /**
    * Function: GetAccessToken($apiKey, $userId, $iliasClient, $scope)
    *  Generate access-token and store in database.
    *
@@ -274,5 +312,53 @@ class Common extends Libs\RESTModel {
 
     // Return new access-token
     return $access;
+  }
+
+
+  /**
+   * Function: GetRefreshToken($apiKey, $userId, $iliasClient, $scope)
+   *  Returns existing refresh-token from in database or generate a new one and store in database.
+   *
+   * Parameters:
+   *  $apiKey <String> - Client used to generate the tokens (will be attached to tokens)
+   *  $userId <Integer> - User-Id (inside ILIAS) of the resource-owner
+   *  $iliasClient <String> - Current ILIAS client-id (will be attached to the tokens)
+   *  $scope <String> - Requested scope for the generated tokens (will be attached to tokens)
+   *  $withRefresh <Boolean> - [Optional] Wether to generate a refresh-token (Default: false)
+   *
+   * Return:
+   *  <RefreshToken> - Generated Refresh-Token
+   */
+  public static function GetRefreshToken($apiKey, $userId, $iliasClient, $scope) {
+    // Load refresh-token settings
+    $settings  = Tokens\Settings::load('refresh');
+    $refresh   = Tokens\Refresh::fromFields($settings, $userId, $iliasClient, $apiKey, $scope);
+    $hash      = $refresh->getUniqueHash();
+
+    // Used to catch if no existing refresh-key was found...
+    try {
+      // Check wether a refresh-token was already generated (throws on failure)
+      $refreshDB = Database\RESTrefresh::fromHash($hash);
+      $refreshDB->refreshed();
+
+      // Use existing refresh-token instead
+      $token    = $refreshDB->getKey('token');
+      $refresh  = Tokens\Refresh::fromMixed($settings, $token);
+    }
+    catch (Libs\Exceptions\Database $e) {
+      // Store newly generated refresh-token in database
+      $time       = date("Y-m-d H:i:s");
+      $refreshDB  = Database\RESTrefresh::fromRow(array(
+        'hash'          => $hash,
+        'token'         => $refresh->getTokenString(),
+        'last_refresh'  => $time,
+        'created'       => $time,
+        'refreshes'     => 0
+      ));
+      $refreshDB->insert();
+    }
+
+    // Return existing or new refresh-token
+    return $refresh;
   }
 }

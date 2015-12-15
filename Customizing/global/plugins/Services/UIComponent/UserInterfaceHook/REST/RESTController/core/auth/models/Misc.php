@@ -182,7 +182,7 @@ class Misc extends Libs\RESTModel {
       );
 
     // Generate access-token
-    return Common::GetAccessToken($apiKey, $userId, $iliasClient, $scope);
+    return Common::GetResponse($apiKey, $userId, $iliasClient, $scope, false);
   }
 
 

@@ -167,6 +167,7 @@ $app->group('/v2', function () use ($app) {
      *  See https://tools.ietf.org/html/rfc6749#section-4 for more information.
      *
      * Parameters:
+     *  grant_type
      *  <Client-Credentials> - IFF the client is confidential (has a api_secret or crt_* stored)
      *                         This includes either a valid api_secret or a ssl client-certificate.
      * Returns:
@@ -239,7 +240,6 @@ $app->group('/v2', function () use ($app) {
         }
 
         // Send generated token
-        Common::DatabaseCleanup();
         $app->success($data);
       }
 
@@ -260,7 +260,7 @@ $app->group('/v2', function () use ($app) {
      *  refresh_token <String> - [Optional] Refresh-Token that should be removed from database (invalidted)
      *
      * Returns:
-     *  HTTP 1.1/OK
+     *  HTTP 1.1/OK 200
      */
     $app->delete('/token', function () use ($app) {
       // Fetch parameters required for all routes
@@ -322,8 +322,22 @@ $app->group('/v2', function () use ($app) {
      *  Allows for exchanging an active ilias session for an oauth2 token.
      *
      * Parameters:
+     *  api_key <String> - Api-Key used to identify requesting client
+     *  scope <String> - [Optional] Requested scope for access-token
+     *  user <Integer> - ILIAS user id of session to check [$ilUser->getId()]
+     *  token <String> - Request-Token of session to check [$ilCtrl->rtoken]
+     *  session <String> - PHP Session-ID of session to check [session_id()]
+     *  <Client-Credentials> - IFF the client is confidential (has a api_secret or crt_* stored)
+     *                         This includes either a valid api_secret or a ssl client-certificate.
      *
      * Returns:
+     *  {
+     *   "access_token": <String> - Generated access-token allowing access to certain scopes/routes
+     *   "refresh_token": null
+     *   "expires_in": <Integer> - Number of seconds until access-token expires
+     *   "token_type": "Bearer" (Only tokens of type Bearer are supported)
+     *   "scope": <String> - Space separated list of allowed scopes for the given access-token
+     *  }
      */
     $app->post('/ilias', function () use ($app) {
       try {
@@ -360,8 +374,22 @@ $app->group('/v2', function () use ($app) {
      *        (See Libs\RESTilias::createSession(...) to disable this.)
      *
      * Parameters:
+     *  api_key <String> - Api-Key used to identify requesting client
+     *  access_token <String> - The access-token that should be exchanged for a new ILIAS session
+     *  goto <String> - Goto link (relative to index.php of current ILIAS instance) after successfull creation of new ILIAS sessions
+     *  <Client-Credentials> - IFF the client is confidential (has a api_secret or crt_* stored)
+     *                         This includes either a valid api_secret or a ssl client-certificate.
      *
      * Returns:
+     * [Without goto]
+     *  {
+     *    "cookies": <String> - Cookie data that can be given to a user-agent to connect to the given session
+     *  }
+     * [With goto]
+     *  HTTP 1.1/Temporary Redirect 303
+     *  set-cookies: PHPSESSID ...
+     *  set-cookies: authchallenge ...
+     *  -> ILIAS_HTTP_PATH . $goto
      */
     $app->post('/oauth2', function () use ($app) {
       try {
@@ -385,7 +413,7 @@ $app->group('/v2', function () use ($app) {
             $app->setCookie($cookie['key'], $cookie['value'], $cookie['expires'], $cookie['path']);
 
           // Direct to target (make sure its always relative to own ILIAS)
-          $app->response()->redirect(ILIAS_HTTP_PATH . $goto, 303);
+          $app->response()->redirect(ILIAS_HTTP_PATH . '/' . $goto, 303);
         }
 
         // Transmit cookie-information instead
@@ -407,12 +435,15 @@ $app->group('/v2', function () use ($app) {
      *  Destroys an existing ILIAS-Session.
      *
      * Parameters:
+     *  api_key <String> - Api-Key used to identify requesting client
      *  user <Integer> - Destroys ILIAS session for this user (requires user, token and session parameter)
      *  token <String> - Destroys ILIAS session for this token (requires user, token and session parameter)
      *  session <String> - Destroys ILIAS session for this session (requires user, token and session parameter)
+     *  <Client-Credentials> - IFF the client is confidential (has a api_secret or crt_* stored)
+     *                         This includes either a valid api_secret or a ssl client-certificate.
      *
      * Returns:
-     *  HTTP 1.1/OK
+     *  HTTP 1.1/OK 200
      */
     $app->delete('/session', function () use ($app) {
       // Fetch parameters required for all routes
@@ -420,6 +451,8 @@ $app->group('/v2', function () use ($app) {
       $userId       = $request->params('user', null, true);
       $token        = $request->params('token', null, true);
       $sessionID    = $request->params('session', null, true);
+
+      // TODO: Use api-key (and CC)
 
       // Destroy given ILIAS session
       Libs\RESTilias::deleteSession($userId, $token, $sessionID);
