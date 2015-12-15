@@ -415,35 +415,3 @@
   global $ilLog;
   $ilLog->write('Plugin REST -> DB-Update #9: Created ui_uihk_rest_access.');
 ?>
-<#10>
-<?php
-  $fields = array(
-    'id' => array(
-      'type'    => 'integer',
-      'length'  => 4,
-      'notnull' => true
-    ),
-    'user_id' => array(
-      'type'    => 'integer',
-      'length'  => 4,
-      'notnull' => true
-    ),
-    'client_challenge' => array(
-      'type'    => 'text',
-      'length'  => 25,
-      'notnull' => true
-    ),
-    'server_challenge' => array(
-      'type'    => 'text',
-      'length'  => 25,
-      'notnull' => true
-    )
-  );
-  $ilDB->createTable('ui_uihk_rest_challenge', $fields, true);
-
-  $ilDB->addPrimaryKey('ui_uihk_rest_challenge',  array('id'));
-  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_challenge CHANGE id id INT NOT NULL AUTO_INCREMENT');
-
-  global $ilLog;
-  $ilLog->write('Plugin REST -> DB-Update #10: Created ui_uihk_rest_challenge.');
-?>
