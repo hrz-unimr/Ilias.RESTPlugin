@@ -33,6 +33,143 @@ class RESTilias {
 
 
   /**
+   * Function: applyOAuth2Fix()
+   *  The term 'client_id' is used twice within this context:
+   *   (1) ilias client_id                 [Will be ilias_client_id and client_id]
+   *   (2) oauth2 client_id (RFC 6749)     [Will be api_key]
+   *  In order to solve the conflict for the variable 'client_id'
+   *  some counter measures are necessary.
+   *
+   * Solution:
+   *  It is required to provide the variable ilias_client_id
+   *  if a specific ilias client needs to be adressed.
+   */
+  protected static function applyOAuth2Fix($client = null) {
+    // *_client_id was set via GET
+    if (isset($_GET['client_id']) || isset($_GET['ilias_client_id'])) {
+      // oAuth2: Set api_key to client_id
+      $_GET['api_key'] = $_GET['client_id'];
+
+      // ILIAS: Set client_id to ilias_client_id
+      if (isset($_GET['ilias_client_id']))
+          $_GET['client_id'] = $_GET['ilias_client_id'];
+    }
+    // *_client_id was set via GET
+    else if (isset($_POST['client_id']) || isset($_POST['ilias_client_id'])) {
+      // oAuth2: Set api_key to client_id
+      $_POST['api_key'] = $_POST['client_id'];
+
+      // ILIAS: Set client_id to ilias_client_id
+      // Note: ILIAS only cares about GET
+      if (isset($_POST['ilias_client_id']))
+        $_GET['client_id'] = $_POST['ilias_client_id'];
+    }
+
+    // Given client parameter always overwrites given POST, GET values!
+    if (is_string($client))
+      $_GET['client_id'] = $client;
+  }
+
+
+  /**
+   * Function: getIniHost()
+   *  Return the [server] -> 'http_path' variable from 'ilias.init.php'.
+   */
+  protected static function getIniHost() {
+    // Include file to read config
+    require_once('./Services/Init/classes/class.ilIniFile.php');
+
+    // Read config
+		$ini = new \ilIniFile('./ilias.ini.php');
+		$ini->read();
+
+    // Return [server] -> 'http_path' variable from 'ilias.init.php'
+    $http_path = $ini->readVariable('server', 'http_path');
+
+    // Strip http:// & https://
+    if (strpos($http_path, 'https://') !== false)
+      $http_path = substr($http_path, 8);
+    if (strpos($http_path, 'http://') !== false)
+      $http_path = substr($http_path, 7);
+
+    // Return clean host
+    return $http_path;
+  }
+
+
+  /**
+   *
+   */
+  public static function getTokenClient($request) {
+    // Try to fetch access-token
+    try {
+      $code = $request->getToken('access', true);
+    }
+    catch (Exceptions\Parameter $e) { }
+
+    // Try to fetch refresh-token
+    try {
+      $code = $request->getToken('refresh', true);
+    }
+    catch (Exceptions\Parameter $e) { }
+
+    // Access- or Refresh-Token was given
+    if (isset($code)) {
+      // Extract ilias_client from token (manually, since DB isn't available)
+      $tokenArray  = Auth\Tokens\Base::deserializeToken($code);
+
+      // Return ILIAS client-id from token if available
+      $client = $tokenArray['ilias_client'];
+      if (is_string($client))
+        return $client;
+    }
+
+    // Fallback, no client was given
+    return null;
+  }
+
+
+  /**
+   * Function: initILIAS()
+   *  This class will initialize ILIAS just like when calling ilias/index.php.
+   *  It does some extra-work to make sure ILIAS does not get any wrong idea
+   *  when having 'unpredicted' values in $_SERVER array.
+   */
+  public static function initILIAS($client) {
+    // Apply oAuth2 fix for client_id GET/POST value
+    self::applyOAuth2Fix($client);
+
+    // Required included to initialize ILIAS
+    require_once('Services/Context/classes/class.ilContext.php');
+    require_once('Services/Init/classes/class.ilInitialisation.php');
+
+    // Set ILIAS Context. This should tell ILIAS what to load and what not
+    \ilContext::init(\ilContext::CONTEXT_REST);
+
+    // Remember original values
+    $_ORG_SERVER = array(
+      'HTTP_HOST'    => $_SERVER['HTTP_HOST'],
+      'REQUEST_URI'  => $_SERVER['REQUEST_URI'],
+      'PHP_SELF'     => $_SERVER['PHP_SELF'],
+    );
+
+    // Overwrite $_SERVER entries which would confuse ILIAS during initialisation
+    $_SERVER['REQUEST_URI'] = '';
+    $_SERVER['PHP_SELF']    = '/index.php';
+    $_SERVER['HTTP_HOST']   = self::getIniHost();
+
+    // Initialise ILIAS
+    \ilInitialisation::initILIAS();
+    header_remove('Set-Cookie');
+
+    // Restore original, since this could lead to bad side-effects otherwise
+    $_SERVER['HTTP_HOST']   = $_ORG_SERVER['HTTP_HOST'];
+    $_SERVER['REQUEST_URI'] = $_ORG_SERVER['REQUEST_URI'];
+    $_SERVER['PHP_SELF']    = $_ORG_SERVER['PHP_SELF'];
+  }
+
+
+  /**
    * Function: FetchILIASClient()
    *  Returns the current ILIAS Client-ID. This cannot be changed
    *  and can only be controlled by setting $_GET['ilias_client_id']

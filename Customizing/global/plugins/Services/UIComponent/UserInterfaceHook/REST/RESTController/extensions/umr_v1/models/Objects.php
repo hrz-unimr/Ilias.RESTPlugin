@@ -278,8 +278,8 @@ class Objects extends Libs\RESTModel {
 
     // Initialize (global!) $ilUser object
     $userId = $accessToken->getUserId();
-    $ilUser = Libs\RESTLib::loadIlUser($userId);
-    Libs\RESTLib::initAccessHandling();
+    $ilUser = Libs\RESTilias::loadIlUser($userId);
+    Libs\RESTilias::initAccessHandling();
 
     // Return result for each refid
     $result     = array();
@@ -291,7 +291,7 @@ class Objects extends Libs\RESTModel {
       }
       catch (Exceptions\Objects $e) {
         // Add error-response for failed refIds
-        $responseObject           = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
+        $responseObject           = Libs\RESTResponse::responseObject($e->getRESTMessage(), $e->getRESTCode());
         $responseObject['ref_id'] = $refId;
         $result[$refId]           = $responseObject;
       }

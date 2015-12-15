@@ -35,7 +35,7 @@ $app->group('/v1/umr', function () use ($app) {
 
       // With HTTP-GET Parameter (fetch by contactIds)
       if ($calendarIdString) {
-        $calendarIds   = Libs\RESTLib::parseIdsFromString($calendarIdString, true);
+        $calendarIds   = Libs\RESTRequest::parseIDList($calendarIdString, true);
         $calendars     = Calendars::getCalendars($accessToken, $calendarIds);
       }
       // Fetch all events
@@ -49,7 +49,7 @@ $app->group('/v1/umr', function () use ($app) {
       $app->halt(422, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (Exceptions\Calendars $e) {
-      $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
+      $responseObject         = Libs\RESTResponse::responseObject($e->getRESTMessage(), $e->getRESTCode());
       $responseObject['data'] = $e->getData();
       $app->halt(500, $responseObject);
     }
@@ -75,7 +75,7 @@ $app->group('/v1/umr', function () use ($app) {
       $app->success($calendars);
     }
     catch (Exceptions\Calendars $e) {
-      $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
+      $responseObject         = Libs\RESTResponse::responseObject($e->getRESTMessage(), $e->getRESTCode());
       $responseObject['data'] = $e->getData();
       $app->halt(500, $responseObject);
     }
@@ -99,7 +99,7 @@ $app->group('/v1/umr', function () use ($app) {
       $calendarIdString = $request->params('calendarids', null, true);
 
       // With HTTP-GET Parameter (fetch by contactIds)
-      $calendarIds   = Libs\RESTLib::parseIdsFromString($calendarIdString, true);
+      $calendarIds   = Libs\RESTRequest::parseIDList($calendarIdString, true);
       $calendars     = Calendars::getAllEventsOfCalendars($accessToken, $calendarIds);
 
       // Output result
@@ -112,7 +112,7 @@ $app->group('/v1/umr', function () use ($app) {
         $app->halt(400, $e->getFormatedMessage(), $e->getRESTCode());
     }
     catch (Exceptions\Calendars $e) {
-      $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
+      $responseObject         = Libs\RESTResponse::responseObject($e->getRESTMessage(), $e->getRESTCode());
       $responseObject['data'] = $e->getData();
       $app->halt(500, $responseObject);
     }
@@ -138,7 +138,7 @@ $app->group('/v1/umr', function () use ($app) {
       $app->success($calendars);
     }
     catch (Exceptions\Calendars $e) {
-      $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
+      $responseObject         = Libs\RESTResponse::responseObject($e->getRESTMessage(), $e->getRESTCode());
       $responseObject['data'] = $e->getData();
       $app->halt(500, $responseObject);
     }

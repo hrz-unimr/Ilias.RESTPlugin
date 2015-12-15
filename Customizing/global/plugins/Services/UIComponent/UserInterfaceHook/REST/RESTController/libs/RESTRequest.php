@@ -9,7 +9,8 @@ namespace RESTController\libs;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires ../Slim/Http/Request
-use \RESTController\libs\Exceptions as Exceptions;
+use \RESTController\libs\Exceptions  as Exceptions;
+use \RESTController\core\auth\Tokens as Tokens;
 
 
 /**
@@ -115,11 +116,13 @@ class RESTRequest extends \Slim\Http\Request {
    * Parameter:
    *  $name <String> - [Optional] Which type of token should be fetched (Default: Access-Token)
    *                   Supports: null, 'access', 'refresh', 'authorization'
+   *  $stringOnly <Boolean> - [Optional] Pass true to return token as string without converting to
+   *                          Token object (usefull if for example the DB isn't available yet)
    *
    * Return:
    *  <AccessToken>/<RefreshToken>/<AuthorizationCode> - Fetched token, depending on input parameter
    */
-  public function getToken($name = 'access') {
+  public function getToken($name = 'access', $stringOnly = false) {
     switch ($name) {
       // Fetch access-token
       default:
@@ -147,6 +150,11 @@ class RESTRequest extends \Slim\Http\Request {
 
         // Found something that could be an access-token?
         if ($tokenString != null) {
+          // Only return token as string
+          if ($stringOnly)
+            return $tokenString;
+
+          // Return token as object
           $settings = Tokens\Settings::load('access');
           return Tokens\Access::fromMixed($settings, $tokenString);
         }
@@ -164,6 +172,11 @@ class RESTRequest extends \Slim\Http\Request {
 
         // Found something that could be an access-token?
         if ($tokenString != null) {
+          // Only return token as string
+          if ($stringOnly)
+            return $tokenString;
+
+          // Return token as object
           $settings = Tokens\Settings::load('refresh');
           return Tokens\Refresh::fromMixed($settings, $tokenString);
         }
@@ -188,6 +201,11 @@ class RESTRequest extends \Slim\Http\Request {
 
         // Found something that could be an access-token?
         if ($tokenString != null) {
+          // Only return token as string
+          if ($stringOnly)
+            return $tokenString;
+
+          // Return token as object
           $settings = Tokens\Settings::load('authorization');
           return Tokens\Authorization::fromMixed($settings, $tokenString);
         }

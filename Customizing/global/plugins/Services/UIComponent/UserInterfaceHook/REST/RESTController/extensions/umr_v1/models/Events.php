@@ -158,7 +158,7 @@ class Events extends Libs\RESTModel {
       }
       // Calendar does not exist
       else {
-        $result[$eventId]             = Libs\RESTLib::responseObject(sprintf(self::MSG_NO_EVENT_ID, $eventId), self::ID_NO_EVENT_ID);
+        $result[$eventId]             = Libs\RESTResponse::responseObject(sprintf(self::MSG_NO_EVENT_ID, $eventId), self::ID_NO_EVENT_ID);
         $result[$eventId]['event_id'] = $eventId;
       }
     }
@@ -168,7 +168,7 @@ class Events extends Libs\RESTModel {
       if (!Calendars::hasCalendar($accessToken, $calendarId))
         // Unset all events of this calendar
         foreach($eventIds as $eventId) {
-          $result[$eventId] = Libs\RESTLib::responseObject(sprintf(self::MSG_NO_EVENT_ID, $eventId), self::ID_NO_EVENT_ID);
+          $result[$eventId] = Libs\RESTResponse::responseObject(sprintf(self::MSG_NO_EVENT_ID, $eventId), self::ID_NO_EVENT_ID);
           $result[$eventId]['event_id'] = $eventId;
 
           --$success;

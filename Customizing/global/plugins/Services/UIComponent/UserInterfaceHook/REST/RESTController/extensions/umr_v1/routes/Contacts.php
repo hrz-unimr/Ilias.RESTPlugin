@@ -35,7 +35,7 @@ $app->group('/v1/umr', function () use ($app) {
 
       // With HTTP-GET Parameter (fetch by contactIds)
       if ($contactIdString) {
-        $contactIds   = Libs\RESTLib::parseIdsFromString($contactIdString, true);
+        $contactIds   = Libs\RESTRequest::parseIDList($contactIdString, true);
         $ccontacts    = Contacts::getContacts($accessToken, $contactIds);
       }
       // Fetch all contacts
@@ -49,7 +49,7 @@ $app->group('/v1/umr', function () use ($app) {
       $app->halt(422, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (Exceptions\Contacts $e) {
-      $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
+      $responseObject         = Libs\RESTResponse::responseObject($e->getRESTMessage(), $e->getRESTCode());
       $responseObject['data'] = $e->getData();
       $app->halt(500, $responseObject);
     }
@@ -75,7 +75,7 @@ $app->group('/v1/umr', function () use ($app) {
       $app->success($ccontacts);
     }
     catch (Exceptions\Contacts $e) {
-      $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
+      $responseObject         = Libs\RESTResponse::responseObject($e->getRESTMessage(), $e->getRESTCode());
       $responseObject['data'] = $e->getData();
       $app->halt(500, $responseObject);
     }

@@ -47,8 +47,8 @@ class News extends Libs\RESTModel {
    */
   public static function getILIASNews($userId, $settings = null) {
     // Load ILIAS user (AccessHandling not strictly required!)
-    $ilUser = Libs\RESTLib::loadIlUser();
-    Libs\RESTLib::initAccessHandling();
+    $ilUser = Libs\RESTilias::loadIlUser();
+    Libs\RESTilias::initAccessHandling();
 
     // Use custom filter or apply personal-desktop settings
     include_once('./Services/News/classes/class.ilNewsItem.php');

@@ -42,8 +42,8 @@ class Calendars extends Libs\RESTModel {
       $userId = $accessToken->getUserId();
 
       // Initialize (global!) $ilUser object
-      $ilUser = Libs\RESTLib::loadIlUser($userId);
-      Libs\RESTLib::initAccessHandling();
+      $ilUser = Libs\RESTilias::loadIlUser($userId);
+      Libs\RESTilias::initAccessHandling();
 
       // Fetch calendars (called categories here), initialize from database
       self::$calendars[$userId] = \ilCalendarCategories::_getInstance($userId);
@@ -135,7 +135,7 @@ class Calendars extends Libs\RESTModel {
       }
       // Add missing calendarId information to response
       else {
-        $result[$calendarId]                = Libs\RESTLib::responseObject(sprintf(self::MSG_NO_CALENDAR_ID, $calendarId), self::ID_NO_CALENDAR_ID);
+        $result[$calendarId]                = Libs\RESTResponse::responseObject(sprintf(self::MSG_NO_CALENDAR_ID, $calendarId), self::ID_NO_CALENDAR_ID);
         $result[$calendarId]['calendar_id'] = $calendarId;
       }
 
@@ -179,7 +179,7 @@ class Calendars extends Libs\RESTModel {
       }
       // Add exception information if failure
       catch (Exceptions\Calendars $e) {
-        $result[$calendarId]                = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
+        $result[$calendarId]                = Libs\RESTResponse::responseObject($e->getRESTMessage(), $e->getRESTCode());
         $result[$calendarId]['calendar_id'] = $calendarId;
       }
 

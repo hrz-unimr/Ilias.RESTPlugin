@@ -27,7 +27,7 @@ class Contacts extends Libs\RESTModel {
    *
    */
   protected function getContactInfo($contact) {
-    $loginId  = Libs\RESTLib::getUserId($contact['login']);
+    $loginId  = Libs\RESTilias::getUserId($contact['login']);
 
     try {
       $userInfo = UserInfo::getUserInfo($loginId);
@@ -106,7 +106,7 @@ class Contacts extends Libs\RESTModel {
       }
       // No contact with given id
       else {
-        $result[$contactId]               = Libs\RESTLib::responseObject(sprintf(self::MSG_NO_CONTACT_ID, $contactId), self::ID_NO_CONTACT_ID);
+        $result[$contactId]               = Libs\RESTResponse::responseObject(sprintf(self::MSG_NO_CONTACT_ID, $contactId), self::ID_NO_CONTACT_ID);
         $result[$contactId]['contact_id'] = $contactId;
       }
     }

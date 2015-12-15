@@ -24,7 +24,7 @@ class MyCoursesAndGroups extends Libs\RESTModel {
     $userId       = $accessToken->getUserId();
 
     // Load ILIAS user
-    $ilUser = Libs\RESTLib::loadIlUser($userId);
+    $ilUser = Libs\RESTilias::loadIlUser($userId);
 
     // Fetch groups and courses of user
     $grps = \ilUtil::_getObjectsByOperations('grp', 'visible,read', $userId);

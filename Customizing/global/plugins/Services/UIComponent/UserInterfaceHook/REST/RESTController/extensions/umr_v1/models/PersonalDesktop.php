@@ -24,7 +24,7 @@ class PersonalDesktop extends Libs\RESTModel {
     $userId       = $accessToken->getUserId();
 
     // Load ILIAS user
-    $ilUser = Libs\RESTLib::loadIlUser($userId);
+    $ilUser = Libs\RESTilias::loadIlUser($userId);
     $items = $ilUser->getDesktopItems();
 
     $result = array();
