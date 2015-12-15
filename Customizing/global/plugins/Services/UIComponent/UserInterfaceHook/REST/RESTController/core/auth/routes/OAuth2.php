@@ -49,9 +49,10 @@ $app->group('/v2', function () use ($app) {
         $state        = $request->params('state');
         $apiCert      = Libs\RESTLib::FetchClientCertificate();
         $remoteIP     = Libs\RESTLib::FetchUserAgentIP();
+        $iliasClient  = Libs\RESTilias::FetchILIASClient();
 
         // Proccess input-parameters according to (get) authorziation flow (throws exception on problem)
-        $data         = Authorize::FlowGetAuthorize($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP);
+        $data         = Authorize::FlowGetAuthorize($responseType, $iliasClient, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP);
 
         // Show permission website (should show login)
         Authorize::showWebsite($app, $data);
@@ -137,11 +138,35 @@ $app->group('/v2', function () use ($app) {
 
       // Catch wrong resource-owner username (case-sensitive)
       catch (Libs\Exceptions\ilUser $e) {
-        Authorize::LoginFailed($app, $params, $e);
+        Authorize::LoginFailed(
+          $app,
+          array(
+            'response_type'   => $responseType,
+            'redirect_uri'    => $redirectUri,
+            'api_key'         => $apiKey,
+            'scope'           => $scope,
+            'state'           => $state,
+            'username'        => $userName,
+            'password'        => $passWord
+          ),
+          $e
+        );
       }
       // Catch wrong resource-owner credentials
       catch (Exceptions\Credentials $e) {
-        Authorize::LoginFailed($app, $params, $e);
+        Authorize::LoginFailed(
+          $app,
+          array(
+            'response_type'   => $responseType,
+            'redirect_uri'    => $redirectUri,
+            'api_key'         => $apiKey,
+            'scope'           => $scope,
+            'state'           => $state,
+            'username'        => $userName,
+            'password'        => $passWord
+          ),
+          $e
+        );
       }
       // Database query failed (eg. no client with given api-key)
       catch (Libs\Exceptions\Database $e) {

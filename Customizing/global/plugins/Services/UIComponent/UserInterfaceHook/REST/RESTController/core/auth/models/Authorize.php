@@ -124,7 +124,7 @@ class Authorize extends Libs\RESTModel {
    * Return:
    *  <Array[Mixed]> - List of parameters that will get passed to the template engine, see actual return-value for details
    */
-  public static function FlowGetAuthorize($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP) {
+  public static function FlowGetAuthorize($responseType, $iliasClient, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP) {
     // Incoke common flow code
     list($client, $redirectUri) = self::FlowAll($responseType, $apiKey, $apiSecret, $apiCert, $redirectUri, $scope, $state, $remoteIP);
 
@@ -136,7 +136,8 @@ class Authorize extends Libs\RESTModel {
       'api_id'          => $client->getKey('id'),
       'scope'           => $scope,
       'state'           => $state,
-      'consent_message' => $client->getKey('consent_message')
+      'consent_message' => $client->getKey('consent_message'),
+      'ilias_client'    => $iliasClient
     );
   }
 
@@ -189,9 +190,9 @@ class Authorize extends Libs\RESTModel {
       'scope'           => $scope,
       'state'           => $state,
       'consent_message' => $client->getKey('consent_message'),
+      'ilias_client'    => $iliasClient,
 
       // Added by POST
-      'ilias_client'  => $iliasClient,
       'username'      => $userName,
       'password'      => $passWord,
       'user_id'       => $userId,
@@ -323,12 +324,22 @@ class Authorize extends Libs\RESTModel {
    *                           Note: Not all keys may be present at all times.
    */
   public static function ShowWebsite($app, $param) {
+    // fetch full route-url
+    $route      = $app->router()->getCurrentRoute();
+    $routeURL   = $route->getPattern();
+
+    // fetch absolute dirictory of view folder
+    $plugin     = Libs\RESTilias::getPlugin();
+    $pluginDir  = $plugin->getDirectory() . '/RESTController/core/auth/views/';
+
     // Content and further logic is managed by the template
     $app->response()->setFormat('HTML');
     $app->render(
-      'core/auth/views/authorization.php',
+      'core/auth/views/index.php',
       array(
         'baseURL'     => ILIAS_HTTP_PATH,
+        'viewURL'     => ILIAS_HTTP_PATH . '/' . $pluginDir,
+        'endpoint'    => ILIAS_HTTP_PATH . '/restplugin.php' . $routeURL,
         'parameters'  => $param,
       )
     );
