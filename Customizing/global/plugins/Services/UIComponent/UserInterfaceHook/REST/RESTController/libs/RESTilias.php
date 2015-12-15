@@ -98,7 +98,15 @@ class RESTilias {
 
 
   /**
+   * Function: getTokenClient($request)
+   *  Returns the ILIAS client-id that is attached to a given access- or refresh-token
+   *  if one of the above was given as parameters. (Otherweise null is returned)
    *
+   * Parameters:
+   *  $request <RESTRequest> - Custom Slim request object with ability to fetch access- / refresh-token parameter
+   *
+   * Return:
+   *  <String> - ILIAS client-id attached to access- or if not available refresh-token or null if no token is available
    */
   public static function getTokenClient($request) {
     // Try to fetch access-token
@@ -167,6 +175,7 @@ class RESTilias {
     $_SERVER['REQUEST_URI'] = $_ORG_SERVER['REQUEST_URI'];
     $_SERVER['PHP_SELF']    = $_ORG_SERVER['PHP_SELF'];
   }
+
 
 
   /**
@@ -285,6 +294,156 @@ class RESTilias {
 
     // Return login-state
     return $checked_in;
+  }
+
+
+  /**
+   * Function: checkSession($userId, $token, $sessionId)
+   *  Checks if the given parameters correspond to a valid (and active) ILIAS session.
+   *
+   * Parameters:
+   *  $userId <Integer> - ILIAS user-id attached to the session
+   *  $token <String> - ILIAS request-token attached to the session
+   *  $sessionId <String> - ILIAS php-session id attached to the session
+   *
+   * Return:
+   *  <Boolean> - True if there is an valid (and active) ILIAS session for the given parameters, false otherwise
+   */
+  public static function checkSession($userId, $token, $sessionId) {
+    global $ilDB;
+    $userId = intval($userId);
+
+    // Check if token and session-id are correct (il_request_token)
+    $sql = RESTDatabase::safeSQL('
+      SELECT * FROM il_request_token WHERE user_id = %d AND token = %s AND session_id = %s',
+      $userId,
+      $token,
+      $sessionId
+    );
+    $query = $ilDB->query($sql);
+    if ($ilDB->numRows($query) == 0)
+      return false;
+
+    // Check if session-id is correct (usr_session)
+    $sql = RESTDatabase::safeSQL('
+      SELECT * FROM usr_session WHERE user_id = %d AND session_id = %s',
+      $userId,
+      $sessionId
+    );
+    $query  = $ilDB->query($sql);
+    $row    = $ilDB->fetchAssoc($query);
+    if (!isset($row) || $row['expires'] <= time())
+      return false;
+
+    // Not failed yet, must be valid then...
+    return true;
+  }
+
+
+  /**
+   * Function: deleteSession($userId, $token, $sessionId)
+   *  Deletes all (important) session-data from the database (does not effect user-agent cookies)
+   *  this invalidating the given session.
+   *
+   * Parameters:
+   *  $userId <Integer> - ILIAS user-id attached to the session
+   *  $token <String> - [Optiona] ILIAS request-token attached to the session
+   *  $sessionId <String> - [Optiona] ILIAS php-session id attached to the session
+   */
+  public static function deleteSession($userId, $token = null, $sessionId = null) {
+    global $ilDB;
+    $userId = intval($userId);
+
+    // Delete from il_request_token
+    $equals     = array();
+    $equals[]   = sprintf('user_id    = %d', RESTDatabase::quote($userId, 'Integer'));
+    if (isset($token))
+      $equals[] = sprintf('token      = %s', RESTDatabase::quote($token, 'Text'));
+    if (isset($sessionId))
+      $equals[] = sprintf('session_id = %s', RESTDatabase::quote($sessionId, 'Text'));
+    $where      = implode(' AND ', $equals);
+    $sql        = sprintf('DELETE FROM il_request_token WHERE %s', $where);
+    $ilDB->manipulate($sql);
+
+    // Delete from usr_session
+    $equals     = array();
+    $equals[]   = sprintf('user_id    = %d', RESTDatabase::quote($userId, 'Integer'));
+    if (isset($sessionId))
+      $equals[] = sprintf('session_id = %s', RESTDatabase::quote($sessionId, 'Text'));
+    $where      = implode(' AND ', $equals);
+    $sql        = sprintf('DELETE FROM usr_session WHERE %s', $where);
+    $ilDB->manipulate($sql);
+  }
+
+
+  /**
+   * Function: createSession($userName)
+   *  Creates a new session on the ILIAS side and returns the required cookie-data
+   *  to attach the user-agent to this session.
+   *
+   * Parameters:
+   *  $userName <String> - ILIAS username for whom to create a new session
+   *
+   * Return:
+   *  <Array[
+   *   key <String>     - Name of session-cookie
+   *   value <String>   - Value of session-cookie
+   *   expires <Number> - Expirition-date of session-cookie
+   *   path <String>    - Path of session-cookie
+   *  ]> - Information about session (-cookie)
+   */
+  public static function createSession($userId) {
+    // fetch username (makes also sure user exists)
+    $userName = self::getUserName($userId);
+
+    // Delete old sessions
+    self::deleteSession($userId);
+
+    // Iitialize Authorization in ILIAS
+    require_once('Services/Authentication/classes/class.ilAuthUtils.php');
+    \ilAuthUtils::_initAuth();
+
+    // Authenticate user (this will generate a session in usr_session and send PHPSESSID cookie)
+    global $ilAuth;
+    $ilAuth->setAuth($userName);
+    $ilAuth->start();
+
+    // Used to return session-cookies
+    $result = array();
+
+    // Fetch headers (waiting to be) send by php
+    $headers = headers_list();
+    foreach ($headers as $header)
+      // We are only looking for cookies
+      if (substr($header, 0, 12) === 'Set-Cookie: ') {
+        // Extract cookie-settings
+        $cookie   = array();
+        $settings = explode(';', substr($header, 12));
+        foreach ($settings as $key => $value) {
+          $value              = trim($value);
+          $pairs              = explode('=', $value);
+          $cookie[$pairs[0]]  = $pairs[1];
+        }
+
+        // Got session-cookie?
+        if (array_key_exists('PHPSESSID', $cookie))
+          $result[] = array(
+            'key'     => 'PHPSESSID',
+            'value'   => $cookie['PHPSESSID'],
+            'expires' => 0,
+            'path'    => $cookie['path']
+          );
+        elseif (array_key_exists('authchallenge', $cookie))
+          $result[] = array(
+            'key'     => 'authchallenge',
+            'value'   => $cookie['authchallenge'],
+            'expires' => 0,
+            'path'    => $cookie['path']
+          );
+      }
+
+    // Return session cookie data
+    return $result;
   }
 
 

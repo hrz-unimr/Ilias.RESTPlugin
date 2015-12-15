@@ -39,6 +39,7 @@ class RESTclient extends Libs\RESTDatabase {
     'grant_resource_owner'        => 'integer',
     'refresh_authorization_code'  => 'integer',
     'refresh_resource_owner'      => 'integer',
+    'grant_bridge'                => 'text',
     'description'                 => 'text'
   );
 
@@ -85,6 +86,7 @@ class RESTclient extends Libs\RESTDatabase {
       case 'users':
       case 'scopes':
       case 'consent_message':
+      case 'grant_bridge':
         return ($value == null) ? false : $value;
 
       default:
@@ -112,6 +114,7 @@ class RESTclient extends Libs\RESTDatabase {
       case 'users':
       case 'scopes':
       case 'consent_message':
+      case 'grant_bridge':
         $value = ($value === false) ? null : $value;
         break;
 
@@ -322,5 +325,53 @@ class RESTclient extends Libs\RESTDatabase {
 
     // Delegate to restriction-check
     return Libs\RESTLib::CheckComplexRestriction($allowed, $scopes, ' ');
+  }
+
+
+  /**
+   * Function: isBridgeAllowed($direction)
+   *  Checks wether the ILIAS <-> oAuth2 bridge is allowed for this client in the requested direction.
+   *
+   * Parameters:
+   *  $direction <String> - Requested direction of ILIAS <-> oAuth2 bridge. Use:
+   *                         'fromILIAS' to checks wether a valid ILIAS session may be exchanged for a new access-token
+   *                         'fromOAuth2' to checks wether an access-token may be exchanged for a new a ILIAS session
+   *                         'both' to checks wether both of the above are allowed
+   *
+   * Return:
+   *  <Boolean> - True if the ILIAS <-> oAuth2 bridge is allowed for this client in the requested direction
+   */
+  public function isBridgeAllowed($direction) {
+    // Convert all to lower-case
+    $direction  = strtolower($direction);
+    $allowed    = strtolower($this->getKey('grant_bridge'));
+
+    // Bridge is disabled, no need for further comparisons...
+    if ($allowed === false)
+      return false;
+
+    // Check depending on requested bridge direction
+    switch ($direction) {
+      // Requesting bridge from ILIAS
+      case 'ilias':
+      case 'fromilias':
+        // Direction from (I)LIAS or (B)OTH enabled
+        return $allowed == 'i' || $allowed = 'b';
+
+      // Requesting bridge from oAuth2
+      case 'oauth2':
+      case 'oauth':
+      case 'fromoauth2':
+      case 'fromoauth':
+        // Direction from (o)Auth2 or (B)OTH enabled
+        return $allowed == 'o' || $allowed = 'b';
+
+      // Requesting bridge in both directions
+      case 'both':
+        return $allowed = 'b';
+    }
+
+    // Fallback: Everything else disabled by default
+    return false;
   }
 }

@@ -262,13 +262,15 @@ class Common extends Libs\RESTModel {
     $settings  = Tokens\Settings::load('access');
     $access    = Tokens\Access::fromFields($settings, $userId, $iliasClient, $apiKey, $scope);
 
-    // Inset token into DB
-    $accessDB = Database\RESTaccess::fromRow(array(
-      'hash'    => $access->getUniqueHash(),
-      'token'   => $access->getTokenString(),
-      'expires' => date("Y-m-d H:i:s", time() + $access->getRemainingTime())
-    ));
-    $accessDB->insert();
+    // Inset token into DB (if enabled)
+    if (self::getApp()->AccessTokenDB()){
+      $accessDB = Database\RESTaccess::fromRow(array(
+        'hash'    => $access->getUniqueHash(),
+        'token'   => $access->getTokenString(),
+        'expires' => date("Y-m-d H:i:s", time() + $access->getRemainingTime())
+      ));
+      $accessDB->insert();
+    }
 
     // Return new access-token
     return $access;

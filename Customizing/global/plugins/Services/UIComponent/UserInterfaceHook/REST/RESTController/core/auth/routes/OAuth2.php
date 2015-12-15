@@ -12,12 +12,12 @@ namespace RESTController\core\auth;
 use \RESTController\libs     as Libs;
 
 
-// Group as version-1 implementation
-$app->group('/v1', function () use ($app) {
-  // Group as oauth2 implementation
+// Group Version 2 implementation
+$app->group('/v2', function () use ($app) {
+  // Group all oAuth2 (RFC) routes
   $app->group('/oauth2', function () use ($app) {
     /**
-     * Route: [GET] /v1/oauth2/authorize
+     * Route: [GET] /v2/oauth2/authorize
      *  Implementation of the OAuth2 'Authorization Flow'. This route manages the
      *  step (A) for both 'Authorization-Code Grant' and the 'Implicit Grant'.
      *
@@ -35,7 +35,7 @@ $app->group('/v1', function () use ($app) {
      *
      * Returns:
      *  A website where the resource-owner can allow or deny the client access to is resources (via his account)
-     *  Since this requires login, the user will be redirected to [POST] /v1/oauth2/authorize.
+     *  Since this requires login, the user will be redirected to [POST] /v2/oauth2/authorize.
      */
     $app->get('/authorize', function () use ($app) {
       try {
@@ -75,7 +75,7 @@ $app->group('/v1', function () use ($app) {
 
 
     /**
-     * Route: [POST] /v1/oauth2/authorize
+     * Route: [POST] /v2/oauth2/authorize
      *  Implementation of the OAuth2 'Authorization Flow'. This route manages the
      *  steps (B) and (C) for both 'Authorization-Code Grant' and the 'Implicit Grant'.
      *
@@ -158,7 +158,7 @@ $app->group('/v1', function () use ($app) {
 
 
     /**
-     * Route: [POST] /v1/oauth2/token
+     * Route: [POST] /v2/oauth2/token
      *  Implementation of the OAuth2 'Authorization Flow'. This route manages:
      *   1) the steps (D) and (E) for 'Authorization-Code Grant'.
      *   2) the steps (B) and (C) for 'Resource Owner (Password Credentials) Grant'
@@ -215,9 +215,6 @@ $app->group('/v1', function () use ($app) {
 
             // Proccess input-parameters according to (post) token flow (throws exception on problem)
             $data = Token::FlowAuthorizationCode($grantType, $apiKey, $apiSecret, $apiCert, $code, $redirectUri, $iliasClient, $remoteIp);
-
-            // Clear expired Authorization-Code tokens
-            Common::DatabaseCleanup();
           }
 
           // Grant-Type: Resource-Owner Credentials
@@ -254,21 +251,36 @@ $app->group('/v1', function () use ($app) {
 
 
     /**
-     * Route: /v1/oauth2/token
+     * Route: /v2/oauth2/token
      *  This endpoint allows a user to invalidate their access- and refresh-token in case they were compromised.
      *  This is not (directly) covered by the oAuth2 RFC (but implementing such functionality is recommended)
      *
      * Parameters:
-     *
+     *  access_token <String> - [Optional] Access-Token that should be removed from database (invalidted)
+     *  refresh_token <String> - [Optional] Refresh-Token that should be removed from database (invalidted)
      *
      * Returns:
      *  HTTP 1.1/OK
      */
-    $app->delete('/token', function () use ($app) { });
+    $app->delete('/token', function () use ($app) {
+      // Fetch parameters required for all routes
+      $request      = $app->request();
+      $accessCode   = $request->params('access_token');
+      $refreshCode  = $request->params('refresh_token');
+
+      // Delete all tokens/sessions that where given
+      if (isset($accessCode))
+        Misc::DeleteAccessToken($accessCode);
+      if (isset($refreshCode))
+        Misc::DeleteRefreshToken($refreshCode);
+
+      // Show result of all actions
+      $app->success(null);
+    });
 
 
     /**
-     * Route: [GET] /v1/oauth2/info
+     * Route: [GET] /v2/oauth2/info
      *  Allows an end-user or client to get information about his refresh- or access-token.
      *  This is not (directly) covered by the oAuth2 RFC (but implementing such functionality is recommended)
      *
@@ -303,29 +315,119 @@ $app->group('/v1', function () use ($app) {
   });
 
 
-  // Group as oauth2 implementation
+  // Group routes connecting oAuth2 <-> ILIAS
   $app->group('/bridge', function () use ($app) {
     /**
-     * Route: [POST] /v1/bridge/ilias
-     *  Allows for exchanging an ilias session with an oauth2 token.
+     * Route: [POST] /v2/bridge/ilias
+     *  Allows for exchanging an active ilias session for an oauth2 token.
      *
      * Parameters:
      *
      * Returns:
      */
-    $app->post('/ilias', function () use ($app) { });
+    $app->post('/ilias', function () use ($app) {
+      try {
+        // Fetch parameters required for all routes
+        $request      = $app->request();
+        $apiKey       = $request->params('api_key', null, true);
+        $apiSecret    = $request->params('api_secret');
+        $scope        = $request->params('scope');
+        $userId       = $request->params('user', null, true);
+        $token        = $request->params('token', null, true);
+        $sessionID    = $request->params('session', null, true);
+        $apiCert      = Libs\RESTLib::FetchClientCertificate();
+        $remoteIp     = Libs\RESTLib::FetchUserAgentIP();
+        $iliasClient  = Libs\RESTilias::FetchILIASClient();
+
+        // Proccess input-parameters to generate access-token
+        $data = Misc::FlowFromILIAS($apiKey, $apiSecret, $apiCert, $userId, $token, $sessionID, $iliasClient, $remoteIp, $scope);
+
+        // Send generated token
+        $app->success($data);
+      }
+
+      // Catch all generated exceptions
+      catch (Libs\RESTException $e) {
+        $e->send(500);
+      }
+    });
 
 
     /**
-     * Route: [POST] /v1/bridge/oauth2
-     *  Allows for exchanging an oauth2 token with an ilias session.
+     * Route: [POST] /v2/bridge/oauth2
+     *  Allows for exchanging an oauth2 token for a new ILIAS session.
+     *  Note: This INTENTIONALLY deletes all existing ILIAS sessions!
+     *        (See Libs\RESTilias::createSession(...) to disable this.)
      *
      * Parameters:
      *
      * Returns:
      */
-    $app->post('/oauth2', function () use ($app) { });
+    $app->post('/oauth2', function () use ($app) {
+      try {
+        // Fetch parameters required for all routes
+        $request      = $app->request();
+        $apiKey       = $request->params('api_key', null, true);
+        $apiSecret    = $request->params('api_secret');
+        $accessCode   = $request->params('access_token', null, true);
+        $apiCert      = Libs\RESTLib::FetchClientCertificate();
+        $remoteIp     = Libs\RESTLib::FetchUserAgentIP();
+        $iliasClient  = Libs\RESTilias::FetchILIASClient();
+        $goto         = $request->params('goto');
+
+        // Proccess input-parameters to generate access-token
+        $cookies = Misc::FlowFromOAUTH($apiKey, $apiSecret, $apiCert, $accessCode, $iliasClient, $remoteIp, $scope);
+
+        // Redirect somewhere? (usefull if accessing via a user-agent)
+        if (isset($goto)) {
+          // Send cookie data
+          foreach ($cookies as $cookie)
+            $app->setCookie($cookie['key'], $cookie['value'], $cookie['expires'], $cookie['path']);
+
+          // Direct to target (make sure its always relative to own ILIAS)
+          $app->response()->redirect(ILIAS_HTTP_PATH . $goto, 303);
+        }
+
+        // Transmit cookie-information instead
+        else
+          $app->success(array(
+            'cookies' => $cookies
+          ));
+      }
+
+      // Catch all generated exceptions
+      catch (Libs\RESTException $e) {
+        $e->send(500);
+      }
+    });
+
+
+    /**
+     * Route: [DELETE] /v2/bridge/ilias
+     *  Destroys an existing ILIAS-Session.
+     *
+     * Parameters:
+     *  user <Integer> - Destroys ILIAS session for this user (requires user, token and session parameter)
+     *  token <String> - Destroys ILIAS session for this token (requires user, token and session parameter)
+     *  session <String> - Destroys ILIAS session for this session (requires user, token and session parameter)
+     *
+     * Returns:
+     *  HTTP 1.1/OK
+     */
+    $app->delete('/session', function () use ($app) {
+      // Fetch parameters required for all routes
+      $request      = $app->request();
+      $userId       = $request->params('user', null, true);
+      $token        = $request->params('token', null, true);
+      $sessionID    = $request->params('session', null, true);
+
+      // Destroy given ILIAS session
+      Libs\RESTilias::deleteSession($userId, $token, $sessionID);
+
+      // Show result of all actions
+      $app->success(null);
+    });
   });
   // End-Of /bridge-group
-// End-Of /v1-group
+// End-Of /v2-group
 });

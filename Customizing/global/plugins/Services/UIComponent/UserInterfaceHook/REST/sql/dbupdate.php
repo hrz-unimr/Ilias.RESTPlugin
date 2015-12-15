@@ -167,6 +167,12 @@
     'refresh_resource_owner' => array(
       'type'    => 'boolean'
     ),
+    'grant_bridge' => array(
+      'type'    => 'text',
+      'length'  => 1,
+      'fixed'   => false,
+      'notnull' => false
+    ),
     'ips' => array(
       'type'    => 'text',
       'length'  => 128,

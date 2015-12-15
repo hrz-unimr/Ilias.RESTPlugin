@@ -361,4 +361,18 @@ class RESTController extends \Slim\Slim {
     // Delegate transmission of response to SLIM
     parent::halt($httpStatus, $response);
   }
+
+
+  /**
+   * Function: AccessTokenDB()
+   *  Returns true if access-tokens should be stored inside the database
+   *  and looked up on access-request.
+   *
+   * Return:
+   *  <Boolean> - True if access-token should be stored and looked up from DB, false otherwise
+   */
+  public function AccessTokenDB() {
+    // Some day this will be stored inside a config, to lazy now...
+    return true;
+  }
 }
