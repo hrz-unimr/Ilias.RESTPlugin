@@ -6,7 +6,7 @@
  * Since 2014
  */
 // Requires <$app = \RESTController\RESTController::getInstance()>
-namespace RESTController\core\auth;
+namespace RESTController\core\oauth2;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs     as Libs;

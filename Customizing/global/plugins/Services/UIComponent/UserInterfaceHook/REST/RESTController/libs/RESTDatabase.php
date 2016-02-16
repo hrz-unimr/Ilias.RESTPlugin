@@ -153,17 +153,20 @@ abstract class RESTDatabase {
    *  (For example making sure all parameters are escaped correctly)
    *
    * Parameters:
-   *  $where <String> - Valid SQL where-clause (Needs to be validated by the caller!)
+   *  $where <String> - [Optional] Valid SQL where-clause (Needs to be validated by the caller!), leave empty to fetch all rows
    *  $joinSettings <Array[String]> - [Optional] Allows to run a INNER-JOIN query (key = table-name, value = joined-keys)
-   *  $limit <Boolean/Integer> - [Optional] Limit the number of fetches entries (default: 1)
+   *  $limit <Boolean/Integer> - [Optional] Limit the number of fetches entries (default: 1), pass false to return array
    *  $offset <Boolean/Integer> - [Optional] Can be used in conjuction with $limit to fetch additional entries.
    *
    * Return:
    *  <RESTDatabase/Array[RESTDatabase]> - New instance(s) of RESTDatabase fetched via input parameters
    */
-  public static function fromWhere($where, $joinSettings = null, $limit = false, $offset = false) {
+  public static function fromWhere($where = null, $joinSettings = null, $limit = false, $offset = false) {
     // Static-Parse the where-clause (replacing {{table}} and {{primary}})
-    $where = self::parseStaticSQL($where);
+    if ($where != null)
+      $where = 'WHERE ' . self::parseStaticSQL($where);
+    else
+      $where    = '';
 
     // Optional additions to sql-query
     $limitSQL   = '';
@@ -189,7 +192,7 @@ abstract class RESTDatabase {
     }
 
     // Combine all sub-queries into final sql-query
-    $sql = sprintf('SELECT %s.* FROM %s %s WHERE %s %s %s', $table, $table, $joinSQL, $where, $limitSQL, $offsetSQL);
+    $sql = sprintf('SELECT %s.* FROM %s %s %s %s %s', $table, $table, $joinSQL, $where, $limitSQL, $offsetSQL);
 
     // Generate ilDB query-object
     $query  = self::getDB()->query($sql);
@@ -446,8 +449,12 @@ abstract class RESTDatabase {
 
     // Insert data into db table and update internal primary-key
     $result = self::getDB()->insert(static::$tableName, $row);
-    $id     = self::getDB()->getLastInsertId();
-    $this->setKey(static::$primaryKey, $id);
+
+    // Remove primary-key from query-parameter? ('FALSE' primary-key means: non was set in the first place)
+    if ($newPrimary || $row[static::$primaryKey] === false) {
+      $id   = self::getDB()->getLastInsertId();
+      $this->setKey(static::$primaryKey, $id);
+    }
 
     // Return ilDB result object
     return $result;

@@ -8,6 +8,7 @@
 namespace RESTController\libs\Middleware;
 
 // This allows us to use shortcuts instead of full quantifier
+use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 use \RESTController\core\clients as Clients;
 
@@ -94,7 +95,8 @@ class OAuth2 {
   public static function checkAccessToken($app) {
     try {
       // Fetch token
-      $accessToken = Auth\Util::getAccessToken();
+      $request      = $app->request();
+      $accessToken  = $request->getToken('access');
 
       // Check token for common problems: Non given or invalid format
       if (!$accessToken)
@@ -117,8 +119,15 @@ class OAuth2 {
       // For sake of simplicity also return the access-token
       return $accessToken;
     }
+
+    // Given token was invalid
     catch (Auth\Exceptions\TokenInvalid $e) {
-      $e->send(401);
+      $app->halt(401, self::MSG_NO_TOKEN, self::ID_NO_TOKEN);
+    }
+
+    // No token-parameter found
+    catch(Libs\Exceptions\Parameter $e) {
+      $app->halt(401, self::MSG_NO_TOKEN, self::ID_NO_TOKEN);
     }
   }
 

@@ -106,6 +106,29 @@ class RESTRequest extends \Slim\Http\Request {
       )
     );
   }
+  public function hasParam($key) {
+    // Return key-value from header?
+    if (isset($key)) {
+      $header = $this->headers($key, null);
+      if ($header != null)
+        return true;
+    }
+
+    // Return key-value from url-encoded POST or GET
+    $param = parent::params($key, null);
+    if ($param != null)
+      return true;
+
+    // Return key-value from JSON POST
+    if (isset($key)) {
+      $body = $this->getBody();
+      if (is_array($body) && isset($body[$key]))
+        return true;
+    }
+
+    // Not found
+    return false;
+  }
 
 
   /**
@@ -122,7 +145,7 @@ class RESTRequest extends \Slim\Http\Request {
    * Return:
    *  <AccessToken>/<RefreshToken>/<AuthorizationCode> - Fetched token, depending on input parameter
    */
-  public function getToken($name = 'access', $stringOnly = false) {
+  public function getToken($name = 'access', $stringOnly = false, $throw = true) {
     switch ($name) {
       // Fetch access-token
       default:
@@ -160,10 +183,11 @@ class RESTRequest extends \Slim\Http\Request {
         }
 
         // Not returned by now means no token was found
-        throw new Exceptions\Parameter(
-          self::MSG_NO_ACCESS_TOKEN,
-          self::ID_NO_ACCESS_TOKEN
-        );
+        if ($throw)
+          throw new Exceptions\Parameter(
+            self::MSG_NO_ACCESS_TOKEN,
+            self::ID_NO_ACCESS_TOKEN
+          );
 
       // Fetch refresh-token
       case 'refresh':
@@ -182,13 +206,14 @@ class RESTRequest extends \Slim\Http\Request {
         }
 
         // Not returned by now means no token was found
-        throw new Exceptions\Parameter(
-          self::MSG_NO_TOKEN,
-          self::ID_NO_TOKEN,
-          array(
-            'token' => 'refresh'
-          )
-        );
+        if ($throw)
+          throw new Exceptions\Parameter(
+            self::MSG_NO_TOKEN,
+            self::ID_NO_TOKEN,
+            array(
+              'token' => 'refresh'
+            )
+          );
 
       // Fetch authorization-token
       case 'authorization':
@@ -211,13 +236,14 @@ class RESTRequest extends \Slim\Http\Request {
         }
 
         // Not returned by now means no token was found
-        throw new Exceptions\Parameter(
-          self::MSG_NO_TOKEN,
-          self::ID_NO_TOKEN,
-          array(
-            'token' => 'authorization'
-          )
-        );
+        if ($throw)
+          throw new Exceptions\Parameter(
+            self::MSG_NO_TOKEN,
+            self::ID_NO_TOKEN,
+            array(
+              'token' => 'authorization'
+            )
+          );
     }
   }
 

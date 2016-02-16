@@ -5,7 +5,7 @@
  * Authors: D.Schaefer, T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * Since 2014
  */
-namespace RESTController\core\auth;
+namespace RESTController\core\oauth2;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs     as Libs;

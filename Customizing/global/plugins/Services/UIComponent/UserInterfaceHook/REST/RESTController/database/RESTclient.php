@@ -136,7 +136,7 @@ class RESTclient extends Libs\RESTDatabase {
       case 'grant_resource_owner':
       case 'refresh_authorization_code':
       case 'refresh_resource_owner':
-        $value = ($value == '1');
+        $value = ($value == '1' || $value == 'true' || $value == true);
         break;
 
       // No default behaviour
