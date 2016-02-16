@@ -384,7 +384,7 @@ class Authorize extends Libs\RESTModel {
 
     // Generate redirection url and redirect
     $url = self::GetRedirectURI($responseType, $answer, $redirectUri, $state, $userId, $iliasClient, $apiKey, $scope);
-    $app->redirect($url);
+    $app->redirect($url, 303);
   }
 
 

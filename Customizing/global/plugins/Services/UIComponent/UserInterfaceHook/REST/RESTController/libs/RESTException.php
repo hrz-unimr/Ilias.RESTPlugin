@@ -192,6 +192,6 @@ class RESTException extends \Exception {
     $url          = sprintf('%s?error=%s&error_description=%s&error_status=%s', $redirect_uri, $type, $description, $status);
 
     // Redirect using generated url
-    $app->redirect($url);
+    $app->redirect($url, 303);
   }
 }
