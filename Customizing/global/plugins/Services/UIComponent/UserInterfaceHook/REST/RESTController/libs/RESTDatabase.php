@@ -228,6 +228,18 @@ abstract class RESTDatabase {
 
 
   /**
+   * Function: fromAll()
+   *  Creates new RESTDatabase-Instances by fetching all existing table-rows.
+   *
+   * Return:
+   *  <RESTDatabase/Array[RESTDatabase]> - New instance(s) of RESTDatabase fetched via input parameters
+   */
+  public static function fromAll() {
+    return self::fromWhere();
+  }
+
+
+  /**
    * Function: getKey($key, $read)
    *  Return the value of $key field inside the table.
    *  The second parameter can be used to controll wether a database query

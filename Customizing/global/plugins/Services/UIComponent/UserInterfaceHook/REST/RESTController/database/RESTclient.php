@@ -226,7 +226,7 @@ class RESTclient extends Libs\RESTDatabase {
    *  multiple client-certificates without making additional db lookups.
    *
    * Parameters:
-   *  $givenCert <String> - Client'c certificate (pre-parsed array) that should be checked (see RESTclients::getClientCertificate())
+   *  $givenCert <String> - Client certificate (pre-parsed array) that should be checked (see RESTclients::getClientCertificate())
    *
    * Return:
    *  <Boolean> - True of client's certificate was checked to be correct (matching in all active fields)

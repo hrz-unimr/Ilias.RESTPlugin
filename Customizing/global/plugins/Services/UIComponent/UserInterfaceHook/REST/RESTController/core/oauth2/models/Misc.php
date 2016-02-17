@@ -29,9 +29,21 @@ class Misc extends Libs\RESTModel {
 
 
   /**
+   * Function: FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $scope, $userId)
+   *  Handles checks that are required on all routes, such as existing api-key,
+   *  ip-restriction, client-credentials and user-restrictions.
    *
+   * Parameters:
+   *  apiKey <String> -  API-Key that was is used to request authorization
+   *  apiSecret <String> - Secret that was given (eg. was parameter) for client-authorization
+   *  apiCert <Array<String>> - Client certificate (pre-parsed array) required for client-authorization (see RESTclients::getClientCertificate())
+   *  remoteIp <String> - Secret that was given (eg. was parameter) for client-authorization
+   *  userId <Number> - UserId that was is requesting authorization
+   *
+   * Return:
+   *  <RESTclient> - The RESTClient-Instance represented by the given api-key
    */
-  public static function FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $scope, $userId) {
+  public static function FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $userId) {
     // Check if client with api-key exists (throws on problem)
     $client = Common::CheckApiKey($apiKey);
 
@@ -50,13 +62,17 @@ class Misc extends Libs\RESTModel {
 
 
   /**
-   * Function: GetToken($accessCode, $refreshCode)
+   * Function: GetToken($apiKey, $apiSecret, $apiCert, $iliasClient, $remoteIp, $tokenCode)
    *  Creates internal access- and refresh-token representations for the inputs (strings)
    *  given and generates information-data about them.
    *
    * Parameters:
-   *  $accessCode <String> - String representing an access-token
-   *  $refreshCode <String> - String representing an refresh-token
+   *  apiKey <String> - API-Key used for accessing the route requesting this information
+   *  apiSecret <String> - API-Secret required for client-authorization
+   *  apiCert <Array<String>> - Client certificate (pre-parsed array) required for client-authorization (see RESTclients::getClientCertificate())
+   *  iliasClient <String> - ILIAS ClientId used for accessing the route requesting this information
+   *  remoteIp <String> - Remote-IP of application  accessing the route requesting this information
+   *  tokenCode <String> - String-Representation of access- or resfresh-token to return information about
    *
    * Return:
    *  <Array[Mixed]> - Array containing information about token
@@ -94,12 +110,17 @@ class Misc extends Libs\RESTModel {
 
 
   /**
-   * Function: DeleteAccessToken($accessCode)
+   * Function: DeleteAccessToken($apiKey, $apiSecret, $apiCert, $iliasClient, $remoteIp, $tokenCode)
    *  Deletes the given access-token (string) from the database
    *  thus invalidating it.
    *
    * Parameters:
-   *  $accessCode <String> - String representation of access-token to be deleted
+   *  apiKey <String> - API-Key used for accessing the route requesting token removal
+   *  apiSecret <String> - API-Secret required for client-authorization
+   *  apiCert <Array<String>> - Client certificate (pre-parsed array) required for client-authorization (see RESTclients::getClientCertificate())
+   *  iliasClient <String> - ILIAS ClientId used for accessing the routetoken removal
+   *  remoteIp <String> - Remote-IP of application  accessing the routetoken removal
+   *  tokenCode <String> - String-Representation of access- or resfresh-token shat should be deleted
    */
   public static function FlowDeleteToken($apiKey, $apiSecret, $apiCert, $iliasClient, $remoteIp, $tokenCode) {
     // Load access-token settings
@@ -139,7 +160,18 @@ class Misc extends Libs\RESTModel {
 
 
   /**
+   * Function: FlowFromILIAS($apiKey, $apiSecret, $apiCert, $userId, $token, $sessionID, $iliasClient, $remoteIp, $scope)
+   *  Generates a new OAuth2 access-token from a valid ILIAS session.
+   *  Note: The Oauth client (via its API-Key) must be allowed to use this bridge)
    *
+   * Parameters:
+   *  apiKey <String> - API-Key used for accessing the route requesting token removal
+   *  apiSecret <String> - API-Secret required for client-authorization
+   *  apiCert <Array<String>> - Client certificate (pre-parsed array) required for client-authorization (see RESTclients::getClientCertificate())
+   *  iliasClient <String> - ILIAS ClientId used for accessing the routetoken removal
+   *  remoteIp <String> - Remote-IP of application  accessing the routetoken removal
+   *  userId <Number> - UserId that was is requesting authorization
+   *  scope <String> - Requested oauth2 scope for generated token
    */
   public static function FlowFromILIAS($apiKey, $apiSecret, $apiCert, $userId, $token, $sessionID, $iliasClient, $remoteIp, $scope) {
     // Invoke common checks for all flows (throws on error)
@@ -173,7 +205,18 @@ class Misc extends Libs\RESTModel {
 
 
   /**
+   * Function: FlowFromOAUTH($apiKey, $apiSecret, $apiCert, $accessCode, $iliasClient, $remoteIp)
+   *  Generates a valid ILIAS session from a given access-token and returns the cookies required by
+   *  the browser to use the generated session.
+   *  Note: The Oauth client (via its API-Key and access-token) must be allowed to use this bridge)
    *
+   * Parameters:
+   *  apiKey <String> - API-Key used for accessing the route requesting token removal
+   *  apiSecret <String> - API-Secret required for client-authorization
+   *  apiCert <Array<String>> - Client certificate (pre-parsed array) required for client-authorization (see RESTclients::getClientCertificate())
+   *  iliasClient <String> - ILIAS ClientId used for accessing the routetoken removal
+   *  remoteIp <String> - Remote-IP of application  accessing the routetoken removal
+   *  $accessCode <String> - Strin representation of access-token which should be exchanged for an ILIAS session
    */
   public static function FlowFromOAUTH($apiKey, $apiSecret, $apiCert, $accessCode, $iliasClient, $remoteIp) {
     // Convert access-token (string) to access-token (Object) (throws on error)
@@ -208,7 +251,19 @@ class Misc extends Libs\RESTModel {
 
 
   /**
+   * Function: FlowDeleteSession($apiKey, $apiSecret, $apiCert, $remoteIp, $userId, $token, $sessionID)
+   *  Terminates an ILIAS session for the given user, with given php sessionId and ILIAS session token.
+   *  Deletes the database entry, thus invaliding given session.
    *
+   * Parameters:
+   *  apiKey <String> - API-Key used for accessing the route requesting token removal
+   *  apiSecret <String> - API-Secret required for client-authorization
+   *  apiCert <Array<String>> - Client certificate (pre-parsed array) required for client-authorization (see RESTclients::getClientCertificate())
+   *  iliasClient <String> - ILIAS ClientId used for accessing the routetoken removal
+   *  remoteIp <String> - Remote-IP of application  accessing the routetoken removal
+   *  userId <Number> - UserId whos session should be deleted (See Libs\RESTilias::deleteSession())
+   *  sessionID <String> - PHP session if that should be deleted  (See Libs\RESTilias::deleteSession())
+   *  token <String> - ILIAS session token that should be deleted  (See Libs\RESTilias::deleteSession())
    */
   public static function FlowDeleteSession($apiKey, $apiSecret, $apiCert, $remoteIp, $userId, $token, $sessionID) {
     // Invoke common checks for all flows (throws on error)
