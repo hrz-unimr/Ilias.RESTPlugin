@@ -22,6 +22,7 @@ class Client extends Libs\RESTModel {
   // Allow to re-use status messages and codes
   const MSG_NOT_DELETED = 'Client could not be deleted.';
   const MSG_NOT_UPDATED = 'Client could not be updated.';
+  const MSG_EXISTS      = 'Could not add client, given clientId already exists. Use put for updating instead.';
 
 
   /**
@@ -34,7 +35,7 @@ class Client extends Libs\RESTModel {
    */
   public static function InsertClient($request) {
     // Fetch request-parameters (into table-row format)
-    $row      = array(
+    $row = array(
       'id'                          => $request->params('id',                         null),
       'api_key'                     => $request->params('api_key',                    null, true),
       'api_secret'                  => $request->params('api_secret',                 null),
@@ -61,7 +62,7 @@ class Client extends Libs\RESTModel {
     $client = Database\RESTclient::fromRow($row);
     $id     = $row['id'];
 
-    // Check if clientId was given and ths client allready exists?
+    // Check if clientId was given and this client already exists?
     if ($id == null || !Database\RESTclient::existsByPrimary($id)) {
       // Insert (and possibly generate new clientId [its the primaryKey])
       $client->insert($id == null);

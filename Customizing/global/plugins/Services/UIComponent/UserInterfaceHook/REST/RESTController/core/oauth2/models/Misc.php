@@ -143,14 +143,14 @@ class Misc extends Libs\RESTModel {
         case 'access':
           // Fetch DB entry for given access-token and delete it
           $accessDB = Database\RESTaccess::fromToken($tokenCode);
-          $accessDB->delete();
+          $accessDB->deleteByPrimary();
           break;
 
         // Delete refresh-token from DB
         case 'access':
           // Fetch DB entry for given access-token and delete it
           $accessDB = Database\RESTrefresh::fromToken($tokenCode);
-          $accessDB->delete();
+          $accessDB->deleteByPrimary();
           break;
       }
     }

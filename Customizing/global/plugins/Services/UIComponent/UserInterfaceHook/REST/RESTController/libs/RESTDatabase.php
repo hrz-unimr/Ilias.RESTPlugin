@@ -400,7 +400,7 @@ abstract class RESTDatabase {
    */
   public function write($key = null) {
     // Update existing table-entry
-    if ($this->exists())
+    if ($this->existsByPrimary())
       return $this->update($key);
 
     // Insert new table-entry
@@ -475,7 +475,7 @@ abstract class RESTDatabase {
 
   /**
    * Function: exists($where, $parse)
-   *  By default the table-entry existance is checked via its internally stored primary-key.
+   *  By default the table-entry existance is checked by comparing ALL fields (null primary-keys are ignored).
    *  Optionally a (instance-parsed) where-clause can be used to make the check
    *  more flexible, see RESTDatabase->parseSQL($sql) for more information.
    *
@@ -483,11 +483,6 @@ abstract class RESTDatabase {
    *  The $where-Parameter can be exploited to generate malformed requests.
    *  Each caller is responsible to make sure $where is a valid where-clause
    *  using its own logic! (For example making sure all parameters are escaped correctly)
-   *
-   * Note 2: (without $where)
-   *  Obviously this method will need to already know a valid primary-key
-   *  for this table (either from one of the factories or via setKey(...))
-   *  to work properly, since it deletes table-entires ONLY via their primary-keys.
    *
    * Parameters:
    *  $where <String> - [Optional] Valid SQL where-clause (Needs to be validated by the caller!)
@@ -507,25 +502,18 @@ abstract class RESTDatabase {
       return self::existsByWhere($where, false);
     }
 
-    // Check existence using internal primary-key
+    // Check existence using all internal keys
     else {
-      // Fetch internally stored primary-key
-      $key    = static::$primaryKey;
-      $value  = $this->row[$key];
+      // Build safe where-clause
+      $where = array();
+      foreach($this->row as $key => $value) {
+        $type     = static::$tableKeys[$key];
+        $where[]  = sprintf('%s = %s', $key, self::quote($value, $type));
+      }
+      $where = implode($where, ' AND ');
 
-      // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
-      if ($value === false)
-        throw new Exceptions\Database(
-          self::MSG_NO_PRIMARY,
-          self::ID_NO_PRIMARY,
-          array(
-            'table'   => static::$tableName,
-            'primary' => static::$primaryKey
-          )
-        );
-
-      // Delegate actual query to generalized implementation
-      return self::existsByPrimary($value);
+      // Delete actual query
+      return self::existsByWhere($where);
     }
   }
 
@@ -535,17 +523,21 @@ abstract class RESTDatabase {
    *  Checks wether the table-entry given by the parameter-value primary-key
    *  exists. This will ONLY check using the primary-key, use existsByWhere(...)
    *  for more advanced queries.
+   * Note: Prefer existsByPrimary() over exixts() when you know the correct primary-key
+   *       (internally or externally as parameter), since primary-keys are always unique!
    *
    * Parameters:
-   *  $value <Integer> - Value of primary-key to check existance of a table-entry for
+   *  $value <Integer> - [Optional] Value of primary-key to check existance of a table-entry for
+   *                     If left empty, this will treat value as the current primary-key value
    *
    * Return:
    *  <Boolean> - True if there already exists a table with the given primary-key, false otherwise
    */
-  public static function existsByPrimary($value) {
+  public static function existsByPrimary($value = null) {
     // Generate a where-clause for the primary-key
     $key    = static::$primaryKey;
-    $where  = sprintf('%s = %d', $key, intval($value));
+    $value  = (is_null($value)) ? $this->row[$key] : intval($value);
+    $where  = sprintf('%s = %d', $key, $value);
 
     // Delegate actual query to generalized implementation
     return self::existsByWhere($where);
@@ -590,7 +582,8 @@ abstract class RESTDatabase {
 
   /**
    * Function: delete($where, $parse)
-   *  By default the table-entry is deleted via its internally stored primary-key.
+   *  By default the table-entry is deleted with a where-clause containing all table fields.
+   *  (Only the primary-key is ignored if null)
    *  Optionally a (instance-parsed) where-clause can be used to make the deletion
    *  more flexible, see RESTDatabase->parseSQL($sql) for more information.
    *
@@ -598,11 +591,6 @@ abstract class RESTDatabase {
    *  The $where-Parameter can be exploited to generate malformed requests.
    *  Each caller is responsible to make sure $where is a valid where-clause
    *  using its own logic! (For example making sure all parameters are escaped correctly)
-   *
-   * Note 2: (without $where)
-   *  Obviously this method will need to already know a valid primary-key
-   *  for this table (either from one of the factories or via setKey(...))
-   *  to work properly, since it deletes table-entires ONLY via their primary-keys.
    *
    * Parameters:
    *  $where <String> - [Optional] Valid SQL where-clause (Needs to be validated by the caller!)
@@ -622,25 +610,18 @@ abstract class RESTDatabase {
       return self::deleteByWhere($where, false);
     }
 
-    // Delete using internal primary-key
+    // Delete using ALL internal keys
     else {
-      // Fetch internally stored primary-key
-      $key    = static::$primaryKey;
-      $value  = $this->row[$key];
+      // Build safe where-clause
+      $where = array();
+      foreach($this->row as $key => $value) {
+        $type     = static::$tableKeys[$key];
+        $where[]  = sprintf('%s = %s', $key, self::quote($value, $type));
+      }
+      $where = implode($where, ' AND ');
 
-      // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
-      if ($value === false)
-        throw new Exceptions\Database(
-          self::MSG_NO_PRIMARY,
-          self::ID_NO_PRIMARY,
-          array(
-            'table'   => static::$tableName,
-            'primary' => static::$primaryKey
-          )
-        );
-
-      // Delegate actual query to generalized implementation
-      return self::deleteByPrimary($value);
+      // Delete actual query
+      return self::deleteByWhere($where);
     }
   }
 
@@ -650,16 +631,20 @@ abstract class RESTDatabase {
    *  Deletes the table-entry given by the parameter-value primary-key.
    *  This will select the table ONLY using the primary-key, use deleteByWhere(...)
    *  for more advanced delete-requests.
+   * Note: Prefer deleteByPrimary() over delete() when you know the correct primary-key
+   *       (internally or externally as parameter), since primary-keys are always unique!
    *
    * Parameters:
-   *  $value <Integer> - Value of primary-key to delete table-entry of
+   *  $value <Integer> - [Optional] Value of primary-key to delete table-entry of
+   *                     If left empty, this will treat value as the current primary-key value
    *
    * Return:
    *  <ilDB.query> - Same return value as given by an ilDB->manipulate() operation
    */
-  public static function deleteByPrimary($value) {
+  public static function deleteByPrimary($value = null) {
     // Generate a where-clause for the primary-key
     $key    = static::$primaryKey;
+    $value  = (is_null($value)) ? $this->row[$key] : intval($value);
     $where  = sprintf('%s = %d', $key, intval($value));
 
     // Delegate actual query to generalized implementation

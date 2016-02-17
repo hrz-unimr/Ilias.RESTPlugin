@@ -81,10 +81,13 @@ $app->group('/v2', function () use ($app) {
 
 
     /**
-     * Route: [GET] /v2/oauth2/client/:clientId
+     * Route: [GET] /v2/oauth2/client | /v2/oauth2/client/:clientId
      * [Admin required]
      *  Returns data for the oauth2 client given by clienId.
      *  Parameter terms should correspond to Oauth2 Spec: https://tools.ietf.org/html/rfc6749
+     *
+     * Parameters: [/v2/oauth2/client]
+     *  id <Number> - Internal clientId for this oauth2 client (only used to reference a client internally)
      *
      * Returns:
      *  Array(
@@ -136,11 +139,6 @@ $app->group('/v2', function () use ($app) {
     });
 
 
-    // Fetch client by filter
-    $app->get('/client', Libs\RESTAuth::checkAccess(Libs\RESTAuth::ADMIN), function ($clientId) use ($app) {
-    });
-
-
     /**
      * Route: [POST] /v2/oauth2/client
      * [Admin required]
@@ -185,12 +183,16 @@ $app->group('/v2', function () use ($app) {
         if ($clientId)
           $app->success(array( 'id' => $clientId ));
         else
-          $app->halt(500, 'Exists!');
+          $app->halt(500, Client::MSG_EXISTS);
       }
 
       // Catch missing parameters (Libs\Exceptions\Parameter)
       catch (Libs\RESTException $e) {
         $e->send(500);
+      }
+      // Catch missing parameter
+      catch (Libs\Exceptions\Parameter $e) {
+        $e->send(400);
       }
     });
 
@@ -201,8 +203,10 @@ $app->group('/v2', function () use ($app) {
      *  Updates an existing oauth2 clients database entry.
      *  Parameter terms should correspond to Oauth2 Spec: https://tools.ietf.org/html/rfc6749
      *
-     * Parameters:
+     * Parameters: [/v2/oauth2/client]
      *  'id',                        <Number> - Internal clientId for this oauth2 client (only used to reference a client internally)
+     *
+     * Parameters: [Both]
      *  'api_key',                   <String> - [Optional] API-Key used by this oauth2 client (should be unique!)
      *  'api_secret',                <String> - [Optional] Enable secret (password) for client-credentials
      *  'cert_serial',               <String> - [Optional] Enable SSL-Certificate 'serial' restriction (regex/string-list) for client-credentials
@@ -232,23 +236,6 @@ $app->group('/v2', function () use ($app) {
      *    'id' <Number> - Updated clientId
      *  )
      */
-    $app->put('/client', Libs\RESTAuth::checkAccess(Libs\RESTAuth::ADMIN), function () use ($app) {
-      try {
-        $request  = $app->request();
-        $clientId = $request->params('id', null, true);
-        $updated  = Client::UpdateClient($clientId, $request);
-
-        if ($updated)
-          $app->success(array( 'id' => $clientId ));
-        else
-          $app->halt(500, Client::MSG_NOT_UPDATED);
-      }
-
-      // Catch missing parameters (Libs\Exceptions\Parameter)
-      catch (Libs\RESTException $e) {
-        $e->send(500);
-      }
-    });
     $app->put('/client/:clientId', Libs\RESTAuth::checkAccess(Libs\RESTAuth::ADMIN), function ($clientId) use ($app) {
       try {
         $request  = $app->request();
@@ -271,7 +258,7 @@ $app->group('/v2', function () use ($app) {
      *  Removes an existing oauth2 client from the database.
      *  Parameter terms should correspond to Oauth2 Spec: https://tools.ietf.org/html/rfc6749
      *
-     * Parameters:
+     * Parameters: [/v2/oauth2/client]
      *  'id' <Number> - Internal clientId for this oauth2 client
      *
      * Returns:
@@ -279,30 +266,14 @@ $app->group('/v2', function () use ($app) {
      *    'id' <Number> - ClientId of deleted oauth2 client
      *  )
      */
-    $app->delete('/client', Libs\RESTAuth::checkAccess(Libs\RESTAuth::ADMIN), function () use ($app) {
-      try {
-        $clientId = $request->params('id', null, true);
-
-        if (Database\RESTclient::deleteByPrimary($clientId) > 0)
-          $app->success(array( 'id' => intval($clientId) ));
-        else
-          $app->halt(500, Client::MSG_NOT_DELETED);
-      }
-
-      // Catch missing parameters (Libs\Exceptions\Parameter)
-      catch (Libs\RESTException $e) {
-        $e->send(500);
-      }
-    });
     $app->delete('/client/:id', Libs\RESTAuth::checkAccess(Libs\RESTAuth::ADMIN), function ($clientId) use ($app) {
+      // Delete permission via given clientId
       if (Database\RESTclient::deleteByPrimary($clientId) > 0)
         $app->success(array( 'id' => intval($clientId) ));
+
+      // Deleting failed! (No entry to begin with?)
       else
         $app->halt(500, Client::MSG_NOT_DELETED);
     });
   });
 });
-
-// TODO:
-//  - Permissions
-//  - Config
