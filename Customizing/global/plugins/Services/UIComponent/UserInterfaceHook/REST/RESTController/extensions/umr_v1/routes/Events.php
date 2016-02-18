@@ -12,7 +12,7 @@ namespace RESTController\extensions\umr_v1;
 // Requires: $app to be \RESTController\RESTController::getInstance()
 use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
-use \RESTController\core\auth as Auth;
+use \RESTController\core\oauth2 as Auth;
 
 
 // Put implementation into own URI-Group

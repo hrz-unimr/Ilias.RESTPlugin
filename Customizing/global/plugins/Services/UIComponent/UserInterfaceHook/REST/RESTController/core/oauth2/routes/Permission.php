@@ -18,27 +18,39 @@ $app->group('/v2', function () use ($app) {
   // Group all oAuth2 (RFC) routes
   $app->group('/oauth2', function () use ($app) {
     /**
-     * Route: [GET] /v2/oauth2/
+     * Route: [GET] /v2/oauth2/permissions/:clientId
      * [Admin required]
-     *
+     *  Returns a list of all available permissions for the given client.
      *
      * Returns:
-     *
+     *  {
+     *    'id': {
+     *      'id',       <Number> - Internal id for this permission
+     *      'api_id',   <String> - Association between permission and client via api_id = clientId
+     *      'pattern',  <String> - Route that the client will have access to
+     *      'verb',     <String> - Operation that the client will have access to [GET]/[PUT]/[POST]/[DELETE]
+     *    }
+     *  }
      */
-    // Libs\RESTAuth::checkAccess(Libs\RESTAuth::ADMIN),
     $app->get('/permissions/:clientId', function ($clientId) use ($app) {
       try {
+        // Fetch permission by given client-id
         $clientId     = intval($clientId);
         $where        = sprintf('api_id = %d', Database\RESTpermission::quote($clientId, 'integer'));
         $permissions  = Database\RESTpermission::fromWhere($where, null, true);
 
+        // Iterate over all permissions
         $result = array();
         foreach ($permissions as $permission) {
+          // Extract permissions and complete table-row
           $row          = $permission->getRow();
           $id           = $row['id'];
+
+          // Insert permission into result
           $result[$id]  = $row;
         }
 
+        // Send list of all permissions
         $app->success($result);
       }
 
@@ -50,18 +62,25 @@ $app->group('/v2', function () use ($app) {
 
 
     /**
-     * Route: [GET] /v2/oauth2/
+     * Route: [GET] /v2/oauth2/permission/:clientId
      * [Admin required]
+     *  Adds a new permission with given parameters to the selected client.
      *
+     * Parameters:
+     *  id      <Number> - [Optional] Internal id for this permission
+     *  pattern <String> - Route that the client will have access to
+     *  verb    <String> - Operation that the client will have access to [GET]/[PUT]/[POST]/[DELETE]
      *
      * Returns:
-     *
+     *  array(
+     *    'id' <Number> - PermissionId of newly created database entry for this permission
+     *  )
      */
-    // Libs\RESTAuth::checkAccess(Libs\RESTAuth::ADMIN),
-    $app->post('/permission/:clientId', function ($clientId) use ($app) {
+    $app->post('/permission/:clientId', Libs\RESTAuth::checkAccess(Libs\RESTAuth::ADMIN), function ($clientId) use ($app) {
       try {
+        // Delegate insert to model
         $request      = $app->request();
-        $permissionId = Client::InsertClient($request);
+        $permissionId = Permission::InsertPermission($request);
         if ($permissionId)
           $app->success(array( 'id' => $permissionId ));
         else
@@ -76,12 +95,14 @@ $app->group('/v2', function () use ($app) {
 
 
     /**
-     * Route: [GET] /v2/oauth2/
+     * Route: [GET] /v2/oauth2/permission/:permisionId
      * [Admin required]
-     *
+     *  Deletes the clients permission with selected permissionId
      *
      * Returns:
-     *
+     *  array(
+     *    'id' <Number> - PermissionId of deleted database entry for this permission
+     *  )
      */
     $app->delete('/permission/:permisionId', Libs\RESTAuth::checkAccess(Libs\RESTAuth::ADMIN), function ($permissionId) use ($app) {
       // Delete permission via given permissionId

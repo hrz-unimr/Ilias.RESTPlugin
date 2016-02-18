@@ -5,10 +5,10 @@
  * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * Since 2014
  */
-namespace RESTController\core\auth\Tokens;
+namespace RESTController\core\oauth2\Tokens;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\core\auth\Exceptions  as Exceptions;
+use \RESTController\core\oauth2\Exceptions  as Exceptions;
 use \RESTController\database              as Database;
 
 /**

@@ -28,6 +28,25 @@ class RESTconfig extends Libs\RESTDatabase {
 
 
   /**
+   * Function: fromSettingName($name)
+   *  Creates a new instance of RESTconfig representing the table-entry with given setting_name.
+   *
+   * Parameters:
+   *  $name <String> - Name of setting who's database entry should be returned
+   *
+   * Return:
+   *  <RESTconfig> - A new instance of RESTconfig representing the table-entry with given setting_name
+   */
+  public static function fromSettingName($name) {
+    // Generate a (save) where clause for the setting_name ($name can be malformed!)
+    $where  = sprintf('setting_name = %s', self::quote($name, 'text'));
+
+    // Fetch matching object
+    return self::fromWhere($where);
+  }
+
+
+  /**
    * Function: fetchSettings($names)
    *  Fetches settings with given names from ui_uihk_rest_config.
    *  Returns an array with that contains all settings
@@ -40,6 +59,10 @@ class RESTconfig extends Libs\RESTDatabase {
    *  <Array[String]> - List of settings with returnValue[setting_name] = setting_value
    */
   public static function fetchSettings($names) {
+    // Make sure we are dealing with an array
+    if (!is_array($names))
+      $names = array($names);
+
     // Quote and escape input
     foreach($names as $key => $name)
       $names[$key] = self::quote($name, 'text');

@@ -287,7 +287,7 @@ class Token extends Libs\RESTModel {
 
     // Return success-data
     $withRefresh = $client->getKey('refresh_authorization_code');
-    return self::GetResponse($apiKey, $userId, $iliasClient, $scope, $withRefresh);
+    return Common::GetResponse($apiKey, $userId, $iliasClient, $scope, $withRefresh);
   }
 
 
@@ -323,7 +323,7 @@ class Token extends Libs\RESTModel {
 
     // Return success-data
     $withRefresh = $client->getKey('refresh_resource_owner');
-    return self::GetResponse($apiKey, $userId, $iliasClient, $scope, $withRefresh);
+    return Common::GetResponse($apiKey, $userId, $iliasClient, $scope, $withRefresh);
   }
 
 
@@ -350,7 +350,7 @@ class Token extends Libs\RESTModel {
 
     // Return success-data
     $userId = $client->getKey('client_credentials_userid');
-    return self::GetResponse($apiKey, $userId, $iliasClient, $scope, false);
+    return Common::GetResponse($apiKey, $userId, $iliasClient, $scope, false);
   }
 
 

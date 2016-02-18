@@ -10,7 +10,7 @@ namespace RESTController\libs;
 // This allows us to use shortcuts instead of full quantifier
 // Requires ../Slim/Http/Request
 use \RESTController\libs\Exceptions  as Exceptions;
-use \RESTController\core\auth\Tokens as Tokens;
+use \RESTController\core\oauth2\Tokens as Tokens;
 
 
 /**
@@ -77,6 +77,10 @@ class RESTRequest extends \Slim\Http\Request {
     // Return key-value from header?
     if (isset($key)) {
       $header = $this->headers($key, null);
+      if ($header != null)
+        return $header;
+
+      $header = $this->headers(ucfirst($key), null);
       if ($header != null)
         return $header;
     }

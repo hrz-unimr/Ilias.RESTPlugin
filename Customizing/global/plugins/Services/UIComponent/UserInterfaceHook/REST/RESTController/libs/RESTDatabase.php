@@ -345,19 +345,27 @@ abstract class RESTDatabase {
     $key    = static::$primaryKey;
     $value  = $this->row[$key];
 
-    // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
-    if ($value === false)
-      throw new Exceptions\Database(
-        self::MSG_NO_PRIMARY,
-        self::ID_NO_PRIMARY,
-        array(
-          'table'   => static::$tableName,
-          'primary' => static::$primaryKey
-        )
-      );
+    // 'FALSE' Primary-Key explicitely means: non was set -> Use ALL keys
+    if ($value === false) {
+      // Build safe where-clause
+      $where = array();
+      foreach($this->row as $key => $value) {
+        // Skip null primary-key
+        if ($key == static::$primaryKey && $value === false)
+          continue;
+
+        // Add where clauses
+        $type     = static::$tableKeys[$key];
+        $where[]  = sprintf('%s = %s', $key, self::quote($value, $type));
+      }
+      $where = implode($where, ' AND ');
+    }
+    // Use primary-key only
+    else
+      $where = sprintf('%s = %d', $key, intval($value));
 
     // Build sql-query to fetch table-entry data
-    $sql    = sprintf('SELECT * FROM %s WHERE %s = %d', static::$tableName, $key, intval($value));
+    $sql    = sprintf('SELECT * FROM %s WHERE %s', static::$tableName, $where);
     $query  = self::getDB()->query($sql);
     if ($query) {
       // Fetch and process first row (should be the only row, since primary-keys are unique)
@@ -413,11 +421,6 @@ abstract class RESTDatabase {
    * Function: update($key)
    *  Tries to update the table which matches the internally stored
    *  primary-key with the internally stored table-data.
-   *
-   * Note:
-   *  Obviously this method will need to already know a valid primary-key
-   *  for this table (either from one of the factories or via setKey(...))
-   *  to work properly, since it ONLY updates the table entry via its primary-key.
    *
    * Parameters:
    *  $key <String> - [Optional] If this parameter is given, only the value
@@ -507,6 +510,11 @@ abstract class RESTDatabase {
       // Build safe where-clause
       $where = array();
       foreach($this->row as $key => $value) {
+        // Skip null primary-key
+        if ($key == static::$primaryKey && $value === false)
+          continue;
+
+        // Add where clauses
         $type     = static::$tableKeys[$key];
         $where[]  = sprintf('%s = %s', $key, self::quote($value, $type));
       }
@@ -615,6 +623,11 @@ abstract class RESTDatabase {
       // Build safe where-clause
       $where = array();
       foreach($this->row as $key => $value) {
+        // Skip null primary-key
+        if ($key == static::$primaryKey && $value === false)
+          continue;
+
+        // Add where clauses
         $type     = static::$tableKeys[$key];
         $where[]  = sprintf('%s = %s', $key, self::quote($value, $type));
       }
@@ -918,12 +931,8 @@ abstract class RESTDatabase {
 
   /**
    * Function: getDBWhere()
-   *  Returns the where-clause (only containing the primary-key) representation required by ilDB.
-   *
-   * Note:
-   *  Obviously this method will need to already know a valid primary-key
-   *  for this table (either from one of the factories or via setKey(...))
-   *  to work properly, since it deletes table-entires ONLY via their primary-keys.
+   *  Returns the where-clause representation required by ilDB.
+   *  Will use the primary-key if it is known, otherwise all other keys will be used
    *
    * Return:
    *  <Array[Array[String]]> - List (array with one element) of ilDB (type, value) pairs used to query, insert or update
@@ -936,14 +945,25 @@ abstract class RESTDatabase {
     $value  = $this->row[$key];
     $type   = static::$tableKeys[$key];
 
-    // 'FALSE' Primary-Key explicitely means: non was set -> Throw exception
-    if ($value === false)
-      throw new Exceptions\Database(sprintf(self::MSG_NO_PRIMARY, static::$tableName, static::$primaryKey), self::ID_NO_PRIMARY);
+    // 'FALSE' Primary-Key explicitely means: non was set -> use other keys
+    if ($value === false) {
+      $where = array();
+      foreach($this->row as $key => $value) {
+        // Skip null primary-key
+        if ($key == static::$primaryKey && $value === false)
+          continue;
 
+        // Fetch type and combine (type, value) into pair
+        $type         = static::$tableKeys[$key];
+        $where[$key]  = array($type, $value);
+      }
+      return $where;
+    }
     // Combine (type, value) into pair and pack into associative array
-    return array(
-      $key => array($type, $value)
-    );
+    else
+      return array(
+        $key => array($type, $value)
+      );
   }
 
 

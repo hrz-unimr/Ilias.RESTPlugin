@@ -9,7 +9,7 @@ namespace RESTController\libs;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires <$ilDB>
-use \RESTController\core\auth as Auth;
+use \RESTController\core\oauth2 as Auth;
 
 
 /**

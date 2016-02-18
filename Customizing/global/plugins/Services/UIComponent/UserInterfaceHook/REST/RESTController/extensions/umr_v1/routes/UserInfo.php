@@ -11,7 +11,7 @@ namespace RESTController\extensions\umr_v1;
 // This allows us to use shortcuts instead of full quantifier
 // Requires: $app to be \RESTController\RESTController::getInstance()
 use \RESTController\libs\RESTAuth as RESTAuth;
-use \RESTController\core\auth as Auth;
+use \RESTController\core\oauth2 as Auth;
 
 
 // Put implementation into own URI-Group

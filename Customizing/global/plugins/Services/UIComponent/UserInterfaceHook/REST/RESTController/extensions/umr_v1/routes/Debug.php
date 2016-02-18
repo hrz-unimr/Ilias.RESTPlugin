@@ -7,7 +7,7 @@
  */
 namespace RESTController\extensions\umr_v1;
 use \RESTController\libs\RESTAuth as RESTAuth;
-use \RESTController\core\auth as Auth;
+use \RESTController\core\oauth2 as Auth;
 
 
 $app->get('/v1/umr/debug', function () use ($app) {

@@ -5,7 +5,7 @@
  * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * Since 2014
  */
-namespace RESTController\core\auth\Exceptions;
+namespace RESTController\core\oauth2\Exceptions;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;

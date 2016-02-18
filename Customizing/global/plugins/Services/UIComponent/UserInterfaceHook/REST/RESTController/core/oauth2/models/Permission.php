@@ -58,8 +58,5 @@ class Permission extends Libs\RESTModel {
 
     // Failed! (Permission with given id existed)
     return false;
-
-
-    // TODO: Prevent duplicate!
   }
 }

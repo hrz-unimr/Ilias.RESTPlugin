@@ -24,7 +24,7 @@
       'type'    => 'text',
       'length'  => 1000,
       'fixed'   => false,
-      'notnull' => true
+      'notnull' => false
     )
   );
   $ilDB->createTable('ui_uihk_rest_config', $fields, true);

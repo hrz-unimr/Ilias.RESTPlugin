@@ -178,6 +178,7 @@ $app->group('/v2', function () use ($app) {
      */
     $app->post('/client', Libs\RESTAuth::checkAccess(Libs\RESTAuth::ADMIN), function () use ($app) {
       try {
+        // Delegate insert-operation to model
         $request  = $app->request();
         $clientId = Client::InsertClient($request);
         if ($clientId)
@@ -238,6 +239,7 @@ $app->group('/v2', function () use ($app) {
      */
     $app->put('/client/:clientId', Libs\RESTAuth::checkAccess(Libs\RESTAuth::ADMIN), function ($clientId) use ($app) {
       try {
+        // Delegate update to model
         $request  = $app->request();
         if (Client::UpdateClient($clientId, $request))
           $app->success(array( 'id' => $clientId ));

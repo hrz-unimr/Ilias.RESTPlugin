@@ -9,8 +9,8 @@ namespace RESTController\libs\Middleware;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
-use \RESTController\core\auth as Auth;
-use \RESTController\core\clients as Clients;
+use \RESTController\database as Database;
+use \RESTController\core\oauth2\Tokens as Tokens;
 
 
 /*
@@ -80,6 +80,10 @@ class OAuth2 {
     // Delegate access-token check
     $accessToken = self::checkAccessToken($app);
 
+    // Delete permission-check
+    $request = $app->request;
+    self::checkRoutePermissions($app, $accessToken, $route, $request);
+
     // Delete short-token test
     self::checkShort($app, $accessToken);
   }
@@ -104,26 +108,23 @@ class OAuth2 {
 
       // Check token for common problems: Invalid format
       if (!$accessToken->isValid())
-          $app->halt(401, Auth\Tokens\Generic::MSG_INVALID, Auth\Tokens\Generic::ID_INVALID);
+          $app->halt(401, Tokens\Base::MSG_INVALID, Tokens\Base::ID_INVALID);
 
       // Check token for common problems: Invalid format
       if ($accessToken->isExpired())
-          $app->halt(401, Auth\Tokens\Generic::MSG_EXPIRED, Auth\Tokens\Generic::ID_EXPIRED);
+          $app->halt(401, Tokens\Base::MSG_EXPIRED, Tokens\Base::ID_EXPIRED);
 
       // Check IP (if option is enabled)
       $api_key  = $accessToken->getApiKey();
-      $client   = new Clients\RESTClient($api_key);
-      if (!$client->checkIPAccess($_SERVER['REMOTE_ADDR']))
+      $client   = Database\RESTClient::fromApiKey($api_key);
+      if (!$client->isIpAllowed($_SERVER['REMOTE_ADDR']))
         $app->halt(401, self::MSG_IP_NOT_ALLOWED, self::ID_IP_NOT_ALLOWED);
 
       // For sake of simplicity also return the access-token
       return $accessToken;
     }
 
-    // Given token was invalid
-    catch (Auth\Exceptions\TokenInvalid $e) {
-      $app->halt(401, self::MSG_NO_TOKEN, self::ID_NO_TOKEN);
-    }
+    // TODO: Catch other exceptions?
 
     // No token-parameter found
     catch(Libs\Exceptions\Parameter $e) {
@@ -142,6 +143,7 @@ class OAuth2 {
    *  $route <String> - Route for which the access-token needs to be checked
    *  $request <RESTRequest> - Request-object (used to fetch VERB)
    */
+  // TODO: Update to new implementation!
   public static function checkRoutePermissions($app, $accessToken, $route, $request) {
     // Fetch data to check route access
     $api_key  = $accessToken->getApiKey();
@@ -149,7 +151,7 @@ class OAuth2 {
     $verb     = $request->getMethod();
 
     // Check route access rights given route, method and api-key
-    $client   = new Clients\RESTClient($api_key);
+    $client   = Database\RESTClient::fromApiKey($api_key);
     if (!$client->checkScope($pattern, $verb))
       $app->halt(403, self::MSG_NO_PERMISSION, self::ID_NO_PERMISSION);
   }
@@ -163,6 +165,7 @@ class OAuth2 {
    *  $app <RESTController> - Instance of the RESTController
    *  $accessToken <AccessToken> - AccessToken that needs to be checked for permissions
    */
+  // TODO: Needs to be reimplemented!
   public static function checkShort($app, $accessToken) {
     // Test if token is a short (ttl) one and ip does match
     if ($accessToken->getEntry('type') != Auth\Challenge::type)
@@ -171,3 +174,6 @@ class OAuth2 {
       $app->halt(403, self::MSG_WRONG_ID, self::ID_WRONG_ID);
   }
 }
+
+
+// TODO: Wo sollte das scope gechecked werden?

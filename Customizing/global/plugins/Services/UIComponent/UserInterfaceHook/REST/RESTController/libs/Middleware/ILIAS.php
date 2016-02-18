@@ -9,7 +9,7 @@ namespace RESTController\libs\Middleware;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
-use \RESTController\core\auth as Auth;
+use \RESTController\core\oauth2 as Auth;
 
 
 /*
@@ -35,6 +35,10 @@ class ILIAS {
 
     // Delegate access-token check
     $accessToken = OAuth2::checkAccessToken($app);
+
+    // Delete permission-check
+    $request = $app->request;
+    self::checkRoutePermissions($app, $accessToken, $route, $request);
 
     // Check if user is admin in ILIAS
     self::checkAdmin($accessToken);
