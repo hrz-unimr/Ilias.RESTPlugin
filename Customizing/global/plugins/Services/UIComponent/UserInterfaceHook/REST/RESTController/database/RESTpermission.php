@@ -57,4 +57,17 @@ class RESTpermission extends Libs\RESTDatabase {
     // Store key's value after convertion
     return parent::setKey($key, $value, $write);
   }
+
+
+  /**
+   * Function: getJoinKey($joinWith)
+   *  @See RESTDatabase->getJoinKey(...)
+   */
+  public static function getJoinKey($joinWith) {
+    // Join with RESTclient on the api_id key
+    if ($joinWith == 'RESTclient')
+      return 'api_id';
+
+    return static::$primaryKey;
+  }
 }

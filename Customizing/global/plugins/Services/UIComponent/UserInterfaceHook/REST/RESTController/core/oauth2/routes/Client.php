@@ -56,7 +56,7 @@ $app->group('/v2', function () use ($app) {
     $app->get('/clients', Libs\RESTAuth::checkAccess(Libs\RESTAuth::ADMIN), function () use ($app) {
       try {
         // Fetch all clients
-        $clients = Database\RESTclient::fromAll();
+        $clients = Database\RESTclient::fromWhere(null, true);
 
         // Iterate over all clients
         $result = array();

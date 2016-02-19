@@ -37,7 +37,7 @@ $app->group('/v2', function () use ($app) {
         // Fetch permission by given client-id
         $clientId     = intval($clientId);
         $where        = sprintf('api_id = %d', Database\RESTpermission::quote($clientId, 'integer'));
-        $permissions  = Database\RESTpermission::fromWhere($where, null, true);
+        $permissions  = Database\RESTpermission::fromWhere($where, true);
 
         // Iterate over all permissions
         $result = array();

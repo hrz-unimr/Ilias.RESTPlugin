@@ -20,9 +20,9 @@ namespace RESTController\libs;
 class RESTAuth {
   // Possible security-levels
   const TOKEN       = 'RESTAuth::TOKEN';       // Check for valid token
-  const PERMISSION  = 'RESTAuth::PERMISSION';  // Check if allowed on route and has valid token
-  const ADMIN       = 'RESTAuth::ADMIN';       // Check if allowed and has admin-role and has valid token
-  const SHORT       = 'RESTAuth::SHORT';       // Check if token has short ttl and attached ip and is otherwise valid
+  const PERMISSION  = 'RESTAuth::PERMISSION';  // TOKEN and check if allowed on route
+  const SHORT       = 'RESTAuth::SHORT';       // TOKEN, PERMISSION and check if token has short ttl and attached ip
+  const ADMIN       = 'RESTAuth::ADMIN';       // TOKEN, PERMISSION and check if user has ILIAS admin-role
 
 
   /**
@@ -40,20 +40,35 @@ class RESTAuth {
    * Return:
    *  <String> - Reference (fully-quantified name of/) to the function that will be called
    */
-  public static function checkAccess($level = null) {
+  public static function checkAccess($level) {
     // Select auth that matches given security-level
     switch($level) {
+      default:
       case self::TOKEN:
         return 'RESTController\\libs\\Middleware\\OAuth2::TOKEN';
       case self::PERMISSION:
         return 'RESTController\\libs\\Middleware\\OAuth2::PERMISSION';
-      case self::ADMIN:
-        return 'RESTController\\libs\\Middleware\\ILIAS::ADMIN';
       case self::SHORT:
         return 'RESTController\\libs\\Middleware\\OAuth2::SHORT';
+      case self::ADMIN:
+        return 'RESTController\\libs\\Middleware\\ILIAS::ADMIN';
     }
+  }
 
-    // No check required
-    return function() {};
+
+  /**
+   * Function: checkScope($scope)
+   *  Returns a reference to an actual function that checks if the given
+   *  access-token has the required scope given as parameter.
+   * Note: Can be used together with checkAccess() as another route callable.
+   *
+   * Parameters:
+   *  $scope <String> - Specify the required access-level for a given route (see above)
+   *
+   * Return:
+   *  <String> - Reference (fully-quantified name of/) to the function that will be called
+   */
+  public static function checkScope($scope) {
+    // TODO: !!! Implement
   }
 }

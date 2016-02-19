@@ -200,7 +200,7 @@ class RESTController extends \Slim\Slim {
    */
   public function run() {
     // Log each incoming rest request
-    $this->log->info('REST call from ' . $_SERVER['REMOTE_ADDR'] . ' at ' . date('d/m/Y, H:i:s', time()));
+    $this->log->info('REST call from ' . $this->request()->getIp() . ' at ' . date('d/m/Y, H:i:s', time()));
 
     // Make $this available in all included models/routes
     $app = self::getInstance();

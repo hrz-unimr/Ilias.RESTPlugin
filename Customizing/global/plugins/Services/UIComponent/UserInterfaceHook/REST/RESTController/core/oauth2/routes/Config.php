@@ -18,7 +18,7 @@ $app->group('/v2', function () use ($app) {
   // Group all oAuth2 (RFC) routes
   $app->group('/oauth2', function () use ($app) {
     /**
-     * Route: [GET] /v2/oauth2/
+     * Route: [GET] /v2/oauth2/config/:key
      * [Admin required]
      *  Returns the current value for the requested config key.
      *
@@ -44,7 +44,7 @@ $app->group('/v2', function () use ($app) {
 
 
     /**
-     * Route: [GET] /v2/oauth2/
+     * Route: [GET] /v2/oauth2/config/:key
      * [Admin required]
      *  Updates a config settings with a new value.
      *
@@ -82,5 +82,16 @@ $app->group('/v2', function () use ($app) {
         $e->send(500);
       }
     });
+
+
+    $app->get('/test', function () use ($app) {
+      $request  = $app->request();
+      $accessToken  = $request->getToken('access');
+      $route = $app->router()->getCurrentRoute();
+      
+      Libs\Middleware\OAuth2::checkRoutePermissions($app, $accessToken, $route, $request);
+    });
+
+
   });
 });

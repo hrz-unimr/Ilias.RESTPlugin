@@ -30,18 +30,29 @@ class ILIAS {
    *   b) The user is admin in ILIAS
    */
   public static function ADMIN($route) {
-    // Fetch reference to RESTController
-    $app = \RESTController\RESTController::getInstance();
+    try {
+      // Fetch reference to RESTController
+      $app = \RESTController\RESTController::getInstance();
 
-    // Delegate access-token check
-    $accessToken = OAuth2::checkAccessToken($app);
+      // Fetch access-token (this also checks it)
+      $request      = $app->request();
+      $accessToken  = $request->getToken('access');
 
-    // Delete permission-check
-    $request = $app->request;
-    self::checkRoutePermissions($app, $accessToken, $route, $request);
+      // Delegate route-permission check
+      OAuth2::checkRoutePermissions($app, $accessToken, $route, $request);
 
-    // Check if user is admin in ILIAS
-    self::checkAdmin($accessToken);
+      // Check if user is admin in ILIAS
+      self::checkAdmin($accessToken);
+    }
+
+    // Catches following exceptions from getToken():
+    //  Auth\Exceptions\TokenInvalid - Token is invalid or expired
+    //  Exceptions\Parameter - Token is missing
+    //  Exceptions\Database - Tokens oAuth2 client does not exists
+    //  Exceptions\Denied - IP- or User- restriction in place
+    catch (Libs\RESTException $e) {
+      $e->send(401);
+    }
   }
 
 
@@ -59,6 +70,6 @@ class ILIAS {
     // Check if given user has admin-role
     $userId = $accessToken->getUserId();
     if (!Libs\RESTilias::isAdmin($userId))
-      $app->halt(401, OAuth2Middleware::MSG_NO_ADMIN, OAuth2Middleware::ID_NO_ADMIN);
+      $app->halt(401, self::MSG_NO_ADMIN, self::ID_NO_ADMIN);
   }
  }

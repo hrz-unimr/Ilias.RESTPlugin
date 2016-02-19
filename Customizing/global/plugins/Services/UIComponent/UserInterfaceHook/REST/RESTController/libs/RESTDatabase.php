@@ -134,89 +134,79 @@ abstract class RESTDatabase {
 
 
   /**
-   * Factory-Method: RESTDatabase::fromWhere($where, $joinSettings, $limit, $offset)
+   * Factory-Method: RESTDatabase::fromWhere($where, $limit, $offset)
    *  Creates a new RESTDatabase-Instance from given input parameters.
    *  This method recieves the table-data by fetching the table
    *  entry via a simple
    *    SELECT * FROM static::$tableName WHERE $where
-   *  Were the $where-clause is given as parameter. Additionally it
-   *  supports INNER-JOIN queries, such as
-   *    SELECT * FROM static::$tableName JOIN $joinWith::$tableName ON ... WHERE $where
-   *  See RESTDatabase::getJoinKey($joinKey) for additional details.
-   *  Furthermore $where is stati-parsed, see RESTDatabase::parseStaticSQL($sql)
-   *  for more information.
+   *  Were the $where-clause is given as parameter.
    *
-   * Note:
+   * Note 1:
    *  Unlike the other factory-methods the $where-Parameter can be exploited
    *  to generate malformed requests. Each caller is responsible to make
    *  sure $where is a valid where-clause using its own logic!
    *  (For example making sure all parameters are escaped correctly)
    *
+   * Note 2:
+   *  The table name will be aliased as the (late static) name of its class, eg.
+   *  for RESTclient a where clause could also be 'RESTclient.id = 42' instead of 'ui_uihk_rest_client.id = 42'
+   *  This also happens for joined tables, eg joinWith = 'RESTpermission' will create an alias RESTpermission for
+   *  ui_uihk_rest_perm.
+   *
    * Parameters:
    *  $where <String> - [Optional] Valid SQL where-clause (Needs to be validated by the caller!), leave empty to fetch all rows
-   *  $joinSettings <Array[String]> - [Optional] Allows to run a INNER-JOIN query (key = table-name, value = joined-keys)
    *  $limit <Boolean/Integer> - [Optional] Limit the number of fetches entries (default: 1), pass false to return array
    *  $offset <Boolean/Integer> - [Optional] Can be used in conjuction with $limit to fetch additional entries.
+   *  $joinWith <String>/Array[String]> - [Optional] A list of database class names to join on
    *
    * Return:
-   *  <RESTDatabase/Array[RESTDatabase]> - New instance(s) of RESTDatabase fetched via input parameters
+   *  <Array[RESTDatabase]> - New instances of RESTDatabase fetched via input parameters
    */
-  public static function fromWhere($where = null, $joinSettings = null, $limit = false, $offset = false) {
-    // Static-Parse the where-clause (replacing {{table}} and {{primary}})
-    if ($where != null)
-      $where = 'WHERE ' . self::parseStaticSQL($where);
-    else
-      $where    = '';
+  public static function fromWhere($where = null, $limit = false, $offset = false, $joinWith = null) {
+    // Reset empty where-clause
+    $whereSQL = '';
+    if (!is_null($where))
+      $whereSQL = sprintf('WHERE %s', $where);
 
-    // Optional additions to sql-query
-    $limitSQL   = '';
-    $offsetSQL  = '';
-    $joinSQL    = '';
-    $sql        = '';
+    // Build a join query
+    $joinSQL = '';
+    if (!is_null($joinWith))
+      $joinSQL = self::joinQuery($joinWith);
 
-    // Generate LIMIT and OFFSET sql sub-queries
+    // Generate LIMIT sub-queries
+    $limitSQL = '';
     if (ctype_digit($limit))
       $limitSQL   = sprintf('LIMIT %d', intval($limit));
+
+    // Generate OFFSET sub-queries
+    $offsetSQL = '';
     if (ctype_digit($offset))
       $offsetSQL  = sprintf('OFFSET %d', intval($offset));
 
-    // Generate JOIN sql sub-query
-    $table        = static::getTableName();
-    if (isset($joinSettings)) {
-      // JoinSettings keys are treaded as table-names and its values as joined-keys
-      $joinTables = implode(', ',    array_keys($joinSettings));
-      $joinKeys   = implode(' AND ', array_values($joinSettings));
-
-      // Build JOIN sub-query
-      $joinSQL    = sprintf('JOIN %s ON %s', $joinTables, $joinKeys);
-    }
-
-    // Combine all sub-queries into final sql-query
-    $sql = sprintf('SELECT %s.* FROM %s %s %s %s %s', $table, $table, $joinSQL, $where, $limitSQL, $offsetSQL);
+    // Build a simple where-based query
+    $table  = static::getTableName();
+    $class  = end(explode('\\', static::class));
+    $sql    = sprintf('SELECT %s.* FROM %s AS %s %s %s %s %s', $class, $table, $class, $joinSQL, $whereSQL, $limitSQL, $offsetSQL);
 
     // Generate ilDB query-object
     $query  = self::getDB()->query($sql);
     if ($query)
-      // Return more then one table-entry
       if ($limit) {
         // Fetch all table-entrys matched by query
-        $count  = 0;
         $rows   = array();
         while ($row = self::getDB()->fetchAssoc($query))
           $rows[] = new static($row);
 
         // Return as array of RESTDatabase-Instances
-        return $rows;
+        if (count($rows) > 0)
+          return $rows;
       }
 
       // Only return a single (the first entry)
       elseif ($row = self::getDB()->fetchAssoc($query))
         return new static($row);
 
-    // If the function hasn't returned until here, the query must have failed
-    // Note: This is intenionally NEVER thrown when $limit is used! The Idea is, that requesting exactly
-    //       one table-row should always return said row (or fail completely), while requesting multiple
-    //       should 'fail gracefully' (or better not fail), since queries might represent countable lookups.
+    // Throw exception if no row was found or query was empty
     throw new Exceptions\Database(
       self::MSG_NO_ENTRY,
       self::ID_NO_ENTRY,
@@ -224,18 +214,6 @@ abstract class RESTDatabase {
         'sql' => $sql
       )
     );
-  }
-
-
-  /**
-   * Function: fromAll()
-   *  Creates new RESTDatabase-Instances by fetching all existing table-rows.
-   *
-   * Return:
-   *  <RESTDatabase/Array[RESTDatabase]> - New instance(s) of RESTDatabase fetched via input parameters
-   */
-  public static function fromAll() {
-    return self::fromWhere();
   }
 
 
@@ -356,7 +334,7 @@ abstract class RESTDatabase {
 
         // Add where clauses
         $type     = static::$tableKeys[$key];
-        $where[]  = sprintf('%s = %s', $key, self::quote($value, $type));
+        $where[]  = sprintf('%s.%s = %s.%s', static::$tableName, $key, static::$tableName, self::quote($value, $type));
       }
       $where = implode($where, ' AND ');
     }
@@ -502,7 +480,7 @@ abstract class RESTDatabase {
         $where = self::parseSQL($where);
 
       // Delegate actual query to generalized implementation
-      return self::existsByWhere($where, false);
+      return self::existsByWhere($where);
     }
 
     // Check existence using all internal keys
@@ -516,7 +494,7 @@ abstract class RESTDatabase {
 
         // Add where clauses
         $type     = static::$tableKeys[$key];
-        $where[]  = sprintf('%s = %s', $key, self::quote($value, $type));
+        $where[]  = sprintf('%s.%s = %s.%s', static::$tableName, $key, static::$tableName, self::quote($value, $type));
       }
       $where = implode($where, ' AND ');
 
@@ -557,30 +535,36 @@ abstract class RESTDatabase {
    *  Check wether the table-entry exists, by fetching number of affected
    *  table-entries via a simple:
    *    SELECT 1 FROM static::$tableName WHERE $where
-   *  Were the $where-clause is given as parameter. Furthermore $where
-   *  is static-parsed, see RESTDatabase::parseStaticSQL($sql) for
-   *  more information.
+   *  Were the $where-clause is given as parameter.
    *
-   * Note:
+   * Note 1:
    *  Unlike the other exists*-methods the $where-Parameter can be exploited
    *  to generate malformed requests. Each caller is responsible to make
    *  sure $where is a valid where-clause using its own logic!
    *  (For example making sure all parameters are escaped correctly)
    *
+   * Note 2:
+   *  The table name will be aliased as the (late static) name of its class, eg.
+   *  for RESTclient a where clause could also be 'RESTclient.id = 42' instead of 'ui_uihk_rest_client.id = 42'
+   *  This also happens for joined tables, eg joinWith = 'RESTpermission' will create an alias RESTpermission for
+   *  ui_uihk_rest_perm.
+   *
    * Parameters:
    *  $where <String> - Valid SQL where-clause (Needs to be validated by the caller!)
-   *  $parse <Boolean> - [Optional] Pass false to disable parsing of {{}} entries in SQL query (Default: True)
+   *  $joinWith <String>/Array[String]> - [Optional] A list of database class names to join on
    *
    * Return:
    *  <Boolean> - True if there already exists a table with the given primary-key, false otherwise
    */
-  public static function existsByWhere($where, $parse = true) {
-    // Static-Parse the where-clause (replacing {{table}} and {{primary}})
-    if ($parse)
-      $where = self::parseStaticSQL($where);
+  public static function existsByWhere($where, $joinWith = null) {
+    // Build a join query
+    $joinSQL = '';
+    if (!is_null($joinWith))
+      $joinSQL = self::joinQuery($joinWith);
 
     // Generate query
-    $sql    = sprintf('SELECT 1 FROM %s WHERE %s', static::$tableName, $where);
+    $class  = self::getName();
+    $sql    = sprintf('SELECT 1 FROM %s AS %s %s WHERE %s', static::$tableName, $class, $joinSQL, $where);
     $query  = self::getDB()->query($sql);
 
     // Fetch number of returned rows
@@ -615,7 +599,7 @@ abstract class RESTDatabase {
         $where = self::parseSQL($where);
 
       // Delegate actual query to generalized implementation
-      return self::deleteByWhere($where, false);
+      return self::deleteByWhere($where);
     }
 
     // Delete using ALL internal keys
@@ -629,7 +613,7 @@ abstract class RESTDatabase {
 
         // Add where clauses
         $type     = static::$tableKeys[$key];
-        $where[]  = sprintf('%s = %s', $key, self::quote($value, $type));
+        $where[]  = sprintf('%s.%s = %s.%s', static::$tableName, $key, static::$tableName, self::quote($value, $type));
       }
       $where = implode($where, ' AND ');
 
@@ -669,30 +653,36 @@ abstract class RESTDatabase {
    * Function: deleteByWhere($where)
    *  Deletes the table-entries matching the given where-clause, via a simple:
    *    DELETE FROM static::$tableName WHERE $where
-   *  Were the $where-clause is given as parameter. Furthermore $where
-   *  is static-parsed, see RESTDatabase::parseStaticSQL($sql) for
-   *  more information.
+   *  Were the $where-clause is given as parameter.
    *
-   * Note:
+   * Note 1:
    *  Unlike the other exists*-methods the $where-Parameter can be exploited
    *  to generate malformed requests. Each caller is responsible to make
    *  sure $where is a valid where-clause using its own logic!
    *  (For example making sure all parameters are escaped correctly)
    *
+   * Note 2:
+   *  The table name will be aliased as the (late static) name of its class, eg.
+   *  for RESTclient a where clause could also be 'RESTclient.id = 42' instead of 'ui_uihk_rest_client.id = 42'
+   *  This also happens for joined tables, eg joinWith = 'RESTpermission' will create an alias RESTpermission for
+   *  ui_uihk_rest_perm.
+   *
    * Parameters:
    *  $where <String> - Valid SQL where-clause (Needs to be validated by the caller!)
-   *  $parse <Boolean> - [Optional] Pass false to disable parsing of {{}} entries in SQL query (Default: True)
+   *  $joinWith <String>/Array[String]> - [Optional] A list of database class names to join on
    *
    * Return:
    *  <Boolean> - True if there already exists a table with the given primary-key, false otherwise
    */
-  public static function deleteByWhere($where, $parse = true) {
-    // Static-Parse the where-clause (replacing {{table}} and {{primary}})
-    if ($parse)
-      $where = self::parseStaticSQL($where);
+  public static function deleteByWhere($where, $joinWith = null) {
+    // Build a join query
+    $joinSQL = '';
+    if (!is_null($joinWith))
+      $joinSQL = self::joinQuery($joinWith);
 
-    // Generate and execute query (return ilDB result)
-    $sql    = sprintf('DELETE FROM %s WHERE %s', static::$tableName, $where);
+    // Generate query
+    $class  = self::getName();
+    $sql    = sprintf('DELETE %s FROM %s %s %s WHERE %s', $class, static::$tableName, $class, $joinSQL, $where);
     return self::getDB()->manipulate($sql);
   }
 
@@ -805,6 +795,7 @@ abstract class RESTDatabase {
    *  Replaces certain 'needles' inside the sql query (string) with internally stored values.
    *  Currently supported needles are:
    *   {{table}} - Will be replaced by static::$tableName (which should contain the name of the attached table)
+   *   {{name}} - Will be replaced with the (late binding) class name (without namespaces)
    *   {{primary}} - Will be replaced by static::$primaryKey /which should be the name of the tables primary-key)
    *   {{KEY}} - Will be replaced by $this->getKey(KEY)
    *   {{%KEY}} - Will be replaced by $this->getKey(KEY), usefull if table contains a key named after one of the above
@@ -844,6 +835,7 @@ abstract class RESTDatabase {
    *  Replaces certain 'needles' inside the sql query (string) with internally stored values.
    *  Currently supported needles are:
    *   {{table}} - Will be replaced by static::$tableName (which should contain the name of the attached table)
+   *   {{name}} - Will be replaced with the (late binding) class name (without namespaces)
    *   {{primary}} - Will be replaced by static::$primaryKey /which should be the name of the tables primary-key)
    *  Obviously the static method can not access instance information, such as getKey(...).
    *
@@ -856,176 +848,14 @@ abstract class RESTDatabase {
    * Return:
    *  <String> - Parsed SQL query
    */
-  protected static function parseStaticSQL($sql) {
+  public static function parseStaticSQL($sql) {
     // Replace {{table}} and {{primary}} as described
     $sql = str_replace('{{table}}',   static::$tableName, $sql);
-    $sql = str_replace('{{primary}}',  static::$primaryKey, $sql);
+    $sql = str_replace('{{name}}',    static::getName(), $sql);
+    $sql = str_replace('{{primary}}', static::$primaryKey, $sql);
 
     // Return parsed sql query
     return $sql;
-  }
-
-
-  /**
-   * Function: getRow($key)
-   *  Either returns the internally stored table-entry, aka the 'row'
-   *  representing the table-entry, or if an optional key is given,
-   *  only return this keys value in the internally stored table-entry.
-   *
-   * Parameters:
-   *  $key <String> - [Optional] Only fetch the value of given keys
-   *
-   * Return:
-   *  <Mixed>/<Array[Mixed]> - Returned row representation of internally stored table-entry (or value of single key)
-   */
-  public function getRow($key = null) {
-    // Return single key?
-    if (isset($key))
-      return $this-getKey($key);
-
-    // ... or complete table-entry (aka row)
-    else
-      return $this->row;
-  }
-
-
-  /**
-   * Function: getDBRow($key)
-   *  Returns the table-entry representation required by ilDB, eg.
-   *    array(
-   *      'id'      => array('integer', 10),
-   *      'content' => array('text',    'Hello World!')
-   *    )
-   *
-   * Parameters:
-   *  $key <String> - [Optional] Only fetch the ilDB (type, value) pair for given keys
-   *
-   * Return:
-   *  <Array[Array[String]]> - List (array) of ilDB (type, value) pairs used to query, insert or update table entries.
-   *                           See input of ilDB->insert(...) for additional details.
-   */
-  public function getDBRow($key = null) {
-    // With a given key, only return (type, value) pair for given key
-    $row = array();
-    if (isset($key)) {
-      // Fetch type and value
-      $value      = $this->row[$key];
-      $type       = static::$tableKeys[$key];
-
-      // Combine (type, value) into pair
-      $row[$key]  = array($type, $value);
-    }
-
-    // ... otherwise return (type, value) pair for all keys
-    else
-      foreach($this->row as $key => $value) {
-        // Fetch type and combine (type, value) into pair
-        $type       = static::$tableKeys[$key];
-        $row[$key]  = array($type, $value);
-      }
-
-    // Return ilDB table-entry (aka row) representation
-    return $row;
-  }
-
-
-  /**
-   * Function: getDBWhere()
-   *  Returns the where-clause representation required by ilDB.
-   *  Will use the primary-key if it is known, otherwise all other keys will be used
-   *
-   * Return:
-   *  <Array[Array[String]]> - List (array with one element) of ilDB (type, value) pairs used to query, insert or update
-   *                           table entries, unlike getDBRow() this only contains the primary-key.
-   *                           See input of ilDB->insert(...) for additional details.
-   */
-  public function getDBWhere() {
-    // Fetch type and value of the primary-key
-    $key    = static::$primaryKey;
-    $value  = $this->row[$key];
-    $type   = static::$tableKeys[$key];
-
-    // 'FALSE' Primary-Key explicitely means: non was set -> use other keys
-    if ($value === false) {
-      $where = array();
-      foreach($this->row as $key => $value) {
-        // Skip null primary-key
-        if ($key == static::$primaryKey && $value === false)
-          continue;
-
-        // Fetch type and combine (type, value) into pair
-        $type         = static::$tableKeys[$key];
-        $where[$key]  = array($type, $value);
-      }
-      return $where;
-    }
-    // Combine (type, value) into pair and pack into associative array
-    else
-      return array(
-        $key => array($type, $value)
-      );
-  }
-
-
-  /**
-   * Function: getPrimaryKey()
-   *  Utility-function to return the primary-key used by the attached table.
-   *
-   * Return:
-   *  <String> - Name of primary-key of the attached table
-   */
-  public static function getPrimaryKey() {
-    return static::$primaryKey;
-  }
-
-
-  /**
-   * Function: getTableName()
-   *  Utility-function to return the name of the attached table.
-   *
-   * Return:
-   *  <String> - Name of the attached table
-   */
-  public static function getTableName() {
-    return static::$tableName;
-  }
-
-
-  /**
-   * Function: getTableKeys()
-   *  Utility-function to return a list of all keys (and their ilDB type) inside by the attached table.
-   *
-   * Return:
-   *  <String> - List of all keys (and their ilDB type) inside the attached table
-   */
-  public static function getTableKeys() {
-    return static::$tableKeys;
-  }
-
-
-  /**
-   * Function: getJoinKey($joinWith)
-   *  This method should return the name of the OWN key
-   *  (not the key of the $joinTable) which should be used
-   *  to join with $joinTable ON.
-   *  For example:
-   *   IF 'ui_uihk_rest_keys' and 'ui_uihk_rest_perm' want to be joined,
-   *   ui_uihk_rest_keys should return 'id' (its primary-key) and
-   *   ui_uihk_rest_perm should return 'api_id' when given
-   *   each others table-name as input-parameter.
-   *   Obviously this means this method needs to be overwriten in
-   *   all derived classes that can be joined with another table.
-   *
-   * Parameters:
-   *  $joinWith <String> - Name of CLASS (derived from RESTDatabase) that represents the table with which to join
-   *
-   * Return:
-   *  <String> - OWN Key used to join on with $joinWith
-   */
-  public static function getJoinKey($joinWith) {
-    // By default return own primary-key...
-    // Add conditional return values based on $joinWith in derived classes supporting joining
-    return static::$primaryKey;
   }
 
 
@@ -1034,6 +864,9 @@ abstract class RESTDatabase {
    *  Correctly quotes the additional input parameters given by '...' and inserts
    *  them into the sql-query given as first parameter using vsprintf on the
    *  (correclty quoted) array remaining parameters.
+   *
+   * Note:
+   *  Use this to insert variables safely into you own (arbitrary) SQL statement.
    *
    * Parameters:
    *  $sql <String> - SQL-Query that contains placeholders for the elements from '...'
@@ -1122,6 +955,243 @@ abstract class RESTDatabase {
     // Return by detected type: Unsupported!
     else
       return $value;
+  }
+
+
+  /**
+   * Function: joinQuery($joinWith)
+   *  Utility function to build a join-on query using the getJoinKey, getTableName and getName methods.
+   *  This reduces the need of one table to know the internals of another table.
+   *
+   * Parameters:
+   *  $joinWith <String> - Classname (without namespace) of databse implementation to join with
+   *
+   * Return:
+   *  <String> - Join statement between two tables using their shared/foreign keys
+   */
+  public static function joinQuery($joinWith) {
+    // Information about underlying table
+    $table        = static::getTableName();
+    $class        = static::getName();
+
+    // Make sure joinWith is an array
+    if (!is_array($joinWith))
+      $joinWith = array($joinWith);
+
+    // Build complete join query
+    $joinTables = array();
+    $joinOns    = array();
+    foreach ($joinWith as $join) {
+      // Construct full class name
+      $joinClass    = 'RESTController\\database\\' . $join;
+
+      // Table table-name to join WITH
+      $joinTable    = call_user_func(array($joinClass, 'getTableName'));
+      $joinTables[] = sprintf('%s AS %s', $joinTable, $join);
+
+      // Tables keys to join ON
+      $joinKey      = sprintf('%s.%s',   $join,    call_user_func(array($joinClass, 'getJoinKey'), $class));
+      $tableKey     = sprintf('%s.%s',   $class,   static::getJoinKey($join));
+      $joinOns[]    = sprintf('%s = %s', $joinKey, $tableKey);
+    }
+
+    // Build JOIN sub-query
+    $joinTables = implode(', ', $joinTables);
+    $joinOns    = implode(' AND ', $joinOns);
+
+    // Return final join query
+    return sprintf('JOIN %s ON %s', $joinTables, $joinOns);
+  }
+
+
+  /**
+   * Function: getRow($key)
+   *  Either returns the internally stored table-entry, aka the 'row'
+   *  representing the table-entry, or if an optional key is given,
+   *  only return this keys value in the internally stored table-entry.
+   *
+   * Parameters:
+   *  $key <String> - [Optional] Only fetch the value of given keys
+   *
+   * Return:
+   *  <Mixed>/<Array[Mixed]> - Returned row representation of internally stored table-entry (or value of single key)
+   */
+  public function getRow($key = null) {
+    // Return single key?
+    if (isset($key))
+      return $this-getKey($key);
+
+    // ... or complete table-entry (aka row)
+    else
+      return $this->row;
+  }
+
+
+  /**
+   * Function: getDBRow($key)
+   *  Returns the table-entry representation required by ilDB to insert/update **row information**.
+   *
+   * Note:
+   *  While getDBRow() and getDBWhere() can potentially return the same values, they do have different use-cases.
+   *  the former providing the table-row data, the later indicating which table row is targeted.
+   *
+   * Example:
+   *    array(
+   *      'id'      => array('integer', 10),
+   *      'content' => array('text',    'Hello World!')
+   *    )
+   *
+   * Parameters:
+   *  $key <String> - [Optional] Only fetch the ilDB (type, value) pair for given keys
+   *
+   * Return:
+   *  <Array[Array[String]]> - List (array) of ilDB (type, value) pairs used to query, insert or update table entries.
+   *                           See input of ilDB->insert(...) for additional details.
+   */
+  public function getDBRow($key = null) {
+    // With a given key, only return (type, value) pair for given key
+    $row = array();
+    if (isset($key)) {
+      // Fetch type and value
+      $value      = $this->row[$key];
+      $type       = static::$tableKeys[$key];
+
+      // Combine (type, value) into pair
+      $row[$key]  = array($type, $value);
+    }
+
+    // ... otherwise return (type, value) pair for all keys
+    else
+      foreach($this->row as $key => $value) {
+        // Fetch type and combine (type, value) into pair
+        $type       = static::$tableKeys[$key];
+        $row[$key]  = array($type, $value);
+      }
+
+    // Return ilDB table-entry (aka row) representation
+    return $row;
+  }
+
+
+  /**
+   * Function: getDBWhere()
+   *  Returns the **where-clause** representation required by ilDB.
+   *  Will use the primary-key if it is known, otherwise all other keys will be used.
+   *
+   * Note:
+   *  While getDBRow() and getDBWhere() can potentially return the same values, they do have different use-cases.
+   *  the former providing the table-row data, the later indicating which table row is targeted.
+   *
+   * Example:
+   *    array(
+   *      'id'      => array('integer', 10),
+   *      'content' => array('text',    'Hello World!')
+   *    )
+   *
+   * Return:
+   *  <Array[Array[String]]> - List (array with one element) of ilDB (type, value) pairs used to query, insert or update
+   *                           table entries, unlike getDBRow() this only contains the primary-key.
+   *                           See input of ilDB->insert(...) for additional details.
+   */
+  public function getDBWhere() {
+    // Fetch type and value of the primary-key
+    $key    = static::$primaryKey;
+    $value  = $this->row[$key];
+    $type   = static::$tableKeys[$key];
+
+    // 'FALSE' Primary-Key explicitely means: non was set -> use other keys
+    if ($value === false) {
+      $where = array();
+      foreach($this->row as $key => $value) {
+        // Skip null primary-key
+        if ($key == static::$primaryKey && $value === false)
+          continue;
+
+        // Fetch type and combine (type, value) into pair
+        $type         = static::$tableKeys[$key];
+        $where[$key]  = array($type, $value);
+      }
+      return $where;
+    }
+    // Combine (type, value) into pair and pack into associative array
+    else
+      return array(
+        $key => array($type, $value)
+      );
+  }
+
+
+  /**
+   * Function: getPrimaryKey()
+   *  Utility-function to return the primary-key used by the attached table.
+   *
+   * Return:
+   *  <String> - Name of primary-key of the attached table
+   */
+  public static function getPrimaryKey() {
+    return static::$primaryKey;
+  }
+
+
+  /**
+   * Function: getTableName()
+   *  Utility-function to return the name of the attached table.
+   *
+   * Return:
+   *  <String> - Name of the attached table
+   */
+  public static function getTableName() {
+    return static::$tableName;
+  }
+
+
+  /**
+   * Function: getTableKeys()
+   *  Utility-function to return a list of all keys (and their ilDB type) inside by the attached table.
+   *
+   * Return:
+   *  <String> - List of all keys (and their ilDB type) inside the attached table
+   */
+  public static function getTableKeys() {
+    return static::$tableKeys;
+  }
+
+
+  /**
+   * Function: getName()
+   *  Returns the (late static binding) class-name (without namespace).
+   *
+   * Return:
+   *  <String> - Short name of current class name (late static binding)
+   */
+  public static function getName() {
+    return end(explode('\\', static::class));
+  }
+
+
+  /**
+   * Function: getJoinKey($joinWith)
+   *  This method should return the name of the OWN key
+   *  (not the key of the $joinTable) which should be used
+   *  to join with $joinTable ON.
+   *  For example:
+   *   IF 'ui_uihk_rest_keys' and 'ui_uihk_rest_perm' want to be joined,
+   *   ui_uihk_rest_keys should return 'id' (its primary-key) and
+   *   ui_uihk_rest_perm should return 'api_id' when given
+   *   each others table-name as input-parameter.
+   *   Obviously this means this method needs to be overwriten in
+   *   all derived classes that can be joined with another table.
+   *
+   * Parameters:
+   *  $joinWith <String> - Name of CLASS (derived from RESTDatabase) that represents the table with which to join
+   *
+   * Return:
+   *  <String> - OWN Key used to join on with $joinWith
+   */
+  public static function getJoinKey($joinWith) {
+    // By default return own primary-key...
+    // Add conditional return values based on $joinWith in derived classes supporting joining
+    return static::$primaryKey;
   }
 
 

@@ -66,7 +66,7 @@ class Redirect extends Libs\RESTModel {
     // Modify token
     $accessToken->setEntry('ttl',  strval(time() + self::shortTTL));
     $accessToken->setEntry('type', 'short-token');
-    $accessToken->setEntry('misc',  $_SERVER['REMOTE_ADDR']);
+    $accessToken->setEntry('misc',  Libs\RESTLib::FetchUserAgentIP());
 
     // Return modified access-token
     return $accessToken;

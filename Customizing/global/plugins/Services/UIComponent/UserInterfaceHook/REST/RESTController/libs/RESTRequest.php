@@ -9,7 +9,7 @@ namespace RESTController\libs;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires ../Slim/Http/Request
-use \RESTController\libs\Exceptions  as Exceptions;
+use \RESTController\core\oauth2 as Auth;
 use \RESTController\core\oauth2\Tokens as Tokens;
 
 
@@ -25,11 +25,8 @@ class RESTRequest extends \Slim\Http\Request {
   const ID_MISSING          = 'RESTController\\libs\\RESTRequest::ID_MISSING';
   const MSG_PARSE_ISSUE     = 'Could not parse ids \'{{ids}} from \'{{string}}\'.';
   const ID_PARSE_ISSUE      = 'RESTController\\libs\\RESTRequest::ID_PARSE_ISSUE';
-  const MSG_NO_ACCESS_TOKEN = 'Could not find any access-token in Authorizaton-Header and header, GET or POST (JSON/x-www-form-urlencoded) parameters.';
-  const ID_NO_ACCESS_TOKEN  = 'RESTController\\libs\\RESTRequest::ID_NO_ACCESS_TOKEN';
-  const MSG_NO_TOKEN        = 'Could not find any {{token}} in header, GET or POST (JSON/x-www-form-urlencoded) parameters.';
+  const MSG_NO_TOKEN        = 'Could not find any {{type}} in header, GET or POST (JSON/x-www-form-urlencoded) parameters.';
   const ID_NO_TOKEN         = 'RESTController\\libs\\RESTRequest::ID_NO_TOKEN';
-
 
   /**
    * Constructor: RESTRequest($env)
@@ -48,6 +45,9 @@ class RESTRequest extends \Slim\Http\Request {
     // For some reason slim fails to do this...
     foreach (getallheaders() as $key => $value)
       $this->headers->set($key, $value);
+
+    // This will store the tokens once fetched
+    $this->tokens = array();
   }
 
 
@@ -149,7 +149,11 @@ class RESTRequest extends \Slim\Http\Request {
    * Return:
    *  <AccessToken>/<RefreshToken>/<AuthorizationCode> - Fetched token, depending on input parameter
    */
-  public function getToken($name = 'access', $stringOnly = false, $throw = true) {
+  public function getToken($name = 'access', $stringOnly = false) {
+    // Already fetched?
+    if (isset($this->tokens[$name]))
+      return $this->tokens[$name];
+
     switch ($name) {
       // Fetch access-token
       default:
@@ -183,16 +187,15 @@ class RESTRequest extends \Slim\Http\Request {
 
           // Return token as object
           $settings = Tokens\Settings::load('access');
-          return Tokens\Access::fromMixed($settings, $tokenString);
+          $token    = Tokens\Access::fromMixed($settings, $tokenString);
+
+          // Check and return token
+          self::checkToken($token, 'Access Token');
+          $this->tokens['access'] = $token;
+          return $token;
         }
 
-        // Not returned by now means no token was found
-        if ($throw)
-          throw new Exceptions\Parameter(
-            self::MSG_NO_ACCESS_TOKEN,
-            self::ID_NO_ACCESS_TOKEN
-          );
-
+      break;
       // Fetch refresh-token
       case 'refresh':
         // Fetch 'access_token' from header, GET or POST...
@@ -206,19 +209,15 @@ class RESTRequest extends \Slim\Http\Request {
 
           // Return token as object
           $settings = Tokens\Settings::load('refresh');
-          return Tokens\Refresh::fromMixed($settings, $tokenString);
+          $token    = Tokens\Refresh::fromMixed($settings, $tokenString);
+
+          // Check and return token
+          self::checkToken($token, 'Refresh Token');
+          $this->tokens['refresh'] = $token;
+          return $token;
         }
 
-        // Not returned by now means no token was found
-        if ($throw)
-          throw new Exceptions\Parameter(
-            self::MSG_NO_TOKEN,
-            self::ID_NO_TOKEN,
-            array(
-              'token' => 'refresh'
-            )
-          );
-
+      break;
       // Fetch authorization-token
       case 'authorization':
         // Fetch 'access_token' from header, GET or POST...
@@ -236,19 +235,89 @@ class RESTRequest extends \Slim\Http\Request {
 
           // Return token as object
           $settings = Tokens\Settings::load('authorization');
-          return Tokens\Authorization::fromMixed($settings, $tokenString);
-        }
+          $token    = Tokens\Authorization::fromMixed($settings, $tokenString);
 
-        // Not returned by now means no token was found
-        if ($throw)
-          throw new Exceptions\Parameter(
-            self::MSG_NO_TOKEN,
-            self::ID_NO_TOKEN,
-            array(
-              'token' => 'authorization'
-            )
-          );
+          // Check and return token
+          self::checkToken($token, 'Authorization-Code Token');
+          $this->tokens['authorization'] = $token;
+          return $token;
+        }
     }
+
+    // No token found!
+    throw new Exceptions\Parameter(
+      self::MSG_NO_TOKEN,
+      self::ID_NO_TOKEN,
+      array(
+        'type' => $type
+      )
+    );
+  }
+
+
+  /**
+   * !!!
+   */
+  public static function checkToken($token, $type) {
+
+
+    // Token must be found
+    if (!isset($token))
+      throw new Exceptions\Parameter(
+        self::MSG_NO_TOKEN,
+        self::ID_NO_TOKEN,
+        array(
+          'type' => $type
+        )
+      );
+
+    // Token must be valid
+    if (!$token->isValid())
+      throw new Auth\Exceptions\TokenInvalid(
+        Tokens\Base::MSG_INVALID,
+        Tokens\Base::ID_INVALID,
+        array(
+          'type' => $type
+        )
+      );
+
+    // Token must not be expired
+    if ($token->isExpired())
+      throw new Auth\Exceptions\TokenInvalid(
+        Tokens\Base::MSG_EXPIRED,
+        Tokens\Base::ID_EXPIRED,
+        array(
+          'type' => $type
+        )
+      );
+
+    // Fetch client (This throws if client does not exist!)
+    $apiKey = $token->getApiKey();
+    $client = $token->getClient();
+
+    // Fetch client ip and check restriction
+    $remoteIp = RESTLib::FetchUserAgentIP();
+    if (!$client->isIpAllowed($remoteIp))
+      throw new Exceptions\Denied(
+        Auth\Common::MSG_RESTRICTED_IP,
+        Auth\Common::ID_RESTRICTED_IP,
+        array(
+          'ip' => $remoteIp
+        )
+      );
+
+    // Fetch userId and check restriction
+    $userId   = $token->getUserId();
+    $username = $token->getUserName();
+    if (!$client->isUserAllowed($userId))
+      throw new Exceptions\Denied(
+        Auth\Common::MSG_RESTRICTED_USER,
+        Auth\Common::ID_RESTRICTED_USER,
+        array(
+          'userID'    => $userId,
+          'username'  => $username
+        )
+      );
   }
 
 

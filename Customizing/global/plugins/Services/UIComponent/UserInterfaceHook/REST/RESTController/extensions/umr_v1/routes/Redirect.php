@@ -10,6 +10,7 @@ namespace RESTController\extensions\umr_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires: $app to be \RESTController\RESTController::getInstance()
+use \RESTController\libs as Libs;
 use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\core\oauth2 as Auth;
 
@@ -41,7 +42,7 @@ $app->group('/v1/umr', function () use ($app) {
         // Test if token is a short (ttl) one and ip does match
         if ($accessToken->getEntry('type') != 'short-token')
           $appt->halt(401, 'This route requires a special short-lived access-token.');
-        if ($accessToken->getEntry('misc') != $_SERVER['REMOTE_ADDR'])
+        if ($accessToken->getEntry('misc') != Libs\RESTLib::FetchUserAgentIP())
           $appt->halt(401, 'This token was generated from another address then the your current one.');
 
         // Login user (since token is valid, should not fail)

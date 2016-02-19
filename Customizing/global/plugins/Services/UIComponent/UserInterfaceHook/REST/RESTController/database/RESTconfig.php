@@ -73,7 +73,7 @@ class RESTconfig extends Libs\RESTDatabase {
 
     // Convert rows to array of name/setting_value[name] pairs
     $settings = array();
-    $rows     = self::fromWhere($where, null, true);
+    $rows     = self::fromWhere($where, true);
     foreach($rows as $row){
       $name   = $row->getKey('setting_name');
       $value  = $row->getKey('setting_value');

@@ -9,6 +9,7 @@ namespace RESTController\core\oauth2\Tokens;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
+use \RESTController\database as Database;
 use \RESTController\core\oauth2\Exceptions as Exceptions;
 
 
@@ -61,7 +62,8 @@ class Base {
    *  $tokenSettings <Settings> - Internal settings of this token
    */
   protected function __construct($tokenSettings) {
-    $this->tokenSettings = $tokenSettings;
+    $this->tokenSettings  = $tokenSettings;
+    $this->client         = null;
   }
 
 
@@ -116,7 +118,15 @@ class Base {
 
 
   /**
+   * Function: factory($tokenArray)
+   *  Factory method to create the correct token (Authorization,Access, Refresh)
+   *  from the given token-array using the token-arrays class value as type indication.
    *
+   * Parameters:
+   *  $tokenArray <Array[String]> - Array which will be used to generate a new token object
+   *
+   * Returns:
+   *  <AccessToken>/<RefreshToken>/<AuthorizationToken> - Token generated from the given token-array
    */
   public static function factory($tokenArray) {
     // Extract token array
@@ -283,6 +293,24 @@ class Base {
   }
   public function getClass() {
     return static::$class;
+  }
+
+
+  /**
+   * Function: getClient()
+   *  Returns the attached RESTclient database table object and stores
+   *  it for potential future reference.
+   *
+   * Return:
+   *  <RESTclient> - The oauth2 client which is attached to this tokens api-key
+   */
+  public function getClient() {
+    // fetch current client object
+    if (is_null($this->client))
+      $this->client = Database\RESTclient::fromApiKey($this->tokenArray['api_key']);
+
+    // Return current client object
+    return $this->client;
   }
 
 
