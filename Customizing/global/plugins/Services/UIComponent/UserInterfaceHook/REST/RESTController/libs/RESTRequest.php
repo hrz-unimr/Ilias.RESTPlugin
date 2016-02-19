@@ -256,11 +256,18 @@ class RESTRequest extends \Slim\Http\Request {
 
 
   /**
-   * !!!
+   * Function: checkToken($token, $type)
+   *  Running some common check on the given token, such that
+   *  if one was found, if it is valid and not expired, as
+   *  well as userId and IP restrtions. This should make using
+   *  a token quite safe.
+   *  Throws exceptions when something isn't right...
+   *
+   * Parameters:
+   *  $token <BaseToken> - Token object that should be verified
+   *  $type <String> - Type of token, mostly used for readable exceptions (Used inside description)
    */
   public static function checkToken($token, $type) {
-
-
     // Token must be found
     if (!isset($token))
       throw new Exceptions\Parameter(

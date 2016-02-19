@@ -88,40 +88,6 @@ class OAuth2 {
 
 
   /**
-   * Function: SHORT($route)
-   *  This route can be used as middleware on a route
-   *  to check if:
-   *   a) The token is valid
-   *   b) The user is using a special 'short-lived' access-token
-   */
-  public static function SHORT($route) {
-    try {
-      // Fetch reference to RESTController
-      $app = \RESTController\RESTController::getInstance();
-
-      // Fetch access-token (this also checks it)
-      $request      = $app->request();
-      $accessToken  = $request->getToken('access');
-
-      // Delete permission-check
-      self::checkRoutePermissions($app, $accessToken, $route, $request);
-
-      // Delete short-token test
-      self::checkShort($app, $accessToken);
-    }
-
-    // Catches following exceptions from getToken():
-    //  Auth\Exceptions\TokenInvalid - Token is invalid or expired
-    //  Exceptions\Parameter - Token is missing
-    //  Exceptions\Database - Tokens oAuth2 client does not exists
-    //  Exceptions\Denied - IP- or User- restriction in place
-    catch (Libs\RESTException $e) {
-      $e->send(401);
-    }
-  }
-
-
-  /**
    * Function: checkRoutePermissions($app, $accessToken, $route, $request)
    *  Checks the permission for the current client to access a route with a certain action.
    *
@@ -146,23 +112,5 @@ class OAuth2 {
       );
       if (!Database\RESTpermission::existsByWhere($where, 'RESTclient'))
         $app->halt(401, self::MSG_NO_PERMISSION, self::ID_NO_PERMISSION);
-  }
-
-
-  /**
-   * Function: checkShort($app, $accessToken)
-   *  Checks if the given access-token is a special short-lived access-token
-   *
-   * Parameters:
-   *  $app <RESTController> - Instance of the RESTController
-   *  $accessToken <AccessToken> - AccessToken that needs to be checked for permissions
-   */
-  // TODO: Needs to be reimplemented!!!
-  public static function checkShort($app, $accessToken) {
-    // Test if token is a short (ttl) one and ip does match
-    if ($accessToken->getEntry('type') != Auth\Challenge::type)
-      $app->halt(403, self::MSG_NEED_SHORT, self::ID_NEED_SHORT);
-    if ($accessToken->getEntry('misc') != $_SERVER['REMOTE_ADDR'])
-      $app->halt(403, self::MSG_WRONG_ID, self::ID_WRONG_ID);
   }
 }

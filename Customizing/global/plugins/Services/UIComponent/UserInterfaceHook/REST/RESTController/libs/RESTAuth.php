@@ -21,7 +21,6 @@ class RESTAuth {
   // Possible security-levels
   const TOKEN       = 'RESTAuth::TOKEN';       // Check for valid token
   const PERMISSION  = 'RESTAuth::PERMISSION';  // TOKEN and check if allowed on route
-  const SHORT       = 'RESTAuth::SHORT';       // TOKEN, PERMISSION and check if token has short ttl and attached ip
   const ADMIN       = 'RESTAuth::ADMIN';       // TOKEN, PERMISSION and check if user has ILIAS admin-role
 
 
@@ -48,8 +47,6 @@ class RESTAuth {
         return 'RESTController\\libs\\Middleware\\OAuth2::TOKEN';
       case self::PERMISSION:
         return 'RESTController\\libs\\Middleware\\OAuth2::PERMISSION';
-      case self::SHORT:
-        return 'RESTController\\libs\\Middleware\\OAuth2::SHORT';
       case self::ADMIN:
         return 'RESTController\\libs\\Middleware\\ILIAS::ADMIN';
     }
@@ -60,7 +57,12 @@ class RESTAuth {
    * Function: checkScope($scope)
    *  Returns a reference to an actual function that checks if the given
    *  access-token has the required scope given as parameter.
-   * Note: Can be used together with checkAccess() as another route callable.
+   *  Take note that this will generate a new function everywere this
+   *  function is used, since you can't easily pass pre-defined parameters
+   *  to slim callables.
+   *
+   * Note:
+   *  Can be used together with checkAccess() as another route callable.
    *
    * Parameters:
    *  $scope <String> - Specify the required access-level for a given route (see above)
@@ -69,6 +71,32 @@ class RESTAuth {
    *  <String> - Reference (fully-quantified name of/) to the function that will be called
    */
   public static function checkScope($scope) {
-    // TODO: !!! Implement
+    return function() {
+      try {
+        // Fetch reference to RESTController
+        $app = \RESTController\RESTController::getInstance();
+
+        // Fetch access-token (this also checks it)
+        $request      = $app->request();
+        $accessToken  = $request->getToken('access');
+        $tokenScope   = $accessToken->getScope();
+        $client       = $accessToken->getClient();
+
+        // Check wether access-token scope covers the requested scope
+        if (!$client->isScopeAllowed($scope))
+            $app->halt(401, self::MSG_NO_SCOPE, self::ID_NO_SCOPE);
+      }
+
+      // Catches following exceptions from getToken():
+      //  Auth\Exceptions\TokenInvalid - Token is invalid or expired
+      //  Exceptions\Parameter - Token is missing
+      //  Exceptions\Denied - IP- or User- restriction in place
+      //  Exceptions\Database - Tokens oAuth2 client does not exists
+      // Catches following exceptions from getClient()
+      //  Exceptions\Database - Tokens oAuth2 client does not exists
+      catch (Libs\RESTException $e) {
+        $e->send(401);
+      }
+    };
   }
 }

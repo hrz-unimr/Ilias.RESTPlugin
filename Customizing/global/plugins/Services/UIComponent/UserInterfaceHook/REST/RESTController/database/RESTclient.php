@@ -272,7 +272,7 @@ class RESTclient extends Libs\RESTDatabase {
     if (filter_var($ip, FILTER_VALIDATE_IP) === false)
       return false;
 
-    // fetch allowed-ips regex
+    // Fetch allowed-ips regex
     $allowed = $this->getKey('ips');
 
     // Delegate to restriction-check
