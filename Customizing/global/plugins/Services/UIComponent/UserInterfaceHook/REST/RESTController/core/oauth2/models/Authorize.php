@@ -330,16 +330,20 @@ class Authorize extends Libs\RESTModel {
 
     // fetch absolute dirictory of view folder
     $plugin     = Libs\RESTilias::getPlugin();
-    $pluginDir  = $plugin->getDirectory() . '/RESTController/core/auth/views/';
+    $pluginDir  = str_replace('./', '', $plugin->getDirectory());
+    $pluginDir  = $pluginDir . '/RESTController/core/oauth2/views/';
+
+
 
     // Content and further logic is managed by the template
     $app->response()->setFormat('HTML');
     $app->render(
-      'core/auth/views/index.php',
+      'core/oauth2/views/index.php',
       array(
         'baseURL'     => ILIAS_HTTP_PATH,
         'viewURL'     => ILIAS_HTTP_PATH . '/' . $pluginDir,
         'endpoint'    => ILIAS_HTTP_PATH . '/restplugin.php' . $routeURL,
+        'client'      => CLIENT_ID,
         'parameters'  => $param,
       )
     );

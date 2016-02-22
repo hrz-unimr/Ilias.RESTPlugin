@@ -15,10 +15,10 @@ use \RESTController\database as Database;
 
 // Group Version 2 implementation
 $app->group('/v2', function () use ($app) {
-  // Group all oAuth2 (RFC) routes
-  $app->group('/oauth2', function () use ($app) {
+  // Group all oauth2 admin routes
+  $app->group('/admin', function () use ($app) {
     /**
-     * Route: [GET] /v2/oauth2/clients
+     * Route: [GET] /v2/admin/clients
      * [Admin required]
      *  Fetches a list (with data) of of all available oauth2 clients.
      *  Parameter terms should correspond to Oauth2 Spec: https://tools.ietf.org/html/rfc6749
@@ -81,12 +81,12 @@ $app->group('/v2', function () use ($app) {
 
 
     /**
-     * Route: [GET] /v2/oauth2/client | /v2/oauth2/client/:clientId
+     * Route: [GET] /v2/admin/client | /v2/admin/client/:clientId
      * [Admin required]
      *  Returns data for the oauth2 client given by clienId.
      *  Parameter terms should correspond to Oauth2 Spec: https://tools.ietf.org/html/rfc6749
      *
-     * Parameters: [/v2/oauth2/client]
+     * Parameters: [/v2/admin/client]
      *  id <Number> - Internal clientId for this oauth2 client (only used to reference a client internally)
      *
      * Returns:
@@ -140,7 +140,7 @@ $app->group('/v2', function () use ($app) {
 
 
     /**
-     * Route: [POST] /v2/oauth2/client
+     * Route: [POST] /v2/admin/client
      * [Admin required]
      *  Add a new oauth2 client to the database.
      *  Parameter terms should correspond to Oauth2 Spec: https://tools.ietf.org/html/rfc6749
@@ -199,12 +199,12 @@ $app->group('/v2', function () use ($app) {
 
 
     /**
-     * Route: [PUT] /v2/oauth2/client | /v2/oauth2/client/:clientId
+     * Route: [PUT] /v2/admin/client | /v2/admin/client/:clientId
      * [Admin required]
      *  Updates an existing oauth2 clients database entry.
      *  Parameter terms should correspond to Oauth2 Spec: https://tools.ietf.org/html/rfc6749
      *
-     * Parameters: [/v2/oauth2/client]
+     * Parameters: [/v2/admin/client]
      *  'id',                        <Number> - Internal clientId for this oauth2 client (only used to reference a client internally)
      *
      * Parameters: [Both]
@@ -255,12 +255,12 @@ $app->group('/v2', function () use ($app) {
 
 
     /**
-     * Route: [DELETE] /v2/oauth2/client | /v2/oauth2/client/:clientId
+     * Route: [DELETE] /v2/admin/client | /v2/admin/client/:clientId
      * [Admin required]
      *  Removes an existing oauth2 client from the database.
      *  Parameter terms should correspond to Oauth2 Spec: https://tools.ietf.org/html/rfc6749
      *
-     * Parameters: [/v2/oauth2/client]
+     * Parameters: [/v2/admin/client]
      *  'id' <Number> - Internal clientId for this oauth2 client
      *
      * Returns:

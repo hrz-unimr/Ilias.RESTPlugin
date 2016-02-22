@@ -15,10 +15,10 @@ use \RESTController\database as Database;
 
 // Group Version 2 implementation
 $app->group('/v2', function () use ($app) {
-  // Group all oAuth2 (RFC) routes
-  $app->group('/oauth2', function () use ($app) {
+  // Group all admin routes
+  $app->group('/admin', function () use ($app) {
     /**
-     * Route: [GET] /v2/oauth2/permissions/:clientId
+     * Route: [GET] /v2/admin/permissions/:clientId
      * [Admin required]
      *  Returns a list of all available permissions for the given client.
      *
@@ -62,7 +62,7 @@ $app->group('/v2', function () use ($app) {
 
 
     /**
-     * Route: [GET] /v2/oauth2/permission/:clientId
+     * Route: [GET] /v2/admin/permission/:clientId
      * [Admin required]
      *  Adds a new permission with given parameters to the selected client.
      *
@@ -100,7 +100,7 @@ $app->group('/v2', function () use ($app) {
 
 
     /**
-     * Route: [GET] /v2/oauth2/permission/:permisionId
+     * Route: [GET] /v2/admin/permission/:permisionId
      * [Admin required]
      *  Deletes the clients permission with selected permissionId
      *

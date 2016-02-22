@@ -15,10 +15,10 @@ use \RESTController\database as Database;
 
 // Group Version 2 implementation
 $app->group('/v2', function () use ($app) {
-  // Group all oAuth2 (RFC) routes
-  $app->group('/oauth2', function () use ($app) {
+  // Group all admin routes
+  $app->group('/admin', function () use ($app) {
     /**
-     * Route: [GET] /v2/oauth2/config/:key
+     * Route: [GET] /v2/admin/config/:key
      * [Admin required]
      *  Returns the current value for the requested config key.
      *
@@ -44,7 +44,7 @@ $app->group('/v2', function () use ($app) {
 
 
     /**
-     * Route: [GET] /v2/oauth2/config/:key
+     * Route: [GET] /v2/admin/config/:key
      * [Admin required]
      *  Updates a config settings with a new value.
      *

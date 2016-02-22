@@ -327,7 +327,7 @@ class RESTclient extends Libs\RESTDatabase {
     return Libs\RESTLib::CheckComplexRestriction($allowed, $scopes, ' ');
   }
 
-
+  
   /**
    * Function: isBridgeAllowed($direction)
    *  Checks wether the ILIAS <-> oAuth2 bridge is allowed for this client in the requested direction.
@@ -345,11 +345,9 @@ class RESTclient extends Libs\RESTDatabase {
     // Convert all to lower-case
     $direction  = strtolower($direction);
     $allowed    = strtolower($this->getKey('grant_bridge'));
-
     // Bridge is disabled, no need for further comparisons...
     if ($allowed === false)
       return false;
-
     // Check depending on requested bridge direction
     switch ($direction) {
       // Requesting bridge from ILIAS
@@ -357,7 +355,6 @@ class RESTclient extends Libs\RESTDatabase {
       case 'fromilias':
         // Direction from (I)LIAS or (B)OTH enabled
         return $allowed == 'i' || $allowed = 'b';
-
       // Requesting bridge from oAuth2
       case 'oauth2':
       case 'oauth':
@@ -365,12 +362,10 @@ class RESTclient extends Libs\RESTDatabase {
       case 'fromoauth':
         // Direction from (o)Auth2 or (B)OTH enabled
         return $allowed == 'o' || $allowed = 'b';
-
       // Requesting bridge in both directions
       case 'both':
         return $allowed = 'b';
     }
-
     // Fallback: Everything else disabled by default
     return false;
   }

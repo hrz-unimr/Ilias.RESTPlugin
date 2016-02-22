@@ -59,8 +59,8 @@ $consentMessage = (isset($parameters['consent_message'])) ? $parameters['consent
         <input type="hidden"   name="scope"         value="<?php echo $scope; ?>" />
         <input type="hidden"   name="state"         value="<?php echo $state; ?>" />
 
-        <input type="text"     name="user"          placeholder="<?php echo $username; ?>">
-        <input type="password" name="pass"          placeholder="<?php echo $password; ?>">
+        <input type="text"     name="username"      placeholder="<?php echo $username; ?>">
+        <input type="password" name="password"      placeholder="<?php echo $password; ?>">
         <input type="submit"   name="login"         value="Anmelden">
       </form>
       <?php
