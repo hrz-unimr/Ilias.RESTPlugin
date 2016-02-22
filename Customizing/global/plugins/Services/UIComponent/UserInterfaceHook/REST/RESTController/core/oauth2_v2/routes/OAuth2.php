@@ -9,7 +9,7 @@
 namespace RESTController\core\oauth2_v2;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs     as Libs;
+use \RESTController\libs as Libs;
 
 
 // Group Version 2 implementation

@@ -276,7 +276,7 @@ class Token extends Libs\RESTModel {
     // Check that authorization-token is still active in DB (throws otherwise) (throws on problem)
     try {
       $authorizationDB  = Database\RESTauthorization::fromToken($authorizationCode);
-      $authorizationDB->deleteByPrimary();
+      $authorizationDB->delete();
     }
     catch(Libs\Exceptions\Database $e) {
       throw new Exceptions\TokenInvalid(

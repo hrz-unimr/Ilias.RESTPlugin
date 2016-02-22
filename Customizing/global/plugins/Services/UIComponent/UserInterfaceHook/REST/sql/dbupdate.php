@@ -104,7 +104,7 @@
     ),
     'api_key' => array(
       'type'    => 'text',
-      'length'  => 256,
+      'length'  => 128,
       'fixed'   => false,
       'notnull' => true
     ),
@@ -338,7 +338,7 @@
     ),
     'token' => array(
       'type'    => 'text',
-      'length'  => 256,
+      'length'  => 512,
       'fixed'   => false,
       'notnull' => true
     ),
@@ -358,8 +358,6 @@
 
   $ilDB->addPrimaryKey('ui_uihk_rest_refresh', array('id'));
   $ilDB->manipulate('ALTER TABLE ui_uihk_rest_refresh CHANGE id id INT NOT NULL AUTO_INCREMENT');
-  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_refresh ADD UNIQUE (hash)');
-  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_refresh ADD UNIQUE (token)');
 
   global $ilLog;
   $ilLog->write('Plugin REST -> DB-Update #7: Created ui_uihk_rest_refresh.');
@@ -380,7 +378,7 @@
     ),
     'token' => array(
       'type'    => 'text',
-      'length'  => 256,
+      'length'  => 512,
       'fixed'   => false,
       'notnull' => true
     ),
@@ -392,8 +390,6 @@
 
   $ilDB->addPrimaryKey('ui_uihk_rest_authcode',  array('id'));
   $ilDB->manipulate('ALTER TABLE ui_uihk_rest_authcode CHANGE id id INT NOT NULL AUTO_INCREMENT');
-  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_authcode ADD UNIQUE (hash)');
-  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_authcode ADD UNIQUE (token)');
 
   global $ilLog;
   $ilLog->write('Plugin REST -> DB-Update #8: Created ui_uihk_rest_authcode.');
@@ -414,7 +410,7 @@
     ),
     'token' => array(
       'type'    => 'text',
-      'length'  => 256,
+      'length'  => 512,
       'fixed'   => false,
       'notnull' => true
     ),
@@ -426,8 +422,6 @@
 
   $ilDB->addPrimaryKey('ui_uihk_rest_access',  array('id'));
   $ilDB->manipulate('ALTER TABLE ui_uihk_rest_access CHANGE id id INT NOT NULL AUTO_INCREMENT');
-  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_access ADD UNIQUE (hash)');
-  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_access ADD UNIQUE (token)');
 
   global $ilLog;
   $ilLog->write('Plugin REST -> DB-Update #9: Created ui_uihk_rest_access.');

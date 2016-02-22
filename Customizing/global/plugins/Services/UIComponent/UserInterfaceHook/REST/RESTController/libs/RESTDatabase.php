@@ -386,7 +386,7 @@ abstract class RESTDatabase {
    */
   public function write($key = null) {
     // Update existing table-entry
-    if ($this->existsByPrimary())
+    if ($this->exists())
       return $this->update($key);
 
     // Insert new table-entry
@@ -485,18 +485,23 @@ abstract class RESTDatabase {
 
     // Check existence using all internal keys
     else {
-      // Build safe where-clause
-      $where = array();
-      foreach($this->row as $key => $value) {
-        // Skip null primary-key
-        if ($key == static::$primaryKey && $value === false)
-          continue;
+      $primaryValue = $this->row[static::$primaryKey];
+      if ($primaryValue === false) {
+        // Build safe where-clause
+        $where = array();
+        foreach($this->row as $key => $value) {
+          // Skip null primary-key
+          if ($key == static::$primaryKey)
+            continue;
 
-        // Add where clauses
-        $type     = static::$tableKeys[$key];
-        $where[]  = sprintf('%s.%s = %s.%s', static::$tableName, $key, static::$tableName, self::quote($value, $type));
+          // Add where clauses
+          $type     = static::$tableKeys[$key];
+          $where[]  = sprintf('%s.%s = %s', static::$tableName, $key, self::quote($value, $type));
+        }
+        $where = implode($where, ' AND ');
       }
-      $where = implode($where, ' AND ');
+      else
+        $where = sprintf('%s.%s = %s', static::$tableName, static::$primaryKey, $primaryValue);
 
       // Delete actual query
       return self::existsByWhere($where);
@@ -513,16 +518,15 @@ abstract class RESTDatabase {
    *       (internally or externally as parameter), since primary-keys are always unique!
    *
    * Parameters:
-   *  $value <Integer> - [Optional] Value of primary-key to check existance of a table-entry for
+   *  $value <Integer> - Value of primary-key to check existance of a table-entry for
    *                     If left empty, this will treat value as the current primary-key value
    *
    * Return:
    *  <Boolean> - True if there already exists a table with the given primary-key, false otherwise
    */
-  public static function existsByPrimary($value = null) {
+  public static function existsByPrimary($value) {
     // Generate a where-clause for the primary-key
     $key    = static::$primaryKey;
-    $value  = (is_null($value)) ? $this->row[$key] : intval($value);
     $where  = sprintf('%s = %d', $key, $value);
 
     // Delegate actual query to generalized implementation
@@ -604,18 +608,25 @@ abstract class RESTDatabase {
 
     // Delete using ALL internal keys
     else {
-      // Build safe where-clause
-      $where = array();
-      foreach($this->row as $key => $value) {
-        // Skip null primary-key
-        if ($key == static::$primaryKey && $value === false)
-          continue;
+      $class = self::getName();
+      $primaryValue = $this->row[static::$primaryKey];
+      
+      if ($primaryValue === false) {
+        // Build safe where-clause
+        $where = array();
+        foreach($this->row as $key => $value) {
+          // Skip null primary-key
+          if ($key == static::$primaryKey)
+            continue;
 
-        // Add where clauses
-        $type     = static::$tableKeys[$key];
-        $where[]  = sprintf('%s.%s = %s.%s', static::$tableName, $key, static::$tableName, self::quote($value, $type));
+          // Add where clauses
+          $type     = static::$tableKeys[$key];
+          $where[]  = sprintf('%s.%s = %s', $class, $key, self::quote($value, $type));
+        }
+        $where = implode($where, ' AND ');
       }
-      $where = implode($where, ' AND ');
+      else
+        $where = sprintf('%s.%s = %s', $class, static::$primaryKey, $primaryValue);
 
       // Delete actual query
       return self::deleteByWhere($where);
@@ -632,16 +643,15 @@ abstract class RESTDatabase {
    *       (internally or externally as parameter), since primary-keys are always unique!
    *
    * Parameters:
-   *  $value <Integer> - [Optional] Value of primary-key to delete table-entry of
+   *  $value <Integer> - Value of primary-key to delete table-entry of
    *                     If left empty, this will treat value as the current primary-key value
    *
    * Return:
    *  <ilDB.query> - Same return value as given by an ilDB->manipulate() operation
    */
-  public static function deleteByPrimary($value = null) {
+  public static function deleteByPrimary($value) {
     // Generate a where-clause for the primary-key
     $key    = static::$primaryKey;
-    $value  = (is_null($value)) ? $this->row[$key] : intval($value);
     $where  = sprintf('%s = %d', $key, intval($value));
 
     // Delegate actual query to generalized implementation
