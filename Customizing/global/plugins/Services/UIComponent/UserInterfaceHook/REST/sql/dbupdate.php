@@ -12,7 +12,6 @@
     'id'            => array(
       'type'        => 'integer',
       'length'      => 4,
-      'unsigned'    => 1,
       'notnull'     => true
     ),
     'setting_name'  => array(
@@ -23,7 +22,7 @@
     ),
     'setting_value' => array(
       'type'        => 'text',
-      'length'      => 1024,
+      'length'      => 512,
       'fixed'       => false,
       'notnull'     => false
     )
@@ -135,13 +134,13 @@
     ),
     'redirect_uri' => array(
       'type'    => 'text',
-      'length'  => 1024,
+      'length'  => 512,
       'fixed'   => false,
       'notnull' => false
     ),
     'consent_message' => array(
       'type'    => 'text',
-      'length'  => 4096,
+      'length'  => 4000,
       'fixed'   => false,
       'notnull' => false
     ),
@@ -195,10 +194,9 @@
     ),
     'description' => array(
       'type'    => 'text',
-      'length'  => 4096,
+      'length'  => 4000,
       'fixed'   => false,
-      'notnull' => false,
-      'default' => ''
+      'notnull' => false
     )
   );
   $ilDB->createTable('ui_uihk_rest_client', $fields, true);
@@ -244,13 +242,13 @@
       'type'    => 'text',
       'length'  => 256,
       'fixed'   => false,
-      'notnull' => false
+      'notnull' => true
     ),
     'verb' => array(
       'type'    => 'text',
       'length'  => 16,
       'fixed'   => false,
-      'notnull' => false
+      'notnull' => true
     )
   );
   $ilDB->createTable('ui_uihk_rest_perm', $fields, true);
@@ -270,43 +268,53 @@
 
   $ilDB->insert('ui_uihk_rest_perm', array(
     'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/clients'),
+    'pattern' => array('text', '/v2/oauth2/clients'),
     'verb'    => array('text', 'GET')
   ));
   $ilDB->insert('ui_uihk_rest_perm', array(
     'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/clients/:id'),
+    'pattern' => array('text', '/v2/oauth2/client/:id'),
+    'verb'    => array('text', 'GET')
+  ));
+  $ilDB->insert('ui_uihk_rest_perm', array(
+    'api_id'  => array('integer', $id),
+    'pattern' => array('text', '/v2/oauth2/client/'),
+    'verb'    => array('text', 'POST')
+  ));
+  $ilDB->insert('ui_uihk_rest_perm', array(
+    'api_id'  => array('integer', $id),
+    'pattern' => array('text', '/v2/oauth2/client/:id'),
     'verb'    => array('text', 'PUT')
   ));
   $ilDB->insert('ui_uihk_rest_perm', array(
     'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/clients/:id'),
+    'pattern' => array('text', '/v2/oauth2/client/:id'),
     'verb'    => array('text', 'DELETE')
   ));
   $ilDB->insert('ui_uihk_rest_perm', array(
     'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/clients/'),
+    'pattern' => array('text', '/v2/oauth2/config/:key'),
+    'verb'    => array('text', 'GET')
+  ));
+  $ilDB->insert('ui_uihk_rest_perm', array(
+    'api_id'  => array('integer', $id),
+    'pattern' => array('text', '/v2/oauth2/config/:key'),
+    'verb'    => array('text', 'PUT')
+  ));
+  $ilDB->insert('ui_uihk_rest_perm', array(
+    'api_id'  => array('integer', $id),
+    'pattern' => array('text', '/v2/oauth2/permissions/:clientId'),
+    'verb'    => array('text', 'GET')
+  ));
+  $ilDB->insert('ui_uihk_rest_perm', array(
+    'api_id'  => array('integer', $id),
+    'pattern' => array('text', '/v2/oauth2/permission/:clientId'),
     'verb'    => array('text', 'POST')
   ));
   $ilDB->insert('ui_uihk_rest_perm', array(
     'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/routes'),
-    'verb'    => array('text', 'GET')
-  ));
-  $ilDB->insert('ui_uihk_rest_perm', array(
-    'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/clientpermissions'),
-    'verb'    => array('text', 'GET')
-  ));
-  $ilDB->insert('ui_uihk_rest_perm', array(
-    'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/clientpermissions/:id'),
+    'pattern' => array('text', '/v2/oauth2/permission/:permisionId'),
     'verb'    => array('text', 'DELETE')
-  ));
-  $ilDB->insert('ui_uihk_rest_perm', array(
-    'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/clientpermissions/'),
-    'verb'    => array('text', 'POST')
   ));
 
   global $ilLog;
@@ -324,15 +332,15 @@
     ),
     'hash' => array(
       'type'    => 'text',
-      'length'  => 128,
+      'length'  => 256,
       'fixed'   => false,
-      'notnull' => false
+      'notnull' => true
     ),
     'token' => array(
       'type'    => 'text',
-      'length'  => 1024,
+      'length'  => 256,
       'fixed'   => false,
-      'notnull' => false
+      'notnull' => true
     ),
     'last_refresh'  => array(
       'type'    => 'timestamp'
@@ -368,13 +376,13 @@
       'type'    => 'text',
       'length'  => 256,
       'fixed'   => false,
-      'notnull' => false
+      'notnull' => true
     ),
     'token' => array(
       'type'    => 'text',
-      'length'  => 512,
+      'length'  => 256,
       'fixed'   => false,
-      'notnull' => false
+      'notnull' => true
     ),
     'expires'  => array(
       'type'    => 'timestamp'
@@ -402,13 +410,13 @@
       'type'    => 'text',
       'length'  => 256,
       'fixed'   => false,
-      'notnull' => false
+      'notnull' => true
     ),
     'token' => array(
       'type'    => 'text',
-      'length'  => 512,
+      'length'  => 256,
       'fixed'   => false,
-      'notnull' => false
+      'notnull' => true
     ),
     'expires'  => array(
       'type'    => 'timestamp'

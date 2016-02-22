@@ -34,7 +34,7 @@ $app->group('/v1/umr', function () use ($app) {
        *
        * @See docs/api.pdf
        */
-      $app->get('/advanced/:type/:refId', RESTAuth::checkAccess(RESTAuth::SHORT), function ($type, $refId) use ($app) {
+      $app->get('/advanced/:type/:refId', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($type, $refId) use ($app) {
         // Fetch userId & userName
         $accessToken  = Auth\Util::getAccessToken();
         $userName     = $accessToken->getUserName();
