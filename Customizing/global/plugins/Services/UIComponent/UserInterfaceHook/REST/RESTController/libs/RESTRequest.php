@@ -158,6 +158,8 @@ class RESTRequest extends \Slim\Http\Request {
       // Fetch access-token
       default:
       case 'access':
+        $type = 'Access-Token';
+
         // Fetch 'access_token' from header, GET or POST...
         $tokenString = $this->params('access_token');
 
@@ -170,7 +172,7 @@ class RESTRequest extends \Slim\Http\Request {
           $authHeader = $this->headers('Authorization');
 
           // Found Authorization header?
-          if ($authHeader) {
+          if (is_string($authHeader)) {
               $authArray = explode(' ', $authHeader);
 
               // Look for bearer-type token
@@ -190,14 +192,25 @@ class RESTRequest extends \Slim\Http\Request {
           $token    = Tokens\Access::fromMixed($settings, $tokenString);
 
           // Check and return token
-          self::checkToken($token, 'Access Token');
+          self::checkToken($token, $type);
           $this->tokens['access'] = $token;
           return $token;
         }
 
+        // No token found!
+        throw new Exceptions\Parameter(
+          self::MSG_NO_TOKEN,
+          self::ID_NO_TOKEN,
+          array(
+            'type' => $type
+          )
+        );
       break;
+
       // Fetch refresh-token
       case 'refresh':
+        $type = 'Refresh-Token';
+
         // Fetch 'access_token' from header, GET or POST...
         $tokenString = $this->params('refresh_token');
 
@@ -212,14 +225,16 @@ class RESTRequest extends \Slim\Http\Request {
           $token    = Tokens\Refresh::fromMixed($settings, $tokenString);
 
           // Check and return token
-          self::checkToken($token, 'Refresh Token');
+          self::checkToken($token, $type);
           $this->tokens['refresh'] = $token;
           return $token;
         }
-
       break;
+
       // Fetch authorization-token
       case 'authorization':
+        $type = 'Authorization-Code-Token';
+
         // Fetch 'access_token' from header, GET or POST...
         $tokenString = $this->params('authorization_token');
 
@@ -238,7 +253,7 @@ class RESTRequest extends \Slim\Http\Request {
           $token    = Tokens\Authorization::fromMixed($settings, $tokenString);
 
           // Check and return token
-          self::checkToken($token, 'Authorization-Code Token');
+          self::checkToken($token, $type);
           $this->tokens['authorization'] = $token;
           return $token;
         }

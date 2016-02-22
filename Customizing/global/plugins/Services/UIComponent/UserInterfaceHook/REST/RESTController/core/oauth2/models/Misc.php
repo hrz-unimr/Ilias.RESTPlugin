@@ -18,8 +18,6 @@ use \RESTController\database as Database;
  */
 class Misc extends Libs\RESTModel {
   // Allow to re-use status messages and codes
-  const MSG_NO_TOKEN          = 'No token was given, supported are refresh-tokens and access-tokens.';
-  const ID_NO_TOKEN           = 'RESTController\\core\\auth\\Misc::ID_NO_TOKEN';
   const MSG_BRIDGE_DISABLED   = 'The ILIAS-oAuth2 bridge is diabled (in this direction).';
   const ID_BRIDGE_DISABLED    = 'RESTController\\core\\auth\\Misc::ID_BRIDGE_DISABLED';
   const MSG_INVALID_SESSION   = 'The given data does not match any valid active ILIAS-Session.';
