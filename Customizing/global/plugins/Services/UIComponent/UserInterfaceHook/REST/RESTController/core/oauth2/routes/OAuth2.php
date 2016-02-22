@@ -59,19 +59,21 @@ $app->group('/v2', function () use ($app) {
       }
 
       // Database query failed (eg. no client with given api-key)
+      //  Own catch to send custom error-code
       catch (Libs\Exceptions\Database $e) {
         $e->redirect($redirectUri, 'unauthorized_client');
       }
-      // Catch unsupported response_type (Exceptions\ResponseType)
-      // Catch invalid request (Exceptions\InvalidRequest)
-      // Catch if access is denied, by user of due to client settings (Exceptions\Denied)
-      // Catch missing parameters (Libs\Exceptions\Parameter)
+      // Catches the following exceptions from params()
+      //  Catch missing parameters (Libs\Exceptions\Parameter)
+      // Catches the following exceptions from FlowGetAuthorize():
+      //  Catch unsupported response_type (Exceptions\ResponseType)
+      //  Catch invalid request (Exceptions\InvalidRequest)
+      //  Catch if access is denied, by user of due to client settings (Exceptions\Denied)
+      //  Catch database lookup error (Exceptions\Database)
+      //  Invalid oauth2 client credentials (Exceptions\UnauthorizedClient)
       catch (Libs\RESTException $e) {
         $e->redirect($redirectUri);
       }
-
-      // invalid api-key
-      // Different exception for missing and wrong client-auth?
     });
 
 
@@ -169,13 +171,18 @@ $app->group('/v2', function () use ($app) {
         );
       }
       // Database query failed (eg. no client with given api-key)
+      //  Own catch to send custom error-code
       catch (Libs\Exceptions\Database $e) {
         $e->redirect($redirectUri, 'unauthorized_client');
       }
-      // Catch unsupported response_type
-      // Catch invalid request
-      // Catch if access is denied (by user of due to client settings)
-      // Catch missing parameters
+      // Catches the following exceptions from params()
+      //  Catch missing parameters (Libs\Exceptions\Parameter)
+      // Catches the following exceptions from FlowPostAuthorize():
+      //  Catch unsupported response_type (Exceptions\ResponseType)
+      //  Catch invalid request (Exceptions\InvalidRequest)
+      //  Catch if access is denied, by user of due to client settings (Exceptions\Denied)
+      //  Catch database lookup error (Exceptions\Database)
+      //  Invalid oauth2 client credentials (Exceptions\UnauthorizedClient)
       catch (Libs\RESTException $e) {
         $e->redirect($redirectUri);
       }
@@ -268,8 +275,40 @@ $app->group('/v2', function () use ($app) {
         $app->success($data);
       }
 
-      // Catch all generated exceptions
-      catch (Libs\RESTException $e) {
+      // Catches missing parameter (from params())
+      catch (Libs\Exceptions\Parameter $e) {
+        $e->send(400);
+      }
+      // Catch unsupported response_type (from Flow*())
+      catch (Exceptions\ResponseType $e) {
+        $e->send(400);
+      }
+      // Catch invalid request (from Flow*())
+      catch (Libs\Exceptions\InvalidRequest $e) {
+        $e->send(400);
+      }
+      //  Catch if access is denied, by user of due to client settings (from Flow*())
+      catch (Exceptions\Denied $e) {
+        $e->send(401);
+      }
+      // Catch if given username was invalid (from Flow*())
+      catch (Libs\Exceptions\ilUser $e) {
+        $e->send(401);
+      }
+      // Catch if given (auth-code) token was invalid (from Flow*())
+      catch (Exceptions\TokenInvalid $e) {
+        $e->send(401);
+      }
+      // Catch invalid oauth2 client authorization/credentials (from Flow*())
+      catch (Exceptions\UnauthorizedClient $e) {
+        $e->send(401);
+      }
+      // Catch invalid resource-owner credentials (from Flow*())
+      catch (Exceptions\Credentials $e) {
+        $e->send(401);
+      }
+      // Catch database lookup error (from Flow*())
+      catch (Libs\Exceptions\Database $e) {
         $e->send(500);
       }
     });
@@ -290,20 +329,55 @@ $app->group('/v2', function () use ($app) {
      *  HTTP 1.1/OK 200
      */
     $app->delete('/token', function () use ($app) {
-      // Fetch parameters required for all routes
-      $request      = $app->request();
-      $apiKey       = $request->params('api_key', null, true);
-      $apiSecret    = $request->params('api_secret');
-      $tokenCode    = $request->params('token', null, true);
-      $apiCert      = Libs\RESTLib::FetchClientCertificate();
-      $remoteIp     = Libs\RESTLib::FetchUserAgentIP();
-      $iliasClient  = Libs\RESTilias::FetchILIASClient();
+      try {
+        // Fetch parameters required for all routes
+        $request      = $app->request();
+        $apiKey       = $request->params('api_key', null, true);
+        $apiSecret    = $request->params('api_secret');
+        $tokenCode    = $request->params('token', null, true);
+        $apiCert      = Libs\RESTLib::FetchClientCertificate();
+        $remoteIp     = Libs\RESTLib::FetchUserAgentIP();
+        $iliasClient  = Libs\RESTilias::FetchILIASClient();
 
-      // Delete all tokens/sessions that where given
-      Misc::FlowDeleteToken($apiKey, $apiSecret, $apiCert, $iliasClient, $remoteIp, $accessCode);
+        // Delete all tokens/sessions that where given
+        Misc::FlowDeleteToken($apiKey, $apiSecret, $apiCert, $iliasClient, $remoteIp, $accessCode);
 
-      // Show result of all actions
-      $app->success(null);
+        // Show result of all actions
+        $app->success(null);
+      }
+
+      // Catches missing parameter (from params())
+      catch (Libs\Exceptions\Parameter $e) {
+        $e->send(400);
+      }
+      // Catch unsupported response_type (from Flow*())
+      catch (Exceptions\ResponseType $e) {
+        $e->send(400);
+      }
+      // Catch invalid request (from Flow*())
+      catch (Libs\Exceptions\InvalidRequest $e) {
+        $e->send(400);
+      }
+      //  Catch if access is denied, by user of due to client settings (from Flow*())
+      catch (Exceptions\Denied $e) {
+        $e->send(401);
+      }
+      // Catch if given (auth-code) token was invalid (from Flow*())
+      catch (Exceptions\TokenInvalid $e) {
+        $e->send(401);
+      }
+      // Catch invalid oauth2 client authorization/credentials (from Flow*())
+      catch (Exceptions\UnauthorizedClient $e) {
+        $e->send(401);
+      }
+      // Catch invalid resource-owner credentials (from Flow*())
+      catch (Exceptions\Credentials $e) {
+        $e->send(401);
+      }
+      // Catch database lookup error (from Flow*())
+      catch (Libs\Exceptions\Database $e) {
+        $e->send(500);
+      }
     });
 
 
@@ -332,18 +406,49 @@ $app->group('/v2', function () use ($app) {
      *  }
      */
     $app->get('/info', function () use ($app) {
-      // Fetch parameters required for all routes
-      $request      = $app->request();
-      $apiKey       = $request->params('api_key', null, true);
-      $apiSecret    = $request->params('api_secret');
-      $token        = $request->params('token', null, true);
-      $apiCert      = Libs\RESTLib::FetchClientCertificate();
-      $remoteIp     = Libs\RESTLib::FetchUserAgentIP();
-      $iliasClient  = Libs\RESTilias::FetchILIASClient();
+      try {
+        // Fetch parameters required for all routes
+        $request      = $app->request();
+        $apiKey       = $request->params('api_key', null, true);
+        $apiSecret    = $request->params('api_secret');
+        $token        = $request->params('token', null, true);
+        $apiCert      = Libs\RESTLib::FetchClientCertificate();
+        $remoteIp     = Libs\RESTLib::FetchUserAgentIP();
+        $iliasClient  = Libs\RESTilias::FetchILIASClient();
 
-      // Generate token-info data
-      $data         = Misc::FlowTokenInfo($apiKey, $apiSecret, $apiCert, $iliasClient, $remoteIp, $token);
-      $app->success($data);
+        // Generate token-info data
+        $data         = Misc::FlowTokenInfo($apiKey, $apiSecret, $apiCert, $iliasClient, $remoteIp, $token);
+        $app->success($data);
+      }
+
+      // Catches missing parameter (from params())
+      catch (Libs\Exceptions\Parameter $e) {
+        $e->send(400);
+      }
+      // Catch invalid request (from Flow*())
+      catch (Libs\Exceptions\InvalidRequest $e) {
+        $e->send(400);
+      }
+      //  Catch if access is denied, by user of due to client settings (from Flow*())
+      catch (Exceptions\Denied $e) {
+        $e->send(401);
+      }
+      // Catch if given (auth-code) token was invalid (from Flow*())
+      catch (Exceptions\TokenInvalid $e) {
+        $e->send(401);
+      }
+      // Catch invalid oauth2 client authorization/credentials (from Flow*())
+      catch (Exceptions\UnauthorizedClient $e) {
+        $e->send(401);
+      }
+      // Catch invalid resource-owner credentials (from Flow*())
+      catch (Exceptions\Credentials $e) {
+        $e->send(401);
+      }
+      // Catch database lookup error (from Flow*())
+      catch (Libs\Exceptions\Database $e) {
+        $e->send(500);
+      }
     });
   // End-Of /oauth2-group
   });
@@ -394,8 +499,28 @@ $app->group('/v2', function () use ($app) {
         $app->success($data);
       }
 
-      // Catch all generated exceptions
-      catch (Libs\RESTException $e) {
+      // Catches missing parameter (from params())
+      catch (Libs\Exceptions\Parameter $e) {
+        $e->send(400);
+      }
+      // Catch invalid request (from Flow*())
+      catch (Libs\Exceptions\InvalidRequest $e) {
+        $e->send(400);
+      }
+      //  Catch if access is denied, by user of due to client settings (from Flow*())
+      catch (Exceptions\Denied $e) {
+        $e->send(401);
+      }
+      // Catch invalid oauth2 client authorization/credentials (from Flow*())
+      catch (Exceptions\UnauthorizedClient $e) {
+        $e->send(401);
+      }
+      // Catch invalid resource-owner credentials (from Flow*())
+      catch (Exceptions\Credentials $e) {
+        $e->send(401);
+      }
+      // Catch database lookup error (from Flow*())
+      catch (Libs\Exceptions\Database $e) {
         $e->send(500);
       }
     });
@@ -457,8 +582,28 @@ $app->group('/v2', function () use ($app) {
           ));
       }
 
-      // Catch all generated exceptions
-      catch (Libs\RESTException $e) {
+      // Catches missing parameter (from params())
+      catch (Libs\Exceptions\Parameter $e) {
+        $e->send(400);
+      }
+      // Catch invalid request (from Flow*())
+      catch (Libs\Exceptions\InvalidRequest $e) {
+        $e->send(400);
+      }
+      //  Catch if access is denied, by user of due to client settings (from Flow*())
+      catch (Exceptions\Denied $e) {
+        $e->send(401);
+      }
+      // Catch if given (auth-code) token was invalid (from Flow*())
+      catch (Exceptions\TokenInvalid $e) {
+        $e->send(401);
+      }
+      // Catch invalid oauth2 client authorization/credentials (from Flow*())
+      catch (Exceptions\UnauthorizedClient $e) {
+        $e->send(401);
+      }
+      // Catch database lookup error (from Flow*())
+      catch (Libs\Exceptions\Database $e) {
         $e->send(500);
       }
     });
@@ -480,22 +625,45 @@ $app->group('/v2', function () use ($app) {
      *  HTTP 1.1/OK 200
      */
     $app->delete('/session', function () use ($app) {
-      // Fetch parameters required for all routes
-      $request      = $app->request();
-      $apiKey       = $request->params('api_key', null, true);
-      $apiSecret    = $request->params('api_secret');
-      $userId       = $request->params('user', null, true);
-      $token        = $request->params('token', null, true);
-      $sessionID    = $request->params('session', null, true);
-      $apiCert      = Libs\RESTLib::FetchClientCertificate();
-      $remoteIp     = Libs\RESTLib::FetchUserAgentIP();
-      $iliasClient  = Libs\RESTilias::FetchILIASClient();
+      try {
+        // Fetch parameters required for all routes
+        $request      = $app->request();
+        $apiKey       = $request->params('api_key', null, true);
+        $apiSecret    = $request->params('api_secret');
+        $userId       = $request->params('user', null, true);
+        $token        = $request->params('token', null, true);
+        $sessionID    = $request->params('session', null, true);
+        $apiCert      = Libs\RESTLib::FetchClientCertificate();
+        $remoteIp     = Libs\RESTLib::FetchUserAgentIP();
+        $iliasClient  = Libs\RESTilias::FetchILIASClient();
 
-      // Check client-credentials etc. and delete session afterwards
-      Common::FlowDeleteSession($apiKey, $apiSecret, $apiCert, $remoteIp, $userId, $token, $sessionID);
+        // Check client-credentials etc. and delete session afterwards
+        Common::FlowDeleteSession($apiKey, $apiSecret, $apiCert, $remoteIp, $userId, $token, $sessionID);
 
-      // Show result of all actions
-      $app->success(null);
+        // Show result of all actions
+        $app->success(null);
+      }
+
+      // Catches missing parameter (from params())
+      catch (Libs\Exceptions\Parameter $e) {
+        $e->send(400);
+      }
+      // Catch invalid request (from Flow*())
+      catch (Libs\Exceptions\InvalidRequest $e) {
+        $e->send(400);
+      }
+      //  Catch if access is denied, by user of due to client settings (from Flow*())
+      catch (Exceptions\Denied $e) {
+        $e->send(401);
+      }
+      // Catch invalid oauth2 client authorization/credentials (from Flow*())
+      catch (Exceptions\UnauthorizedClient $e) {
+        $e->send(401);
+      }
+      // Catch database lookup error (from Flow*())
+      catch (Libs\Exceptions\Database $e) {
+        $e->send(500);
+      }
     });
   });
   // End-Of /bridge-group

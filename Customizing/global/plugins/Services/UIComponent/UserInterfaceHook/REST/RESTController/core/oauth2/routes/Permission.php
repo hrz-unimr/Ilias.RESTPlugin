@@ -91,6 +91,11 @@ $app->group('/v2', function () use ($app) {
       catch (Libs\Exceptions\Parameter $e) {
         $e->send(400);
       }
+
+      // Catch database error (Should never happen, unless maybe no oauth2 clients exist...)
+      catch (Libs\Exceptions\Database $e) {
+        $e->send(500);
+      }
     });
 
 

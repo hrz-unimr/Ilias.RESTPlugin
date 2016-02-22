@@ -75,7 +75,7 @@ $app->group('/v2', function () use ($app) {
 
       // Catch database error (Should never happen, unless maybe no oauth2 clients exist...)
       catch (Libs\Exceptions\Database $e) {
-        $app->success(null);
+        $app->success(array());
       }
     });
 
@@ -187,8 +187,8 @@ $app->group('/v2', function () use ($app) {
           $app->halt(500, Client::MSG_EXISTS);
       }
 
-      // Catch missing parameters (Libs\Exceptions\Parameter)
-      catch (Libs\RESTException $e) {
+      // Catch databases error (eg. client could not be created)
+      catch (Libs\Exceptions\Database $e) {
         $e->send(500);
       }
       // Catch missing parameter
@@ -247,8 +247,8 @@ $app->group('/v2', function () use ($app) {
           $app->halt(500, Client::MSG_NOT_UPDATED);
       }
 
-      // Catch missing parameters (Libs\Exceptions\Parameter)
-      catch (Libs\RESTException $e) {
+      // Catch databases error (eg. client could not be found/updated)
+      catch (Libs\Exceptions\Database $e) {
         $e->send(500);
       }
     });

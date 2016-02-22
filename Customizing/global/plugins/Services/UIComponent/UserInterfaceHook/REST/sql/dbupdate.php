@@ -9,28 +9,30 @@
 <#1>
 <?php
   $fields = array(
-    'id' => array(
-      'type'    => 'integer',
-      'length'  => 4,
-      'notnull' => true
+    'id'            => array(
+      'type'        => 'integer',
+      'length'      => 4,
+      'unsigned'    => 1,
+      'notnull'     => true
     ),
-    'setting_name' => array(
-      'type'    => 'text',
-      'length'  => 1000,
-      'fixed'   => false,
-      'notnull' => true
+    'setting_name'  => array(
+      'type'        => 'text',
+      'length'      => 128,
+      'fixed'       => false,
+      'notnull'     => true
     ),
     'setting_value' => array(
-      'type'    => 'text',
-      'length'  => 1000,
-      'fixed'   => false,
-      'notnull' => false
+      'type'        => 'text',
+      'length'      => 1024,
+      'fixed'       => false,
+      'notnull'     => false
     )
   );
   $ilDB->createTable('ui_uihk_rest_config', $fields, true);
 
   $ilDB->addPrimaryKey('ui_uihk_rest_config', array('id'));
   $ilDB->manipulate('ALTER TABLE ui_uihk_rest_config CHANGE id id INT NOT NULL AUTO_INCREMENT');
+  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_config ADD UNIQUE (setting_name)');
 
   global $ilLog;
   $ilLog->write('Plugin REST -> DB-Update #1: Created ui_uihk_rest_config.');
@@ -103,31 +105,31 @@
     ),
     'api_key' => array(
       'type'    => 'text',
-      'length'  => 128,
+      'length'  => 256,
       'fixed'   => false,
       'notnull' => true
     ),
     'api_secret' => array(
       'type'    => 'text',
-      'length'  => 128,
+      'length'  => 256,
       'fixed'   => false,
       'notnull' => false
     ),
     'cert_serial' => array(
       'type'    => 'text',
-      'length'  => 128,
+      'length'  => 256,
       'fixed'   => false,
       'notnull' => false
     ),
     'cert_issuer' => array(
       'type'    => 'text',
-      'length'  => 128,
+      'length'  => 256,
       'fixed'   => false,
       'notnull' => false
     ),
     'cert_subject' => array(
       'type'    => 'text',
-      'length'  => 128,
+      'length'  => 256,
       'fixed'   => false,
       'notnull' => false
     ),
@@ -139,7 +141,7 @@
     ),
     'consent_message' => array(
       'type'    => 'text',
-      'length'  => 4000,
+      'length'  => 4096,
       'fixed'   => false,
       'notnull' => false
     ),
@@ -175,7 +177,7 @@
     ),
     'ips' => array(
       'type'    => 'text',
-      'length'  => 128,
+      'length'  => 256,
       'fixed'   => false,
       'notnull' => false
     ),
@@ -193,7 +195,7 @@
     ),
     'description' => array(
       'type'    => 'text',
-      'length'  => 4000,
+      'length'  => 4096,
       'fixed'   => false,
       'notnull' => false,
       'default' => ''
@@ -203,6 +205,7 @@
 
   $ilDB->addPrimaryKey('ui_uihk_rest_client', array('id'));
   $ilDB->manipulate('ALTER TABLE ui_uihk_rest_client CHANGE id id INT NOT NULL AUTO_INCREMENT');
+  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_client ADD UNIQUE (api_key)');
 
   global $ilLog;
   $ilLog->write('Plugin REST -> DB-Update #3: Created ui_uihk_rest_client.');
@@ -239,7 +242,7 @@
     ),
     'pattern' => array(
       'type'    => 'text',
-      'length'  => 512,
+      'length'  => 256,
       'fixed'   => false,
       'notnull' => false
     ),
@@ -347,6 +350,8 @@
 
   $ilDB->addPrimaryKey('ui_uihk_rest_refresh', array('id'));
   $ilDB->manipulate('ALTER TABLE ui_uihk_rest_refresh CHANGE id id INT NOT NULL AUTO_INCREMENT');
+  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_refresh ADD UNIQUE (hash)');
+  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_refresh ADD UNIQUE (token)');
 
   global $ilLog;
   $ilLog->write('Plugin REST -> DB-Update #7: Created ui_uihk_rest_refresh.');
@@ -361,7 +366,7 @@
     ),
     'hash' => array(
       'type'    => 'text',
-      'length'  => 128,
+      'length'  => 256,
       'fixed'   => false,
       'notnull' => false
     ),
@@ -379,6 +384,8 @@
 
   $ilDB->addPrimaryKey('ui_uihk_rest_authcode',  array('id'));
   $ilDB->manipulate('ALTER TABLE ui_uihk_rest_authcode CHANGE id id INT NOT NULL AUTO_INCREMENT');
+  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_authcode ADD UNIQUE (hash)');
+  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_authcode ADD UNIQUE (token)');
 
   global $ilLog;
   $ilLog->write('Plugin REST -> DB-Update #8: Created ui_uihk_rest_authcode.');
@@ -393,7 +400,7 @@
     ),
     'hash' => array(
       'type'    => 'text',
-      'length'  => 128,
+      'length'  => 256,
       'fixed'   => false,
       'notnull' => false
     ),
@@ -411,6 +418,8 @@
 
   $ilDB->addPrimaryKey('ui_uihk_rest_access',  array('id'));
   $ilDB->manipulate('ALTER TABLE ui_uihk_rest_access CHANGE id id INT NOT NULL AUTO_INCREMENT');
+  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_access ADD UNIQUE (hash)');
+  $ilDB->manipulate('ALTER TABLE ui_uihk_rest_access ADD UNIQUE (token)');
 
   global $ilLog;
   $ilLog->write('Plugin REST -> DB-Update #9: Created ui_uihk_rest_access.');

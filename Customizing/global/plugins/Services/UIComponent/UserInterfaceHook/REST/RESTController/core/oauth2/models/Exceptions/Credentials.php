@@ -19,4 +19,8 @@ use \RESTController\libs as Libs;
  * Parameters:
  *  @See Libs\RESTException for parameter description
  */
-class Credentials extends Libs\RESTException { }
+class Credentials extends Libs\RESTException {
+  // Error-Type used for redirection
+  // See https://tools.ietf.org/html/rfc6749#section-5.2
+  protected static $errorType = 'unauthorized_client';
+}

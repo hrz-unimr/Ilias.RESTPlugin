@@ -148,7 +148,7 @@ class Common extends Libs\RESTModel {
   public static function CheckClientCredentials($client, $apiSecret, $apiCert, $redirectUri) {
     // Check wether the client needs to be and can be authorized
     if (!$client->checkCredentials($apiSecret, $apiCert, $redirectUri))
-      throw new Exceptions\Denied(
+      throw new Exceptions\UnauthorizedClient(
         self::MSG_UNAUTHORIZED_CLIENT,
         self::ID_UNAUTHORIZED_CLIENT
       );
