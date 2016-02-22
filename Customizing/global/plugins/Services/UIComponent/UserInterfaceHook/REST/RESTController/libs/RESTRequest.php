@@ -9,8 +9,8 @@ namespace RESTController\libs;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires ../Slim/Http/Request
-use \RESTController\core\oauth2 as Auth;
-use \RESTController\core\oauth2\Tokens as Tokens;
+use \RESTController\core\oauth2_v2 as Auth;
+use \RESTController\core\oauth2_v2\Tokens as Tokens;
 
 
 /**

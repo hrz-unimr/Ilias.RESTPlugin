@@ -10,7 +10,7 @@ namespace RESTController\libs\Middleware;
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
 use \RESTController\database as Database;
-use \RESTController\core\oauth2\Tokens as Tokens;
+use \RESTController\core\oauth2_v2\Tokens as Tokens;
 
 
 /*

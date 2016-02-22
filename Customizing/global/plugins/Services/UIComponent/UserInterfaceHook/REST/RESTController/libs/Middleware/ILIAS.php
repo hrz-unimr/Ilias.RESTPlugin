@@ -9,7 +9,7 @@ namespace RESTController\libs\Middleware;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
-use \RESTController\core\oauth2 as Auth;
+use \RESTController\core\oauth2_v2 as Auth;
 
 
 /*
