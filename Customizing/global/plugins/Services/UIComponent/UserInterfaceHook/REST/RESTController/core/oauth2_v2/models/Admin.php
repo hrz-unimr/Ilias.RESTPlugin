@@ -13,16 +13,19 @@ use \RESTController\database as Database;
 
 
 /**
- * Class: Client
- *  Implementes some utility functions and variables for the /client routes.
+ * Class: Admin
+ *  Implementes some utility functions and variables for the /Admin routes.
  *  Mostly handles only minor preprocessing before delegating the work
- *  to the ui_uihk_rest_client database table implementation.
+ *  to the ui_uihk_rest_client, ui_uihk_rest_perm, ui_uihk_rest_config
+ *  database table implementation.
  */
-class Client extends Libs\RESTModel {
+class Admin extends Libs\RESTModel {
   // Allow to re-use status messages and codes
-  const MSG_NOT_DELETED = 'Client could not be deleted.';
-  const MSG_NOT_UPDATED = 'Client could not be updated.';
-  const MSG_EXISTS      = 'Could not add client, given clientId already exists. Use put for updating instead.';
+  const MSG_CLIENT_NOT_DELETED  = 'Client could not be deleted.';
+  const MSG_CLIENT_NOT_UPDATED  = 'Client could not be updated.';
+  const MSG_CLIENT_EXISTS       = 'Could not add client, given clientId already exists. Use put for updating instead.';
+  const MSG_PERM_NOT_DELETED    = 'Permission could not be deleted.';
+  const MSG_PERM_EXISTS         = 'Could not add permission, duplicate entry found.';
 
 
   /**
@@ -130,6 +133,43 @@ class Client extends Libs\RESTModel {
     }
 
     // Failed! (No parameter to update)
+    return false;
+  }
+
+
+  /**
+   * Function: InsertPermission($request)
+   *  Adds a new permission for a given oauth2 client to the database. Handles fetching request parameters
+   *  and doing some preprocessing and then delegates the rest to the database-table class.
+   *
+   * Parameters:
+   *  request <RESTRequest> - Restrequest to parse the parameters from
+   */
+  public static function InsertPermission($clientId, $request) {
+    // Fetch request-parameters (into table-row format)
+    $row        = array(
+      'api_id'  => intval($clientId),
+      'id'      => $request->params('id',       null),
+      'pattern' => $request->params('pattern',  null, true),
+      'verb'    => $request->params('verb',     null, true),
+    );
+
+    // Construct new table from given row/request-parameter
+    $permission = Database\RESTpermission::fromRow($row);
+    $id         = $row['id'];
+
+    // Check for duplicate entry
+    if ($permission->exists('api_id = {{api_id}} AND pattern = {{patern}} AND verb = {{verb}}'))
+      return false;
+
+    // Check if permissionId was given and this permission already exists?
+    if ($id == null || !Database\RESTpermission::existsByPrimary($id)) {
+      // Insert (and possibly generate new permissionId [its the primaryKey])
+      $permission->insert($id == null);
+      return $permission->getKey('id');
+    }
+
+    // Failed! (Permission with given id existed)
     return false;
   }
 }

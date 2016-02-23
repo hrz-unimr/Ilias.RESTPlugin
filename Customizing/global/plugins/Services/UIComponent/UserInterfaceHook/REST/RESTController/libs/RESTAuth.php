@@ -71,7 +71,11 @@ class RESTAuth {
    *  <String> - Reference (fully-quantified name of/) to the function that will be called
    */
   public static function checkScope($scope) {
-    return function() {
+    return function($getScope = false) use ($scope) {
+      // Get the scope (required to fetch route-information)
+      if ($getScope === true)
+        return $scope;
+
       try {
         // Fetch reference to RESTController
         $app = \RESTController\RESTController::getInstance();

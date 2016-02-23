@@ -268,52 +268,52 @@
 
   $ilDB->insert('ui_uihk_rest_perm', array(
     'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/v2/oauth2/clients'),
+    'pattern' => array('text', '/v2/admin/clients'),
     'verb'    => array('text', 'GET')
   ));
   $ilDB->insert('ui_uihk_rest_perm', array(
     'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/v2/oauth2/client/:id'),
+    'pattern' => array('text', '/v2/admin/client/:id'),
     'verb'    => array('text', 'GET')
   ));
   $ilDB->insert('ui_uihk_rest_perm', array(
     'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/v2/oauth2/client/'),
+    'pattern' => array('text', '/v2/admin/client/'),
     'verb'    => array('text', 'POST')
   ));
   $ilDB->insert('ui_uihk_rest_perm', array(
     'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/v2/oauth2/client/:id'),
+    'pattern' => array('text', '/v2/admin/client/:id'),
     'verb'    => array('text', 'PUT')
   ));
   $ilDB->insert('ui_uihk_rest_perm', array(
     'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/v2/oauth2/client/:id'),
+    'pattern' => array('text', '/v2/admin/client/:id'),
     'verb'    => array('text', 'DELETE')
   ));
   $ilDB->insert('ui_uihk_rest_perm', array(
     'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/v2/oauth2/config/:key'),
+    'pattern' => array('text', '/v2/admin/config/:key'),
     'verb'    => array('text', 'GET')
   ));
   $ilDB->insert('ui_uihk_rest_perm', array(
     'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/v2/oauth2/config/:key'),
+    'pattern' => array('text', '/v2/admin/config/:key'),
     'verb'    => array('text', 'PUT')
   ));
   $ilDB->insert('ui_uihk_rest_perm', array(
     'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/v2/oauth2/permissions/:clientId'),
+    'pattern' => array('text', '/v2/admin/permissions/:clientId'),
     'verb'    => array('text', 'GET')
   ));
   $ilDB->insert('ui_uihk_rest_perm', array(
     'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/v2/oauth2/permission/:clientId'),
+    'pattern' => array('text', '/v2/admin/permission/:clientId'),
     'verb'    => array('text', 'POST')
   ));
   $ilDB->insert('ui_uihk_rest_perm', array(
     'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/v2/oauth2/permission/:permisionId'),
+    'pattern' => array('text', '/v2/admin/permission/:permisionId'),
     'verb'    => array('text', 'DELETE')
   ));
 

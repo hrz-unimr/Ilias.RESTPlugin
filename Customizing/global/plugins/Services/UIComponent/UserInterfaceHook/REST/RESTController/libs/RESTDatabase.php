@@ -610,7 +610,7 @@ abstract class RESTDatabase {
     else {
       $class = self::getName();
       $primaryValue = $this->row[static::$primaryKey];
-      
+
       if ($primaryValue === false) {
         // Build safe where-clause
         $where = array();
