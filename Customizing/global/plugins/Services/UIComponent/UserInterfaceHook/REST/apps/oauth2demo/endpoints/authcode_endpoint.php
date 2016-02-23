@@ -43,6 +43,7 @@ if (isset($_GET['code'])){
     // Endpoint (url) used for curl call
     $url =  $subFolder. "/v2/oauth2/token";
 
+    //
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
@@ -51,43 +52,19 @@ if (isset($_GET['code'])){
     curl_setopt($ch, CURLOPT_HEADER, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post));
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-    $result = curl_exec($ch);
-    $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-    $header = substr($result, 0, $header_size);
-    $body = substr($result, $header_size);
-
-    //var_dump(curl_error($ch), curl_errno($ch));
-    //var_dump($body);
-    var_dump($result);
-    die;
-    curl_close($ch);  // Seems like good practice
-
-
-    // Construct and execute curl (REST) POST-request
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $restUrl);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postBody));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-    curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-
-    $curl_response = curl_exec($ch);
-
-    $info = curl_getinfo($ch);
-
+    $result       = curl_exec($ch);
+    $header_size  = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+    $header       = substr($result, 0, $header_size);
+    $body         = substr($result, $header_size);
     curl_close($ch);
 
-
-    print_r($curl_response); die;
-
     // Convert to array
-    $decoded = json_decode($curl_response, true);
+    $decoded = json_decode($body, true);
 
     ?>
     <h3>OAuth2 Token via Authorization Code Workflow Retrieved!</h3>
-    <pre>Access-Token: <?php echo ($decoded["access_token"]) ?: "[ No Data ]"; ?></pre>
-    <pre>Refresh-Token: <?php echo ($decoded["refresh_token"]) ?: "[ No Data ]"; ?></pre>
+    <pre>Access-Token: <?php echo (isset($decoded["access_token"]))   ? $decoded["access_token"]  : "[ No Data ]"; ?></pre>
+    <pre>Refresh-Token: <?php echo (isset($decoded["refresh_token"])) ? $decoded["refresh_token"] : "[ No Data ]"; ?></pre>
     <h4> The client can continue now making further API requests with the obtained bearer token.</h4>
     <?php
   }
