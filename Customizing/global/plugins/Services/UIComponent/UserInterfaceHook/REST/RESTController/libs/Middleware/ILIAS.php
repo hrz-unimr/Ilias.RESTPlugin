@@ -68,6 +68,8 @@ class ILIAS {
    */
   protected static function checkAdmin($accessToken) {
     // Check if given user has admin-role
+    $app = \RESTController\RESTController::getInstance();
+    $app->log->debug(print_r($accessToken,true));
     $userId = $accessToken->getUserId();
     if (!Libs\RESTilias::isAdmin($userId))
       $app->halt(401, self::MSG_NO_ADMIN, self::ID_NO_ADMIN);

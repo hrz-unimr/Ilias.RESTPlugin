@@ -32,11 +32,11 @@ var app = angular.module('myApp', [
  */
 app.constant('version',             '1.3');                               // Application version
 app.constant('apiKey',              'apollon');                           // API-Key used to log into admin-panel (via username/password)
-app.constant('restIliasLoginURL',   '/v1/ilauth/rtoken2bearer');          // rToken to Bearer-Token Endpoint
-app.constant('restTokenURL',        '/v1/oauth2/token');                  // Bearer-Token from Username, Password, API-Key pair Endpoint
-app.constant('restClientsURL',      '/clients');                          // Client-list Endpoint
-app.constant('restClientURL',       '/clients/:id');                      // View / Edit client Endpoint
-app.constant('restRoutesURL',       '/routes?middleware=true');                           // Routes Endpoint
+app.constant('restIliasLoginURL',  '/v2/bridge/ilias' );//'/v1/ilauth/rtoken2bearer');          // rToken to Bearer-Token Endpoint
+app.constant('restTokenURL',        '/v2/oauth2/token');                  // Bearer-Token from Username, Password, API-Key pair Endpoint
+app.constant('restClientsURL',      '/v2/admin/clients');                          // Client-list Endpoint
+app.constant('restClientURL',       '/v2/admin/clients/:id');                      // View / Edit client Endpoint
+app.constant('restRoutesURL',       '/v2/util/routes');                   // Routes Endpoint
 
 
 /*

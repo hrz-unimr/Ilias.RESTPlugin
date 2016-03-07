@@ -276,7 +276,7 @@ class Common extends Libs\RESTModel {
       'access_token'  => $access->getTokenString(),
       'refresh_token' => (isset($refresh)) ? $refresh->getTokenString() : $withRefresh,
       'expires_in'    => $access->getRemainingTime(),
-      'token_type'    => 'Bearer',
+      'token_type'    => 'bearer',
       'scope'         => (isset($scope) && strlen($scope) > 0) ? $scope : null
     );
   }

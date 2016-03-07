@@ -291,7 +291,7 @@ class Authorize extends Libs\RESTModel {
           '%s?access_token=%s&token_type=%s&expires_in=%s&scope=%s&state=%s',
           $redirectUri,
           $access->getTokenString(),
-          'Bearer',
+          'bearer',
           $access->getRemainingTime(),
           $scope,
           $state
