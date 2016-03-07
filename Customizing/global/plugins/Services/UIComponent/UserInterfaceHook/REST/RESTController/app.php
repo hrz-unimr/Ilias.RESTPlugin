@@ -7,245 +7,372 @@
  */
 namespace RESTController;
 
-
 // Include SLIM-Framework
 require_once('Slim/Slim.php');
 
 
 /**
- * This is the RESTController Slim-Application
- * Handles all REST related logic and uses ILIAS
- * Services to fetch requested data.
+ * Class: RESTController
+ *  This is the RESTController Slim-Application
+ *  Handles all REST related logic and uses ILIAS
+ *  Services to fetch requested data.
  *
- *  Usage:
- *   require_once("<PATH-TO-THIS-FILE>". "/app.php");
- *   \RESTController\RESTController::registerAutoloader();
- *   $app = new \RESTController\RESTController("<PATH-TO-THIS-FILE>");
- *   $app->run();
+ * Usage:
+ *  require_once("<PATH-TO-THIS-FILE>". "/app.php");
+ *  \RESTController\RESTController::registerAutoloader();
+ *  $app = new \RESTController\RESTController("<PATH-TO-THIS-FILE>");
+ *  $app->run();
  */
 class RESTController extends \Slim\Slim {
-
-    /**
-     * List of default REST error-codes
-     *  Extensions are allowed to create their own error-codes.
-     *  Using a unique string seems to be an easier solution than assigning unique numbers.
-     */
-     const ID_NO_ROUTE = 'RESTController\RESTController::ID_NO_ROUTE';
+  // Allow to re-use status messages and codes
+  const MSG_NO_ROUTE  = 'There is no route matching this URI!';
+  const ID_NO_ROUTE   = 'RESTController\RESTController::ID_NO_ROUTE';
 
 
-    /**
-     * PSR-0 autoloader for RESTController classes
-     *  Automatically adds a "models" subname into the namespace of \RESTController\core und
-     *  @See \Slim\Slim::autoload(...)
-     *
-     * @param $className - Fully quantified classname (includes namespace) of a class that needs to be loaded
-     */
-    public static function autoload($className) {
-        // Fetch sub namespaces
-        $subNames = explode('\\', $className);
+  /**
+   * Function: autoload($classname)
+   *  PSR-0 autoloader for RESTController classes.
+   *  Automatically adds a "models" subname into the namespace of \RESTController\core und
+   *  @See \Slim\Slim::autoload(...)
+   *  Register this outload via RESTController::registerAutoloader().
+   *
+   * Parameters:
+   *  $className <String> - Fully quantified classname (includes namespace) of a class that needs to be loaded
+   */
+  public static function autoload($className) {
+    // Fetch sub namespaces
+    $subNames = explode('\\', $className);
 
-        // Only load classes inside own namespace (RESTController)
-        if ($subNames[0] === __NAMESPACE__) {
-            // (Core-) Extentions can leave-out the "models" subname in their namespace
-            if ($subNames[1] == 'extensions' || $subNames[1] == 'core') {
-                array_splice($subNames, 3, 0, array('models'));
-                array_shift($subNames);
-                parent::autoload(implode($subNames, '\\'));
+    // Only load classes inside RESTController namespace
+    if ($subNames[0] === __NAMESPACE__) {
+      // (Core-) Extentions can leave-out the "models" subname in their namespace
+      if ($subNames[1] == 'extensions' || $subNames[1] == 'core') {
+        // Add 'Models' to class namespace
+        array_splice($subNames, 3, 0, array('models'));
+        array_shift($subNames);
+        parent::autoload(implode($subNames, '\\'));
 
-                // Fallback
-                if (!class_exists($className, false))
-                    parent::autoload(substr($className, strlen(__NAMESPACE__)));
-            }
-            // Everything else gets forwarded directly to Slim
-            else
-                parent::autoload(substr($className, strlen(__NAMESPACE__)));
-        }
-        // Use Slim-Frameworks autoloder otherwise
-        else
-            parent::autoload($className);
+        // Fallback (without appending 'models')
+        if (!class_exists($className, false))
+          parent::autoload(substr($className, strlen(__NAMESPACE__)));
+      }
+      // Everything else gets forwarded directly to Slim
+      else
+        parent::autoload(substr($className, strlen(__NAMESPACE__)));
     }
 
-
-    /**
-     * Register PSR-0 autoloader
-     *  Call this before doing $app = new RESTController();
-     */
-    public static function registerAutoloader() {
-        spl_autoload_register(__NAMESPACE__.'\\RESTController::autoload');
-    }
+    // Use Slim-Frameworks autoloder for non-RESTController classes
+    else
+      parent::autoload($className);
+  }
 
 
-    /**
-     *
-     */
-    protected function setCustomContainers() {
-        // Use custom Router
-        $this->container->singleton('router', function ($c) {
-            return new libs\RESTRouter();
-        });
-
-        // Use custom Request
-        $this->container->singleton('request', function ($c) {
-            return new libs\RESTRequest($this->environment());
-        });
-
-        // Use custom Request
-        $this->container->singleton('response', function ($c) {
-            return new libs\RESTResponse();
-        });
-
-        // Use custom log-writer
-        $this->container->singleton('logWriter', function ($c) {
-            // Log directory
-            $restLog = ILIAS_LOG_DIR.'/restplugin.log';
-
-            // Create a new file?
-            if (!file_exists($restLog)) {
-                $fh = fopen($restLog, 'w');
-                fclose($fh);
-            }
-
-            // Use own file or use ILIAS for logging
-            if (!is_writable($restLog)) {
-                global $ilLog;
-                $ilLog->write('Plugin REST -> Warning: Log file ' . $restLog . ' is not write-able!');
-
-                return $ilLog;
-            }
-
-            return new \Slim\LogWriter(fopen($restLog, 'a'));
-        });
-    }
+  /**
+   * Function: registerAutoloader()
+   *  Register PSR-0 autoloader. Call this before doing $app = new RESTController();
+   */
+  public static function registerAutoloader() {
+    // Attach RESTController autoloader
+    spl_autoload_register(__NAMESPACE__.'\\RESTController::autoload');
+  }
 
 
-    /**
-     *
-     */
-    protected function displayError($msg = '', $code = '', $file = '', $line = '', $trace = '') {
-        // Format data
-        $file = str_replace('/', '\\', $file);
-        $trace = str_replace('/', '\\', $trace);
+  /**
+   * Function: setCustomContainers()
+   *  Attach custom 'containers' (singleton-instances) for
+   *  logging, reading requests, writing responses and
+   *  fetching available routes.
+   */
+  protected function setCustomContainers() {
+    // Attach our custom RESTRouter, RESTRequest, RESTResponse
+    $this->container->singleton('router',   function ($c) { return new libs\RESTRouter(); });
+    $this->container->singleton('response', function ($c) { return new libs\RESTResponse(); });
+    $this->container->singleton('request',  function ($c) { return new libs\RESTRequest($this->environment()); });
 
-        // Generate standard message
-        $error = array(
-            'msg' => 'An error occured while handling this route!',
-            'data' => array(
-                'message' => $msg,
-                'code' => $code,
-                'file' => $file,
-                'line' => $line,
-                'trace' => $trace
-            )
-        );
+    // Configure custom LogWriter
+    /*
+    $this->container->singleton('logWriter', function ($c) {
+      // Log to this file
+      $restLog = ILIAS_LOG_DIR . '/restplugin.log'; // TODO: FIX!
 
-        // Log error to file
-        $this->log->critical($error);
+      // Does the file need to be created first?
+      if (!file_exists($restLog)) {
+        $fh = fopen($restLog, 'w');
+        fclose($fh);
+      }
 
-        // Display error
+      // File needs to be writeable...
+      if (!is_writable($restLog))
+        $this->halt(500, 'Can\'t write to log-file: ' . $restLog);
+
+      // Use SLIMs LogWriter with custom file
+      return new \Slim\LogWriter(fopen($restLog, 'a'));
+    });
+    */
+  }
+
+
+  /**
+   * Function: setErrorHandlers()
+   *  Registers both a custom error-handler for errors/exceptions caughts by
+   *  SLIM as well as registering a shutdown function for other FATAL errors.
+   *  Additionally also disable PHP's display_errors flag!
+   */
+  protected function setErrorHandlers() {
+    // Set default error-handler for exceptions caught by SLIM
+    $this->error(function (\Exception $error) {
+      // Stop executing on error
+      $this->halt(500, $this->getError($error));
+    });
+
+    // Set default error-handler for any error/exception not caught by SLIM
+    ini_set('display_errors', false);
+    register_shutdown_function(function () {
+      // Fetch latch error
+      $error = error_get_last();
+
+      // Check wether the error should to be displayed
+      $allowed = array(
+        E_ERROR         => 'E_ERROR',
+        E_PARSE         => 'E_PARSE',
+        E_CORE_ERROR    => 'E_CORE_ERROR',
+        E_COMPILE_ERROR => 'E_COMPILE_ERROR',
+        E_USER_ERROR    => 'E_USER_ERROR'
+      );
+      $name = $allowed[$error['type']];
+
+      // Log and display error?
+      if ($name) {
+        // Output formated error via echo
         header('content-type: application/json');
-        echo json_encode($error);
+        echo json_encode($this->getError($error));
+      }
+    });
+  }
+
+
+  /**
+   * Constructor: RESTController($appDirectory, $userSettings)
+   *  Creates a new instance of the RESTController. There should always
+   *  be only one instance and a reference can be fetches via:
+   *   RESTController::getInstance()
+   *
+   * Parameters:
+   *  $appDirectory <String> - Directory in which the app.php is contained
+   *  $userSettings <Array[Mixed]> - Associative array of application settings
+   */
+  public function __construct($appDirectory, array $userSettings = array()) {
+    // Call parent (SLIM) constructor
+    parent::__construct($userSettings);
+
+    // Setup custom router, request- & response classes
+    $this->setCustomContainers();
+
+    // Add Content-Type middleware (support for JSON requests)
+    $contentType = new \Slim\Middleware\ContentTypes();
+    $this->add($contentType);
+
+    // Set default template base-directory
+    $this->view()->setTemplatesDirectory($appDirectory);
+
+    // Set default 404 template
+    $this->notFound(function () { $this->halt(404, self::MSG_NO_ROUTE, self::ID_NO_ROUTE); });
+
+    // Setup error-handler
+    $this->setErrorHandlers();
+
+    // Disable fancy debug-messages but enable logging
+    $this->config('debug', false);
+    $this->log->setEnabled(true);
+    $this->log->setLevel(\Slim\Log::DEBUG);
+
+    // Apped useful information to (global) slim-environment
+    $env = $this->environment();
+    $env['client_id']     = CLIENT_ID;
+    $env['app_directory'] = $appDirectory;
+  }
+
+
+  /**
+   * Function: Run()
+   *  This method starts the actual RESTController application, including the middleware stack#
+   *  and the core Slim application, which includes route-handling, etc.
+   */
+  public function run() {
+    // Log each incoming rest request
+    $this->log->info('REST call from ' . $this->request()->getIp() . ' at ' . date('d/m/Y, H:i:s', time()));
+
+    // Make $this available in all included models/routes
+    $app = self::getInstance();
+
+    // Initialize ILIAS (disabled any output)
+    if (!defined('CLIENT_ID')) {
+      // Prevent any output
+      ob_start();
+
+      // Fetch client_id from access-token if available
+      $request  = $app->request();
+      $client   = libs\RESTilias::getTokenClient($request);
+
+      // Initialize ilias with given client (null means: the client given as GET or COOKIE like normal)
+      libs\RESTilias::initILIAS($client);
+
+      // Clear all output generated by ILIAS
+      ob_end_clean();
     }
 
+    // Load core routes
+    foreach (glob(realpath(__DIR__).'/core/*/routes/*.php') as $filename)
+      include_once($filename);
 
-    /**
-     * Constructor
-     *
-     * @param $appDirectory - Directory in which the app.php is contained
-     * @param $userSettings - Associative array of application settings
-     */
-    public function __construct($appDirectory, array $userSettings = array()) {
-        parent::__construct($userSettings);
+    // Load extension routes
+    foreach (glob(realpath(__DIR__).'/extensions/*/routes/*.php') as $filename)
+      include_once($filename);
 
-        // Setup custom router, request- & response classes
-        $this->setCustomContainers();
-
-        // Add Content-Type middleware (mostly for JSON)
-        $contentType = new \Slim\Middleware\ContentTypes();
-        $this->add($contentType);
-
-        // Set template for current view and new views
-        $this->view()->setTemplatesDirectory($appDirectory);
-
-        // Set 404 fallback
-        $this->notFound(function () {
-            $this->halt(404, 'There is no route matching this URI!', self::ID_NO_ROUTE);
-        });
-
-        // Set error-handler
-        $this->error(function (\Exception $error) {
-            $this->displayError($error->getMessage(), $error->getCode(), $error->getFile(), $error->getLine(), $error->getTraceAsString());
-        });
-
-        // Set error.handler for fatal errors
-        ini_set('display_errors', 'off');
-        register_shutdown_function(function () {
-            // Fetch errors
-            $err = error_get_last();
-            $allowed = array(
-                E_ERROR => 'E_ERROR',
-                E_PARSE => 'E_PARSE',
-                E_CORE_ERROR => 'E_CORE_ERROR',
-                E_COMPILE_ERROR => 'E_COMPILE_ERROR',
-                E_USER_ERROR => 'E_USER_ERROR'
-            );
-            $errName = $allowed[$err['type']];
-
-            // Display error
-            if ($errName)
-                $this->displayError($err['message'], $err['type'], $err['file'], $err['line'], sprintf('\'%s\' errors can\'t be traced.', $errName));
-
-        });
-
-        // Disable fancy debug-messages but enable logging
-        $this->config('debug', false);
-        $this->log->setEnabled(true);
-        $this->log->setLevel(\Slim\Log::DEBUG);
-
-        // Global information that should be available to all routes/models
-        $env = $this->environment();
-        $env['client_id'] = CLIENT_ID;
-        $env['app_directory'] = $appDirectory;
-    }
+    // Start the SLIM application
+    parent::run();
+  }
 
 
-    /**
-     * Run
-     *
-     * This method invokes the middleware stack, including the core Slim application;
-     * the result is an array of HTTP status, header, and body. These three items
-     * are returned to the HTTP client.
-     */
-    public function run() {
-        // Log some debug usage information
-        $this->log->info('REST call from ' . $_SERVER['REMOTE_ADDR'] . ' at ' . date('d/m/Y,H:i:s', time()));
+  /**
+   * Function: displayError($msg, $code, $file, $line, $trace)
+   *  Send the error-message given by the parameters to the clients
+   *  and add a (critical) log-message to the active logfile.
+   *
+   * Parameters:
+   *  $msg <String> - [Optional] Description of error/exception
+   *  $code <Integer> - [Optional] Code of error/exception
+   *  $file <String> - [Optional] File where the error/exception occured
+   *  $line <Integer> - [Optional] Line in file where the error/exception occured
+   *  $trace <String> - [Optional] Full (back-)trace (string) of error/exception
+   */
+  public function getError($error) {
+    if ($error instanceof libs\RESTException)
+      $error = array(
+        'message'   => $error->getRESTMessage(),
+        'status'    => $error->getRESTCode(),
+        'data'      => $error->getRESTData(),
+        'error'     => array(
+          'message' => $error->getMessage(),
+          'code'    => $error->getCode(),
+          'file'    => str_replace('/', '\\', $error->getFile()),
+          'line'    => $error->getLine(),
+          'trace'   => str_replace('/', '\\', $error->getTraceAsString())
+        )
+      );
 
-        // Make $this available in all included models/routes
-        $app = self::getInstance();
+    elseif ($error instanceof \Exception)
+      $error = array(
+        'message'   => 'An exception was thrown!',
+        'status'    => '\Exception',
+        'error'     => array(
+          'message' => $error->getMessage(),
+          'code'    => $error->getCode(),
+          'file'    => str_replace('/', '\\', $error->getFile()),
+          'line'    => $error->getLine(),
+          'trace'   => str_replace('/', '\\', $error->getTraceAsString())
+        )
+      );
 
-        // Load core routes
-        foreach (glob(realpath(__DIR__).'/core/*/routes/*.php') as $filename)
-            include_once($filename);
+    elseif (is_array($error))
+      $error = array(
+        'message'   => 'There is an error in the executed PHP-Script.',
+        'status'    => 'FATAL',
+        'error'     => array(
+          'message' => $error['message'],
+          'code'    => $error['type'],
+          'file'    => str_replace('/', '\\', $error['file']),
+          'line'    => $error['line'],
+          'trace'   => null
+        )
+      );
 
-        // Load extension routes
-        foreach (glob(realpath(__DIR__).'/extensions/*/routes/*.php') as $filename)
-            include_once($filename);
+    else
+      $error = array(
+        'message'   => 'Unkown error...',
+        'status'    => 'UNKNOWN'
+      );
 
-        parent::run();
-    }
+    // Log error to file
+    $this->log->critical($error);
 
-
-    /**
-     *
-     */
-    public function success($dataOrMsg) {
-        $this->halt(200, $dataOrMsg, null);
-    }
+    // Return error-object
+    return $error;
+  }
 
 
-    /**
-     *
-     */
-    public function halt($httpCode, $dataOrMsg = null, $status = 'halt') {
-        parent::halt($httpCode, libs\RESTLib::responseObject($dataOrMsg, $status));
-    }
+  /**
+   * Function: success(($data)
+   *  This function should be used by any route that wants to return
+   *  data after a successfull query. The application will be terminated
+   *  afterwards, so make sure any required cleanup happens before
+   *  a call to success(...).
+   *
+   *  @See RESTController->halt(...) for additional notes!
+   *
+   * Parameters:
+   *  $data <String>/<Array[Mixed]> -
+   */
+  public function success($data) {
+    // Delegate to halt(...)
+    $this->halt(200, $data, null);
+  }
+
+
+  /**
+   * Function: halt(($httpStatus, $data, $restStatus)
+   *  This function should be used by any route that wants to return
+   *  data or any kind of information after query/request has failed
+   *  for some reason . The application will be terminated afterwards,
+   *  so make sure any required cleanup happens before a call to halt(...).
+   *
+   *
+   * Note 1:
+   *  It is important to note, that this will imidiately send the given $data
+   *  (as JSON, unless changed via response->setFormat(...)) and in addition
+   *  will cause the application to be terminated by internally throwing
+   * 'Slim\Exception\Stop'. This is to prevent any further data from 'leaking'
+   *  to the client, which could invalidate the transmitted JSON object.
+   *  In case of failure this also negates the requirement to manually invoke
+   *  die() or exit() each time...
+   *
+   * Note 2:
+   *  In the rare cases where this behaviour might not be usefull, there is also
+   *  the options to directly access the response-object via $app->response() and
+   *  (See libs\RESTResponse and Slim\Http\Response for additonal details)
+   *  The Data will then be send either after the exiting the route-function or
+   *  by manually throwing 'Slim\Exception\Stop'. (Not recommended)
+   *  (Transmitting data this way should be used sparingly!)
+   *
+   * Note 3:
+   *  Never use this method or access the $app->request() and $app->response()
+   *  object from within a model, since this would make it difficult to reuse.
+   *  Only use inside a route or IO-Class and pass data from/to models!
+   *
+   * Parameters:
+   *  $httpStatus <Integer> -
+   *  $data <String>/<Array[Mixed]> - [Optional]
+   *  $restStatus <String> - [Optional]
+   */
+  public function halt($httpStatus, $data = null, $restStatus = 'halt') {
+    // Do some pre-processing on the $data
+    $response = libs\RESTResponse::responseObject($data, $restStatus);
+
+    // Delegate transmission of response to SLIM
+    parent::halt($httpStatus, $response);
+  }
+
+
+  /**
+   * Function: AccessTokenDB()
+   *  Returns true if access-tokens should be stored inside the database
+   *  and looked up on access-request.
+   *
+   * Return:
+   *  <Boolean> - True if access-token should be stored and looked up from DB, false otherwise
+   */
+  public function AccessTokenDB() {
+    // Some day this will be stored inside a config, to lazy now...
+    return true;
+  }
 }

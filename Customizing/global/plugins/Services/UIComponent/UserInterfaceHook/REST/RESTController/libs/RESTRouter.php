@@ -7,23 +7,23 @@
  */
 namespace RESTController\libs;
 
- 
 // Requires ../Slim/Router.php
 
- 
+
 /**
- * Extends the Slim-Framework Router with a method to iterate over
- * all routes even if they don't have a name.
+ * Class: RESTRouter
+ *  Extends the Slim-Framework Router with a method to iterate over
+ *  all routes, even if they don't have a name.
  */
 class RESTRouter extends \Slim\Router {
-    /**
-     * Returns all registered routes.
-     * Unlike getNamedRoutes() this also includes routes
-     * without a name.
-     *
-     * @see getNamedRoutes()
-     */
-    public function getRoutes() {
-        return new \ArrayIterator($this->routes);
-    }
+  /**
+   * Returns all registered routes.
+   * Unlike getNamedRoutes() this also includes routes
+   * without a name.
+   *
+   * @see getNamedRoutes()
+   */
+  public function getRoutes() {
+    return new \ArrayIterator($this->routes);
+  }
 }

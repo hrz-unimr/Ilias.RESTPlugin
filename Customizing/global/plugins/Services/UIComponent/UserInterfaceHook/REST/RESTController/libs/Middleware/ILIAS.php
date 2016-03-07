@@ -7,61 +7,69 @@
  */
 namespace RESTController\libs\Middleware;
 
-
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
-use \RESTController\core\auth as Auth;
+use \RESTController\core\oauth2_v2 as Auth;
 
 
 /*
  * Class: ILIAS (Middleware)
- *  Implements route authentification that is related ILIAS.
+ *  Implements route authentification that is related to ILIAS.
  */
 class ILIAS {
-    /**
-     * List of default REST error-codes
-     *  Extensions are allowed to create their own error-codes.
-     *  Using a unique string seems to be an easier solution than assigning unique numbers.
-     */
-    const ID_NO_ADMIN         = 'RESTController\libs\OAuth2Middleware::ID_NO_ADMIN';
-
-    // Allow to re-use status-strings
-    const MSG_NO_ADMIN        = 'Access denied. Administrator permissions required.';
+  // Allow to re-use status messages and codes
+  const MSG_NO_ADMIN        = 'Access denied. Administrator permissions required.';
+  const ID_NO_ADMIN         = 'RESTController\\libs\\OAuth2Middleware::ID_NO_ADMIN';
 
 
-    /**
-     * Function: ADMIN($route)
-     *  This route can be used as middleware on a route
-     *  to check if:
-     *   a) The token is valid
-     *   b) The user is admin in ILIAS
-     */
-    public static function ADMIN($route) {
+  /**
+   * Function: ADMIN($route)
+   *  This route can be used as middleware on a route
+   *  to check if:
+   *   a) The token is valid
+   *   b) The user is admin in ILIAS
+   */
+  public static function ADMIN($route) {
+    try {
       // Fetch reference to RESTController
       $app = \RESTController\RESTController::getInstance();
 
-      // Delegate access-token check
-      $accessToken = OAuth2::checkAccessToken($app);
+      // Fetch access-token (this also checks it)
+      $request      = $app->request();
+      $accessToken  = $request->getToken('access');
+
+      // Delegate route-permission check
+      OAuth2::checkRoutePermissions($app, $accessToken, $route, $request);
 
       // Check if user is admin in ILIAS
       self::checkAdmin($app,$accessToken);
     }
-    
 
-    /**
-     * Function: checkAdmin($accessToken)
-     *  This function checks whether the user
-     *  given by the access-token has the admin-role
-     *  in ILIAS.
-     *  Will stop with 401 if user isn't admin.
-     *
-     * Parameters:
-     *  $accessToken <AccessToken> - Access-Token which contains the user that should be checked
-     */
-    protected static function checkAdmin($app,$accessToken) {
-      // Check if given user has admin-role
-      $user = $accessToken->getUserName();
-      if (!Libs\RESTLib::isAdminByUserName($user))
-          $app->halt(401, ILIAS::MSG_NO_ADMIN, ILIAS::ID_NO_ADMIN);
+    // Catches following exceptions from getToken():
+    //  Auth\Exceptions\TokenInvalid - Token is invalid or expired
+    //  Exceptions\Parameter - Token is missing
+    //  Exceptions\Database - Tokens oAuth2 client does not exists
+    //  Exceptions\Denied - IP- or User- restriction in place
+    catch (Libs\RESTException $e) {
+      $e->send(401);
     }
+  }
+
+
+  /**
+   * Function: checkAdmin($accessToken)
+   *  This function checks wether the user
+   *  given by the access-token has the admin-role
+   *  in ILIAS.
+   *  Will stop with 401 if user isn't admin.
+   *
+   * Parameters:
+   *  $accessToken <AccessToken> - Access-Token which contains the user that should be checked
+   */
+  protected static function checkAdmin($accessToken) {
+    // Check if given user has admin-role
+    $userId = $accessToken->getUserId();
+    if (!Libs\RESTilias::isAdmin($userId))
+      $app->halt(401, self::MSG_NO_ADMIN, self::ID_NO_ADMIN);
+  }
  }
