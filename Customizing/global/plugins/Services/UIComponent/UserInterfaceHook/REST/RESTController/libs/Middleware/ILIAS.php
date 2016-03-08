@@ -66,12 +66,16 @@ class ILIAS {
    * Parameters:
    *  $accessToken <AccessToken> - Access-Token which contains the user that should be checked
    */
-  protected static function checkAdmin($accessToken) {
+  protected static function checkAdmin($app, $accessToken) {
     // Check if given user has admin-role
-    $app = \RESTController\RESTController::getInstance();
-    $app->log->debug(print_r($accessToken,true));
+    //$app = \RESTController\RESTController::getInstance();
+    $app->log->debug("ILIAS > check Admin");
+    //$app->log->debug(print_r(debug_backtrace(),true));
+   // $app->halt(401, self::MSG_NO_ADMIN, self::ID_NO_ADMIN);
+   /* $app->log->debug(print_r($accessToken,true)); */
     $userId = $accessToken->getUserId();
-    if (!Libs\RESTilias::isAdmin($userId))
+    if (!Libs\RESTilias::isAdmin($userId)) {
       $app->halt(401, self::MSG_NO_ADMIN, self::ID_NO_ADMIN);
+    }
   }
  }

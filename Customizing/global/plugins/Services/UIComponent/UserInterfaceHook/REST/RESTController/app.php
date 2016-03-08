@@ -90,10 +90,11 @@ class RESTController extends \Slim\Slim {
     $this->container->singleton('request',  function ($c) { return new libs\RESTRequest($this->environment()); });
 
     // Configure custom LogWriter
-    /*
+
     $this->container->singleton('logWriter', function ($c) {
       // Log to this file
-      $restLog = ILIAS_LOG_DIR . '/restplugin.log'; // TODO: FIX!
+      //$restLog = ILIAS_LOG_DIR . '/restplugin.log'; // TODO: FIX!
+      $restLog = '/opt/ilias/shared/logs'. '/restplugin.log';
 
       // Does the file need to be created first?
       if (!file_exists($restLog)) {
@@ -108,7 +109,7 @@ class RESTController extends \Slim\Slim {
       // Use SLIMs LogWriter with custom file
       return new \Slim\LogWriter(fopen($restLog, 'a'));
     });
-    */
+
   }
 
 

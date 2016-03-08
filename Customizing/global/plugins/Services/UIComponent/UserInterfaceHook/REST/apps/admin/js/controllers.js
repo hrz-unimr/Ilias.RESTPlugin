@@ -107,10 +107,19 @@ ctrl.controller("ClientListCtrl", function($scope, $location, $filter, dialogs, 
             // Success
             function(response) {
                 // Enough access rights
-                if (response.clients) {
+                console.log('clients response');
+               /* if (response.clients) {
+                    console.log('clients ...');
                     clientStorage.setClients(response.clients);
                     $scope.clients = clientStorage.getClients();
                 }
+*/
+                if (response) {
+                    console.log('clients ...');
+                    clientStorage.setClients(response);
+                    $scope.clients = clientStorage.getClients();
+                }
+
                 // Probably insufficient access rights
                 // Note: We could additionally check response.msg
                 else {
@@ -227,7 +236,9 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
 
         // Fetch available routes
         restRoutes.get(function(response) {
-            $scope.routes = response.routes;
+            //$scope.routes = response.routes;
+            console.log('Fetch routes '+response);
+            $scope.routes = response;
         });
     };
 
@@ -245,9 +256,9 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
      * Mainly used for <select> -> <option> formatting.
      */
     $scope.formatPermissionOption = function(route, verb, middleware) {
-        if ( middleware.indexOf("ILIAS::ADMIN") > -1) {
+        /*if ( middleware.indexOf("ILIAS::ADMIN") > -1) {
           return '['+verb+"] "+route+" (Admin)";
-        }
+        }*/
         return '['+verb+"] "+route;
     };
 
@@ -258,8 +269,10 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
      */
     $scope.addPermission = function(permission) {
         // Make sure no empty array is appended to
-        if (!angular.isDefined($scope.current.permissions) || $scope.current.permissions == null)
+        if (!angular.isDefined($scope.current.permissions) || $scope.current.permissions == null) {
             current.permissions = [];
+        }
+
 
         // Strip auth-middleware and add permission
         $scope.current.permissions.push({
