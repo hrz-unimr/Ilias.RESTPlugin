@@ -213,7 +213,7 @@
   $api_key         = 'apollon';
   //$api_secret      = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 5)), 0, 10);
   $api_secret      = '';
-  $description     = 'oAuth2 Admin-Panel Client';
+  $description     = 'REST Admin-Panel';
 
   $ilDB->insert('ui_uihk_rest_client', array(
     'api_key'                   => array('text',    $api_key),

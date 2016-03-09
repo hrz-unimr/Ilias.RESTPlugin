@@ -37,13 +37,19 @@
             <div class="form-group">
                 <label for="inputIpCSV">{{'EDIT_ALLOWED_IPS' | translate}}</label>
                 {{'EDIT_IP_ACCESS_TEXT' | translate}}
-                <div class="checkbox">
+                <!--<div class="checkbox">
                     <label>
                         <input type="checkbox" id="inputIpActive" name="inputIpActive" data-ng-model="current.ip_restriction_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
                         {{'EDIT_ENABLED' | translate}}
                     </label>
-                </div>
+                </div>-->
                 <textarea id="inputIpCSV" class="form-control" rows="3" data-ng-model="current.access_ip_csv"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="inputUserCSV">{{'EDIT_ALLOWED_USERS' | translate}}</label>
+                {{'EDIT_USER_ACCESS_TEXT' | translate}}
+                <textarea id="inputUserCSV" class="form-control" rows="3" data-ng-model="current.users"></textarea>
             </div>
 
             <div class="form-group">
@@ -89,6 +95,32 @@
         </div>
     </div>
 
+
+    <!--<div class="panel panel-primary">
+      <div class="panel-heading">
+          <h3 class="panel-title">{{'EDIT_BIND_USER' | translate}}</h3>
+      </div>
+
+
+      <div class="panel-body">
+          <div class="form-group">
+              <label for="inputAllUserAccess">{{'EDIT_STATUS' | translate}}</label>
+              <div class="checkbox">
+                  <label>
+                      <input type="checkbox" id="inputAllUserAccess" name="inputAllUserAccess" data-ng-model="current.users" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                      {{'EDIT_ALLOWED_USERS_TEXT' | translate}}
+                  </label>
+              </div>
+          </div>
+
+          <div class="form-group">
+              <label for="inputUserCSV">{{'EDIT_ALLOWED_USERS' | translate}}</label>
+              <textarea id="inputUserCSV" class="form-control" rows="3" data-ng-model="current.users"></textarea>
+          </div>
+
+      </div>
+  </div> -->
+
     <div class="panel panel-primary">
         <div class="panel-heading">
             <h3 class="panel-title">{{'EDIT_GRANT_TYPE' | translate}}</h3>
@@ -99,7 +131,7 @@
                 <label for="inputGtClient">{{'EDIT_GRANT_CC' | translate}}</label>
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" id="inputGtClient" name="inputGtClient" data-ng-model="current.oauth2_gt_client_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                        <input type="checkbox" id="inputGtClient" name="inputGtClient" data-ng-model="current.grant_client_credentials" data-ng-true-value="true" data-ng-false-value="false">
                         {{'EDIT_ENABLED' | translate}}
                     </label>
                 </div>
@@ -107,7 +139,7 @@
 
             <div class="form-group">
                 <label class="control-label" for="inputGtClientUser">{{'EDIT_GRANT_CC_USER' | translate}}</label>
-                <input id="inputGtClientUser" name="inputGtClientUser" data-ng-model="current.oauth2_gt_client_user" class="form-control" type="text">
+                <input id="inputGtClientUser" name="inputGtClientUser" data-ng-model="current.client_credentials_userid" class="form-control" type="text">
                 {{'EDIT_GRANT_CC_USER_TEXT' | translate}}
             </div>
 
@@ -115,7 +147,7 @@
                 <label for="inputGtAuth">{{'EDIT_GRANT_AC' | translate}}</label>
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" id="inputGtAuth" name="inputGtAuth" data-ng-model="current.oauth2_gt_authcode_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                        <input type="checkbox" id="inputGtAuth" name="inputGtAuth" data-ng-model="current.grant_authorization_code" data-ng-true-value="true" data-ng-false-value="false">
                         {{'EDIT_ENABLED' | translate}}
                     </label>
                 </div>
@@ -131,7 +163,7 @@
                 <label for="inputGtImplicit">{{'EDIT_GRANT_I' | translate}}</label>
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" id="inputGtImplicit" name="inputGtImplicit" data-ng-model="current.oauth2_gt_implicit_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                        <input type="checkbox" id="inputGtImplicit" name="inputGtImplicit" data-ng-model="current.grant_implicit" data-ng-true-value="true" data-ng-false-value="false">
                         {{'EDIT_ENABLED' | translate}}
                     </label>
                 </div>
@@ -141,13 +173,13 @@
                 <label for="inputGtUserpass">{{'EDIT_GRANT_R' | translate}}</label>
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" id="inputGtUserpass" name="inputGtUserpass" data-ng-model="current.oauth2_gt_resourceowner_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                        <input type="checkbox" id="inputGtUserpass" name="inputGtUserpass" data-ng-model="current.grant_resource_owner" data-ng-true-value="true" data-ng-false-value="false">
                         {{'EDIT_ENABLED' | translate}}
                     </label>
                 </div>
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" id="inputGtUserpassRefresh" name="inputGtUserpassRefresh" data-ng-model="current.oauth2_resource_refresh_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                        <input type="checkbox" id="inputGtUserpassRefresh" name="inputGtUserpassRefresh" data-ng-model="current.refresh_resource_owner" data-ng-true-value="true" data-ng-false-value="false">
                         {{'EDIT_GRANT_R_REFRESH' | translate}}
                     </label>
                 </div>
@@ -155,29 +187,7 @@
         </div>
     </div>
 
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-            <h3 class="panel-title">{{'EDIT_BIND_USER' | translate}}</h3>
-        </div>
 
-        <div class="panel-body">
-            <div class="form-group">
-                <label for="inputAllUserAccess">{{'EDIT_STATUS' | translate}}</label>
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" id="inputAllUserAccess" name="inputAllUserAccess" data-ng-model="current.oauth2_user_restriction_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
-                        {{'EDIT_ALLOWED_USERS_TEXT' | translate}}
-                    </label>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="inputUserCSV">{{'EDIT_ALLOWED_USERS' | translate}}</label>
-                <textarea id="inputUserCSV" class="form-control" rows="3" data-ng-model="current.access_user_csv"></textarea>
-            </div>
-
-        </div>
-    </div>
 
     <div class="panel panel-primary">
         <div class="panel-heading">
@@ -192,13 +202,13 @@
 
             <div class="form-group">
                 <label for="inputDescription">{{'EDIT_CONSENT_MSG' | translate}}</label>
-                <div class="checkbox">
+                <!--<div class="checkbox">
                     <label>
-                        <input type="checkbox" id="oauth2_consent_msg_active" name="oauth2_consent_msg_active" data-ng-model="current.oauth2_consent_message_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                        <input type="checkbox" id="oauth2_consent_msg_active" name="oauth2_consent_msg_active" data-ng-model="current.consent_message" data-ng-true-value="'1'" data-ng-false-value="'0'">
                         {{'EDIT_CONSENT_SCOPE' | translate}}
                     </label>
-                </div>
-                <textarea id="inputDescription" class="form-control" rows="3" data-ng-model="current.oauth2_consent_message"></textarea>
+                </div>-->
+                <textarea id="inputDescription" class="form-control" rows="3" data-ng-model="current.consent_message"></textarea>
             </div>
         </div>
     </div>

@@ -20,10 +20,10 @@
                 <td>{{client.api_key}}</td>
                 <td>{{client.description}}</td>
                 <td>
-                    <div data-ng-show="{{client.oauth2_gt_authcode_active}}"><span class="label label-granttype">{{'LIST_GRANT_AC' | translate}}</span><br/></div> 
-                    <div data-ng-show="{{client.oauth2_gt_implicit_active}}"><span class="label label-granttype">{{'LIST_GRANT_I' | translate}}</span><br/></div>
-                    <div data-ng-show="{{client.oauth2_gt_resourceowner_active}}"><span class="label label-granttype">{{'LIST_GRANT_R' | translate}}</span><br/></div> 
-                    <div data-ng-show="{{client.oauth2_gt_client_active}}"><span class="label label-granttype">{{'LIST_GRANT_CC' | translate}}</span><br/></div>
+                    <div data-ng-show="{{client.grant_authorization_code}}"><span class="label label-granttype">{{'LIST_GRANT_AC' | translate}}</span><br/></div>
+                    <div data-ng-show="{{client.grant_implicit}}"><span class="label label-granttype">{{'LIST_GRANT_I' | translate}}</span><br/></div>
+                    <div data-ng-show="{{client.grant_resource_owner}}"><span class="label label-granttype">{{'LIST_GRANT_R' | translate}}</span><br/></div>
+                    <div data-ng-show="{{client.grant_client_credentials}}"><span class="label label-granttype">{{'LIST_GRANT_CC' | translate}}</span><br/></div>
                 </td>
                 <td data-ng-bind-html='client.permissions | formatListPermissions'></td>
                 <td data-ng-bind-html='client.ip_restriction_active | formatIpRestriction'></td>

@@ -57,7 +57,8 @@ class RESTAuth {
    * Function: checkScope($scope)
    *  Returns a reference to an actual function that checks if the given
    *  access-token has the required scope given as parameter.
-   *  Take note that this will generate a new function everywere this
+   *
+   *  Note that this will generate a new function everywhere this
    *  function is used, since you can't easily pass pre-defined parameters
    *  to slim callables.
    *
