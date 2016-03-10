@@ -34,8 +34,8 @@ app.constant('version',             '1.3');                               // App
 app.constant('apiKey',              'apollon');                           // API-Key used to log into admin-panel (via username/password)
 app.constant('restIliasLoginURL',  '/v2/bridge/ilias' );//'/v1/ilauth/rtoken2bearer');          // rToken to Bearer-Token Endpoint
 app.constant('restTokenURL',        '/v2/oauth2/token');                  // Bearer-Token from Username, Password, API-Key pair Endpoint
-app.constant('restClientsURL',      '/v1/clients');                          // Client-list Endpoint
-app.constant('restClientURL',       '/v1/clients/:id');                      // View / Edit client Endpoint
+app.constant('restClientsURL',      '/v1/clients');                       // Client-list Endpoint
+app.constant('restClientURL',       '/v1/clients/:id');                   // View / Edit client Endpoint
 app.constant('restRoutesURL',       '/v2/util/routes');                   // Routes Endpoint
 
 

@@ -116,7 +116,8 @@ ctrl.controller("ClientListCtrl", function($scope, $location, $filter, dialogs, 
 */
                 if (response) {
                     console.log('clients ...');
-                    clientStorage.setClients(response);
+                    console.log(response.toJSON());
+                    clientStorage.setClients(response.toJSON());
                     $scope.clients = clientStorage.getClients();
                 }
 
@@ -334,21 +335,18 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
                 // Data
                     api_key: $scope.current.api_key,
                     api_secret:$scope.current.api_secret,
-                    oauth2_redirection_uri : $scope.current.oauth2_redirection_uri,
-                    oauth2_consent_message : $scope.current.oauth2_consent_message,
+                    redirect_uri : $scope.current.redirect_uri,
+                    consent_message : $scope.current.consent_message,
                     permissions: $scope.current.permissions,
-                    oauth2_gt_client_active: $scope.current.oauth2_gt_client_active,
-                    oauth2_gt_client_user: $scope.current.oauth2_gt_client_user,
-                    oauth2_gt_authcode_active: $scope.current.oauth2_gt_authcode_active,
-                    oauth2_gt_implicit_active: $scope.current.oauth2_gt_implicit_active,
-                    oauth2_gt_resourceowner_active: $scope.current.oauth2_gt_resourceowner_active,
-                    oauth2_user_restriction_active: $scope.current.oauth2_user_restriction_active,
-                    oauth2_consent_message_active: $scope.current.oauth2_consent_message_active,
-                    oauth2_authcode_refresh_active: $scope.current.oauth2_authcode_refresh_active,
-                    oauth2_resource_refresh_active: $scope.current.oauth2_resource_refresh_active,
-                    access_user_csv: $scope.current.access_user_csv,
-                    ip_restriction_active : $scope.current.ip_restriction_active,
-                    access_ip_csv: $scope.current.access_ip_csv,
+                    grant_client_credentials: $scope.current.grant_client_credentials,
+                    client_credentials_userid: $scope.current.client_credentials_userid,
+                    grant_authorization_code: $scope.current.grant_authorization_code,
+                    grant_implicit: $scope.current.grant_implicit,
+                    grant_resource_owner: $scope.current.grant_resource_owner,
+                    refresh_authorization_code: $scope.current.refresh_authorization_code,
+                    refresh_resource_owner: $scope.current.refresh_resource_owner,
+                    users: $scope.current.users, //access_user_csv,
+                    ips: $scope.current.ips, //access_ip_csv,
                     description: $scope.current.description
                 },
                 // Success
@@ -375,21 +373,20 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
                     }, {
                         api_key: $scope.current.api_key,
                         api_secret:$scope.current.api_secret,
-                        oauth2_redirection_uri : $scope.current.oauth2_redirection_uri,
-                        oauth2_consent_message : $scope.current.oauth2_consent_message,
+                        redirect_uri : $scope.current.redirect_uri,
+                        consent_message : $scope.current.consent_message,
                         permissions: $scope.current.permissions,
-                        oauth2_gt_client_active: $scope.current.oauth2_gt_client_active,
-                        oauth2_gt_client_user: $scope.current.oauth2_gt_client_user,
-                        oauth2_gt_authcode_active: $scope.current.oauth2_gt_authcode_active,
-                        oauth2_gt_implicit_active: $scope.current.oauth2_gt_implicit_active,
-                        oauth2_gt_resourceowner_active: $scope.current.oauth2_gt_resourceowner_active,
-                        oauth2_user_restriction_active: $scope.current.oauth2_user_restriction_active,
-                        oauth2_consent_message_active: $scope.current.oauth2_consent_message_active,
-                        oauth2_authcode_refresh_active: $scope.current.oauth2_authcode_refresh_active,
-                        oauth2_resource_refresh_active: $scope.current.oauth2_resource_refresh_active,
-                        access_user_csv: $scope.current.access_user_csv,
-                        ip_restriction_active : $scope.current.ip_restriction_active,
-                        access_ip_csv: $scope.current.access_ip_csv,
+                        grant_client_credentials: $scope.current.grant_client_credentials,
+                        client_credentials_userid: $scope.current.client_credentials_userid,
+                        grant_authorization_code: $scope.current.grant_authorization_code,
+                        grant_implicit: $scope.current.grant_implicit,
+                        grant_resource_owner: $scope.current.grant_resource_owner,
+                        //oauth2_user_restriction_active: $scope.current.oauth2_user_restriction_active,
+                        //oauth2_consent_message_active: $scope.current.oauth2_consent_message_active,
+                        refresh_authorization_code: $scope.current.refresh_authorization_code,
+                        refresh_resource_owner: $scope.current.refresh_resource_owner,
+                        users: $scope.current.users,
+                        ips: $scope.current.ips, // access_ip_adresses
                         description: $scope.current.description
                     },
                     // Success

@@ -138,11 +138,18 @@ services.factory('clientStorage', function() {
         return data.clients;
     };
     handler.setClients = function(clients) {
-        data.clients = clients;
+        data.clients = [];
+        $.each(clients, function(key, value) {
+            console.log(key + ' ' + value);
+            data.clients.push(value);
+        });
+        //data.clients = clients;
     };
 
     // Adds a new client (internally only!) to the list of clients
     handler.addClient = function(client) {
+        console.log('add client '+client);
+        console.log('add client '+data.clients);
         return data.clients.push(client);
     };
 
@@ -161,9 +168,9 @@ services.factory('clientStorage', function() {
         return {
             id: "-1",
             permissions: [],
-            oauth2_gt_client_active: "1",
-            oauth2_gt_client_user: "1",
-            oauth2_gt_resourceowner_active: "1"
+            grant_client_credentials: false,
+            client_credentials_userid: "",
+            grant_resource_owner: true
         };
     };
 

@@ -110,6 +110,7 @@ class RESTRequest extends \Slim\Http\Request {
       )
     );
   }
+
   public function hasParam($key) {
     // Return key-value from header?
     if (isset($key)) {

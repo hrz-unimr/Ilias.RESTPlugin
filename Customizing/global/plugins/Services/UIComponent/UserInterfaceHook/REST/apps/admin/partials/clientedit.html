@@ -43,7 +43,7 @@
                         {{'EDIT_ENABLED' | translate}}
                     </label>
                 </div>-->
-                <textarea id="inputIpCSV" class="form-control" rows="3" data-ng-model="current.access_ip_csv"></textarea>
+                <textarea id="inputIpCSV" class="form-control" rows="3" data-ng-model="current.ips"></textarea>
             </div>
 
             <div class="form-group">
@@ -153,7 +153,7 @@
                 </div>
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" id="inputGtAuthRefresh" name="inputGtAuthRefresh" data-ng-model="current.oauth2_authcode_refresh_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                        <input type="checkbox" id="inputGtAuthRefresh" name="inputGtAuthRefresh" data-ng-model="current.refresh_authorization_code" data-ng-true-value="'1'" data-ng-false-value="'0'">
                         {{'EDIT_GRANT_AC_REFREH' | translate}}
                     </label>
                 </div>
@@ -197,7 +197,7 @@
         <div class="panel-body">
             <div class="form-group">
                 <label for="inputRedirectionURI">{{'EDIT_REDIRECT_URI' | translate}}</label>
-                <input id="inputRedirectionURI" name="inputRedirectionURI" data-ng-model="current.oauth2_redirection_uri" class="form-control" type="text" data-ng-true-value="'1'" data-ng-false-value="'0'">
+                <input id="inputRedirectionURI" name="inputRedirectionURI" data-ng-model="current.redirect_uri" class="form-control" type="text" data-ng-true-value="'1'" data-ng-false-value="'0'">
             </div>
 
             <div class="form-group">
