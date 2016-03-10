@@ -19,7 +19,7 @@ use \RESTController\database as Database;
  *  to the ui_uihk_rest_client, ui_uihk_rest_perm, ui_uihk_rest_config
  *  database table implementation.
  */
-class ClientsModel extends Libs\RESTModel {
+class Admin extends Libs\RESTModel {
   // Allow to re-use status messages and codes
   const MSG_CLIENT_NOT_DELETED  = 'Client could not be deleted.';
   const MSG_CLIENT_NOT_UPDATED  = 'Client could not be updated.';

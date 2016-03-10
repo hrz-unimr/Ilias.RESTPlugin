@@ -41,7 +41,6 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
 
     };
 
-
     /*
      * Used to check if currently on the login route.
      * Required to show/hide certain (warning) elements.
@@ -302,9 +301,13 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
      * Assign all possible permissions to the current API-Key.
      */
     $scope.addAllPermissions = function() {
-        for (var i=0; i<$scope.routes.length;i++) {
-            $scope.addPermission($scope.routes[i]);
-        }
+
+        $.each($scope.routes, function(key, value) {
+            $scope.addPermission(value);
+        });
+        //for (var i=0; i<$scope.routes.length;i++) {
+         //   $scope.addPermission($scope.routes[i]);
+        //}
     }
 
 

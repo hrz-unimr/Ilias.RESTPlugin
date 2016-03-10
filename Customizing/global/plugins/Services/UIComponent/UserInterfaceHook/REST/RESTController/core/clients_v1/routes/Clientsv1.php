@@ -38,7 +38,7 @@ $app->group('/v1', function () use ($app) {
    */
   $app->put('/clients/:id', RESTAuth::checkAccess(RESTAuth::ADMIN), function ($id) use ($app) {
     $app->log->debug("In /v1/client PUT route");
-    OAuth2v2\ClientsModel::UpdateClient($id, $app->request);
+    OAuth2v2\Admin::UpdateClient($id, $app->request);
     if ($app->request->hasParam("permissions")) {
       $permArray  = $app->request->params(permissions);
       ClientsLegacyModel::setPermissions($id, $permArray);
@@ -52,7 +52,7 @@ $app->group('/v1', function () use ($app) {
    */
   $app->post('/clients/', RESTAuth::checkAccess(RESTAuth::ADMIN), function () use ($app) {
     $app->log->debug("In /v1/clients POST route");
-    $api_id = OAuth2v2\ClientsModel::InsertClient($app->request);
+    $api_id = OAuth2v2\Admin::InsertClient($app->request);
     if ($api_id != false) {
         if ($app->request->hasParam("permissions")) {
           $permArray  = $app->request->params(permissions);
