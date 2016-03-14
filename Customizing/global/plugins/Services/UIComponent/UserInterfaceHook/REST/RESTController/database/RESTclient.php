@@ -287,15 +287,17 @@ class RESTclient extends Libs\RESTDatabase {
    *  their user-id (and given api-key / api-key id) who have an entry are allowed.
    *
    * Parameters:
-   *  $userId <Integer> - User-Id to check wether he is allowed to use this api-key
+   *  $userId <Integer> - User-Id to check if the user is allowed to use this api-key
    *
    * Return:
    *  <Boolean> - True if the user is allowed to use the given api-key / api-key id, false otherwise
    */
   public function isUserAllowed($userId) {
     // For security...
-    if (!ctype_digit($userId))
+    if (!ctype_digit($userId)) {
       return false;
+    }
+
 
     // Fetch list (regex) of allowed users
     $users = $this->getKey('users');
@@ -330,7 +332,7 @@ class RESTclient extends Libs\RESTDatabase {
   
   /**
    * Function: isBridgeAllowed($direction)
-   *  Checks wether the ILIAS <-> oAuth2 bridge is allowed for this client in the requested direction.
+   *  Checks if the ILIAS <-> oAuth2 bridge is allowed for this client in the requested direction.
    *
    * Parameters:
    *  $direction <String> - Requested direction of ILIAS <-> oAuth2 bridge. Use:

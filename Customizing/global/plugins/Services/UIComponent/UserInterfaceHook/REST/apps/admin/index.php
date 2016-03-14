@@ -29,23 +29,23 @@
     <script type="text/javascript" src="libs/js/modernizr.js"></script>
     <script>
         <?php
-        // Fetch POST data
-        $userName = isset($_POST['userName']) ? $_POST['userName'] : '';
-        $apiKey = isset($_POST['apiKey']) ? $_POST['apiKey'] : '';
-        $userId =  isset($_POST['userId']) ? $_POST['userId'] : '';
-        $sessionId = isset($_POST['sessionId']) ? $_POST['sessionId'] : '';
-        $rtoken = isset($_POST['rtoken']) ? $_POST['rtoken'] : '';
-        $restEndpoint = isset($_POST['restEndpoint']) ? $_POST['restEndpoint'] : '';
-        $iliasClient = isset($_POST['iliasClient']) ? $_POST['iliasClient'] : '';
-        
-        // Make it save
-        $userName = addslashes (htmlspecialchars($userName, ENT_COMPAT));
-        $apiKey = addslashes (htmlspecialchars($apiKey, ENT_COMPAT));
-        $userId = addslashes (htmlspecialchars($userId, ENT_COMPAT));
-        $sessionId = addslashes (htmlspecialchars($sessionId, ENT_COMPAT)); 
-        $rtoken = addslashes (htmlspecialchars($rtoken, ENT_COMPAT));
-        $restEndpoint = addslashes (htmlspecialchars($restEndpoint, ENT_COMPAT));
-        $iliasClient = addslashes (htmlspecialchars($iliasClient, ENT_COMPAT));
+            // Fetch POST data
+            $userName = isset($_POST['userName']) ? $_POST['userName'] : '';
+            $apiKey = isset($_POST['apiKey']) ? $_POST['apiKey'] : '';
+            $userId =  isset($_POST['userId']) ? $_POST['userId'] : '';
+            $sessionId = isset($_POST['sessionId']) ? $_POST['sessionId'] : '';
+            $rtoken = isset($_POST['rtoken']) ? $_POST['rtoken'] : '';
+            $restEndpoint = isset($_POST['restEndpoint']) ? $_POST['restEndpoint'] : '';
+            $iliasClient = isset($_POST['iliasClient']) ? $_POST['iliasClient'] : '';
+
+            // Make it save
+            $userName = addslashes (htmlspecialchars($userName, ENT_COMPAT));
+            $apiKey = addslashes (htmlspecialchars($apiKey, ENT_COMPAT));
+            $userId = addslashes (htmlspecialchars($userId, ENT_COMPAT));
+            $sessionId = addslashes (htmlspecialchars($sessionId, ENT_COMPAT));
+            $rtoken = addslashes (htmlspecialchars($rtoken, ENT_COMPAT));
+            $restEndpoint = addslashes (htmlspecialchars($restEndpoint, ENT_COMPAT));
+            $iliasClient = addslashes (htmlspecialchars($iliasClient, ENT_COMPAT));
         ?>
     
         var postVars = {

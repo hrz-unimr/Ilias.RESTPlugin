@@ -456,9 +456,12 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
         restAuth.auth({
             // Data
                 api_key: $scope.postVars.apiKey,
-                user_id: $scope.postVars.userId,
-                session_id: $scope.postVars.sessionId,
-                rtoken: $scope.postVars.rtoken,
+                //user_id: $scope.postVars.userId,
+                user: $scope.postVars.userId,
+                //session_id: $scope.postVars.sessionId,
+                session: $scope.postVars.sessionId,
+                //rtoken: $scope.postVars.rtoken,
+                token: $scope.postVars.rtoken,
                 userName: $scope.postVars.userName,
                 ilias_client: $scope.postVars.iliasClient
             },

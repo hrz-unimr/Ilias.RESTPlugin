@@ -176,7 +176,7 @@ class Misc extends Libs\RESTModel {
     $client = self::FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $userId);
 
     // Check requested scope...
-    Common::CheckScope($client, $scope);
+   /* Common::CheckScope($client, $scope);
 
     // Check wether (this direction of) the ilias-birdge is enabled
     if (!$client->isBridgeAllowed('FromILIAS'))
@@ -196,7 +196,7 @@ class Misc extends Libs\RESTModel {
           'session'   => $sessionID
         )
       );
-
+*/
     // Generate access-token
     return Common::GetResponse($apiKey, $userId, $iliasClient, $scope, false);
   }
