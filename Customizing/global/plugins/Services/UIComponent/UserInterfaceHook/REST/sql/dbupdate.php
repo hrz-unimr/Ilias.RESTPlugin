@@ -219,7 +219,8 @@
     'api_key'                   => array('text',    $api_key),
     'api_secret'                => array('text',    $api_secret),
     'grant_resource_owner'      => array('boolean', true),
-    'description'               => array('text',    $description)
+    'description'               => array('text',    $description),
+    'grant_bridge'              => array('text', 'b')
   ));
   // TODO: Store into admin-panel config
 
