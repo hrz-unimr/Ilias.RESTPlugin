@@ -350,7 +350,8 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
                     refresh_resource_owner: $scope.current.refresh_resource_owner,
                     users: $scope.current.users, //access_user_csv,
                     ips: $scope.current.ips, //access_ip_csv,
-                    description: $scope.current.description
+                    description: $scope.current.description,
+                    grant_bridge: $scope.current.grant_bridge
                 },
                 // Success
                 function (response) {
@@ -390,7 +391,8 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
                         refresh_resource_owner: $scope.current.refresh_resource_owner,
                         users: $scope.current.users,
                         ips: $scope.current.ips, // access_ip_adresses
-                        description: $scope.current.description
+                        description: $scope.current.description,
+                        grant_bridge: $scope.current.grant_bridge
                     },
                     // Success
                     function (response) {

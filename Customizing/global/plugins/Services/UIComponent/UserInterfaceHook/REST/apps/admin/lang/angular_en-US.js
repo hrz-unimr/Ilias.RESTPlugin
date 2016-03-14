@@ -128,8 +128,10 @@ lang_en_us.config(function($translateProvider) {
         EDIT_IP_ACCESS_TEXT: 'The application of Client/API-Key can be restricted to IP addresses. Specify a comma separated list of ip addresses here.',
         EDIT_USER_ACCESS_TEXT: 'Specify a comma separated list of ilias user ids here. Feature is supported by OAuth2 Authorization Code, Implicit Grant and Resource Owner only. ',
         EDIT_DESCRIPTION: 'Description',
-        EDIT_DESCRIPTION_TEXT: ''
-
+        EDIT_DESCRIPTION_TEXT: '',
+        EDIT_BRIDGE_MSG: 'OAuth2: Token <-> ILIAS Session Bridge',
+        EDIT_BRIDGE_FLAG: 'Bridge Flag (i.e. a single letter)',
+        EDIT_BRIDGE_DESCRIPTION_TEXT: 'Keep the input field empty to deactivate the bridge. Enter i to enable the creation of an OAuth2 Token with a valid ILIAS session. Enter o to enable the creation of an ILIAS session from a valid token. Enter b to enable both directions.',
 
     });
     
