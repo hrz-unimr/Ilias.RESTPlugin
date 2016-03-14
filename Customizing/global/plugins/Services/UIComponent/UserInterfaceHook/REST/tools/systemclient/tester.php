@@ -4,7 +4,7 @@ require_once('./IliasRestSystemClient.php');
 $client = new IliasRestSystemClient();
 
 // Get all routes
-$resp = $client->get('/routes');
+$resp = $client->get('/v2/util/routes');
 print_r(json_decode($resp,true));  // <- print associative array of json response
 
 
