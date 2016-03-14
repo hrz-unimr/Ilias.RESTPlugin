@@ -1,7 +1,6 @@
 // Use ECMAScript 5 restricted variant of Javascript
 'use strict';
 
-
 /*
  * This variable stores all AngularJS controllers
  */
@@ -300,35 +299,6 @@ services.service('restAuth', function($resource, restIliasLoginURL, restEndpoint
 services.service('restAuthToken', function($resource, restTokenURL, restEndpoint) {
     return $resource(restEndpoint.getEndpoint() + restTokenURL, {}, {
         auth: { method: 'POST', params: {}, ignoreLoadingBar: true }
-    });
-});
-
-
-/*
- * REST Clients endpoint service. Query all clients or create new client.
- *  Use .query({}, successFunction, failureFunction);
- *  Use .create({api_key, api_secret, oauth2_redirection_uri, oauth2_consent_message , permissions, oauth2_gt_client_active, oauth2_gt_client_user, oauth2_gt_authcode_active, oauth2_gt_implicit_active, oauth2_gt_resourceowner_active, oauth2_user_restriction_active, oauth2_consent_message_active, oauth2_authcode_refresh_active, oauth2_resource_refresh_active, access_user_csv}, successFunction, failureFunction);
- */
-services.service('restClients', function($resource, restClientsURL, restEndpoint, authentication) {
-    return $resource(restEndpoint.getEndpoint() + restClientsURL, {}, {
-        query: { method:  'GET',  params: {}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
-        create: { method: 'POST', params: {}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }}
-    });
-});
-
-
-/*
- * REST Client endpoint service. Query client information, change client data or delete client given by an id.
- *  Use .show({id}, successFunction, failureFunction);
- *  Use .update({id, {api_key, api_secret, oauth2_redirection_uri, oauth2_consent_message , permissions, oauth2_gt_client_active, oauth2_gt_client_user, oauth2_gt_authcode_active, oauth2_gt_implicit_active, oauth2_gt_resourceowner_active, oauth2_user_restriction_active, oauth2_consent_message_active, oauth2_authcode_refresh_active, oauth2_resource_refresh_active, access_user_csv}}, successFunction, failureFunction);
- *  Use .delete({id}, successFunction, failureFunction);
- */
-services.service('restClient', function($resource, restClientURL, restEndpoint, authentication) {
-    return $resource(restEndpoint.getEndpoint() + restClientURL, {}, {
-        show: {     method: 'GET',                         headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
-        update: {   method: 'PUT',    params: {id: '@id'}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
-        'delete': { method: 'DELETE', params: {id: '@id'}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
-        // Note: Use array-notation to pamper the syntax-validator (delete is a keyword)
     });
 });
 
