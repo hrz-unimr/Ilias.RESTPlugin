@@ -69,7 +69,7 @@ class IShell:
    
     def getRoutes(self):
 	"""Lists all available routes on the system."""
-        response = urllib2.urlopen(self.rest_endpoint+'/routes').read()
+        response = urllib2.urlopen(self.rest_endpoint+'/v2/util/routes').read()
         data = json.loads(response)
         self.response = data
         self.show()
@@ -300,9 +300,9 @@ class IShell:
 	""" Lists all users of the system """
         self.get('/v1/users');
         self.show();
-
     def toDate(self, timestamp):
-    	""" Converts a timestamp string into date format """
-        print(
-            datetime.datetime.fromtimestamp(int(timestamp)).strftime('%Y-%m-%d %H:%M:%S')
-        )
+	""" Converts a timestamp string into date format """
+	print(
+	    datetime.datetime.fromtimestamp(int(timestamp)).strftime('%Y-%m-%d %H:%M:%S')
+	)	
+
