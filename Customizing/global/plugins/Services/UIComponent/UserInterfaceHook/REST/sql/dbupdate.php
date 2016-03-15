@@ -315,9 +315,30 @@
   ));
   $ilDB->insert('ui_uihk_rest_perm', array(
     'api_id'  => array('integer', $id),
-    'pattern' => array('text', '/v2/admin/permission/:permisionId'),
+    'pattern' => array('text', '/v2/admin/permission/:permissionId'),
     'verb'    => array('text', 'DELETE')
   ));
+  $ilDB->insert('ui_uihk_rest_perm', array(
+      'api_id'  => array('integer', $id),
+      'pattern' => array('text', '/v1/clients'),
+      'verb'    => array('text', 'GET')
+  ));
+  $ilDB->insert('ui_uihk_rest_perm', array(
+      'api_id'  => array('integer', $id),
+      'pattern' => array('text', '/v1/clients/:id'),
+      'verb'    => array('text', 'PUT')
+  ));
+  $ilDB->insert('ui_uihk_rest_perm', array(
+      'api_id'  => array('integer', $id),
+      'pattern' => array('text', '/v1/clients/'),
+      'verb'    => array('text', 'POST')
+  ));
+  $ilDB->insert('ui_uihk_rest_perm', array(
+      'api_id'  => array('integer', $id),
+      'pattern' => array('text', '/v1/clients/:id'),
+      'verb'    => array('text', 'DELETE')
+  ));
+
 
   global $ilLog;
   $ilLog->write('Plugin REST -> DB-Update #6: Filled ui_uihk_rest_perm.');

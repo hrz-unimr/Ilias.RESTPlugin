@@ -362,7 +362,7 @@ $app->group('/v2', function () use ($app) {
 
 
     /**
-     * Route: [GET] /v2/admin/permission/:permisionId
+     * Route: [GET] /v2/admin/permission/:permissionId
      * [Admin required]
      *  Deletes the clients permission with selected permissionId
      *
@@ -371,7 +371,7 @@ $app->group('/v2', function () use ($app) {
      *    'id' <Number> - PermissionId of deleted database entry for this permission
      *  )
      */
-    $app->delete('/permission/:permisionId', Libs\RESTAuth::checkAccess(Libs\RESTAuth::ADMIN), function ($permissionId) use ($app) {
+    $app->delete('/permission/:permissionId', Libs\RESTAuth::checkAccess(Libs\RESTAuth::ADMIN), function ($permissionId) use ($app) {
       // Delete permission via given permissionId
       if (Database\RESTpermission::deleteByPrimary($permissionId) > 0)
         $app->success(array( 'id' => intval($permissionId) ));
