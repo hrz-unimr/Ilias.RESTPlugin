@@ -71,20 +71,18 @@ filters.filter('formatListPermissions', function($sce) {
 });
 filters.filter('formatIpRestriction', function($sce) {
     return function(value) {
-        if (typeof value != 'undefined') {
-            var jsonValue = angular.fromJson(value);
-            console.log(jsonValue);
+           // console.log(value);
             var resultHtml = '<div class="text-center">';
-            if (jsonValue == 1) {
-                resultHtml += '<span class="fa fa-lock black"></span>';
-            } else {
+            if (typeof value == 'undefined') {
                 resultHtml += '<span class="fa fa-unlock black"></span>';
+            } else
+            if (value != "") {
+                resultHtml += '<span class="fa fa-lock black"></span>';
             }
+
             resultHtml += '</div>';
 
             return $sce.trustAsHtml(resultHtml);
-        }
-        return "";
     };
 });
 

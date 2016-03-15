@@ -26,7 +26,7 @@
                     <div data-ng-show="{{client.grant_client_credentials}}"><span class="label label-granttype">{{'LIST_GRANT_CC' | translate}}</span><br/></div>
                 </td>
                 <td data-ng-bind-html='client.permissions | formatListPermissions'></td>
-                <td data-ng-bind-html='client.ip_restriction_active | formatIpRestriction'></td>
+                <td data-ng-bind-html='client.ips | formatIpRestriction'></td>
                 <td style="vertical-align: middle;">
                     <div class="text-center"><button class="btn btn-primary btn-xs" data-ng-click="editClient(client)">{{'LIST_MODIFY' | translate}}</button></div>
                 </td>
