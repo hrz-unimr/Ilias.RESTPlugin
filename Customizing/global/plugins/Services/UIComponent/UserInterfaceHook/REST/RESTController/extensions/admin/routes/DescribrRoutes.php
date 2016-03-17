@@ -37,7 +37,7 @@ $app->group('/admin', function () use ($app) {
         if ($id_type == 'ref_id' || $id_type == 'obj_id') {
             if ($id_type == 'ref_id') {
                 $app->log->debug('in route id: '.$id);
-                $obj_id = Libs\RESTLib::getObjIdFromRef($id);
+                $obj_id = Libs\RESTilias::getObjId($id);
                 $app->log->debug('in route id: '.$obj_id);
                 $id_type = 'obj_id';
             } else {
@@ -60,11 +60,11 @@ $app->group('/admin', function () use ($app) {
         }
 
         if ($id_type == 'usr_id') {
-            $username = Libs\RESTLib::getUserNameFromUserId($id);
+            $username = Libs\RESTilias::getUserName($id);
             if ($username == 'User unknown') {
                 $result['msg'][] = 'User not found.';
             } else {
-                $usr_model = new UsersModel();
+                $usr_model = new \RESTController\extensions\users_v1\UsersModel();
                 $usr_basic_info =  $usr_model->getBasicUserData($id);
                 if (empty($usr_basic_info) == true) {
                     $result['status'] = 'Error: User not found.';
