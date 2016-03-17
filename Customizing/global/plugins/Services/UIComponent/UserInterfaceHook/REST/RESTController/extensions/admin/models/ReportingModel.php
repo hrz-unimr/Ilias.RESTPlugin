@@ -82,7 +82,7 @@ class ReportingModel extends Libs\RESTModel {
     private function get_logged_in_users()
     {
         global $ilDB;
-        $sql = Libs\RESTLib::safeSQL("SELECT session_id, user_id, createtime, ctime, expires FROM usr_session WHERE FROM_UNIXTIME(expires)>NOW() AND user_id>0 ORDER BY createtime");
+        $sql = Libs\RESTDatabase::safeSQL("SELECT session_id, user_id, createtime, ctime, expires FROM usr_session WHERE FROM_UNIXTIME(expires)>NOW() AND user_id>0 ORDER BY createtime");
         $result = $ilDB->query($sql);
         $a_data=array();
         while (($row = $ilDB->fetchAssoc($result))!=false){

@@ -44,7 +44,7 @@ class MobileFeedbackModel extends Libs\RESTModel {
      */
     function getFeedbackItems()
     {
-        $sql = Libs\RESTLib::safeSQL("SELECT * FROM ".self::TABLE);
+        $sql = Libs\RESTDatabase::safeSQL("SELECT * FROM ".self::TABLE);
         $set = self::getDB()->query($sql);
 
         if ($set == null) {
@@ -63,7 +63,7 @@ class MobileFeedbackModel extends Libs\RESTModel {
      */
     function getFeedbackItem($item_id)
     {
-        $sql = Libs\RESTLib::safeSQL('SELECT * FROM '.self::TABLE.' WHERE id = %d', $item_id);
+        $sql = Libs\RESTDatabase::safeSQL('SELECT * FROM '.self::TABLE.' WHERE id = %d', $item_id);
         $set = self::getDB()->query($sql);
 
         if ($set != null && $row = self::getDB()->fetchAssoc($set)) {
@@ -79,7 +79,7 @@ class MobileFeedbackModel extends Libs\RESTModel {
      */
     public function updateFeedbackItem($id, $fieldname, $newval)
     {
-        $sql = Libs\RESTLib::safeSQL('UPDATE '.self::TABLE.' SET %s = %s WHERE id = %d', $fieldname, $newval, $id);
+        $sql = Libs\RESTDatabase::safeSQL('UPDATE '.self::TABLE.' SET %s = %s WHERE id = %d', $fieldname, $newval, $id);
         $numAffRows = self::getDB()->manipulate($sql);
         return $numAffRows;
     }
@@ -91,7 +91,7 @@ class MobileFeedbackModel extends Libs\RESTModel {
      */
     public function deleteFeedbackItem($id)
     {
-        $sql = Libs\RESTLib::safeSQL('DELETE FROM '.self::TABLE.' WHERE id = %d', $id);
+        $sql = Libs\RESTDatabase::safeSQL('DELETE FROM '.self::TABLE.' WHERE id = %d', $id);
         $numAffRows = self::getDB()->manipulate($sql);
         return $numAffRows;
     }

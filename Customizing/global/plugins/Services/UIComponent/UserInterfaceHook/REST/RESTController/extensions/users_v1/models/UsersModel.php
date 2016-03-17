@@ -235,7 +235,7 @@ class UsersModel extends Libs\RESTModel
     public function findExtLdapUser($ext_name)
     {
         global $ilDB;
-        $sql = Libs\RESTLib::safeSQL('SELECT * FROM usr_data WHERE ext_account = %s AND auth_mode = \'ldap\'', $ext_name);
+        $sql = Libs\RESTDatabase::safeSQL('SELECT * FROM usr_data WHERE ext_account = %s AND auth_mode = \'ldap\'', $ext_name);
         $query = $ilDB->query($sql);
 
         if ($usr = $ilDB->fetchAssoc($query))
@@ -254,7 +254,7 @@ class UsersModel extends Libs\RESTModel
     public function findExtLdapUsers()
     {
         global $ilDB;
-        $sql = Libs\RESTLib::safeSQL('SELECT * FROM usr_data WHERE auth_mode = \'ldap\'');
+        $sql = Libs\RESTDatabase::safeSQL('SELECT * FROM usr_data WHERE auth_mode = \'ldap\'');
         $query = $ilDB->query($sql);
 
         if ($usr = $ilDB->fetchAssoc($query))
