@@ -22,7 +22,7 @@ class RepositoryAdminModel
     protected static function getLatestReadEventTimestamp($obj_id) {
         global $ilDB;
 
-        $sql = self::safeSQL('SELECT last_access FROM read_event WHERE obj_id = %d ORDER BY last_access DESC LIMIT 1', $obj_id);
+        $sql = Libs\RESTDatabase::safeSQL('SELECT last_access FROM read_event WHERE obj_id = %d ORDER BY last_access DESC LIMIT 1', $obj_id);
         $query = $ilDB->query($sql);
         $row = $ilDB->fetchAssoc($query);
 
@@ -40,7 +40,7 @@ class RepositoryAdminModel
     protected static function getObjectData($obj_id, $fields) {
         global $ilDB;
 
-        $sql = self::safeSQL('SELECT '. implode(', ', $fields) .' FROM object_data WHERE object_data.obj_id = %d', $obj_id);
+        $sql = Libs\RESTDatabase::safeSQL('SELECT '. implode(', ', $fields) .' FROM object_data WHERE object_data.obj_id = %d', $obj_id);
         $query = $ilDB->query($sql);
         $row = $ilDB->fetchAssoc($query);
 
@@ -58,7 +58,7 @@ class RepositoryAdminModel
     protected static function getTopKReadEventTimestamp($obj_id, $k) {
         global $ilDB;
 
-        $sql = self::safeSQL('SELECT last_access FROM read_event WHERE obj_id = %d ORDER BY last_access DESC LIMIT %d', $obj_id, $k);
+        $sql = Libs\RESTDatabase::safeSQL('SELECT last_access FROM read_event WHERE obj_id = %d ORDER BY last_access DESC LIMIT %d', $obj_id, $k);
         $query = $ilDB->query($sql);
         $list = array();
         $cnt = 0;
@@ -141,7 +141,7 @@ class RepositoryAdminModel
     {
        // echo 'Running getRekNode ('.$ref_id.','.$parent_ref_id.') \n';
         // Step: get node data
-        $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
+        $obj_id = Libs\RESTilias::getObjId($ref_id);
         $node_data = self::getObjectData($obj_id, array('create_date','description','title','type'));
         $node_data['ref_id'] = $ref_id;
 
@@ -223,7 +223,7 @@ class RepositoryAdminModel
     {
         // echo 'Running getRekNode ('.$ref_id.','.$parent_ref_id.') \n';
         // Step: get node data
-        $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
+        $obj_id = Libs\RESTilias::getObjId($ref_id); //Libs\RESTLib::getObjIdFromRef($ref_id);
         $node_data = self::getObjectData($obj_id, array('create_date','description','title','type'));
         $node_data['ref_id'] = '$ref_id';
 
@@ -234,7 +234,7 @@ class RepositoryAdminModel
         //$a_timestamps = array();
         foreach ($childs as $item) {
             // Check if the current item has been read within the last $max_timeinterval
-            $ct_obj_id = Libs\RESTLib::getObjIdFromRef($item['ref_id']);
+            $ct_obj_id = Libs\RESTilias::getObjId($item['ref_id']);
             $ct_last_read = self::getLatestReadEventTimestamp($ct_obj_id);
             if (time() - $max_timeinterval < $ct_last_read) {
                // echo 'within! last read event: '.date('Y-m-d H-i-s', $ct_last_read).'\n';
@@ -279,10 +279,10 @@ class RepositoryAdminModel
     {
         // echo 'Running getRekNode ('.$ref_id.','.$parent_ref_id.') \n';
         // Step: get node data
-        $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
+        $obj_id = Libs\RESTilias::getObjId($ref_id);
         $node_data = array();
         //$node_data = self::getObjectData($obj_id, array('create_date','description','title','type'));
-        $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
+        $obj_id = Libs\RESTilias::getObjId($ref_id);
         $node_data['obj_id'] = $obj_id;
         $a_timestamps = self::getTopKReadEventTimestamp($obj_id, $k);
         $node_data['timestamps'] = $a_timestamps;

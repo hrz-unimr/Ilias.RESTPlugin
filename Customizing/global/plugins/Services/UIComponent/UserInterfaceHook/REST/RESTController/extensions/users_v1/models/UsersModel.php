@@ -57,7 +57,7 @@ class UsersModel extends Libs\RESTModel
      */
     public function deleteUser($id)
     {
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
         $usrObj = \ilObjectFactory::getInstanceByObjId($id, false);
         if ($usrObj == false) {
             return false;
@@ -120,7 +120,7 @@ class UsersModel extends Libs\RESTModel
         $new_user->saveAsNew();
 
         // Assign 'User' role per default
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
         global $rbacadmin, $rbacreview;
         $user_role_array = $rbacreview->getRolesByFilter($rbacreview::FILTER_ALL, 0, 'User');
         $user_role_id = $user_role_array[0]['obj_id'];
@@ -177,8 +177,8 @@ class UsersModel extends Libs\RESTModel
        $userId  = Auth\Util::getAccessToken()->getUserId();
 
         // TODO: do it here or in route?
-        Libs\RESTLib::loadIlUser($userId);
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::loadIlUser($userId);
+        Libs\RESTilias::initAccessHandling();
 
 
         $parser = new \ilUserImportParser();

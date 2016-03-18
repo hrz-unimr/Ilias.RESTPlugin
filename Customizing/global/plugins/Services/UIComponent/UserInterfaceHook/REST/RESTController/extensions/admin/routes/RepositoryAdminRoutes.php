@@ -20,6 +20,7 @@ $app->group('/admin', function () use ($app) {
     $app->get('/repository/:ref_id', RESTAuth::checkAccess(RESTAuth::ADMIN), function ($ref_id) use ($app) {
         $maxDepth = 1000;
         $maxAge = 24; // 24 month
+        $request  = $app->request();
         $maxDepth = $request->params("depth");
         $maxAge = $request->params("age");
 

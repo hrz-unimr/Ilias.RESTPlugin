@@ -163,8 +163,8 @@ $app->delete('/v1/users/:user_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), 
     try {
         $result = array();
 
-        Libs\RestLib::loadIlUser();
-        Libs\RestLib::initAccessHandling();
+        Libs\RESTilias::loadIlUser();
+        Libs\RESTilias::initAccessHandling();
 
         $usr_model = new UsersModel();
         $status = $usr_model->deleteUser($user_id);
