@@ -52,8 +52,8 @@ class GroupsModel extends Libs\RESTModel
     public function getGroupInfo($crs_ref_id)
     {
         require_once('./Services/Xml/classes/class.ilSaxParser.php');
-        Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
-        Libs\RESTLib::initGlobal('ilObjDataCache', 'ilObjectDataCache','./Services/Object/classes/class.ilObjectDataCache.php');
+        Libs\RESTilias::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
+        Libs\RESTilias::initGlobal('ilObjDataCache', 'ilObjectDataCache','./Services/Object/classes/class.ilObjectDataCache.php');
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilObjDataCache;
 
         $grp_info = array();
@@ -77,7 +77,7 @@ class GroupsModel extends Libs\RESTModel
     {
 
         require_once('./Services/Xml/classes/class.ilSaxParser.php');
-        Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
+        Libs\RESTilias::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
 
         $crs_items = array();

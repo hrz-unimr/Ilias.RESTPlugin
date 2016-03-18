@@ -32,13 +32,13 @@ class CalendarModel
         $ilUser->read();
         Libs\RESTilias::initAccessHandling();
 
-        Libs\RESTLib::initGlobal("ilObjDataCache", "ilObjectDataCache",
+        Libs\RESTilias::initGlobal("ilObjDataCache", "ilObjectDataCache",
             "./Services/Object/classes/class.ilObjectDataCache.php");
 
         // needed in ilObjectDefinition
         require_once("./Services/Xml/classes/class.ilSaxParser.php");
 
-        Libs\RESTLib::initGlobal("objDefinition", "ilObjectDefinition",
+        Libs\RESTilias::initGlobal("objDefinition", "ilObjectDefinition",
             "./Services/Object/classes/class.ilObjectDefinition.php");
         global $ilObjDataCache, $objDefinition;
 

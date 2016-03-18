@@ -34,7 +34,7 @@ class FileModel extends Libs\RESTModel
         Libs\RESTilias::initAccessHandling();
 
         require_once('./Services/Xml/classes/class.ilSaxParser.php');
-        Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
+        Libs\RESTilias::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
         global $ilAccess;
 
@@ -66,7 +66,7 @@ class FileModel extends Libs\RESTModel
     {
         //        //global $ilDB;
         require_once('./Services/Xml/classes/class.ilSaxParser.php');
-        Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
+        Libs\RESTilias::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
         $fileObj=  \ilObjectFactory::getInstanceByObjId($obj_id);
 
@@ -92,9 +92,9 @@ class FileModel extends Libs\RESTModel
         define ('MAXLENGTH_OBJ_DESC',123);
 
         require_once('./Services/Xml/classes/class.ilSaxParser.php');
-        Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
-        Libs\RESTLib::initGlobal('ilAppEventHandler', 'ilAppEventHandler','./Services/EventHandling/classes/class.ilAppEventHandler.php');
-        Libs\RESTLib::initGlobal('ilObjDataCache', 'ilObjectDataCache','./Services/Object/classes/class.ilObjectDataCache.php');
+        Libs\RESTilias::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
+        Libs\RESTilias::initGlobal('ilAppEventHandler', 'ilAppEventHandler','./Services/EventHandling/classes/class.ilAppEventHandler.php');
+        Libs\RESTilias::initGlobal('ilObjDataCache', 'ilObjectDataCache','./Services/Object/classes/class.ilObjectDataCache.php');
         Libs\RESTilias::loadIlUser();
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilAppEventHandler, $ilObjDataCache, $ilUser;
 
@@ -256,8 +256,8 @@ class FileModel extends Libs\RESTModel
      */
     protected function putObjectInTree(\ilObject $a_obj, $a_parent_node_id = null)
     {
-        Libs\RESTLib::initGlobal('rbacreview', 'ilRbacReview', './Services/AccessControl/classes/class.ilRbacReview.php');
-        Libs\RESTLib::initGlobal('rbacadmin', 'ilRbacAdmin', './Services/AccessControl/classes/class.ilRbacAdmin.php');
+        Libs\RESTilias::initGlobal('rbacreview', 'ilRbacReview', './Services/AccessControl/classes/class.ilRbacReview.php');
+        Libs\RESTilias::initGlobal('rbacadmin', 'ilRbacAdmin', './Services/AccessControl/classes/class.ilRbacAdmin.php');
         //ilInitialisation::initAccessHandling();
         global $rbacreview, $ilUser, $objDefinition;
 

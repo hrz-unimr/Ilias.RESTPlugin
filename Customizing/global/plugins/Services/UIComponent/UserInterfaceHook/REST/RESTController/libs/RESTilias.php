@@ -218,6 +218,9 @@ class RESTilias {
     return ilInitialisation::initAccessHandling();
   }
 
+  public static function initGlobal($a,$b,$c) {
+    ilInitialisation::initGlobal($a,$b,$c);
+  }
 
   /**
    * Function: loadIlUser($userId)
