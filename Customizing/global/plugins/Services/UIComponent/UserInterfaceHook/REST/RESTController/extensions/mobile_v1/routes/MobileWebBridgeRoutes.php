@@ -55,7 +55,7 @@ $app->group('/v1/m', function () use ($app) {
         // Mimics showLearningModule() of Modules/HTMLLearningModule/ilObjFileBasedLMGUI
         // TODO: add ilLearningProgress::_tracProgress support
         require_once("./Modules/HTMLLearningModule/classes/class.ilObjFileBasedLMAccess.php");
-        $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
+        $obj_id = Libs\RESTilias::getObjId($ref_id);
         \ilObjFileBasedLMAccess::_determineStartUrl($obj_id);
         $startfile =  \ilObjFileBasedLMAccess::$startfile[(string)$obj_id];
         if ($startfile != "")

@@ -34,7 +34,7 @@ $app->group('/v1', function () use ($app) {
 
 
         if ($id_type == "ref_id") {
-            $obj_id = Libs\RESTLib::getObjIdFromRef($id);
+            $obj_id = Libs\RESTilias::getObjId($id);
         } else {
             $obj_id = $id;
         }

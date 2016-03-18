@@ -33,7 +33,7 @@ class BibliographyModel
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        $obj_id = Libs\RESTLib::getObjIdFromRef($ref_id);
+        $obj_id = Libs\RESTilias::getObjId($ref_id);
 
         // Check access rights
         if (!(($ilAccess->checkAccess('read', "", $ref_id) )
