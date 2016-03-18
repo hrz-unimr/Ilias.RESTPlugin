@@ -238,8 +238,10 @@ class RESTilias {
 
     // Fetch user-id from access-token if non is given
     if (!isset($userId)) {
-      $accessToken  = Auth\Util::getAccessToken();
+      $app = \RESTController\RESTController::getInstance();
+      $accessToken =  \RESTController\RESTController::getInstance()->request()->getToken();
       $userId       = $accessToken->getUserId();
+      //$app->getLog()->debug('userId = '.$userId);
     }
 
     // Create user-object if id is given
@@ -466,7 +468,8 @@ class RESTilias {
 
     // Fetch user-id from access-token if non is given
     if (!isset($userId)) {
-      $accessToken  = Auth\Util::getAccessToken();
+      //$accessToken  = Auth\Util::getAccessToken();
+      $accessToken = RESTRequest::getToken();
       $userId       = $accessToken->getUserId();
     }
 

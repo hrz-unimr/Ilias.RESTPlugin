@@ -160,7 +160,6 @@ $app->put('/v1/users/:user_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), fun
  * Deletes a user entry.
  */
 $app->delete('/v1/users/:user_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($user_id) use ($app) {
-    try {
         $result = array();
 
         Libs\RESTilias::loadIlUser();
@@ -169,11 +168,9 @@ $app->delete('/v1/users/:user_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), 
         $usr_model = new UsersModel();
         $status = $usr_model->deleteUser($user_id);
 
-        if ($status)
-            $app->success("User with id $user_id deleted.");
-        else
-            $app->halt(500, "Could not delete user ".$user_id.".");
-    } catch (Libs\Exceptions\IliasApplication $e) {
-        $app->halt(400, $e->getMessage());
-    }
+        if ($status) {
+            $app->success(200,"User with id $user_id deleted.");
+        } else {
+            $app->halt(404, "Could not delete user " . $user_id . ".");
+        }
 });
