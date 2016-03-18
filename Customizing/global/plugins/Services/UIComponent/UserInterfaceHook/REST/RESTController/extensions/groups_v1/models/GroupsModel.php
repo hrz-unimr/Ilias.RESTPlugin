@@ -36,7 +36,7 @@ class GroupsModel extends Libs\RESTModel
         global    $ilUser;
         $ilUser->setId($usr_id);
         $ilUser->read();
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
        // $list = \ilUtil::getDataDir();
         $list = \ilUtil::_getObjectsByOperations('grp','visible,read',$usr_id); // returns ref_ids
         return $list;
@@ -108,7 +108,7 @@ class GroupsModel extends Libs\RESTModel
     {
         $a_userids = array();
         Libs\RESTLib::loadIlUser();
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
 
         $obj = \ilObjectFactory::getInstanceByRefId($grp_ref_id,false);
         if(!is_null($obj) && is_a($obj, 'ilObjGroup')) {

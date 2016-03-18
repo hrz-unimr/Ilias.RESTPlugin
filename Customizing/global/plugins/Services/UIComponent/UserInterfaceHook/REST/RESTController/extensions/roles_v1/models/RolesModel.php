@@ -21,7 +21,7 @@ class RolesModel {
         $userId  = Auth\Util::getAccessToken()->getUserId();
 
         Libs\RESTLib::loadIlUser($userId);
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
 
 
         if(!$rbacsystem->checkAccess('read',ROLE_FOLDER_ID))

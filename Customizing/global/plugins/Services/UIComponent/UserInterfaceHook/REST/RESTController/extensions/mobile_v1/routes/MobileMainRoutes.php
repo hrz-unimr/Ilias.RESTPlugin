@@ -42,7 +42,7 @@ $app->group('/v1/m', function () use ($app) {
 
         $user_id = Auth\Util::getAccessToken()->getUserId();
 
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
 
         $userModel = new Users\UsersModel();
         $userData = $userModel->getBasicUserData($user_id);

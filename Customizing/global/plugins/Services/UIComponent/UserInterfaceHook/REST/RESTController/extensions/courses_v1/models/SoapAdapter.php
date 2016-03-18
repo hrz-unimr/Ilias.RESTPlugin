@@ -27,7 +27,7 @@ class SoapAdapter {
      * Creates a valid session, which can be used for SOAP calls.
      */
     public function loginSOAP() {
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
         $ilDB = $GLOBALS['ilDB'];
 
         define ("IL_SOAPMODE", IL_SOAPMODE_INTERNAL);

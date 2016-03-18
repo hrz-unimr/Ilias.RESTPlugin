@@ -28,7 +28,7 @@ $app->group('/v1', function () use ($app) {
         $user_id = Auth\Util::getAccessToken()->getUserId();
 
         try {
-            Libs\RESTLib::initAccessHandling();
+            Libs\RESTilias::initAccessHandling();
             $grpModel = new Groups\GroupsModel();
             $my_groups = $grpModel->getGroupsOfUser($user_id);
             $result['groups'] = $my_groups;
@@ -43,7 +43,7 @@ $app->group('/v1', function () use ($app) {
         $user_id = Auth\Util::getAccessToken()->getUserId();
 
         try {
-            Libs\RESTLib::initAccessHandling();
+            Libs\RESTilias::initAccessHandling();
             $grpModel = new Groups\GroupsModel();
             $info = $grpModel->getGroupInfo($ref_id);
             $result['info'] = $info;

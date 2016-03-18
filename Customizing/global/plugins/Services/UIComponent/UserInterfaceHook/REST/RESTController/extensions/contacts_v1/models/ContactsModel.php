@@ -30,7 +30,7 @@ class ContactsModel
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
 
         $abook = new \ilAddressbook($ilUser->getId());
         $entries = $abook->getEntries();

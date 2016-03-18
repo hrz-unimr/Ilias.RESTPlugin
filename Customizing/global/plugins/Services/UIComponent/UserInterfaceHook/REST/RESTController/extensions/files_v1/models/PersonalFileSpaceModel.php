@@ -36,7 +36,7 @@ class PersonalFileSpaceModel {
         Libs\RESTLib::loadIlUser();
         $ilUser->setId($user_id);
         $ilUser->read();
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
 
         $source_object = \ilObjectFactory::getInstanceByObjId($file_id);
         $owner_id = $source_object->getOwner();
@@ -194,7 +194,7 @@ class PersonalFileSpaceModel {
         $tree->deleteReference($source_node_id);
         $source_node = $tree->getNodeData($source_node_id);
         $tree->deleteTree($source_node);
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
         $source_object = \ilObjectFactory::getInstanceByObjId($obj_id);
         $source_object->delete();
     }

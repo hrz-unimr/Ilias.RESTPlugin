@@ -31,7 +31,7 @@ class NewsModel extends Libs\RESTModel {
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
 
         $ref_ids = array();
         $obj_ids = array();

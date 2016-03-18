@@ -330,7 +330,7 @@ class RepositoryAdminModel
         global    $ilUser;
         $ilUser->setId(6);
         $ilUser->read();
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
 
         include_once('Modules/Category/classes/class.ilObjCategory.php');
         $newObj = new \ilObjCategory();

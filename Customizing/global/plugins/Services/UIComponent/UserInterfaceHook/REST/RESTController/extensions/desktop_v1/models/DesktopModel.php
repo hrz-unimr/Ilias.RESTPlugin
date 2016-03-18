@@ -30,7 +30,7 @@ class DesktopModel
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
 
         $items = $ilUser->getDesktopItems();
         return $items;
@@ -62,7 +62,7 @@ class DesktopModel
         global $ilDB;
         $ilUser->setId($user_id);
         $ilUser->read();
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
         $ilUser->dropDesktopItem($ref_id, $item_type);
     }
 
@@ -94,7 +94,7 @@ class DesktopModel
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
         $ilUser->addDesktopItem($ref_id, $item_type);
         return true;
     }
@@ -115,7 +115,7 @@ class DesktopModel
             $ilUser->setId($user_id);
             $ilUser->read();
         }
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
         return $ilUser->isDesktopItem($a_item_id, $a_type);
     }*/
 

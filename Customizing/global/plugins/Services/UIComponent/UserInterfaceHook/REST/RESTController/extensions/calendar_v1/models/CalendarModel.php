@@ -30,7 +30,7 @@ class CalendarModel
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
 
         Libs\RESTLib::initGlobal("ilObjDataCache", "ilObjectDataCache",
             "./Services/Object/classes/class.ilObjectDataCache.php");
@@ -124,7 +124,7 @@ class CalendarModel
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
 
         include_once('./Services/Http/classes/class.ilHTTPS.php');
         $https = new \ilHTTPS();

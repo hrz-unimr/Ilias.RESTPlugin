@@ -31,7 +31,7 @@ class FileModel extends Libs\RESTModel
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
 
         require_once('./Services/Xml/classes/class.ilSaxParser.php');
         Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');

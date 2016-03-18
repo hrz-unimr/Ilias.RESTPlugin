@@ -67,7 +67,7 @@ $app->group('/v1', function () use ($app) {
             $description = $request->params('description', '');
 
             Libs\RestLib::loadIlUser();
-            Libs\RestLib::initAccessHandling();
+            Libs\RESTilias::initAccessHandling();
             if(!$GLOBALS['ilAccess']->checkAccess("create_crs", "", $ref_id))
                 $app->halt(401, "Insufficient access rights");
 
@@ -94,7 +94,7 @@ $app->group('/v1', function () use ($app) {
         Libs\RestLib::loadIlUser();
         $ilUser->setId((int)$user_id);
         $ilUser->read();
-        Libs\RestLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
 
         global $rbacsystem;
 

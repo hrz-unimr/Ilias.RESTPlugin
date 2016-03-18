@@ -26,7 +26,7 @@ $app->group('/v1/m', function () use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user_id = $accessToken->getUserId();
 
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
         $wa_model = new Admin\WorkspaceAdminModel();
         $ws_array = $wa_model->getUserWorkspaceItems($user_id);
 
@@ -49,7 +49,7 @@ $app->group('/v1/m', function () use ($app) {
             $file_id = $request->params('file_id', null, false);
             $target_ref_id = $request->params('target_ref_id', null, false);
 
-            Libs\RESTLib::initAccessHandling();
+            Libs\RESTilias::initAccessHandling();
             $model = new Files\PersonalFileSpaceModel();
             $status = $model->clone_file_into_repository($user_id, $file_id, $target_ref_id);
 
@@ -77,7 +77,7 @@ $app->group('/v1/m', function () use ($app) {
             $file_id = $request->params('file_id', null, false);
             $target_ref_id = $request->params('target_ref_id', null, false);
 
-            Libs\RESTLib::initAccessHandling();
+            Libs\RESTilias::initAccessHandling();
             $model = new Files\PersonalFileSpaceModel();
             $status = $model->clone_file_into_repository($user_id, $file_id, $target_ref_id);
 
@@ -121,7 +121,7 @@ $app->group('/v1/m', function () use ($app) {
         }
         //error_log(1);
         // Try to upload file
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
         $model = new Files\PersonalFileSpaceModel();
         $resp = $model->handleFileUploadIntoMyFileSpace($_FILES['uploadfile'],$user_id,$user_id);
 
@@ -143,7 +143,7 @@ $app->group('/v1/m', function () use ($app) {
         $request = $app->request();
         try {
             $file_id = $request->params('file_id', null, false);
-            Libs\RESTLib::initAccessHandling();
+            Libs\RESTilias::initAccessHandling();
             $model = new Files\PersonalFileSpaceModel();
             $model->deleteFromMyFileSpace($file_id, $user_id);
         } catch(Exceptions\MissingParameter $e) {

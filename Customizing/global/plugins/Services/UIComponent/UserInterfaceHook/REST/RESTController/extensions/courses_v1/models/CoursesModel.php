@@ -36,7 +36,7 @@ class CoursesModel extends Libs\RESTModel
         global    $ilUser;
         $ilUser->setId($usr_id);
         $ilUser->read();
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
        // $list = ilUtil::getDataDir();
         $list = \ilUtil::_getObjectsByOperations('crs','visible,read',$usr_id); // returns ref_ids
         return $list;
@@ -53,7 +53,7 @@ class CoursesModel extends Libs\RESTModel
         global    $ilUser;
         $ilUser->setId($usr_id);
         $ilUser->read();
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
         $list = \ilUtil::_getObjectsByOperations('crs','visible,read'); // returns ref_ids
         foreach ($list as $id) {
             $result[] = array($this->getCourseInfo($id));
@@ -148,7 +148,7 @@ class CoursesModel extends Libs\RESTModel
     {
         $a_userids = array();
         Libs\RESTLib::loadIlUser();
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
 
         $obj = \ilObjectFactory::getInstanceByRefId($crs_ref_id,false);
         if(!is_null($obj) && is_a($obj, 'ilObjCourse')) {

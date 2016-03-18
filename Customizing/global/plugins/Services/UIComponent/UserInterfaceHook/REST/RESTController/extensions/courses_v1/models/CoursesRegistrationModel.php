@@ -45,7 +45,7 @@ class CoursesRegistrationModel
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read(); // Throws Exception on failure, catch in route!
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
 
         $this->initParticipants();
         $this->initWaitingList();
@@ -68,7 +68,7 @@ class CoursesRegistrationModel
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
         if ($this->checkUnsubscribeConditions() == false)
             throw new \Exception('User cannot leave the course, because he is the last course admin.');
         else

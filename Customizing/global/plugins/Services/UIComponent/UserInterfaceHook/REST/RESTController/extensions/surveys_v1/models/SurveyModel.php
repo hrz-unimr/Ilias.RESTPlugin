@@ -31,7 +31,7 @@ class SurveyModel extends Libs\RESTModel
         global    $ilUser;
         $ilUser->setId($usr_id);
         $ilUser->read();
-        Libs\RESTLib::initAccessHandling();
+        Libs\RESTilias::initAccessHandling();
         $list = \ilUtil::_getObjectsByOperations('svy','visible,read'); // returns ref_ids
         foreach ($list as $id) {
             $result[] = array($this->getSurveyInfo($id));
