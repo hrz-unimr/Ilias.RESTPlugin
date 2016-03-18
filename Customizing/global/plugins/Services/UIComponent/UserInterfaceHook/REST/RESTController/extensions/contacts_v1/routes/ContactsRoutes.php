@@ -22,7 +22,7 @@ $app->group('/v1', function () use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $authorizedUserId = $accessToken->getUserId();
 
-        if ($authorizedUserId == $id || Libs\RESTLib::isAdminByUserId($authorizedUserId)) { // only the user or the admin is allowed to access the data
+        if ($authorizedUserId == $id || Libs\RESTilias::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
             try {
                 $model = new ContactsModel();
                 $data = $model->getMyContacts($id);

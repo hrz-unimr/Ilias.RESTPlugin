@@ -22,7 +22,7 @@ $app->group('/v1', function () use ($app) {
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 
-        if ($authorizedUserId == $id || Libs\RESTLib::isAdminByUserId($authorizedUserId)) { // only the user or the admin is allowed to access the data
+        if ($authorizedUserId == $id || Libs\RESTilias::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
             $model = new CalendarModel();
             $data = $model->getCalUpcomingEvents($id);
             $app->success($data);
@@ -40,7 +40,7 @@ $app->group('/v1', function () use ($app) {
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 
-        if ($authorizedUserId == $id || Libs\RESTLib::isAdminByUserId($authorizedUserId)) { // only the user or the admin is allowed to access the data
+        if ($authorizedUserId == $id || Libs\RESTilias::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
             $model = new CalendarModel();
             $data = $model->getIcalAdress($id);
 
