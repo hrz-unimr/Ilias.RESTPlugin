@@ -127,7 +127,7 @@ $app->group('/v1', function () use ($app) {
 
         if($mode == "by_login") {
             $login = $request->params("login");
-            $user_id = Libs\RESTLib::getUserIdFromUserName($login);
+            $user_id = Libs\RESTilias::getUserName($login);
             if(empty($user_id)){
                 $data = $request->params("data");
                 $userData = array_merge(array(

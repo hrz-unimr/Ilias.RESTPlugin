@@ -57,7 +57,7 @@ $app->group('/v1', function () use ($app) {
     $app->get('/cal/events', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user = $accessToken->getUserName();
-        $authorizedUserId =  Libs\RESTLib::getUserIdFromUserName($user);
+        $authorizedUserId =  Libs\RESTilias::getUserName($user);
 
         if ($authorizedUserId > -1) { // only the user is allowed to access the data
             $id = $authorizedUserId;
@@ -77,7 +77,7 @@ $app->group('/v1', function () use ($app) {
     $app->get('/cal/icalurl', RESTAuth::checkAccess(RESTAuth::PERMISSION) , function () use ($app) {
         $accessToken = Auth\Util::getAccessToken();
         $user = $accessToken->getUserName();
-        $authorizedUserId =  Libs\RESTLib::getUserIdFromUserName($user);
+        $authorizedUserId =  Libs\RESTilias::getUserName($user);
 
         if ($authorizedUserId > -1 ) { // only the user or the admin is allowed to access the data
             $id = $authorizedUserId;
