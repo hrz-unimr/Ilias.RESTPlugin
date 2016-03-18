@@ -27,7 +27,7 @@ class FileModel extends Libs\RESTModel
     function getFileObjForUser($file_obj_id, $user_id)
     {
 
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
@@ -95,7 +95,7 @@ class FileModel extends Libs\RESTModel
         Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
         Libs\RESTLib::initGlobal('ilAppEventHandler', 'ilAppEventHandler','./Services/EventHandling/classes/class.ilAppEventHandler.php');
         Libs\RESTLib::initGlobal('ilObjDataCache', 'ilObjectDataCache','./Services/Object/classes/class.ilObjectDataCache.php');
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilAppEventHandler, $ilObjDataCache, $ilUser;
 
         // file upload params

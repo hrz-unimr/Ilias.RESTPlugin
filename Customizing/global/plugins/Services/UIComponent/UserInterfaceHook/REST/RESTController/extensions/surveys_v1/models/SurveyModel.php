@@ -27,7 +27,7 @@ class SurveyModel extends Libs\RESTModel
      */
     public function getAllSurveys($usr_id)
     {
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global    $ilUser;
         $ilUser->setId($usr_id);
         $ilUser->read();
@@ -74,7 +74,7 @@ class SurveyModel extends Libs\RESTModel
      * @param $user_id
      */
     public function fillRandomAnswers($ref_id, $user_id){
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
@@ -91,7 +91,7 @@ class SurveyModel extends Libs\RESTModel
      * @return array
      */
     public function getJsonRepresentation($ref_id, $user_id) {
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
@@ -145,7 +145,7 @@ class SurveyModel extends Libs\RESTModel
      * @return array
      */
     public function getSurveyResultsOfUser($ref_id, $user_id) {
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
@@ -163,7 +163,7 @@ class SurveyModel extends Libs\RESTModel
      * @param $user_id
      */
     public function removeSurveyResultsOfAllUsers($ref_id, $user_id) {
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
@@ -179,7 +179,7 @@ class SurveyModel extends Libs\RESTModel
      */
     private function getFinishIdOfUser($ref_id, $user_id) {
         global $ilDB;
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
@@ -207,7 +207,7 @@ class SurveyModel extends Libs\RESTModel
      * @return active_id (same as finish_id)
      */
     public function beginSurvey($ref_id, $user_id){
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
@@ -237,7 +237,7 @@ class SurveyModel extends Libs\RESTModel
         }
         if (count($mpc_answers)==0) return false;
 
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
@@ -275,7 +275,7 @@ class SurveyModel extends Libs\RESTModel
      * @param $finish_id
      */
     public function finishSurvey($ref_id, $user_id, $finish_id){
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();

@@ -41,7 +41,7 @@ class CoursesRegistrationModel
         $this->obj_id = Libs\RESTilias::getObjId($ref_id);
         $this->container = \ilObjectFactory::getInstanceByRefId($this->ref_id, false);
 
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read(); // Throws Exception on failure, catch in route!
@@ -64,7 +64,7 @@ class CoursesRegistrationModel
     public function leaveCourse($user_id, $ref_id)
     {
         $this->container = \ilObjectFactory::getInstanceByRefId($ref_id, false);
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();

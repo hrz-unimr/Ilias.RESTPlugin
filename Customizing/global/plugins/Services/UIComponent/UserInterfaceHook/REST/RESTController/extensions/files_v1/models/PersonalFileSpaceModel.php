@@ -33,7 +33,7 @@ class PersonalFileSpaceModel {
     public function clone_file_into_repository($user_id, $file_id, $ref_id_repository)
     {
         global    $ilUser;
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         $ilUser->setId($user_id);
         $ilUser->read();
         Libs\RESTilias::initAccessHandling();
@@ -75,7 +75,7 @@ class PersonalFileSpaceModel {
         Libs\RESTLib::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
         Libs\RESTLib::initGlobal('ilAppEventHandler', 'ilAppEventHandler','./Services/EventHandling/classes/class.ilAppEventHandler.php');
         Libs\RESTLib::initGlobal('ilObjDataCache', 'ilObjectDataCache','./Services/Object/classes/class.ilObjectDataCache.php');
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilAppEventHandler, $ilObjDataCache, $ilUser;
 
         // file upload params

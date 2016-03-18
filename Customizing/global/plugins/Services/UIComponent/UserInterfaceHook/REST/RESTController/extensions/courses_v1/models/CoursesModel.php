@@ -32,7 +32,7 @@ class CoursesModel extends Libs\RESTModel
      */
     public function getCoursesOfUser($usr_id)
     {
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global    $ilUser;
         $ilUser->setId($usr_id);
         $ilUser->read();
@@ -49,7 +49,7 @@ class CoursesModel extends Libs\RESTModel
      */
     public function getAllCourses($usr_id)
     {
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global    $ilUser;
         $ilUser->setId($usr_id);
         $ilUser->read();
@@ -147,7 +147,7 @@ class CoursesModel extends Libs\RESTModel
     public function getCourseMembers($crs_ref_id, $include_tutors_and_admin)
     {
         $a_userids = array();
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         Libs\RESTilias::initAccessHandling();
 
         $obj = \ilObjectFactory::getInstanceByRefId($crs_ref_id,false);

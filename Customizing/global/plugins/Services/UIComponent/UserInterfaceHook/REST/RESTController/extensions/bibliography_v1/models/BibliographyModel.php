@@ -29,7 +29,7 @@ class BibliographyModel
      */
     function getBibliography($ref_id, $user_id) {
         global $ilAccess;
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();

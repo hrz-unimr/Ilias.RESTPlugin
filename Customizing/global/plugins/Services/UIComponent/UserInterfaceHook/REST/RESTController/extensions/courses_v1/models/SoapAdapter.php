@@ -65,7 +65,7 @@ class SoapAdapter {
         }
 
         global $ilUser;
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         $ilUser->setId($user_id);
         $ilUser->read();
 

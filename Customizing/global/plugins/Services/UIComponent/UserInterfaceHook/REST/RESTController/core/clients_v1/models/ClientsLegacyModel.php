@@ -58,7 +58,7 @@ class ClientsLegacyModel extends Libs\RESTModel {
      */
     public static function deletePermission($perm_id)
     {
-        $sql = Libs\RESTLib::safeSQL('DELETE FROM ui_uihk_rest_perm WHERE id = %d', $perm_id);
+        $sql = Libs\RESTDatabase::safeSQL('DELETE FROM ui_uihk_rest_perm WHERE id = %d', $perm_id);
         $numAffRows = self::getDB()->manipulate($sql);
         return $numAffRows;
     }
@@ -71,7 +71,7 @@ class ClientsLegacyModel extends Libs\RESTModel {
      */
     public static function getPermissionByPermId($perm_id)
     {
-        $sql = Libs\RESTLib::safeSQL("SELECT * FROM ui_uihk_rest_perm WHERE id = %d", $perm_id);
+        $sql = Libs\RESTDatabase::safeSQL("SELECT * FROM ui_uihk_rest_perm WHERE id = %d", $perm_id);
         $query = self::getDB()->query($sql);
         if (self::getDB()->numRows($query) > 0) {
             $row = self::getDB()->fetchAssoc($query);
@@ -89,7 +89,7 @@ class ClientsLegacyModel extends Libs\RESTModel {
     public static function getPermissionsForApiKey($api_key)
     {
         $api_key_id = self::getApiIdFromKey($api_key);
-        $sql = Libs\RESTLib::safeSQL("SELECT * FROM ui_uihk_rest_perm WHERE api_id = %d", $api_key_id);
+        $sql = Libs\RESTDatabase::safeSQL("SELECT * FROM ui_uihk_rest_perm WHERE api_id = %d", $api_key_id);
         $query = self::getDB()->query($sql);
         $aPermissions = array();
         while($row = self::getDB()->fetchAssoc($query)) {

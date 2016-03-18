@@ -26,7 +26,7 @@ class ContactsModel
      */
     function getMyContacts($user_id)
     {
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();

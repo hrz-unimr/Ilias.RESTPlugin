@@ -20,7 +20,7 @@ class RolesModel {
 
         $userId  = Auth\Util::getAccessToken()->getUserId();
 
-        Libs\RESTLib::loadIlUser($userId);
+        Libs\RESTilias::loadIlUser($userId);
         Libs\RESTilias::initAccessHandling();
 
 

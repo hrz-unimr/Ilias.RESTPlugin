@@ -26,7 +26,7 @@ class DesktopModel
     function getPersonalDesktopItems($user_id)
     {
 
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
@@ -57,7 +57,7 @@ class DesktopModel
     private function removeItemFromDesktopWithType($user_id, $ref_id, $item_type)
     {
 
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global    $ilUser;
         global $ilDB;
         $ilUser->setId($user_id);
@@ -90,7 +90,7 @@ class DesktopModel
     private function addItemToDesktopWithType($user_id, $ref_id, $item_type)
     {
 
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
@@ -109,7 +109,7 @@ class DesktopModel
     /*function isDesktopItem($user_id, $ref_id)
     {
 
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global    $ilUser;
         if ($ilUser->getId()!=$user_id) {
             $ilUser->setId($user_id);

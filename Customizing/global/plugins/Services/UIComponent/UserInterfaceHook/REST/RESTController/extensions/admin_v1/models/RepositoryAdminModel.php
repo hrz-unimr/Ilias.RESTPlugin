@@ -325,7 +325,7 @@ class RepositoryAdminModel
      */
     public function createNewCategoryAsUser($parent_ref_id, $title, $desc)
     {
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
 
         global    $ilUser;
         $ilUser->setId(6);

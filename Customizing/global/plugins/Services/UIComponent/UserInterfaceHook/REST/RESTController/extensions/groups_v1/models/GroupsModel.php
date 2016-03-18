@@ -32,7 +32,7 @@ class GroupsModel extends Libs\RESTModel
      */
     public function getGroupsOfUser($usr_id)
     {
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global    $ilUser;
         $ilUser->setId($usr_id);
         $ilUser->read();
@@ -107,7 +107,7 @@ class GroupsModel extends Libs\RESTModel
     public function getGroupMembers($grp_ref_id)
     {
         $a_userids = array();
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         Libs\RESTilias::initAccessHandling();
 
         $obj = \ilObjectFactory::getInstanceByRefId($grp_ref_id,false);

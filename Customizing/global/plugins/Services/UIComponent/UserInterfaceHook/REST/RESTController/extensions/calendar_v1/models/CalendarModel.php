@@ -26,7 +26,7 @@ class CalendarModel
     function getCalUpcomingEvents($user_id)
     {
 
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
@@ -120,7 +120,7 @@ class CalendarModel
      */
     function getIcalAdress($user_id)
     {
-        Libs\RESTLib::loadIlUser();
+        Libs\RESTilias::loadIlUser();
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
