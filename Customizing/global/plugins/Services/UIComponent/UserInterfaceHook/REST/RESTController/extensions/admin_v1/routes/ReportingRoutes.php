@@ -54,4 +54,58 @@ $app->group('/v1/admin/reporting', function () use ($app) {
         $app->success($result);
     });
 
+    /**
+     * Returns statistics about user sessions within a 24-h time frame.
+     */
+    $app->get('/session_stats_daily', RESTAuth::checkAccess(RESTAuth::ADMIN), function () use ($app) {
+
+        $app->log->debug('Calling reporting/sessions_stats_daily route');
+
+        $result = array('msg' => array('querytime'=>date("H:i:s",time()), 'querytimestamp'=>time()));
+        $model = new ReportingModel();
+        $sessions_stats = $model->get_ilias_sessions_daily();
+
+        $result['session_stats_daily'] = $sessions_stats;
+        $result['status'] = 'Ok';
+
+
+        $app->success($result);
+    });
+
+    /**
+     * Returns statistics about user sessions within a 1-h time frame.
+     */
+    $app->get('/session_stats_hourly', RESTAuth::checkAccess(RESTAuth::ADMIN), function () use ($app) {
+
+        $app->log->debug('Calling reporting/sessions_stats_daily route');
+
+        $result = array('msg' => array('querytime'=>date("H:i:s",time()), 'querytimestamp'=>time()));
+        $model = new ReportingModel();
+        $sessions_stats = $model->get_ilias_sessions_hourly();
+
+        $result['session_stats_hourly'] = $sessions_stats;
+        $result['status'] = 'Ok';
+
+
+        $app->success($result);
+    });
+
+    /**
+     * Returns statistics about user sessions within a 1-h time frame.
+     */
+    $app->get('/object_stats', RESTAuth::checkAccess(RESTAuth::ADMIN), function () use ($app) {
+
+        $app->log->debug('Calling reporting/sessions_stats_daily route');
+
+        $result = array('msg' => array('querytime'=>date("H:i:s",time()), 'querytimestamp'=>time()));
+        $model = new ReportingModel();
+        $sessions_stats = $model->get_object_stats();
+
+        $result['object_stats'] = $sessions_stats;
+        $result['status'] = 'Ok';
+
+
+        $app->success($result);
+    });
+
 });

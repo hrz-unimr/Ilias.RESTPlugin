@@ -129,4 +129,84 @@ class ReportingModel extends Libs\RESTModel {
         return $a_data;
     }
 
+    /**
+     * Returns the number of ilias sessions that have been created within the last 60 - minutes.
+     * @return array
+     */
+    public function get_ilias_sessions_hourly()
+    {
+        global $ilDB;
+        $a_data=array();
+
+        $sql="SELECT count(*) as logged_in_hourly FROM usr_data WHERE UNIX_TIMESTAMP( last_login ) > ( UNIX_TIMESTAMP( ) -3600 ) AND UNIX_TIMESTAMP( last_login ) < UNIX_TIMESTAMP( )";
+        $result = $ilDB->query($sql);
+        if (($row = $ilDB->fetchAssoc($result))!=false) {
+            $a_data['logged_in_hourly'] = $row['logged_in_hourly'];
+        }
+
+        $sql = "SELECT count(*) as access_hourly FROM ut_online WHERE access_time > ( UNIX_TIMESTAMP( ) -3600 ) AND access_time < UNIX_TIMESTAMP( )";
+        $result = $ilDB->query($sql);
+        if (($row = $ilDB->fetchAssoc($result))!=false) {
+            $a_data['access_hourly'] = $row['access_hourly'];
+        }
+
+        $sql = "Select count(user_id) as active_user_count from usr_session where from_unixtime(ctime+60*60) > now()";
+        $result = $ilDB->query($sql);
+        if (($row = $ilDB->fetchAssoc($result))!=false) {
+            $a_data['active_user_count'] = $row['active_user_count'];
+        }
+
+
+        $sql = "Select count(distinct user_id) as active_user_count_distinct from usr_session where from_unixtime(ctime+60*60) > now()";
+        $result = $ilDB->query($sql);
+        if (($row = $ilDB->fetchAssoc($result))!=false) {
+            $a_data['active_user_count_distinct'] = $row['active_user_count_distinct'];
+        }
+
+        return $a_data;
+    }
+
+    /**
+     * Returns the number of ilias sessions that have been created within the last 24 hours.
+     * @return array
+     */
+    public function get_ilias_sessions_daily()
+    {
+        global $ilDB;
+        $a_data=array();
+
+        $sql="SELECT count(*) as access_daily FROM ut_online WHERE access_time > ( UNIX_TIMESTAMP( ) - 86400 ) AND access_time < UNIX_TIMESTAMP( );";
+        $result = $ilDB->query($sql);
+        if (($row = $ilDB->fetchAssoc($result))!=false) {
+            $a_data['access_daily'] = $row['access_daily'];
+        }
+
+        $sql = "SELECT count(*) as logged_in_today FROM usr_data WHERE UNIX_TIMESTAMP( last_login ) > ( UNIX_TIMESTAMP( ) -86400 ) AND UNIX_TIMESTAMP( last_login ) < UNIX_TIMESTAMP( )";
+        $result = $ilDB->query($sql);
+        if (($row = $ilDB->fetchAssoc($result))!=false) {
+            $a_data['logged_in_today'] = $row['logged_in_today'];
+        }
+
+        return $a_data;
+    }
+
+    /**
+     * Returns the current numbers of ilias repository objects.
+     * @return array
+     */
+    public function get_object_stats()
+    {
+        global $ilDB;
+        $a_data=array();
+
+        $sql="SELECT type, count(*) AS freq FROM object_data group by type UNION
+SELECT id, count(type) FROM il_object_def LEFT JOIN object_data ON object_data.type=il_object_def.id GROUP BY id ORDER BY type ASC";
+        $result = $ilDB->query($sql);
+        while (($row = $ilDB->fetchAssoc($result))!=false) {
+            $a_data[] = $row;
+        }
+
+        return $a_data;
+    }
+
 }
