@@ -84,8 +84,8 @@ class Common extends Libs\RESTModel {
 
   /**
    * Function: CheckApiKey($apiKey)
-   *  Checks wether a client with given api-key exists and returns it.
-   *  Throws an exception when no client exists!
+   *  Checks if a client with given api-key exists and returns it.
+   *  Throws an exception if no client exists!
    *
    * Parameters:
    *  $apiKey <String> - API-Key to check/return
@@ -112,8 +112,8 @@ class Common extends Libs\RESTModel {
 
   /**
    * Function: CheckIP($client, $remoteIp)
-   *  Check wether the resource-owners user-agent is allowed to use this client
-   *  with his current ip adress. Throws exception if ip is not allowed.
+   *  Check if the resource-owners user-agent is allowed to use this client
+   *  with his current ip address. Throws exception if ip is not allowed.
    *
    * Parameters:
    *  $client <RESTclient> - RESTclient object to use for ip-checking
@@ -158,8 +158,10 @@ class Common extends Libs\RESTModel {
 
   /**
    * Function: CheckUsername($userName)
-   *  Checks wether a user with a given name exists inside the current ilias-client,
-   *  check is case-sensitive. Throws an exception if no match is found.
+   *  Checks if a user with a given name exists inside the current ilias-client.
+   *  Throws an exception if no match is found.
+   *
+   * Note: the name check is case-sensitive
    *
    * Parameters:
    *  $userName <String> - Username that should be checked
@@ -175,7 +177,7 @@ class Common extends Libs\RESTModel {
 
   /**
    * Function: CheckUserRestriction($apiKey, $userId)
-   *  Checks wether the given resource-owner is allowed to use the client
+   *  Checks if the given resource-owner is allowed to use the client
    *  with given api-key. Throws an exception when use is not allowed to use client.
    *
    * Parameters:
@@ -201,8 +203,8 @@ class Common extends Libs\RESTModel {
 
   /**
    * Function: CheckResourceOwner($userName, $passWord)
-   *  Checks wether given resource-owner credentials (ILIAS username and password)
-   *  are valid and throws exception if credentials are not valid.
+   *  Checks if the given resource-owner credentials (ILIAS username and password)
+   *  are valid and throws an exception in case they are not valid.
    *
    * Parameters:
    *  $userName <String> - Username of resource-owner to authenticate
@@ -224,7 +226,7 @@ class Common extends Libs\RESTModel {
 
   /**
    * Function: CheckScope($client, $scope)
-   *  Checks wether the given scope is allowed for the given client.
+   *  Checks if the given scope is allowed for the given client.
    *  Throws an exception if this is not the case.
    *
    * Parameters:

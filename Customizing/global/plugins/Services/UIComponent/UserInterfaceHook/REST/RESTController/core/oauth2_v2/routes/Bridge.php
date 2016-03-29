@@ -18,7 +18,7 @@ $app->group('/v2', function () use ($app) {
   $app->group('/bridge', function () use ($app) {
     /**
      * Route: [POST] /v2/bridge/ilias
-     *  Allows for exchanging an active ilias session for an oauth2 token.
+     *  Allows for exchanging an active ILIAS session for an oauth2 token.
      *
      * Parameters:
      *  api_key <String> - Api-Key used to identify requesting client
@@ -102,7 +102,7 @@ $app->group('/v2', function () use ($app) {
      * Parameters:
      *  api_key <String> - Api-Key used to identify requesting client
      *  access_token <String> - The access-token that should be exchanged for a new ILIAS session
-     *  goto <String> - Goto link (relative to index.php of current ILIAS instance) after successfull creation of new ILIAS sessions
+     *  goto <String> - Goto link (relative to index.php of current ILIAS instance) after successful creation of new ILIAS sessions
      *  <Client-Credentials> - IFF the client is confidential (has a api_secret or crt_* stored)
      *                         This includes either a valid api_secret or a ssl client-certificate.
      *

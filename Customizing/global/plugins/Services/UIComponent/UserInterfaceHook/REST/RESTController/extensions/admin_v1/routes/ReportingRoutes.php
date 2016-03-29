@@ -91,7 +91,7 @@ $app->group('/v1/admin/reporting', function () use ($app) {
     });
 
     /**
-     * Returns statistics about user sessions within a 1-h time frame.
+     * Returns the current number of ilias objects.
      */
     $app->get('/object_stats', RESTAuth::checkAccess(RESTAuth::ADMIN), function () use ($app) {
 

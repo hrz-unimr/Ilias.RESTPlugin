@@ -14,7 +14,7 @@ use \RESTController\database as Database;
 
 /**
  * Class: Admin
- *  Implementes some utility functions and variables for the /Admin routes.
+ *  Implements some utility functions and variables for the /Admin routes.
  *  Mostly handles only minor preprocessing before delegating the work
  *  to the ui_uihk_rest_client, ui_uihk_rest_perm, ui_uihk_rest_config
  *  database table implementation.
