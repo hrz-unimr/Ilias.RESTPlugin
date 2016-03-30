@@ -8,6 +8,7 @@
 namespace RESTController\extensions\admin_v1;
 
 // This allows us to use shortcuts instead of full quantifier
+use Codeception\PhpUnit\ResultPrinter\Report;
 use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 
@@ -23,8 +24,8 @@ $app->group('/v1/admin/reporting', function () use ($app) {
         $app->log->debug('Calling reporting/active_sessions route');
 
         $result = array('msg' => array('querytime'=>date("H:i:s",time()), 'querytimestamp'=>time()));
-        $model = new ReportingModel();
-        $active_sessions_data = $model->getActiveSessions();
+
+        $active_sessions_data = ReportingModel::GetActiveSessions();
 
         $result['active_sessions'] = $active_sessions_data;
         if (count($active_sessions_data) == 0) {
@@ -44,8 +45,8 @@ $app->group('/v1/admin/reporting', function () use ($app) {
         $app->log->debug('Calling reporting/sessions_stats route');
 
         $result = array('msg' => array('querytime'=>date("H:i:s",time()), 'querytimestamp'=>time()));
-        $model = new ReportingModel();
-        $sessions_stats = $model->getSessionStatistics();
+
+        $sessions_stats = ReportingModel::GetSessionStatistics();
 
         $result['session_stats'] = $sessions_stats;
         $result['status'] = 'Ok';
@@ -59,11 +60,11 @@ $app->group('/v1/admin/reporting', function () use ($app) {
      */
     $app->get('/session_stats_daily', RESTAuth::checkAccess(RESTAuth::ADMIN), function () use ($app) {
 
-        $app->log->debug('Calling reporting/sessions_stats_daily route');
+        $app->log->debug('Calling reporting/session_stats_daily route');
 
         $result = array('msg' => array('querytime'=>date("H:i:s",time()), 'querytimestamp'=>time()));
-        $model = new ReportingModel();
-        $sessions_stats = $model->get_ilias_sessions_daily();
+
+        $sessions_stats = ReportingModel::GetSessionsDaily();
 
         $result['session_stats_daily'] = $sessions_stats;
         $result['status'] = 'Ok';
@@ -77,11 +78,11 @@ $app->group('/v1/admin/reporting', function () use ($app) {
      */
     $app->get('/session_stats_hourly', RESTAuth::checkAccess(RESTAuth::ADMIN), function () use ($app) {
 
-        $app->log->debug('Calling reporting/sessions_stats_daily route');
+        $app->log->debug('Calling reporting/session_stats_hourly');
 
         $result = array('msg' => array('querytime'=>date("H:i:s",time()), 'querytimestamp'=>time()));
-        $model = new ReportingModel();
-        $sessions_stats = $model->get_ilias_sessions_hourly();
+
+        $sessions_stats = ReportingModel::GetSessionsHourly();
 
         $result['session_stats_hourly'] = $sessions_stats;
         $result['status'] = 'Ok';
@@ -91,19 +92,42 @@ $app->group('/v1/admin/reporting', function () use ($app) {
     });
 
     /**
-     * Returns the current number of ilias objects.
+     * Returns the current absolute number of ilias objects.
      */
     $app->get('/object_stats', RESTAuth::checkAccess(RESTAuth::ADMIN), function () use ($app) {
 
-        $app->log->debug('Calling reporting/sessions_stats_daily route');
+        $app->log->debug('Calling reporting/object_stats');
 
         $result = array('msg' => array('querytime'=>date("H:i:s",time()), 'querytimestamp'=>time()));
-        $model = new ReportingModel();
-        $sessions_stats = $model->get_object_stats();
+      //  $model = new ReportingModel();
+      //  $sessions_stats = $model->get_object_stats();
+        $obj_stats = ReportingModel::GetObjectStatistics();
 
-        $result['object_stats'] = $sessions_stats;
+        $result['object_stats'] = $obj_stats;
         $result['status'] = 'Ok';
 
+
+        $app->success($result);
+    });
+
+    /**
+     * Returns the access statistics on all ILIAS repository objects within a 24-h time frame.
+     * In addition to the access numbers the route also provides information about the objects, such as
+     *  - title
+     *  - type
+     *  - location within the repository hierarchy
+     */
+    $app->get('/repository_stats', RESTAuth::checkAccess(RESTAuth::ADMIN), function () use ($app) {
+
+        $app->log->debug('Calling reporting/repository_stats');
+
+        $result = array('msg' => array('querytime'=>date("H:i:s",time()), 'querytimestamp'=>time()));
+   //     $model = new ReportingModel();
+   //     $sessions_stats = $model->GetRepositoryStatistics();
+        $repository_stats = ReportingModel::GetRepositoryStatistics();
+
+        $result['repository_stats'] = $repository_stats;
+        $result['status'] = 'Ok';
 
         $app->success($result);
     });

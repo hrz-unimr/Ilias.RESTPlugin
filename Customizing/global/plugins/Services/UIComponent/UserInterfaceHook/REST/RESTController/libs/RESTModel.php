@@ -13,16 +13,11 @@ namespace RESTController\libs;
 
 /**
  * Class: RESTModel
- *  Base class for all 'models'. Models should contain only buisness-logic.
- *  If possible the should not read input parameters themselves or
- *  produce output directly unless this code is strictly separated
- *  from program-logic code.
- *  In other words a Model-Function should either:
- *   - Read (and pre-process) input data
- *   - Write data to the output
- *   - Do buiness-logic calculation
- *  But never two or more of the above at the same time, to keep all
- *  componentfunctions reuseable!
+ *  Base class for all 'models'. Models should contain only business-logic.
+ *
+ *  Models should not read input parameters or produce output themselves directly
+ *  unless the code is strictly separated from program-logic code.
+ *
  */
 class RESTModel {
   /**
