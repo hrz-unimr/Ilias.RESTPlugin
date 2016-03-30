@@ -236,9 +236,8 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
 
         // Fetch available routes
         restRoutes.get(function(response) {
-            //$scope.routes = response.routes;
-            console.log('Fetch routes '+response);
-            $scope.routes = response;
+            console.log('Fetch routes '+angular.toJson(response));
+            $scope.routes = angular.fromJson(angular.toJson(response));
         });
     };
 
@@ -256,9 +255,6 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
      * Mainly used for <select> -> <option> formatting.
      */
     $scope.formatPermissionOption = function(route, verb, middleware) {
-        /*if ( middleware.indexOf("ILIAS::ADMIN") > -1) {
-          return '['+verb+"] "+route+" (Admin)";
-        }*/
         return '['+verb+"] "+route;
     };
 
@@ -303,11 +299,9 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
     $scope.addAllPermissions = function() {
 
         $.each($scope.routes, function(key, value) {
+            console.log('addAllPerms process perm k='+key+' v='+value);
             $scope.addPermission(value);
         });
-        //for (var i=0; i<$scope.routes.length;i++) {
-         //   $scope.addPermission($scope.routes[i]);
-        //}
     }
 
 
