@@ -43,6 +43,8 @@ lang_en_us.config(function($translateProvider) {
         LABEL_LOGIN: 'Login',
         LABEL_CLIENTS: 'Clients',
         LABEL_EDIT: 'Edit',
+        LABEL_OVERVIEW: 'Overview',
+        LABEL_CONFIGURATIONS: 'Configurations',
         
         // Warning & error-messages
         AUTH_PERM: 'You have been logged out because you don\'t have enough permissions to access this menu.',
@@ -68,7 +70,14 @@ lang_en_us.config(function($translateProvider) {
         LOGIN_USERNAME: 'Username',
         LOGIN_PASSWORD: 'Password',
         LOGIN_LOGIN: 'Login',
-        
+
+        // partials/overview.html
+        OVERVIEW_STATUS: 'Status',
+        OVERVIEW_CONFIGURATION : 'Configuration',
+        OVERVIEW_NUM_APIKEYS : '# API-Keys',
+        OVERVIEW_NUM_ACTIVETOKENS : '# Active Tokens',
+        OVERVIEW_NUM_ROUTES : '# Routes (core & extensions)',
+
         // partials/clientlist.html
         LIST_ID: 'ID',
         LIST_API_KEY: 'API-Key',
@@ -132,6 +141,14 @@ lang_en_us.config(function($translateProvider) {
         EDIT_BRIDGE_MSG: 'OAuth2: Token <-> ILIAS Session Bridge',
         EDIT_BRIDGE_FLAG: 'Bridge Flag (i.e. a single letter)',
         EDIT_BRIDGE_DESCRIPTION_TEXT: 'Keep the input field empty to deactivate the bridge. Enter i to enable the creation of an OAuth2 Token with a valid ILIAS session. Enter o to enable the creation of an ILIAS session from a valid token. Enter b to enable both directions.',
+        EDIT_LOGGING_MSG : 'REST Logging',
+        EDIT_CONFIG_LOGGING_MSG: 'Enter log file name here. Please include the full path.',
+        EDIT_CONFIG_LOGGING_DESCRIPTION_TEXT: 'Note that logging is disabled if this field remains blank.',
+        EDIT_ETC_SETTINGS: 'Other Settings',
+        EDIT_CONFIG_ACCESS_TOKEN_MSG: 'Access Token - TTL',
+        EDIT_CONFIG_REFRESH_TOKEN_MSG: 'Refresh Token - TTL',
+        EDIT_CONFIG_SALT_MSG: 'SALT',
+        EDIT_CONFIG_SALT_DESCRIPTION_TEXT: 'SALT is a unique character sequence which is used to lift entropy of the tokens created by the system.',
 
     });
     

@@ -338,3 +338,15 @@ services.service('restRoutes', function($resource, restRoutesURL, restEndpoint) 
         query: { method: 'GET', params: {} }
     });
 });
+
+/*
+ * REST Config endpoint service.
+ *  Use .show({key}, successFunction, failureFunction);
+ *  Use .update({key, {value}}, successFunction, failureFunction);
+ */
+services.service('restConfig', function($resource, restConfigURL, restEndpoint, authentication) {
+    return $resource(restEndpoint.getEndpoint() + restConfigURL, {}, {
+        query: {  method: 'GET', params: {key: '@key'}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
+        update: {  method: 'PUT', params: {key: '@key'}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
+    });
+});

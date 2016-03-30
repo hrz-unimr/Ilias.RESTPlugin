@@ -30,14 +30,14 @@ var app = angular.module('myApp', [
 /*
  * Some (important) global constants, all in one place
  */
-app.constant('version',             '1.3');                               // Application version
+app.constant('version',             '1.4');                               // Application version
 app.constant('apiKey',              'apollon');                           // API-Key used to log into admin-panel (via username/password)
-app.constant('restIliasLoginURL',   '/v2/bridge/ilias' );                  //'/v1/ilauth/rtoken2bearer');          // rToken to Bearer-Token Endpoint
+app.constant('restIliasLoginURL',   '/v2/bridge/ilias' );                 // rToken to Bearer-Token Endpoint
 app.constant('restTokenURL',        '/v2/oauth2/token');                  // Bearer-Token from Username, Password, API-Key pair Endpoint
 app.constant('restClientsURL',      '/v1/clients');                       // Client-list Endpoint
 app.constant('restClientURL',       '/v1/clients/:id');                   // View / Edit client Endpoint
 app.constant('restRoutesURL',       '/v2/util/routes');                   // Routes Endpoint
-
+app.constant('restConfigURL',       '/v2/admin/config/:key');             // Config Endpoint
 
 /*
  * Setup all routes (used to display different functionality)
@@ -55,6 +55,30 @@ app.config(function($routeProvider) {
         templateUrl : 'partials/login.html',
         label: 'LABEL_LOGIN', // This will be replaced later!
         controller: 'LoginCtrl',
+        resolve: {
+            'RestEndpointData': function(restEndpoint){
+                return restEndpoint.promise;
+            }
+        }
+    });
+
+    // Overview page
+    $routeProvider.when('/overview', {
+        templateUrl : 'partials/overview.html',
+        label: 'LABEL_OVERVIEW', // This will be replaced later!
+        controller: 'OverviewCtrl',
+        resolve: {
+            'RestEndpointData': function(restEndpoint){
+                return restEndpoint.promise;
+            }
+        }
+    });
+
+    // EDIT Settings Path
+    $routeProvider.when('/configurations', {
+        templateUrl : 'partials/configedit.html',
+        label: 'LABEL_CONFIGURATIONS', // This will be replaced later!
+        controller: 'ConfigCtrl',
         resolve: {
             'RestEndpointData': function(restEndpoint){
                 return restEndpoint.promise;
@@ -88,7 +112,7 @@ app.config(function($routeProvider) {
 
     // Default URL
     $routeProvider.otherwise({
-        redirectTo : '/clientlist'
+        redirectTo : '/overview'
     });
 });
 

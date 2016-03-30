@@ -26,7 +26,9 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
             'LABEL_LOGIN': $filter('translate')('LABEL_LOGIN'),
             'LABEL_OFFLINE': $filter('translate')('LABEL_OFFLINE'),
             'LABEL_CLIENTS': $filter('translate')('LABEL_CLIENTS'),
-            'LABEL_EDIT': $filter('translate')('LABEL_EDIT')
+            'LABEL_EDIT': $filter('translate')('LABEL_EDIT'),
+            'LABEL_OVERVIEW': $filter('translate')('LABEL_OVERVIEW'),
+            'LABEL_CONFIGURATIONS' : $filter('translate')('LABEL_CONFIGURATIONS'),
         };
         $scope.breadcrumbs = breadcrumbs;
 
@@ -71,6 +73,96 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
     $scope.init();
 });
 
+
+
+
+/*
+ * This controller handles all overview related functionality.
+ */
+ctrl.controller("OverviewCtrl", function($scope, $location, $filter, dialogs, clientStorage, restClient, restClients, restRoutes, apiKey) {
+    /*
+     * Called during (every) instantiation of this controller.
+     *
+     * Note: Using a dedicated method is cleaner and more reusable than
+     * doing it directly inside the controller.
+     */
+    $scope.init = function() {
+        // Warning message (mostly for when REST calls fail)
+        $scope.warning = null;
+
+        // Load clients into AngularJS via REST
+        $scope.loadClients();
+
+        // Fetch available routes
+        restRoutes.get(function(response) {
+            console.log('Fetch routes '+angular.toJson(response));
+            $scope.routes = angular.fromJson(angular.toJson(response));
+            $scope.numRoutes = 0;
+            $.each($scope.routes, function(key, value) {
+                $scope.numRoutes++;
+            });
+        });
+    };
+
+
+
+    /*
+     * Fetch all clients via REST and inserts them into the $scope
+     * such that they will/may be $watch'ed by AngularJS.
+     */
+    $scope.loadClients = function() {
+        // Do an AJAJ REST call
+        restClients.query(
+            // Data
+            {},
+            // Success
+            function(response) {
+                // Enough access rights
+                console.log('clients response');
+                /* if (response.clients) {
+                 console.log('clients ...');
+                 clientStorage.setClients(response.clients);
+                 $scope.clients = clientStorage.getClients();
+                 }
+                 */
+                if (response) {
+                    console.log('clients ...');
+                    console.log(response.toJSON());
+                    clientStorage.setClients(response.toJSON());
+                    $scope.clients = clientStorage.getClients();
+                }
+
+                // Probably insufficient access rights
+                // Note: We could additionally check response.msg
+                else {
+                    $scope.authentication.logout();
+                    $scope.authentication.setError($filter('translate')('AUTH_PERM'));
+                }
+            },
+            // Failure
+            function(response) {
+                $scope.warning = $filter('restInfo')($filter('translate')('NO_CLIENTS'), response.status, response.data);
+            }
+        );
+    };
+
+
+    /*
+     * Creates a new client with default settings (locally only).
+     * Client will be commited via REST from inside the EditClientCtrl.
+     */
+    $scope.enterClientsView = function() {
+        // Redirect
+        $location.path("/clientlist");
+    };
+
+    $scope.enterConfigurationsEditView = function() {
+        $location.path("/configurations");
+    };
+
+    // Do the initialisation
+    $scope.init();
+});
 
 /*
  * This controller handles all client-list related functionality,
@@ -194,6 +286,11 @@ ctrl.controller("ClientListCtrl", function($scope, $location, $filter, dialogs, 
                 }
             );
         });
+    };
+
+    $scope.enterOverview = function() {
+        // Redirect
+        $location.path("/overview");
     };
 
 
@@ -420,6 +517,57 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
 });
 
 
+
+
+
+/*
+ * This controller handles all functionality related to editing a client, such
+ * as loading and formatting routes, permissions, remotely applying changes and
+ * generating random keys and secrets.
+ */
+ctrl.controller("ConfigCtrl", function($scope, $filter, dialogs, $location, restConfig, apiKey) {
+
+    /*
+     * Called during (every) instantiation of this controller.
+     *
+     * Note: Using a dedicated method is cleaner and more reusable than
+     * doing it directly inside the controller.
+     */
+    $scope.init = function() {
+        // Set current client on $scope
+        //$scope.current = clientStorage.getCurrent();
+
+        // Fetch available routes
+        restConfig.query( {key:'rest_log'},
+            function(response) {
+            console.log('Got config: '+response);
+            //console.log('Fetch routes '+angular.toJson(response));
+            //$scope.routes = angular.fromJson(angular.toJson(response));
+        });
+    };
+
+
+    /*
+     * Go back to list of clients. (Looks cleaned inside template)
+     */
+    $scope.goBack = function() {
+        $location.url("/overview");
+    };
+
+    /*
+     * Save all local ($scope) client changes or create the new client remotely by
+     * invoking the corresponding REST AJAJ call.
+     */
+    $scope.saveConfigurations = function() {
+
+    };
+
+
+    // Do the initialisation
+    $scope.init();
+});
+
+
 /*
  * This controller handles the login-page as well as all/most login related messages.
  */
@@ -468,7 +616,8 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
                     //console.log(JSON.stringify(response));
                     $scope.authentication.login($scope.postVars.userName, response.access_token,  response.ilias_client);
                     $scope.postVars = {};
-                    $location.url("/clientlist");
+                    //$location.url("/clientlist");
+                    $location.url("/overview");
                     $scope.$emit('loginPerformed');
                 // Login didn't return an OK (Logout internally and redirdct)
                 } else {
@@ -506,7 +655,8 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
                 // Authorisation success (Login internally and redirect)
                 if (response.token_type == "bearer") {
                     $scope.authentication.login($scope.formData.userName, response.access_token, response.ilias_client);
-                    $location.url("/clientlist");
+                    //$location.url("/clientlist");
+                    $location.url("/overview");
                     $scope.$emit('loginPerformed');
                 // Authorisation failed  (Logout internally and redirdct)
                 } else {

@@ -1,6 +1,9 @@
 <div>
     <div data-ng-show="warning" class="alert alert-warning" role="alert" data-ng-cloak><div ng-bind-html-compile="warning"></div></div>
-    
+    <div class="checkbox">
+    <button class="btn btn-default" data-ng-click="enterOverview()">{{'EDIT_BACK' | translate}}</button>
+    <button class="btn btn-primary" data-ng-click="createNewClient()">{{'LIST_NEW_CLIENT' | translate}}</button>
+    </div>
     <table class="table table-striped table-bordered">
         <thead>
             <tr >
@@ -36,6 +39,8 @@
             </tr>
         </tbody>
     </table>
-    <br />
-    <button class="btn btn-primary" data-ng-click="createNewClient()">{{'LIST_NEW_CLIENT' | translate}}</button>
+    <div class="checkbox">
+        <button class="btn btn-default" data-ng-click="enterOverview()">{{'EDIT_BACK' | translate}}</button>
+        <button class="btn btn-primary" data-ng-click="createNewClient()">{{'LIST_NEW_CLIENT' | translate}}</button>
+    </div>
 </div>

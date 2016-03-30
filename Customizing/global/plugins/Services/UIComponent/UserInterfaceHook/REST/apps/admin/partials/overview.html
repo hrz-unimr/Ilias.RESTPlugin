@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Overview</title>
+</head>
+<body>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{'OVERVIEW_STATUS' | translate}}</h3>
+    </div>
+    <div class="panel-body">
+        <div class="form-group">
+            <label>{{'OVERVIEW_NUM_APIKEYS' | translate}}:</label>
+            {{clients.length}}
+        </div>
+        <!--<div class="form-group">
+            <label>{{'OVERVIEW_NUM_ACTIVETOKENS' | translate}}</label>
+            {{}}
+        </div> -->
+        <div class="form-group">
+            <label>{{'OVERVIEW_NUM_ROUTES' | translate}}:</label>
+            {{numRoutes}}
+        </div>
+    </div>
+
+</div>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{'OVERVIEW_CONFIGURATION' | translate}}</h3>
+    </div>
+
+    <div class="panel-body">
+        <div class="form-group">
+            <button class="btn btn-default ng-binding" data-ng-click="enterClientsView()">Manage API-Keys and Authorization Schemes</button>
+        </div>
+
+        <div class="form-group">
+            <button class="btn btn-default ng-binding" data-ng-click="enterConfigurationsEditView()">Configure Basic Settings</button>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

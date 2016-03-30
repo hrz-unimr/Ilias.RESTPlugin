@@ -90,7 +90,10 @@
     'setting_name'  => array('text', 'short_token_ttl'),
     'setting_value' => array('text', '1')
   ));
-
+  $ilDB->insert('ui_uihk_rest_config', array(
+      'setting_name'  => array('text', 'rest_log'),
+      'setting_value' => array('text', '')
+  ));
   global $ilLog;
   $ilLog->write('Plugin REST -> DB-Update #2: Filled ui_uihk_rest_config.');
 ?>
