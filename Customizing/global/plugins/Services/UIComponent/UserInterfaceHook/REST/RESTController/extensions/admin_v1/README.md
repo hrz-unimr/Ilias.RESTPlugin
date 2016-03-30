@@ -43,7 +43,3 @@ curl -X GET http://localhost/restplugin.php/admin/describe/67
 
 > ** Retrieve object properties with an obj_id **
 curl -X GET http://localhost/restplugin.php/admin//describe/308?id_type=obj_id
-
-#### History:
-v0.2 - 2014-10
-v0.1 - 2014-07

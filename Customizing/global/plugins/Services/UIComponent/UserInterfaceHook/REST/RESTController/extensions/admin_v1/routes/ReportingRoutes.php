@@ -49,8 +49,6 @@ $app->group('/v1/admin/reporting', function () use ($app) {
         $sessions_stats = ReportingModel::GetSessionStatistics();
 
         $result['session_stats'] = $sessions_stats;
-        $result['status'] = 'Ok';
-
 
         $app->success($result);
     });
@@ -67,8 +65,6 @@ $app->group('/v1/admin/reporting', function () use ($app) {
         $sessions_stats = ReportingModel::GetSessionsDaily();
 
         $result['session_stats_daily'] = $sessions_stats;
-        $result['status'] = 'Ok';
-
 
         $app->success($result);
     });
@@ -85,8 +81,6 @@ $app->group('/v1/admin/reporting', function () use ($app) {
         $sessions_stats = ReportingModel::GetSessionsHourly();
 
         $result['session_stats_hourly'] = $sessions_stats;
-        $result['status'] = 'Ok';
-
 
         $app->success($result);
     });
@@ -99,13 +93,9 @@ $app->group('/v1/admin/reporting', function () use ($app) {
         $app->log->debug('Calling reporting/object_stats');
 
         $result = array('msg' => array('querytime'=>date("H:i:s",time()), 'querytimestamp'=>time()));
-      //  $model = new ReportingModel();
-      //  $sessions_stats = $model->get_object_stats();
+
         $obj_stats = ReportingModel::GetObjectStatistics();
-
         $result['object_stats'] = $obj_stats;
-        $result['status'] = 'Ok';
-
 
         $app->success($result);
     });
@@ -122,12 +112,10 @@ $app->group('/v1/admin/reporting', function () use ($app) {
         $app->log->debug('Calling reporting/repository_stats');
 
         $result = array('msg' => array('querytime'=>date("H:i:s",time()), 'querytimestamp'=>time()));
-   //     $model = new ReportingModel();
-   //     $sessions_stats = $model->GetRepositoryStatistics();
+
         $repository_stats = ReportingModel::GetRepositoryStatistics();
 
         $result['repository_stats'] = $repository_stats;
-        $result['status'] = 'Ok';
 
         $app->success($result);
     });
