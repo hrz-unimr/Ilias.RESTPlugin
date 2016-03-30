@@ -15,8 +15,7 @@ require_once("./Services/Component/classes/class.ilPluginConfigGUI.php");
 /**
  * REST Plugin Configuration
  *  Implements the plugins GUI inside ILIAS.
- *  Only creates a link to open the Admin-Panel and
- *  passes some optional POST data along.
+ *  Creates a link to open the ngAdmin App and passes some optional POST data along.
  *
  * @author Dirk Schaefer <schaefer at hrz.uni-marburg.de>
  * @version $Id$
