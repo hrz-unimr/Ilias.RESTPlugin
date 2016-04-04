@@ -304,7 +304,7 @@ ctrl.controller("ClientListCtrl", function($scope, $location, $filter, dialogs, 
  * as loading and formating routes, permissions, remotely applying changes and
  * generating random keys and secrets.
  */
-ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStorage, restClient, restClients, $location, restRoutes, apiKey) {
+ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStorage, restClient, restClients, $location, restRoutes, apiKey, Flash, $anchorScroll) {
     /*
      * Replaces an 'x' with another randomly permuated character.
      * Used to generate random keys and secrets.
@@ -487,12 +487,16 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
                     },
                     // Success
                     function (response) {
-                        $location.url("/clientlist");
+                        //$location.url("/clientlist");
+                        $location.hash('top');
+                        $anchorScroll();
+                        $scope.successFlashAlert('Client settings saved.');
                     },
                     // Failure
                     function (response) {
-                        $scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_REMOTE'), response.status, response.data);
-                        $location.url("/clientlist");
+                        //$scope.warning = $filter('restInfo')($filter('translate')('SAVE_FAILED_REMOTE'), response.status, response.data);
+                        //$location.url("/clientlist");
+                        $scope.failureFlashAlert('Error: Client settings could NOT be saved.');
                     }
                 );
             };
@@ -512,6 +516,14 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
     };
 
 
+    $scope.successFlashAlert = function (message) {
+        var id = Flash.create('success', message, 800, {class: 'custom-class', id: 'custom-id'}, true);
+    }
+
+    $scope.failureFlashAlert = function (message) {
+        var id = Flash.create('danger', message, 0, {class: 'custom-class', id: 'custom-id'}, true);
+    }
+
     // Do the initialisation
     $scope.init();
 });
@@ -525,7 +537,7 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
  * as loading and formatting routes, permissions, remotely applying changes and
  * generating random keys and secrets.
  */
-ctrl.controller("ConfigCtrl", function($scope, $filter, dialogs, $location, restConfig, apiKey) {
+ctrl.controller("ConfigCtrl", function(Flash, $scope, $filter, dialogs, $location, restConfig, apiKey) {
 
     /*
      * Called during (every) instantiation of this controller.
@@ -534,16 +546,35 @@ ctrl.controller("ConfigCtrl", function($scope, $filter, dialogs, $location, rest
      * doing it directly inside the controller.
      */
     $scope.init = function() {
-        // Set current client on $scope
-        //$scope.current = clientStorage.getCurrent();
+        Flash.clear();
 
-        // Fetch available routes
         restConfig.query( {key:'rest_log'},
             function(response) {
-            console.log('Got config: '+response);
-            //console.log('Fetch routes '+angular.toJson(response));
-            //$scope.routes = angular.fromJson(angular.toJson(response));
-        });
+                console.log('Got config '+angular.toJson(response));
+                $scope.loggingPath = response.rest_log;
+            }
+        );
+
+        restConfig.query( {key:'access_token_ttl'},
+            function(response) {
+                console.log('Got config '+angular.toJson(response));
+                $scope.access_token_ttl = response.access_token_ttl;
+            }
+        );
+
+        restConfig.query( {key:'refresh_token_ttl'},
+            function(response) {
+                console.log('Got config '+angular.toJson(response));
+                $scope.refresh_token_ttl = response.refresh_token_ttl;
+            }
+        );
+
+        restConfig.query( {key:'salt'},
+            function(response) {
+                console.log('Got config '+angular.toJson(response));
+                $scope.salt = response.salt;
+            }
+        );
     };
 
 
@@ -559,8 +590,84 @@ ctrl.controller("ConfigCtrl", function($scope, $filter, dialogs, $location, rest
      * invoking the corresponding REST AJAJ call.
      */
     $scope.saveConfigurations = function() {
+        restConfig.update({
+                key: 'rest_log'
+            }, {
+                value: $scope.loggingPath
+            },
+            // Success
+            function (response) {
+                console.log('Config saved successfully'+angular.toJson(response));
+                $scope.successFlashAlert('Configuration saved.');
+            },
+            // Failure
+            function (response) {
+                console.log('Config could NOT be saved! '+angular.toJson(response));
+                $scope.failureFlashAlert('Error: Configuration could NOT be saved.');
+            }
+        );
+        restConfig.update({
+                key: 'access_token_ttl'
+            }, {
+                value: $scope.access_token_ttl
+            },
+            // Success
+            function (response) {
+                console.log('Config saved successfully'+angular.toJson(response));
+               // $scope.successFlashAlert();
+            },
+            // Failure
+            function (response) {
+                console.log('Config could NOT be saved! '+angular.toJson(response));
+
+            }
+        );
+        restConfig.update({
+                key: 'refresh_token_ttl'
+            }, {
+                value: $scope.refresh_token_ttl
+            },
+            // Success
+            function (response) {
+                console.log('Config saved successfully'+angular.toJson(response));
+                //$scope.successFlashAlert();
+            },
+            // Failure
+            function (response) {
+                console.log('Config could NOT be saved! '+angular.toJson(response));
+
+            }
+        );
+        restConfig.update({
+                key: 'salt'
+            }, {
+                value: $scope.salt
+            },
+            // Success
+            function (response) {
+                console.log('Config saved successfully'+angular.toJson(response));
+                //$scope.successFlashAlert();
+            },
+            // Failure
+            function (response) {
+                console.log('Config could NOT be saved! '+angular.toJson(response));
+
+            }
+        );
+
+
 
     };
+
+
+    $scope.successFlashAlert = function (message) {
+        var id = Flash.create('success', message, 800, {class: 'custom-class', id: 'custom-id'}, true);
+    }
+
+    $scope.failureFlashAlert = function (message) {
+        var id = Flash.create('danger', message, 0, {class: 'custom-class', id: 'custom-id'}, true);
+    }
+
 
 
     // Do the initialisation

@@ -115,3 +115,25 @@ body {
 .black {
     color: #000000;
 }
+
+/* Flash Alert Styles */
+
+/* The starting CSS styles for the enter animation */
+.alert.ng-enter {
+    transition:0.5s linear all;
+    opacity:0;
+}
+
+/* The finishing CSS styles for the enter animation */
+.alert.ng-enter.ng-enter-active {
+    opacity:1;
+}
+
+
+.alert.ng-leave {
+    transition:0.5s linear all;
+    opacity:1;
+}
+.alert.ng-leave.ng-leave-active {
+    opacity:0;
+}

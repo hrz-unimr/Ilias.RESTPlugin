@@ -18,6 +18,7 @@ var app = angular.module('myApp', [
     'pascalprecht.translate',
     'dialogs.main',
     'timer',
+    'ngFlash',
     'myApp.translate.en-US',
     'myApp.translate.de-DE',
     'myApp.filters',

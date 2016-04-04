@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="libs/css/html5-boilerplate.css">
     <link rel="stylesheet" href="libs/css/angular-loading-bar.css">
     <link rel="stylesheet" href="libs/css/angular-xeditable.css">
-    <link rel="stylesheet" href="libs/css/font-awesome.css">
+    <link rel="stylesheet" href="libs/css/angular-flash.css">
     
     <link rel="stylesheet" href="css/app.css" />
         
@@ -60,7 +60,7 @@
     </script>
 </head>
 <body>
-    
+    <a id="top"></a>
     <div class="main-div" data-ng-controller="MainCtrl">
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
@@ -125,6 +125,7 @@
     <script src="libs/js/angular-translate.js"></script>
     <script src="libs/js/angular-dialogs.js"></script>
     <script src="libs/js/angular-timer-all.min.js"></script>
+    <script src="libs/js/angular-flash.js"></script>
 
     <script src="lang/angular_en-US.js"></script>
     <script src="lang/angular_de-DE.js"></script>

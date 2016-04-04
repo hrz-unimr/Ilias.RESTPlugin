@@ -1,67 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>REST Configuration</title>
-</head>
-<body>
+<div>
+    <!--<div data-ng-show="warning" class="alert alert-warning" role="alert" data-ng-cloak><div ng-bind-html-compile="warning"></div></div> -->
+    <flash-message duration="10" show-close="true"></flash-message>
 
-<div class="form-group">
-    <button class="btn btn-default" data-ng-click="goBack()">{{'EDIT_BACK' | translate}}</button>
-    <button class="btn btn-success" data-ng-click="saveConfigurations()">{{'EDIT_SAVE' | translate}}</button>
-</div>
-
-<div class="panel panel-primary">
-    <div class="panel-heading">
-        <h3 class="panel-title">{{'EDIT_LOGGING_MSG' | translate}}</h3>
+    <div class="form-group">
+        <button class="btn btn-default" data-ng-click="goBack()">{{'EDIT_BACK' | translate}}</button>
+        <button class="btn btn-success" data-ng-click="saveConfigurations()">{{'EDIT_SAVE' | translate}}</button>
     </div>
 
-    <div class="panel-body">
-        <div class="form-group">
-            <label for="inputLoggingPath">{{'EDIT_CONFIG_LOGGING_MSG' | translate}}</label>
-            <input id="inputLoggingPath" name="inputLoggingPath" data-ng-model="loggingPath" class="form-control" type="text" />
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{'EDIT_LOGGING_MSG' | translate}}</h3>
         </div>
 
-        <div class="form-group">
-            <div>{{'EDIT_CONFIG_LOGGING_DESCRIPTION_TEXT' | translate}}</div>
+        <div class="panel-body">
+            <div class="form-group">
+                <label for="inputLoggingPath">{{'EDIT_CONFIG_LOGGING_MSG' | translate}}</label>
+                <input id="inputLoggingPath" name="inputLoggingPath" data-ng-model="loggingPath" class="form-control" type="text" />
+            </div>
+
+            <div class="form-group">
+                <div>{{'EDIT_CONFIG_LOGGING_DESCRIPTION_TEXT' | translate}}</div>
+            </div>
         </div>
+
     </div>
 
-</div>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{'EDIT_ETC_SETTINGS' | translate}}</h3>
+        </div>
 
-<div class="panel panel-primary">
-    <div class="panel-heading">
-        <h3 class="panel-title">{{'EDIT_ETC_SETTINGS' | translate}}</h3>
+        <div class="panel-body">
+            <div class="form-group">
+                <label for="access_token_ttl">{{'EDIT_CONFIG_ACCESS_TOKEN_MSG' | translate}}</label>
+                <input id="access_token_ttl" name="access_token_ttl" data-ng-model="access_token_ttl" class="form-control" type="text" />
+            </div>
+
+            <div class="form-group">
+                <label for="refresh_token_ttl">{{'EDIT_CONFIG_REFRESH_TOKEN_MSG' | translate}}</label>
+                <input id="refresh_token_ttl" name="refresh_token_ttl" data-ng-model="refresh_token_ttl" class="form-control" type="text" />
+            </div>
+
+            <div class="form-group">
+                <label for="salt">{{'EDIT_CONFIG_SALT_MSG' | translate}}</label>
+                <input id="salt" name="salt" data-ng-model="salt" class="form-control" type="text" />
+            </div>
+
+            <div class="form-group">
+                <div>{{'EDIT_CONFIG_SALT_DESCRIPTION_TEXT' | translate}}</div>
+            </div>
+        </div>
+
     </div>
 
-    <div class="panel-body">
-        <div class="form-group">
-            <label for="access_token_ttl">{{'EDIT_CONFIG_ACCESS_TOKEN_MSG' | translate}}</label>
-            <input id="access_token_ttl" name="access_token_ttl" data-ng-model="access_token_ttl" class="form-control" type="text" />
-        </div>
 
-        <div class="form-group">
-            <label for="refresh_token_ttl">{{'EDIT_CONFIG_REFRESH_TOKEN_MSG' | translate}}</label>
-            <input id="refresh_token_ttl" name="refresh_token_ttl" data-ng-model="refresh_token_ttl" class="form-control" type="text" />
-        </div>
 
-        <div class="form-group">
-            <label for="salt">{{'EDIT_CONFIG_SALT_MSG' | translate}}</label>
-            <input id="salt" name="salt" data-ng-model="salt" class="form-control" type="text" />
-        </div>
-
-        <div class="form-group">
-            <div>{{'EDIT_CONFIG_SALT_DESCRIPTION_TEXT' | translate}}</div>
-        </div>
+    <div class="form-group">
+        <button class="btn btn-default" data-ng-click="goBack()">{{'EDIT_BACK' | translate}}</button>
+        <button class="btn btn-success" data-ng-click="saveConfigurations()">{{'EDIT_SAVE' | translate}}</button>
     </div>
-
 </div>
-
-
-
-<div class="form-group">
-    <button class="btn btn-default" data-ng-click="goBack()">{{'EDIT_BACK' | translate}}</button>
-    <button class="btn btn-success" data-ng-click="saveConfigurations()">{{'EDIT_SAVE' | translate}}</button>
-</div>
-</body>
-</html>
