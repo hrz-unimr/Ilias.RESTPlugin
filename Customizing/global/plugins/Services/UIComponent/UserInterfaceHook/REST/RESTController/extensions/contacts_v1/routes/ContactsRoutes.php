@@ -19,7 +19,7 @@ $app->group('/v1', function () use ($app) {
      * Returns the personal ILIAS contacts for a user specified by id.
      */
     $app->get('/contacts/:id', RESTAuth::checkAccess(RESTAuth::ADMIN), function ($id) use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $authorizedUserId = $accessToken->getUserId();
 
         if ($authorizedUserId == $id || Libs\RESTilias::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
@@ -42,7 +42,10 @@ $app->group('/v1', function () use ($app) {
      * Returns the personal ILIAS contacts of the authenticated user.
      */
     $app->get('/contacts', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+       // $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
+
+
         $authorizedUserId =  $accessToken->getUserId();
 
         if ($authorizedUserId > -1) { // only the user is allowed to access the data
