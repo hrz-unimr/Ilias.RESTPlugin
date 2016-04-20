@@ -69,7 +69,7 @@ class ContactsModel
      * @param $a_email
      * @return bool
      */
-    function updateContactEntry($user_id, $a_addr_id,$a_login,$a_firstname,$a_lastname,$a_email)
+    function updateContactEntry($user_id, $a_addr_id, $a_login, $a_firstname, $a_lastname, $a_email)
     {
         Libs\RESTilias::loadIlUser();
         global    $ilUser;
@@ -97,6 +97,27 @@ class ContactsModel
 
         $abook = new \ilAddressbook($ilUser->getId());
         return $abook->deleteEntry($addr_id);
+    }
+
+
+    /**
+     * Returns a contact entry.
+     * Return associate array:  with keys "addr_id","login","firstname","lastname","email","auto_update"
+     * 
+     * @param $user_id
+     * @param $addr_id
+     * @return array
+     */
+    function getContactEntry($user_id, $addr_id)
+    {
+        Libs\RESTilias::loadIlUser();
+        global    $ilUser;
+        $ilUser->setId($user_id);
+        $ilUser->read();
+        Libs\RESTilias::initAccessHandling();
+
+        $abook = new \ilAddressbook($ilUser->getId());
+        return $abook->getEntry($addr_id);
     }
 
 }
