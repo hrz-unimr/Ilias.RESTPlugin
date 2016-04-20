@@ -38,4 +38,65 @@ class ContactsModel
         return $entries;
     }
 
+    /**
+     * Adds a new contact entry to the list of contacts of the user specified by $user_id.
+     * @param $user_id
+     * @param $login
+     * @param $firstname
+     * @param $lastname
+     * @param $email
+     * @return bool
+     */
+    function addContactEntry($user_id, $login,$firstname,$lastname,$email)
+    {
+        Libs\RESTilias::loadIlUser();
+        global    $ilUser;
+        $ilUser->setId($user_id);
+        $ilUser->read();
+        Libs\RESTilias::initAccessHandling();
+
+        $abook = new \ilAddressbook($ilUser->getId());
+        return $abook->addEntry($login,$firstname,$lastname,$email);
+    }
+
+    /**
+     * Updates an existing contact of the contactlist of user $user_id.
+     * @param $user_id
+     * @param $a_addr_id
+     * @param $a_login
+     * @param $a_firstname
+     * @param $a_lastname
+     * @param $a_email
+     * @return bool
+     */
+    function updateContactEntry($user_id, $a_addr_id,$a_login,$a_firstname,$a_lastname,$a_email)
+    {
+        Libs\RESTilias::loadIlUser();
+        global    $ilUser;
+        $ilUser->setId($user_id);
+        $ilUser->read();
+        Libs\RESTilias::initAccessHandling();
+
+        $abook = new \ilAddressbook($ilUser->getId());
+        return $abook->updateEntry($a_addr_id,$a_login,$a_firstname,$a_lastname,$a_email);
+    }
+
+    /**
+     * Deletes a contact from the contact list of user $user_id.
+     * @param $user_id
+     * @param $addr_id
+     * @return bool
+     */
+    function deleteContactEntry($user_id, $addr_id)
+    {
+        Libs\RESTilias::loadIlUser();
+        global    $ilUser;
+        $ilUser->setId($user_id);
+        $ilUser->read();
+        Libs\RESTilias::initAccessHandling();
+
+        $abook = new \ilAddressbook($ilUser->getId());
+        return $abook->deleteEntry($addr_id);
+    }
+
 }
