@@ -19,7 +19,7 @@ $app->group('/admin', function () use ($app) {
      * Retrieves all items from the personal desktop of a user specified by its id.
      */
     $app->get('/desktop/overview/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION) , function ($id) use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 

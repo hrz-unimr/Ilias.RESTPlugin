@@ -97,7 +97,7 @@ $app->get('/v1/search/user',RESTAuth::checkAccess(RESTAuth::ADMIN), function () 
 $app->get('/v1/users/:user_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($user_id) use ($app) {
         $id = $user_id;
         if ($user_id == "mine") {
-            $accessToken = Auth\Util::getAccessToken();
+            $accessToken = $app->request->getToken();
             $user = $accessToken->getUserName();
             $id = $accessToken->getUserId();
         }

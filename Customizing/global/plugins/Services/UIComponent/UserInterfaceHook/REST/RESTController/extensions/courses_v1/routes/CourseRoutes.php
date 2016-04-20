@@ -20,7 +20,7 @@ $app->group('/v1', function () use ($app) {
      * Retrieves a list of all courses of the authenticated user and meta-information about them (no content).
      */
    $app->get('/courses', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $user_id = $accessToken->getUserId();
         try {
         $crs_model = new CoursesModel();
@@ -88,7 +88,7 @@ $app->group('/v1', function () use ($app) {
     $app->delete('/courses/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         $request = $app->request();
 
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $user_id = $accessToken->getUserId();
         global $ilUser;
         Libs\RESTilias::loadIlUser();
@@ -162,7 +162,7 @@ $app->group('/v1', function () use ($app) {
      * Assigns the authenticated user to a course specified by the GET parameter ref_id.
      */
     $app->get('/courses/join/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $authorizedUserId = $accessToken->getUserId();
 
         $request = $app->request();
@@ -184,7 +184,7 @@ $app->group('/v1', function () use ($app) {
      * Removes the authenticated user from a course speicifed by the GET parameter "ref_id".
      */
     $app->get('/courses/leave/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $authorizedUserId = $accessToken->getUserId();
 
         try {

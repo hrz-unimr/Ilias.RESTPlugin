@@ -21,7 +21,7 @@ $app->group('/v1', function () use ($app) {
      * @param id - the ref or obj_id of the file.
      */
     $app->get('/files/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION),  function ($id) use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $user_id = $accessToken->getUserId();
 
 

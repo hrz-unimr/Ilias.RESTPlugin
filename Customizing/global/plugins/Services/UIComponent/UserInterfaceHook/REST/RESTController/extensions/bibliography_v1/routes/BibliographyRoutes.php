@@ -19,7 +19,7 @@ $app->group('/v1', function () use ($app) {
      * Returns a json representation of a bibliography.
      */
     $app->get('/biblio/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $authorizedUserId = $accessToken->getUserId();
          try {
             $model = new BibliographyModel();

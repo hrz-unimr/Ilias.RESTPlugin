@@ -17,7 +17,7 @@ use \RESTController\extensions\surveys_v1 as Surveys;
 $app->group('/v1', function () use ($app) {
 
     $app->get('/surveys', RESTAuth::checkAccess(RESTAuth::ADMIN), function() use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $user_id = $accessToken->getUserId();
 
         $model = new Surveys\SurveyModel();
@@ -30,7 +30,7 @@ $app->group('/v1', function () use ($app) {
      * Returns a json representation of the survey ref_id.
      */
     $app->get('/surveys/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function($ref_id) use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $user_id = $accessToken->getUserId();
 
         $model = new Surveys\SurveyModel();
@@ -44,7 +44,7 @@ $app->group('/v1', function () use ($app) {
      * Returns the answers of a survey (ref_id) of the authenticated user.
      */
     $app->get('/survey_answers/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function($ref_id) use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $user_id = $accessToken->getUserId();
 
         $model = new Surveys\SurveyModel();
@@ -56,7 +56,7 @@ $app->group('/v1', function () use ($app) {
      * Deletes answers of all users of a survey (ref_id).
      */
     $app->delete('/survey_answers/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function($ref_id) use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $user_id = $accessToken->getUserId();
         $model = new Surveys\SurveyModel();
         $model->removeSurveyResultsOfAllUsers($ref_id, $user_id);
@@ -71,7 +71,7 @@ $app->group('/v1', function () use ($app) {
      * {'nQuestions' => '5', 'q1_id'=>'1', 'q1_answer'=>'2,3',...}
      */
     $app->post('/survey_answers/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function($ref_id) use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $user_id = $accessToken->getUserId();
 
         $request = $app->request();

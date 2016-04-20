@@ -24,7 +24,7 @@ $app->group('/v1/news', function () use ($app) {
     $app->get('/pdnews', RESTAuth::checkAccess(RESTAuth::PERMISSION) ,  function () use ($app) {
         //$request = $app->request();
 
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $uid = $accessToken->getUserId();
         $uname = $accessToken->getUserName();
 

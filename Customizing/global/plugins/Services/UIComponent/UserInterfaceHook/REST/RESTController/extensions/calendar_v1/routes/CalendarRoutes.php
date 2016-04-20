@@ -18,7 +18,7 @@ $app->group('/v1', function () use ($app) {
      * Returns the calendar events of a user specified by its user_id.
      */
     $app->get('/cal/events/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($id) use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 
@@ -36,7 +36,7 @@ $app->group('/v1', function () use ($app) {
      * Returns the ICAL Url of the desktop calendar of a user specified by its user_id.
      */
     $app->get('/cal/icalurl/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION) , function ($id) use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 
@@ -55,7 +55,7 @@ $app->group('/v1', function () use ($app) {
      * Returns the calendar events of the authenticated user.
      */
     $app->get('/cal/events', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $user = $accessToken->getUserName();
         $authorizedUserId =  Libs\RESTilias::getUserName($user);
 
@@ -75,7 +75,7 @@ $app->group('/v1', function () use ($app) {
      * Returns the ICAL Url of the desktop calendar of the authenticated user.
      */
     $app->get('/cal/icalurl', RESTAuth::checkAccess(RESTAuth::PERMISSION) , function () use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $user = $accessToken->getUserName();
         $authorizedUserId =  Libs\RESTilias::getUserName($user);
 

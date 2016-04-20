@@ -28,7 +28,7 @@ $app->group('/v1/m', function () use ($app) {
             $s_msg = $request->params('message','',true);
             $s_env = $request->params('env','',true);
             
-            $accessToken = Auth\Util::getAccessToken();
+            $accessToken = $app->request->getToken();
             $s_uid = $accessToken->getTokenString();
 
             $model = new MobileFeedbackModel();
@@ -48,7 +48,7 @@ $app->group('/v1/m', function () use ($app) {
              $s_msg = $request->params('message','',true);
              $s_env = $request->params('env','',true);
 
-             $accessToken = Auth\Util::getAccessToken();
+             $accessToken = $app->request->getToken();
              $s_uid = $accessToken->getTokenString();
 
              $model = new MobileFeedbackModel();

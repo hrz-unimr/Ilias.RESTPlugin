@@ -19,7 +19,7 @@ $app->group('/v1', function () use ($app) {
      * Retrieves all items from the personal desktop of the authenticated user.
      */
     $app->get('/desktop/overview', RESTAuth::checkAccess(RESTAuth::PERMISSION) , function () use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $authorizedUserId = $accessToken->getUserId();
 
         $model = new DesktopModel();
@@ -33,7 +33,7 @@ $app->group('/v1', function () use ($app) {
      * Deletes an item specified by ref_id from the personal desktop of the user specified by $id.
      */
     $app->delete('/desktop/overview', RESTAuth::checkAccess(RESTAuth::PERMISSION),  function () use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $authorizedUserId = $accessToken->getUserId();
         $request = $app->request();
         try {
@@ -51,7 +51,7 @@ $app->group('/v1', function () use ($app) {
      * Adds an item specified by ref_id to the users's desktop. The user must be the owner or at least has read access of the item.
      */
     $app->post('/desktop/overview', RESTAuth::checkAccess(RESTAuth::PERMISSION),  function () use ($app) {
-        $accessToken = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $authorizedUserId = $accessToken->getUserId();
         $request = $app->request();
         try {
