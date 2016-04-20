@@ -36,7 +36,7 @@ $app->group('/v1/umr', function () use ($app) {
        */
       $app->get('/advanced/:type/:refId', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($type, $refId) use ($app) {
         // Fetch userId & userName
-        $accessToken  = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $userName     = $accessToken->getUserName();
 
         // Test if token is a short (ttl) one and ip does match
@@ -78,7 +78,7 @@ $app->group('/v1/umr', function () use ($app) {
        */
       $app->get('/simple/:type/:refId', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($type, $refId) use ($app) {
         // Fetch userId & userName
-        $accessToken  = Auth\Util::getAccessToken();
+        $accessToken = $app->request->getToken();
         $userName     = $accessToken->getUserName();
 
         // Login user (since token is valid, should not fail)

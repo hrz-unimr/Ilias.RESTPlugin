@@ -471,7 +471,7 @@ class RESTilias {
 
     // Fetch user-id from access-token if non is given
     if (!isset($userId)) {
-      //$accessToken  = Auth\Util::getAccessToken();
+      //$accessToken = $app->request->getToken();
       $accessToken = RESTRequest::getToken();
       $userId       = $accessToken->getUserId();
     }

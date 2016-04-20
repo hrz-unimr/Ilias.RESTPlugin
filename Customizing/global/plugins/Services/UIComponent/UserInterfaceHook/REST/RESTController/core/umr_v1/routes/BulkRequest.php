@@ -27,7 +27,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/bulkrequest', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
     // Fetch userId & userName
-    $accessToken  = Auth\Util::getAccessToken();
+    $accessToken = $app->request->getToken();
 
     // Fetch user-information
     $bulk         = BulkRequest::getBulk($accessToken);

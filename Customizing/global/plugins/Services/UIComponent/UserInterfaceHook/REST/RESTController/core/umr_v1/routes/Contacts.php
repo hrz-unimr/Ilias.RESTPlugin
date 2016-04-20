@@ -27,7 +27,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/contacts', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
     // Fetch userId & userName
-    $accessToken  = Auth\Util::getAccessToken();
+    $accessToken = $app->request->getToken();
 
     try {
       $request          = $app->request;
@@ -65,7 +65,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/contacts/:contactId', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($contactId) use ($app) {
     // Fetch userId & userName
-    $accessToken  = Auth\Util::getAccessToken();
+    $accessToken = $app->request->getToken();
 
     try {
       // Fetch user-information

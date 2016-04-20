@@ -24,7 +24,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/userinfo', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
     // Fetch userId & userName
-    $accessToken  = Auth\Util::getAccessToken();
+    $accessToken = $app->request->getToken();
 
     try {
       // Fetch user-information

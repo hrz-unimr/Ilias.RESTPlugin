@@ -23,7 +23,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/news', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
     // Fetch userId & userName
-    $accessToken  = Auth\Util::getAccessToken();
+    $accessToken = $app->request->getToken();
 
     // Load additional (optional) parameters
     $request  = $app->request;

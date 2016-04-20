@@ -26,7 +26,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/objects', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
       // Fetch userId & userName
-      $accessToken  = Auth\Util::getAccessToken();
+      $accessToken = $app->request->getToken();
 
       try {
         // Fetch refIds
@@ -63,7 +63,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/objects/:refId', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($refId) use ($app) {
     // Fetch userId & userName
-    $accessToken  = Auth\Util::getAccessToken();
+    $accessToken = $app->request->getToken();
 
     try {
       // RefId needs to be numeric (integer preferably)

@@ -27,7 +27,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/calendars', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
     // Fetch userId & userName
-    $accessToken  = Auth\Util::getAccessToken();
+    $accessToken = $app->request->getToken();
 
     try {
       $request          = $app->request;
@@ -65,7 +65,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/calendars/:calendarId', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($calendarId) use ($app) {
     // Fetch userId & userName
-    $accessToken  = Auth\Util::getAccessToken();
+    $accessToken = $app->request->getToken();
 
     try {
       // Fetch user-information
@@ -92,7 +92,7 @@ $app->group('/v1/umr', function () use ($app) {
   $app->get('/calendar/events', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
 
     // Fetch userId & userName
-    $accessToken  = Auth\Util::getAccessToken();
+    $accessToken = $app->request->getToken();
 
     try {
       $request          = $app->request;
@@ -128,7 +128,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/calendar/:calendarId/events', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($calendarId) use ($app) {
     // Fetch userId & userName
-    $accessToken  = Auth\Util::getAccessToken();
+    $accessToken = $app->request->getToken();
 
     try {
       // Fetch user-information

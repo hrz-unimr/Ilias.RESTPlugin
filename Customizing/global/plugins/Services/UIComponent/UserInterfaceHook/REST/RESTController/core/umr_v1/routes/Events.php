@@ -27,7 +27,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/events', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
     // Fetch userId & userName
-    $accessToken  = Auth\Util::getAccessToken();
+    $accessToken = $app->request->getToken();
 
     try {
       $request        = $app->request;
@@ -65,7 +65,7 @@ $app->group('/v1/umr', function () use ($app) {
    */
   $app->get('/events/:eventId', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($eventId) use ($app) {
     // Fetch userId & userName
-    $accessToken  = Auth\Util::getAccessToken();
+    $accessToken = $app->request->getToken();
 
     try {
       // Fetch user-information
