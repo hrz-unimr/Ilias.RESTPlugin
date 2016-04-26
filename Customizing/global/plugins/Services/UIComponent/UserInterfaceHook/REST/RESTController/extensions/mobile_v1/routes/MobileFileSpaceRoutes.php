@@ -12,7 +12,7 @@ use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\core\auth as Auth;
 use \RESTController\libs as Libs;
 use \RESTController\libs\Exceptions as Exceptions;
-use \RESTController\extensions\admin as Admin;
+use \RESTController\extensions\admin_v1 as Admin;
 use \RESTController\extensions\files_v1 as Files;
 
 
@@ -56,7 +56,7 @@ $app->group('/v1/m', function () use ($app) {
             if ($status == false) {
                 $app->halt(500, 'File could not be copied!');
             } else {
-                $app->success("Moved item from personal file space to repository.");
+                $app->success(array('msg' => 'Moved item from personal file space to repository.'));
             }
 
         } catch(Exceptions\MissingParameter $e) {
@@ -97,7 +97,7 @@ $app->group('/v1/m', function () use ($app) {
      */
     $app->get('/myfilespaceupload', RESTAuth::checkAccess(RESTAuth::PERMISSION), function() use ($app) {
         $app->log->debug('Myfilespace upload via GET');
-        $app->halt(422, 'Pls use the POST method', 'RESTController\\extensions\\mobile_v1\\MyFileSpaceRoutes::ID_USE_GET');
+        $app->halt(422, 'Please use the POST method', 'RESTController\\extensions\\mobile_v1\\MyFileSpaceRoutes::ID_USE_GET');
     });
 
 
@@ -123,7 +123,7 @@ $app->group('/v1/m', function () use ($app) {
         // Try to upload file
         Libs\RESTilias::initAccessHandling();
         $model = new Files\PersonalFileSpaceModel();
-        $resp = $model->handleFileUploadIntoMyFileSpace($_FILES['uploadfile'],$user_id,$user_id);
+        $resp = $model->handleFileUploadIntoMyFileSpace($_FILES['uploadfile'],$user_id,$user_id, 'Mobile Uploads');
 
         $result = array('id' => $resp->id, 'msg' => "File uploaded to the personal file space.");
         $app->success($result);
@@ -150,7 +150,7 @@ $app->group('/v1/m', function () use ($app) {
             $app->halt(400, $e->getFormatedMessage(), $e::ID);
         }
 
-        $app->success("Deleted file from personal file space.");
+        $app->success(array('msg'=>'Deleted file from personal file space.'));
     });
 
 });

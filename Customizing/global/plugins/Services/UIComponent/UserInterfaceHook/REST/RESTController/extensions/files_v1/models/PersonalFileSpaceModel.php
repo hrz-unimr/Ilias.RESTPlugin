@@ -62,9 +62,10 @@ class PersonalFileSpaceModel {
      * @param array $file_upload An array containing the file upload parameters of a single file.
      * @param int $user_id The reference id of a repository object where the uploaded file will be associated to.
      * @param int $owner_id The user_id of the owner of the file if available. Default: anonymous
+     * @param string $destinationFolderStr name of the subfolder to which the files should be uploaded.
      * @return object The response object.
      */
-    function handleFileUploadIntoMyFileSpace($file_upload, $user_id, $owner_id = 13)
+    function handleFileUploadIntoMyFileSpace($file_upload, $user_id, $owner_id = 13, $destinationFolderStr = "abc")
     {
         define('IL_VIRUS_SCANNER', 'None');
         // The following constants are normally set by class.ilInitialisation.php->initClientInitFile()
@@ -129,7 +130,7 @@ class PersonalFileSpaceModel {
             $fileObj->setFileType(\ilMimeTypeUtil::getMimeType('', $filename, $type));
             $fileObj->setFileSize($size);
             $object_id = $fileObj->create();
-            $this->putObjectInMyFileSpaceTree($fileObj, $user_id);
+            $this->putObjectInMyFileSpaceTree($fileObj, $user_id, $destinationFolderStr);
 
             // upload file to filesystem
             $fileObj->createDirectory();
@@ -148,14 +149,15 @@ class PersonalFileSpaceModel {
      *
      * @param ilObject $a_obj
      * @param int $user_id
+     * @param string $destinationFolderStr
      */
-    protected function putObjectInMyFileSpaceTree($a_obj, $user_id)
+    protected function putObjectInMyFileSpaceTree($a_obj, $user_id, $destinationFolderStr)
     {
         Libs\RESTilias::initGlobal('rbacreview', 'ilRbacReview', './Services/AccessControl/classes/class.ilRbacReview.php');
         Libs\RESTilias::initGlobal('rbacadmin', 'ilRbacAdmin', './Services/AccessControl/classes/class.ilRbacAdmin.php');
         //ilInitialisation::initAccessHandling();
         global $rbacreview, $ilUser, $objDefinition;
-        //global $ilLog;
+        global $ilLog;
 
         include_once 'Services/PersonalWorkspace/classes/class.ilWorkspaceTree.php';
         $tree = new \ilWorkspaceTree($user_id);
@@ -164,9 +166,46 @@ class PersonalFileSpaceModel {
             $tree->createTreeForUser($user_id);
         }
 
-        $obj_id = $a_obj->getId();
-        $ref_id = $tree->insertObject($tree->getRootId(),$obj_id);
-        //$a_obj->setPermissions($a_parent_node_id);
+        if ($destinationFolderStr!='') { // create folder if necessary
+            include_once 'Modules/WorkspaceFolder/classes/class.ilObjWorkspaceFolder.php';
+            include_once 'Services/Object/classes/class.ilObjectFactory.php';
+            $factory = new \ilObjectFactory();
+            $aNodeIdsFolders = $tree->getObjectsFromType('wfld');
+            $destFolderExists = false;
+            foreach ($aNodeIdsFolders as $nodeId) {
+                $ilLog->write("Checking personal workspace folders. Found Node_ID ".$nodeId."");
+                $folder_obj_id = $tree->lookupObjectId($nodeId);
+                $folder_obj = $factory->getInstanceByObjId($folder_obj_id);
+                $title = $folder_obj->getTitle();
+                if ($title == $destinationFolderStr) {
+                    $ilLog->write("Folder $destinationFolderStr found.");
+                    $folder_obj_node_id = $nodeId;
+                    $destFolderExists = true;
+                    break;
+                }
+            }
+
+            if ($destFolderExists == false) {
+                // Create new subfolder
+                $ilLog->write("Folder $destinationFolderStr not found. Creating it ...");
+                $folderObj = new \ilObjWorkspaceFolder();
+                $folderObj->setOwner($user_id);
+                $folderObj->setTitle($destinationFolderStr);
+                $folderObj->setDescription("");
+                $folder_obj_id = $folderObj->create();
+                $folder_obj_node_id = $tree->insertObject($tree->getRootId(),$folder_obj_id);
+            }
+
+            // Add file to the subfolder
+            $obj_id = $a_obj->getId();
+            $ref_id = $tree->insertObject($folder_obj_node_id,$obj_id);
+        } else {
+            // Add file to the root folder
+            $obj_id = $a_obj->getId();
+            $ref_id = $tree->insertObject($tree->getRootId(),$obj_id);
+            //$a_obj->setPermissions($a_parent_node_id);
+        }
+
 
         // BEGIN ChangeEvent: Record save object.
         require_once('Services/Tracking/classes/class.ilChangeEvent.php');
