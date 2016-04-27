@@ -26,6 +26,16 @@
             </div>
 
             <div class="form-group">
+                <label for="inputClientSecret">{{'EDIT_API_SECRET' | translate}}</label>
+                <div class="input-group">
+                    <input id="inputClientSecret" name="inputClientSecret" data-ng-model="current.api_secret" class="form-control" type="text">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" data-ng-click="createRandomApiSecret()">{{'EDIT_GENERATE' | translate}}</button>
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label for="inputIpCSV">{{'EDIT_ALLOWED_IPS' | translate}}</label>
                 {{'EDIT_IP_ACCESS_TEXT' | translate}}
                 <!--<div class="checkbox">
@@ -133,17 +143,6 @@
                 <input id="inputGtClientUser" name="inputGtClientUser" data-ng-model="current.client_credentials_userid" class="form-control" type="text">
                 {{'EDIT_GRANT_CC_USER_TEXT' | translate}}
             </div>
-
-            <div class="form-group">
-                <label for="inputClientSecret">{{'EDIT_API_SECRET' | translate}}</label>
-                <div class="input-group">
-                    <input id="inputClientSecret" name="inputClientSecret" data-ng-model="current.api_secret" class="form-control" type="text">
-                    <span class="input-group-btn">
-                        <button type="button" class="btn btn-default" data-ng-click="createRandomApiSecret()">{{'EDIT_GENERATE' | translate}}</button>
-                    </span>
-                </div>
-            </div>
-
 
             <div class="form-group">
                 <label for="inputGtAuth">{{'EDIT_GRANT_AC' | translate}}</label>
