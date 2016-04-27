@@ -266,11 +266,7 @@
 ?>
 <#6>
 <?php
-  $sql    = 'SELECT id FROM ui_uihk_rest_client WHERE api_key = \'apollon\'';
-  $query  = $ilDB->query($sql);
-  $row    = $ilDB->fetchAssoc($query);
-  $id     = (isset($row['id'])) ? intval($row['id']) : 1;
-
+  $id     = 1;
   $ilDB->insert('ui_uihk_rest_perm', array(
     'api_id'  => array('integer', $id),
     'pattern' => array('text', '/v2/admin/clients'),
@@ -342,7 +338,6 @@
       'verb'    => array('text', 'DELETE')
   ));
 
-
   global $ilLog;
   $ilLog->write('Plugin REST -> DB-Update #6: Filled ui_uihk_rest_perm.');
 ?>
@@ -385,7 +380,7 @@
   $ilDB->addPrimaryKey('ui_uihk_rest_refresh', array('id'));
   $ilDB->manipulate('ALTER TABLE ui_uihk_rest_refresh CHANGE id id INT NOT NULL AUTO_INCREMENT');
 
-  global $ilLog;
+
   $ilLog->write('Plugin REST -> DB-Update #7: Created ui_uihk_rest_refresh.');
 ?>
 <#8>
