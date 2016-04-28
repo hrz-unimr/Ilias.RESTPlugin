@@ -68,7 +68,11 @@ $app->group('/v1', function () use ($app) {
         $accessToken = $app->request->getToken();
         $authorizedUserId = $accessToken->getUserId();
 
-        $request = $app->request();
+        global $ilUser;
+        Libs\RESTilias::loadIlUser();
+        $ilUser->setId((int)$authorizedUserId);
+        $ilUser->read();
+        Libs\RESTilias::initAccessHandling();
         try {
             //$ref_id = $request->params("ref_id");
             $grpreg_model = new Groups\GroupsRegistrationModel();
@@ -90,10 +94,16 @@ $app->group('/v1', function () use ($app) {
         $accessToken = $app->request->getToken();
         $authorizedUserId = $accessToken->getUserId();
 
+        global $ilUser;
+        Libs\RESTilias::loadIlUser();
+        $ilUser->setId((int)$authorizedUserId);
+        $ilUser->read();
+        Libs\RESTilias::initAccessHandling();
+
         try {
             $crsreg_model = new Groups\GroupsRegistrationModel();
             $crsreg_model->leaveGroup($authorizedUserId, $ref_id);
-            $app->success("User ".$authorizedUserId." has left group with ref_id = " . $ref_id . ".");
+            $app->success(array("msg"=>"User ".$authorizedUserId." has left group with ref_id = " . $ref_id . "."));
 
         } catch (Groups\CancelationFailed $e) {
             $app->halt(400, 'Error: Could not perform action for user '.$authorizedUserId.". ".$e->getMessage(), -15);

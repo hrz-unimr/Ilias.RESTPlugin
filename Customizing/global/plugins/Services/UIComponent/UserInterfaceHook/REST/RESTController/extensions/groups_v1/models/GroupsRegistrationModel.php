@@ -13,13 +13,14 @@ use \RESTController\libs as Libs;
 
 require_once('./Services/Utilities/classes/class.ilUtil.php');
 //require_once('./Modules/Course/classes/class.ilObjCourse.php');
+require_once('./Modules/Group/classes/class.ilObjGroup.php');
 require_once('./Services/Object/classes/class.ilObjectFactory.php');
 require_once('./Services/Object/classes/class.ilObjectActivation.php');
 require_once('./Modules/LearningModule/classes/class.ilObjLearningModule.php');
 require_once('./Modules/LearningModule/classes/class.ilLMPageObject.php');
 require_once('./Services/Database/classes/class.ilDB.php');
 require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
-//require_once('./Modules/Course/classes/class.ilCourseConstants.php');
+include_once('./Modules/Group/classes/class.ilGroupMembershipMailNotification.php');
 
 
 class GroupsRegistrationModel extends Libs\RESTModel
@@ -48,10 +49,11 @@ class GroupsRegistrationModel extends Libs\RESTModel
         Libs\RESTilias::initAccessHandling();
 
         $this->initParticipants();
-        //$this->initWaitingList();
-       /* if ($this->checkSubscribeConditions() == true) {
+        $this->initWaitingList();
+        if ($this->checkSubscribeConditions() == true) {
             $this->add();
-        }*/
+        }
+
         return true;
     }
 
@@ -69,10 +71,7 @@ class GroupsRegistrationModel extends Libs\RESTModel
         $ilUser->setId($user_id);
         $ilUser->read();
         Libs\RESTilias::initAccessHandling();
-        if ($this->checkUnsubscribeConditions() == false)
-            throw new \Exception('User cannot leave the course, because he is the last course admin.');
-        else
-            $this->performUnsubscribeObject();
+        $this->container->leaveGroup();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -99,10 +98,7 @@ class GroupsRegistrationModel extends Libs\RESTModel
     protected function initParticipants()
     {
         include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
-//        getObjId
-
-        $this->participants = \ilGroupParticipants::_getInstanceByObjId(113);
-//        $this->participants = \ilGroupParticipants::_getInstanceByObjId($this->container->getId());//$this->obj_id);
+        $this->participants = \ilGroupParticipants::_getInstanceByObjId($this->container->getId());//$this->obj_id);
     }
 
 
@@ -125,74 +121,80 @@ class GroupsRegistrationModel extends Libs\RESTModel
      */
     protected function add()
     {
-        global $ilUser,$tree, $ilCtrl;
+        global $ilUser,$tree, $rbacreview, $lng, $ilCtrl;
 
         // set aggreement accepted
         $this->setAccepted(true);
 
         include_once('./Modules/Group/classes/class.ilGroupWaitingList.php');
-        $free = max(0,$this->container->getSubscriptionMaxMembers() - $this->participants->getCountMembers());
+        $free = max(0,$this->container->getMaxMembers() - $this->participants->getCountMembers());
         $waiting_list = new \ilGroupWaitingList($this->container->getId());
-        if($this->container->isSubscriptionMembershipLimited() and $this->container->enabledWaitingList() and (!$free or $waiting_list->getCountUsers()))
+        if(
+            $this->container->isMembershipLimited() and
+            $this->container->isWaitingListEnabled() and
+            (!$free or $waiting_list->getCountUsers()))
         {
             $waiting_list->addToList($ilUser->getId());
             $info = sprintf($this->lng->txt('grp_added_to_list'),
+                $this->container->getTitle(),
                 $waiting_list->getPosition($ilUser->getId()));
-            \ilUtil::sendSuccess($info,true);
 
-            $this->participants->sendNotification($this->participants->NOTIFY_SUBSCRIPTION_REQUEST,$ilUser->getId());
-            $this->participants->sendNotification($this->participants->NOTIFY_WAITING_LIST,$ilUser->getId());
-            $ilCtrl->setParameterByClass('ilrepositorygui', 'ref_id',
+            $this->participants->sendNotification(
+                ilGroupMembershipMailNotification::TYPE_WAITING_LIST_MEMBER,
+                $ilUser->getId()
+            );
+            ilUtil::sendSuccess($info,true);
+            $ilCtrl->setParameterByClass("ilrepositorygui", "ref_id",
                 $tree->getParentId($this->container->getRefId()));
-            $ilCtrl->redirectByClass('ilrepositorygui', '');
+            $ilCtrl->redirectByClass("ilrepositorygui", "");
         }
 
-        switch($this->container->getSubscriptionType())
+
+        switch($this->container->getRegistrationType())
         {
-            case IL_GRP_SUBSCRIPTION_CONFIRMATION:
+            case GRP_REGISTRATION_REQUEST:
+
                 $this->participants->addSubscriber($ilUser->getId());
                 $this->participants->updateSubscriptionTime($ilUser->getId(),time());
-                $this->participants->updateSubject($ilUser->getId(), \ilUtil::stripSlashes($_POST['subject']));
-                $this->participants->sendNotification($this->participants->NOTIFY_SUBSCRIPTION_REQUEST,$ilUser->getId());
+                $this->participants->updateSubject($ilUser->getId(),ilUtil::stripSlashes($_POST['subject']));
 
-                \ilUtil::sendSuccess($this->lng->txt('application_completed'),true);
-                $ilCtrl->setParameterByClass('ilrepositorygui', 'ref_id',
+                $this->participants->sendNotification(
+                    ilGroupMembershipMailNotification::TYPE_NOTIFICATION_REGISTRATION_REQUEST,
+                    $ilUser->getId()
+                );
+
+                ilUtil::sendSuccess($this->lng->txt("application_completed"),true);
+                $ilCtrl->setParameterByClass("ilrepositorygui", "ref_id",
                     $tree->getParentId($this->container->getRefId()));
-                $ilCtrl->redirectByClass('ilrepositorygui', '');
+                $ilCtrl->redirectByClass("ilrepositorygui", "");
                 break;
 
             default:
 
-                if($this->container->isSubscriptionMembershipLimited() && $this->container->getSubscriptionMaxMembers())
-                {
-                    $success = $GLOBALS['rbacadmin']->assignUserLimited(
-                        \ilParticipants::getDefaultMemberRole($this->container->getRefId()),
-                        $ilUser->getId(),
-                        $this->container->getSubscriptionMaxMembers(),
-                        array(\ilParticipants::getDefaultMemberRole($this->container->getRefId()))
-                    );
-                    if(!$success)
-                    {
-                        // The maximum number of participants has been exceeded.
-                        //ilUtil::sendFailure($this->lng->txt('crs_subscription_failed_limit'));
-                        return FALSE;
-                    }
-                }
-
                 $this->participants->add($ilUser->getId(),IL_GRP_MEMBER);
-                $this->participants->sendNotification($this->participants->NOTIFY_ADMINS,$ilUser->getId());
-                $this->participants->sendNotification($this->participants->NOTIFY_REGISTERED,$ilUser->getId());
+                $this->participants->sendNotification(
+                    \ilGroupMembershipMailNotification::TYPE_NOTIFICATION_REGISTRATION,
+                    $ilUser->getId()
+                );
+                $this->participants->sendNotification(
+                    \ilGroupMembershipMailNotification::TYPE_SUBSCRIBE_MEMBER,
+                    $ilUser->getId()
+                );
 
-                include_once('./Modules/Forum/classes/class.ilForumNotification.php');
+                include_once './Modules/Forum/classes/class.ilForumNotification.php';
                 \ilForumNotification::checkForumsExistsInsert($this->container->getRefId(), $ilUser->getId());
 
-                if($this->container->getType() == 'crs')
+                /*if(!$_SESSION["pending_goto"])
                 {
-                    $this->container->checkLPStatusSync($ilUser->getId());
+                   // \ilUtil::sendSuccess("grp_registration_completed",true);
+                  //  $this->ctrl->returnToParent($this);
                 }
-
-                // You have joined the course
-                return TRUE;
+                else
+                {
+                    $tgt = $_SESSION["pending_goto"];
+                    unset($_SESSION["pending_goto"]);
+                    \ilUtil::redirect($tgt);
+                }*/
                 break;
         }
     }
@@ -219,34 +221,6 @@ class GroupsRegistrationModel extends Libs\RESTModel
         $this->agreement->setAccepted($a_status);
         $this->agreement->setAcceptanceTime(time());
         $this->agreement->save();
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /* Find methods regarding the unsubscription of courses below */
-
-    /**
-     * see original class.ilObjCourseGUI.php > leaveObject
-     */
-    protected function checkUnsubscribeConditions()
-    {
-        global $ilUser;
-        //$this->checkPermission('leave');
-        if($this->container->getMembersObject()->isLastAdmin($ilUser->getId()) == true) {
-            //ilUtil::sendFailure($this->lng->txt('crs_min_one_admin')); // 'There has to be at least one administrator assigned to this course.'
-            return false;
-        }
-        return true;
-    }
-
-    protected function performUnsubscribeObject()
-    {
-        global $ilUser, $ilCtrl;
-        // CHECK ACCESS
-        // $this->checkPermission('leave');
-        $this->container->getMembersObject()->delete($ilUser->getId());
-        $this->container->getMembersObject()->sendUnsubscribeNotificationToAdmins($ilUser->getId());
-        $this->container->getMembersObject()->sendNotification($this->container->getMembersObject()->NOTIFY_UNSUBSCRIBE,$ilUser->getId());
-        //ilUtil::sendSuccess($this->lng->txt('crs_unsubscribed_from_crs'),true); // 'You have been unsubscribed from this course'
     }
 
 }
