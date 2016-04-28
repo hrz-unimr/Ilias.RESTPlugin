@@ -38,20 +38,65 @@ $app->group('/v1', function () use ($app) {
         }
     });
 
+    /**
+     * Get content of group identified by ref_id
+     */
     $app->get('/groups/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         $result = array();
-        $user_id = Auth\Util::getAccessToken()->getUserId();
+        $accessToken = $app->request->getToken();
+        $user_id = $accessToken->getUserId();
 
         try {
             Libs\RESTilias::initAccessHandling();
             $grpModel = new Groups\GroupsModel();
             $info = $grpModel->getGroupInfo($ref_id);
             $result['info'] = $info;
+            $content = $grpModel->getGroupContent($ref_id);
+            $result['content'] = $content;
             $members = $grpModel->getGroupMembers($ref_id);
             $result['members'] = $members;
             $app->success($result);
         } catch (Libs\ReadFailed $e) {
             $app->halt(400, $e->getFormatedMessage());
+        }
+    });
+
+    /**
+     * Assigns the authenticated user to a group specified by the GET parameter ref_id.
+     */
+    $app->get('/group/join/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
+        $accessToken = $app->request->getToken();
+        $authorizedUserId = $accessToken->getUserId();
+
+        $request = $app->request();
+        try {
+            //$ref_id = $request->params("ref_id");
+            $crsreg_model = new CoursesRegistrationModel();
+            $crsreg_model->joinCourse($authorizedUserId, $ref_id);
+
+            $result = array(
+                'msg' => "User ".$authorizedUserId." subscribed to course with ref_id = " . $ref_id . " successfully.",
+            );
+            $app->success($result);
+        } catch (Courses\SubscriptionFailed $e) {
+            $app->halt(400, "Error: Subscribing user ".$authorizedUserId." to course with ref_id = ".$ref_id." failed. Exception:".$e->getMessage(), -15);
+        }
+    });
+
+    /**
+     * Removes the authenticated user from a group specified by the GET parameter "ref_id".
+     */
+    $app->get('/group/leave/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
+        $accessToken = $app->request->getToken();
+        $authorizedUserId = $accessToken->getUserId();
+
+        try {
+            $crsreg_model = new CoursesRegistrationModel();
+            $crsreg_model->leaveCourse($authorizedUserId, $ref_id);
+            $app->success("User ".$authorizedUserId." has left course with ref_id = " . $ref_id . ".");
+
+        } catch (Courses\CancelationFailed $e) {
+            $app->halt(400, 'Error: Could not perform action for user '.$authorizedUserId.". ".$e->getMessage(), -15);
         }
     });
 
