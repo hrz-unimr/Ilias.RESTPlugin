@@ -190,7 +190,7 @@ $app->group('/v1', function () use ($app) {
         try {
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->leaveCourse($authorizedUserId, $ref_id);
-            $app->success("User ".$authorizedUserId." has left course with ref_id = " . $ref_id . ".");
+            $app->success(array("msg"=>"User ".$authorizedUserId." has left course with ref_id = " . $ref_id . "."));
 
         } catch (Courses\CancelationFailed $e) {
             $app->halt(400, 'Error: Could not perform action for user '.$authorizedUserId.". ".$e->getMessage(), -15);

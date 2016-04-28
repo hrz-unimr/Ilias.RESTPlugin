@@ -22,7 +22,7 @@ require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
 //require_once('./Modules/Course/classes/class.ilCourseConstants.php');
 
 
-class GroupsRegistrationModel
+class GroupsRegistrationModel extends Libs\RESTModel
 {
     protected $waiting_list;
     protected $participants;
@@ -48,10 +48,10 @@ class GroupsRegistrationModel
         Libs\RESTilias::initAccessHandling();
 
         $this->initParticipants();
-        $this->initWaitingList();
-        if ($this->checkSubscribeConditions() == true) {
+        //$this->initWaitingList();
+       /* if ($this->checkSubscribeConditions() == true) {
             $this->add();
-        }
+        }*/
         return true;
     }
 
@@ -99,7 +99,10 @@ class GroupsRegistrationModel
     protected function initParticipants()
     {
         include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
-        $this->participants = \ilGroupParticipants::_getInstanceByObjId($this->container->getId());//$this->obj_id);
+//        getObjId
+
+        $this->participants = \ilGroupParticipants::_getInstanceByObjId(113);
+//        $this->participants = \ilGroupParticipants::_getInstanceByObjId($this->container->getId());//$this->obj_id);
     }
 
 

@@ -64,38 +64,38 @@ $app->group('/v1', function () use ($app) {
     /**
      * Assigns the authenticated user to a group specified by the GET parameter ref_id.
      */
-    $app->get('/group/join/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
+    $app->get('/groups/join/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         $accessToken = $app->request->getToken();
         $authorizedUserId = $accessToken->getUserId();
 
         $request = $app->request();
         try {
             //$ref_id = $request->params("ref_id");
-            $crsreg_model = new CoursesRegistrationModel();
-            $crsreg_model->joinCourse($authorizedUserId, $ref_id);
+            $grpreg_model = new Groups\GroupsRegistrationModel();
+            $grpreg_model->joinGroup($authorizedUserId, $ref_id);
 
             $result = array(
-                'msg' => "User ".$authorizedUserId." subscribed to course with ref_id = " . $ref_id . " successfully.",
+                'msg' => "User ".$authorizedUserId." subscribed to group with ref_id = " . $ref_id . " successfully.",
             );
             $app->success($result);
-        } catch (Courses\SubscriptionFailed $e) {
-            $app->halt(400, "Error: Subscribing user ".$authorizedUserId." to course with ref_id = ".$ref_id." failed. Exception:".$e->getMessage(), -15);
+        } catch (Groups\SubscriptionFailed $e) {
+            $app->halt(400, "Error: Subscribing user ".$authorizedUserId." to group with ref_id = ".$ref_id." failed. Exception:".$e->getMessage(), -15);
         }
     });
 
     /**
      * Removes the authenticated user from a group specified by the GET parameter "ref_id".
      */
-    $app->get('/group/leave/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
+    $app->get('/groups/leave/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         $accessToken = $app->request->getToken();
         $authorizedUserId = $accessToken->getUserId();
 
         try {
-            $crsreg_model = new CoursesRegistrationModel();
-            $crsreg_model->leaveCourse($authorizedUserId, $ref_id);
-            $app->success("User ".$authorizedUserId." has left course with ref_id = " . $ref_id . ".");
+            $crsreg_model = new Groups\GroupsRegistrationModel();
+            $crsreg_model->leaveGroup($authorizedUserId, $ref_id);
+            $app->success("User ".$authorizedUserId." has left group with ref_id = " . $ref_id . ".");
 
-        } catch (Courses\CancelationFailed $e) {
+        } catch (Groups\CancelationFailed $e) {
             $app->halt(400, 'Error: Could not perform action for user '.$authorizedUserId.". ".$e->getMessage(), -15);
         }
     });
