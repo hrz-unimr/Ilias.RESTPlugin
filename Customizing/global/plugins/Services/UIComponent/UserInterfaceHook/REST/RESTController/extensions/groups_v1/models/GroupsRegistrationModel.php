@@ -12,7 +12,6 @@ use \RESTController\libs as Libs;
 
 
 require_once('./Services/Utilities/classes/class.ilUtil.php');
-//require_once('./Modules/Course/classes/class.ilObjCourse.php');
 require_once('./Modules/Group/classes/class.ilObjGroup.php');
 require_once('./Services/Object/classes/class.ilObjectFactory.php');
 require_once('./Services/Object/classes/class.ilObjectActivation.php');
@@ -184,17 +183,6 @@ class GroupsRegistrationModel extends Libs\RESTModel
                 include_once './Modules/Forum/classes/class.ilForumNotification.php';
                 \ilForumNotification::checkForumsExistsInsert($this->container->getRefId(), $ilUser->getId());
 
-                /*if(!$_SESSION["pending_goto"])
-                {
-                   // \ilUtil::sendSuccess("grp_registration_completed",true);
-                  //  $this->ctrl->returnToParent($this);
-                }
-                else
-                {
-                    $tgt = $_SESSION["pending_goto"];
-                    unset($_SESSION["pending_goto"]);
-                    \ilUtil::redirect($tgt);
-                }*/
                 break;
         }
     }
@@ -210,12 +198,6 @@ class GroupsRegistrationModel extends Libs\RESTModel
     {
         global $ilUser;
 
-        /*include_once('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition.php');
-        if(!$this->privacy->confirmationRequired($this->type) and !\ilCourseDefinedFieldDefinition::_hasFields($this->container->getId()))
-        {
-            return true;
-        }
-        */
         include_once('Services/Membership/classes/class.ilMemberAgreement.php');
         $this->agreement = new \ilMemberAgreement($ilUser->getId(),$this->container->getId());
         $this->agreement->setAccepted($a_status);
