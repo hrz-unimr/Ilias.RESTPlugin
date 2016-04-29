@@ -180,4 +180,17 @@ class Events extends Libs\RESTModel {
 
     return $result;
   }
+
+  /**
+   * Deletes an event (ILIAS appointment)
+   * TODO: Check permissions
+   * @param $accessToken
+   * @param $eventId
+   */
+  public static function deleteEvent($accessToken, $eventId) {
+    include_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
+    include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
+    \ilCalendarCategoryAssignments::_deleteByAppointmentId($eventId);
+    \ilCalendarEntry::_delete($eventId);
+  }
 }

@@ -106,7 +106,21 @@ $app->group('/v1/umr', function () use ($app) {
    *
    * @See docs/api.pdf
    */
-  $app->delete('/events', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->delete('/events/:eventId', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($eventId) use ($app) {
+    // Fetch userId & userName
+    $accessToken = $app->request->getToken();
 
+    try {
+      // Fetch user-information
+      Events::deleteEvent($accessToken, $eventId);
+      // Output result
+      $app->success(array("msg"=>"Deleted the event with eventId $eventId."));
+    }
+    catch (Exceptions\Events $e) {
+      $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
+      $responseObject['data'] = $e->getData();
+      $app->halt(500, $responseObject);
+    }
+  });
 // End of '/v1/umr/' URI-Group
 });
