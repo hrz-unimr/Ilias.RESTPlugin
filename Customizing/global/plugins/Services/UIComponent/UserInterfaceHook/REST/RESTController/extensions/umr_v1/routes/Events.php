@@ -139,9 +139,6 @@ $app->group('/v1/umr', function () use ($app) {
       $responseObject['data'] = $e->getData();
       $app->halt(500, $responseObject);
     }
-
-
-
   });
 
 
