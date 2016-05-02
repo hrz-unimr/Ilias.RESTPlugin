@@ -183,14 +183,27 @@ class Events extends Libs\RESTModel {
 
   /**
    * Deletes an event (ILIAS appointment)
-   * TODO: Check permissions
+   *
    * @param $accessToken
    * @param $eventId
    */
   public static function deleteEvent($accessToken, $eventId) {
+    global $ilLog;
+
     include_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
     include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
-    \ilCalendarCategoryAssignments::_deleteByAppointmentId($eventId);
-    \ilCalendarEntry::_delete($eventId);
+
+    $calendarId             = current(\ilCalendarCategoryAssignments::_getAppointmentCalendars(array($eventId)));
+
+    if (Calendars::isEditable($accessToken, $calendarId)==true) {
+      $ilLog->write('Calendar '.$calendarId.' seems to be editable. Deleting event '.$eventId." ...");
+      \ilCalendarCategoryAssignments::_deleteByAppointmentId($eventId);
+      \ilCalendarEntry::_delete($eventId);
+      return true;
+    } else {
+      $ilLog->write('Calendar '.$calendarId.' ist NOT editable for the current user.');
+      return false;
+    }
+
   }
 }

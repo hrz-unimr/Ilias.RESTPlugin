@@ -112,9 +112,14 @@ $app->group('/v1/umr', function () use ($app) {
 
     try {
       // Fetch user-information
-      Events::deleteEvent($accessToken, $eventId);
+      $isDeleted = Events::deleteEvent($accessToken, $eventId);
       // Output result
-      $app->success(array("msg"=>"Deleted the event with eventId $eventId."));
+      if ($isDeleted==true) {
+        $app->success(array("msg"=>"Deleted the event with eventId $eventId."));
+      } else {
+        $app->halt(403, array("msg"=>"Could not delete the eventId $eventId."));
+      }
+
     }
     catch (Exceptions\Events $e) {
       $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());

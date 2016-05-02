@@ -113,6 +113,20 @@ class Calendars extends Libs\RESTModel {
     return $result;
   }
 
+  public static function isEditable($accessToken, $calendarId) {
+    //$calendars     = self::loadCalendar($accessToken);
+    $calendars = self::loadCalendar($accessToken);
+    $calendarInfos  = $calendars->getCategoriesInfo();
+    //return ($calendarInfos[$calendarId] != null);
+
+    require_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
+    $categories = \ilCalendarCategories::_getInstance();
+    $cat_id = $calendarId;//$a_category_id;
+    return $categories->isEditable($cat_id);
+  }
+
+
+
 
   /**
    *
