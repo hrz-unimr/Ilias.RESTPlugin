@@ -257,4 +257,54 @@ class Events extends Libs\RESTModel {
     }
     return -1;
   }
+
+  /**
+   * Updates title and description of an existing event (appointment).
+   *
+   * @param $accessToken
+   * @param $event_id
+   * @param $newTitle
+   * @param $newDescription
+   * @param $fullDayFlag
+   * @param $startTime
+   * @param $endTime
+   * @return bool
+   */
+  public static function updateEvent($accessToken, $event_id, $newTitle, $newDescription, $fullDayFlag, $startTime, $endTime) {
+    global $ilLog;
+
+    include_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
+    include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
+
+    $calendarId             = current(\ilCalendarCategoryAssignments::_getAppointmentCalendars(array($event_id)));
+
+    if (Calendars::isEditable($accessToken, $calendarId)==true) {
+      $app = new \ilCalendarEntry($event_id);
+      $app->setTitle($newTitle);
+      $app->setDescription($newDescription);
+      if ($startTime != null) {
+        $tStart = mktime($startTime['hour'], $startTime['minute'], 0, $startTime['month'], $startTime['day'], $startTime['year']);
+        $start = new \ilDate($tStart, IL_CAL_UNIX);
+        $app->setStart($start);
+      }
+
+      if ($endTime != null) {
+        $tEnd = mktime($endTime['hour'], $endTime['minute'], 0, $endTime['month'], $endTime['day'], $endTime['year']);
+        $seed_end = new \ilDate($tEnd, IL_CAL_UNIX);
+        $app->setEnd($seed_end);
+      }
+
+      if ($fullDayFlag != null) {
+        if ($fullDayFlag == true) {
+          $app->setFullday(1);
+        } else {
+          $app->setFullday(0);
+        }
+      }
+
+      $app->update();
+      return true;
+    }
+    return false;
+  }
 }

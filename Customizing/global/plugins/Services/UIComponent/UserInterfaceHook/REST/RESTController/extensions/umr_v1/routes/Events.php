@@ -144,11 +144,59 @@ $app->group('/v1/umr', function () use ($app) {
 
   /**
    * Route: PUT /v1/umr/events
-   *  Updates an event (appointments) of the user given by the access-token.
+   *  Updates an event (appointment) of the user given by the access-token.
+   *
+   * IShell example:  i.put('v1/umr/events/13',{'title':'Renamed title','description':'Test'})
    *
    * @See docs/api.pdf
    */
-  $app->put('/events', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->put('/events/:eventId', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($eventId) use ($app) {
+    // Fetch userId & userName
+    $accessToken = $app->request->getToken();
+
+    try {
+      // Fetch refIds
+      $request      = $app->request;
+      $title = $request->params('title', null, true);
+      $description = $request->params('description', "", false);
+
+      $fullDayFlag =  $request->params('full_day', null, false);
+      $startTime = array();
+      $startTime['hour'] =  $request->params('start_hour', null, false);
+      $startTime['minute']=  $request->params('start_minute', null, false);
+      $startTime['month'] =  $request->params('start_month', null, false);
+      $startTime['day'] =  $request->params('start_day', null, false);
+      $startTime['year'] =  $request->params('start_year', null, false);
+
+      $endTime = array();
+      $endTime['hour'] =  $request->params('end_hour', null, false);
+      $endTime['minute']=  $request->params('end_minute', null, false);
+      $endTime['month'] =  $request->params('end_month', null, false);
+      $endTime['day'] =  $request->params('end_day', null, false);
+      $endTime['year'] =  $request->params('end_year', null, false);
+
+      $isUpdated = Events::updateEvent($accessToken, $eventId, $title, $description, $fullDayFlag, $startTime, $endTime);
+
+      // Output result
+      if ($isUpdated == true) {
+        $app->success(array("msg"=>"Updated the event with eventId $eventId."));
+      } else {
+        $app->halt(403, array("msg"=>"Not allowed to modify event $eventId"));
+      }
+
+    }
+    catch (Libs\Exceptions\StringList $e) {
+      $app->halt(422, $e->getRESTMessage(), $e->getRESTCode());
+    }
+    catch (Libs\Exceptions\MissingParameter $e) {
+      $app->halt(400, $e->getFormatedMessage(), $e->getRESTCode());
+    }
+    catch (Exceptions\Events $e) {
+      $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
+      $responseObject['data'] = $e->getData();
+      $app->halt(500, $responseObject);
+    }
+  });
 
 
   /**
