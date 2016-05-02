@@ -84,11 +84,65 @@ $app->group('/v1/umr', function () use ($app) {
 
   /**
    * Route: POST /v1/umr/events
-   *  Adds an event (appointments) to a calendar of the user given by the access-token.
+   *  Adds an event (appointment) to a calendar of the user given by the access-token.
+   *
+   * Example with IShell:
+   * i.post('v1/umr/events',{'cal_id':'10','title':'test','description':'created with ishell','full_day':'0','start_hour':'10','start_minute':'0','start_month':'7','start_day':'1','start_year':'2016', 'end_hour':'11','end_minute':'30','end_month':'7','end_day':'1','end_year':'2016'})
    *
    * @See docs/api.pdf
    */
-  $app->post('/events', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+  $app->post('/events', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
+    // Fetch userId & userName
+    $accessToken = $app->request->getToken();
+
+    try {
+      // Fetch refIds
+      $request      = $app->request;
+      $calId  = $request->params('cal_id', null, true);
+      $title = $request->params('title', null, true);
+      $description = $request->params('description', "", false);
+
+      $fullDayFlag =  $request->params('full_day', false, false);
+      $startTime = array();
+      $startTime['hour'] =  $request->params('start_hour', null, true);
+      $startTime['minute']=  $request->params('start_minute', null, true);
+      $startTime['month'] =  $request->params('start_month', null, true);
+      $startTime['day'] =  $request->params('start_day', null, true);
+      $startTime['year'] =  $request->params('start_year', null, true);
+
+      $endTime = array();
+      $endTime['hour'] =  $request->params('end_hour', null, true);
+      $endTime['minute']=  $request->params('end_minute', null, true);
+      $endTime['month'] =  $request->params('end_month', null, true);
+      $endTime['day'] =  $request->params('end_day', null, true);
+      $endTime['year'] =  $request->params('end_year', null, true);
+
+
+      $newEventId = Events::addEvent($accessToken, $calId, $title, $description, $fullDayFlag, $startTime, $endTime);
+
+      // Output result
+      if ($newEventId > -1) {
+        $app->success(array("msg"=>"Created new event with eventId $newEventId in calendar $calId."));
+      } else {
+        $app->halt(403, array("msg"=>"Not allowed to create a new event in calendar $calId."));
+      }
+
+    }
+    catch (Libs\Exceptions\StringList $e) {
+      $app->halt(422, $e->getRESTMessage(), $e->getRESTCode());
+    }
+    catch (Libs\Exceptions\MissingParameter $e) {
+      $app->halt(400, $e->getFormatedMessage(), $e->getRESTCode());
+    }
+    catch (Exceptions\Events $e) {
+      $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
+      $responseObject['data'] = $e->getData();
+      $app->halt(500, $responseObject);
+    }
+
+
+
+  });
 
 
   /**

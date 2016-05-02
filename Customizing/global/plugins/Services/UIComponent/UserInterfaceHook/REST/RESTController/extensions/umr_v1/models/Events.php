@@ -186,6 +186,7 @@ class Events extends Libs\RESTModel {
    *
    * @param $accessToken
    * @param $eventId
+   * @return bool
    */
   public static function deleteEvent($accessToken, $eventId) {
     global $ilLog;
@@ -204,6 +205,56 @@ class Events extends Libs\RESTModel {
       $ilLog->write('Calendar '.$calendarId.' ist NOT editable for the current user.');
       return false;
     }
+  }
 
+  /**
+   * Create a new event (ILIAS appointment) for the specified calendar.
+   *
+   * Note:
+   *  Calendar notifications not supported yet!
+   *  Calendar recurrences not supported yet!
+   *
+   * @param $accessToken
+   * @param $cal_id
+   * @param $title
+   * @param $description
+   * @return int
+   */
+  public static function addEvent($accessToken, $cal_id, $title, $description, $fullDayFlag, $startTime, $endTime) {
+
+    if (Calendars::isEditable($accessToken, $cal_id)==true) {
+      include_once('./Services/Calendar/classes/class.ilDate.php');
+      include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
+      include_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
+
+      $a_app_id = 0;
+      $app = new \ilCalendarEntry($a_app_id);
+
+      if (!$a_app_id) {
+        $tStart = mktime($startTime['hour'], $startTime['minute'], 0, $startTime['month'], $startTime['day'], $startTime['year']);
+        $start = new \ilDate($tStart, IL_CAL_UNIX);
+        $app->setStart($start);
+        $tEnd = mktime($endTime['hour'], $endTime['minute'], 0, $endTime['month'], $endTime['day'], $endTime['year']);
+        $seed_end = new \ilDate($tEnd, IL_CAL_UNIX);
+        $app->setEnd($seed_end);
+
+        if ($fullDayFlag == true) {
+          $app->setFullday(1);
+        } else {
+          $app->setFullday(0);
+        }
+
+        $app->setTitle($title);
+        $app->setDescription($description);
+        $app->save();
+
+        include_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
+        $ass = new \ilCalendarCategoryAssignments($app->getEntryId());
+        $ass->addAssignment($cal_id);
+
+        return $app->getEntryId();
+      }
+    }
+    return -1;
   }
 }
