@@ -103,9 +103,17 @@ class Objects extends Libs\RESTModel {
     // Return object-information
     return $result;
   }
+  
   protected static function getIlObjGroupData($ilObjectGroup) {
     // Fetch basic ilObject information
     $result = self::getIlObjData($ilObjectGroup);
+
+    $hasPageDescription = self::containerPageExists($result['obj_id']);
+    if ($hasPageDescription==true) {
+      $result['page_customization'] = 1;
+    } else {
+      $result['page_customization'] = 0;
+    }
 
     // Add course/group calendar
     $result['calendar_id'] = self::getCalender($result['obj_id']);
