@@ -146,7 +146,10 @@ $app->group('/v1/umr', function () use ($app) {
    * Route: PUT /v1/umr/events
    *  Updates an event (appointment) of the user given by the access-token.
    *
-   * IShell example:  i.put('v1/umr/events/13',{'title':'Renamed title','description':'Test'})
+   * IShell examples:
+   *  i.put('v1/umr/events/13',{'title':'Renamed title','description':'Test'})
+   *  i.put('v1/umr/events/13',{'title':'Renamed title2','description':'Test2','full_day':'0','start_hour':'10','start_minute':'0','start_month':'7','start_day':'1','start_year':'2016', 'end_hour':'11','end_minute':'30','end_month':'7','end_day':'1','end_year':'2016'})
+   *  i.put('v1/umr/events/13',{'title':'Another event','description':'','full_day':'1'})
    *
    * @See docs/api.pdf
    */

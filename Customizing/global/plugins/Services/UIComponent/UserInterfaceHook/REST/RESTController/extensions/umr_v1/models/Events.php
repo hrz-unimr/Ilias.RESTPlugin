@@ -271,7 +271,6 @@ class Events extends Libs\RESTModel {
    * @return bool
    */
   public static function updateEvent($accessToken, $event_id, $newTitle, $newDescription, $fullDayFlag, $startTime, $endTime) {
-    global $ilLog;
 
     include_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
     include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
@@ -282,13 +281,13 @@ class Events extends Libs\RESTModel {
       $app = new \ilCalendarEntry($event_id);
       $app->setTitle($newTitle);
       $app->setDescription($newDescription);
-      if ($startTime != null) {
+      if ($startTime['hour'] != null) {
         $tStart = mktime($startTime['hour'], $startTime['minute'], 0, $startTime['month'], $startTime['day'], $startTime['year']);
         $start = new \ilDate($tStart, IL_CAL_UNIX);
         $app->setStart($start);
       }
 
-      if ($endTime != null) {
+      if ($endTime['hour'] != null) {
         $tEnd = mktime($endTime['hour'], $endTime['minute'], 0, $endTime['month'], $endTime['day'], $endTime['year']);
         $seed_end = new \ilDate($tEnd, IL_CAL_UNIX);
         $app->setEnd($seed_end);
