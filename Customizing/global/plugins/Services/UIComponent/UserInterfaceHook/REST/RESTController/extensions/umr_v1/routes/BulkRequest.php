@@ -30,7 +30,7 @@ $app->group('/v1/umr', function () use ($app) {
     $accessToken = $app->request->getToken();
 
     // Fetch user-information
-    $bulk         = BulkRequest::getBulk($accessToken);
+    $bulk = BulkRequest::getBulk($accessToken);
 
     // Output result
     $app->success($bulk);

@@ -112,7 +112,7 @@ class Contacts extends Libs\RESTModel {
     }
 
     // If every request failed, throw instead
-    if ($noSuccess)
+    if ($noSuccess && count($contactIds) > 0)
       throw new Exceptions\Contacts(self::MSG_ALL_FAILED, self::ID_ALL_FAILED, $result);
 
     return $result;
