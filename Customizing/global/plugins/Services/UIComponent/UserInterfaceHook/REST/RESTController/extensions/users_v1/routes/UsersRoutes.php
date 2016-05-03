@@ -88,7 +88,7 @@ $app->get('/v1/search/user',RESTAuth::checkAccess(RESTAuth::ADMIN), function () 
             }
         }
     }
-    $app->success('Empty result.');
+    $app->success(array("msg"=>"Empty result."));
 });
 
 /**
@@ -169,7 +169,7 @@ $app->delete('/v1/users/:user_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), 
         $status = $usr_model->deleteUser($user_id);
 
         if ($status) {
-            $app->success(200,"User with id $user_id deleted.");
+            $app->success(array("msg"=>"User with id $user_id deleted."));
         } else {
             $app->halt(404, "Could not delete user " . $user_id . ".");
         }

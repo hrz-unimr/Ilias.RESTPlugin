@@ -105,7 +105,7 @@ $app->group('/v1', function () use ($app) {
 
             $app->success($soap_result);
         } else {
-            $app->success("No Permission.");
+            $app->success(array("msg"=>"No Permission."));
         }
 
     });
@@ -153,9 +153,9 @@ $app->group('/v1', function () use ($app) {
         }
 
         if($mode == "by_login")
-            $app->success("Enrolled user $login to course with id $crs_ref_id");
+            $app->success(array("msg"=>"Enrolled user $login to course with id $crs_ref_id"));
         else
-            $app->success("Enrolled user with id $user_id to course with id $crs_ref_id");
+            $app->success(array("msg"=>"Enrolled user with id $user_id to course with id $crs_ref_id"));
     });
 
     /**

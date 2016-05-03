@@ -84,7 +84,7 @@ $app->group('/v1/m', function () use ($app) {
             if ($status == false) {
                 $app->halt(500, 'File could not be copied!');
             } else {
-                $app->success("Moved item from personal file space to repository.");
+                $app->success(array("msg"=>"Moved item from personal file space to repository."));
             }
         } catch(Exceptions\MissingParameter $e) {
             $app->halt(400, $e->getFormatedMessage(), $e::ID);

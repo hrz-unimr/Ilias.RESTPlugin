@@ -26,8 +26,8 @@ $app->group('/admin', function () use ($app) {
         if ($authorizedUserId == $id || Libs\RESTilias::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
             $model = new Desktop\DesktopModel();
             $data = $model->getPersonalDesktopItems($id);
-
-            $app->success($data);
+            $ret = array("content" => $data);
+            $app->success($ret);
         }
         else
             $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
@@ -44,7 +44,7 @@ $app->group('/admin', function () use ($app) {
             $model = new Desktop\DesktopModel();
             $model->removeItemFromDesktop($id, $ref_id);
 
-            $app->success("Removed item with ref_id=".$ref_id." from desktop.");
+            $app->success(array("msg"=>"Removed item with ref_id=".$ref_id." from desktop."));
         } catch (\Exception $e) {
             $app->halt(500, "Error: ".$e->getMessage(), -15);
         }
@@ -61,7 +61,7 @@ $app->group('/admin', function () use ($app) {
             $model = new Desktop\DesktopModel();
             $model->addItemToDesktop($id, $ref_id);
 
-            $app->success("Added item with ref_id=".$ref_id." to the desktop.");
+            $app->success(array("msg"=>"Added item with ref_id=".$ref_id." to the desktop."));
         } catch (\Exception $e) {
             $app->halt(500, "Error: ".$e->getMessage(), -15);
         }

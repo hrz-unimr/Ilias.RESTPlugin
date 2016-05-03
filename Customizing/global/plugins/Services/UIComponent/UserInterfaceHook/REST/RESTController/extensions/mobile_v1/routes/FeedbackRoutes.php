@@ -87,9 +87,9 @@ $app->group('/v1/m', function () use ($app) {
         $model = new MobileFeedbackModel();
         $hasCreated = $model->createMobileFeedbackDatabaseTable();
         if ($hasCreated == true) {
-            $app->success("Created new feedback database.");
+            $app->success(array("msg"=>"Created new feedback database."));
         } else {
-            $app->success("Feedback database already exists. Nothing changed.");
+            $app->success(array("msg"=>"Feedback database already exists. Nothing changed."));
         }
 
     });
