@@ -49,9 +49,50 @@ class Objects extends Libs\RESTModel {
       function($value) { return !is_null($value); }
     );
   }
+
+  /**
+   * Returns whether or not a course or a group has a customized page description.
+   *
+   * @param $obj_id
+   * @return bool
+   */
+  protected static function containerPageExists($obj_id) {
+    // (see also ilContainerGUI->getContainerPageHTML)
+    include_once("./Services/Container/classes/class.ilContainer.php");
+
+    // old page editor content
+    $xpage_id = \ilContainer::_lookupContainerSetting($obj_id, "xhtml_page");
+
+    if ($xpage_id > 0)
+    {
+      include_once("Services/XHTMLPage/classes/class.ilXHTMLPage.php");
+      $xpage = new \ilXHTMLPage($xpage_id);
+      $pageContent = $xpage->getContent();
+      if (strlen($pageContent)>0) {
+        return true;
+      }
+    }
+
+    // if page does not exist, return nothing
+    include_once("./Services/COPage/classes/class.ilPageUtil.php");
+    if (!\ilPageUtil::_existsAndNotEmpty("cont", $obj_id))
+    {
+      return false;
+    }
+
+    return true;
+  }
+
   protected static function getIlObjCourseData($ilObjectCourse) {
     // Fetch basic ilObject information
     $result = self::getIlObjData($ilObjectCourse);
+
+    $hasPageDescription = self::containerPageExists($result['obj_id']);
+    if ($hasPageDescription==true) {
+      $result['page_customization'] = 1;
+    } else {
+      $result['page_customization'] = 0;
+    }
 
     // Add course/group calendar
     $result['calendar_id'] = self::getCalender($result['obj_id']);
