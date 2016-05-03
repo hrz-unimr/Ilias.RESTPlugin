@@ -298,7 +298,7 @@ class Objects extends Libs\RESTModel {
     }
 
     // If EVERY request failed, throw instead
-    if ($noSuccess)
+    if ($noSuccess && count($refIds) > 0)
       throw new Exceptions\Objects(self::MSG_ALL_FAILED, self::ID_ALL_FAILED, $result);
 
     return $result;

@@ -60,7 +60,7 @@ class BulkRequest extends Libs\RESTModel {
     $calendars    = Calendars::getAllCalendars($accessToken);
     $contacts     = Contacts::getAllContacts($accessToken);
     $events       = Events::getAllEvents($accessToken);
-    $user         = UserInfo::getUserInfo($accessToken);
+    $user         = UserInfo::getFullUserInfo($accessToken);
     $cag          = MyCoursesAndGroups::getMyCoursesAndGroups($accessToken);
     $desktop      = PersonalDesktop::getPersonalDesktop($accessToken);
     $news         = News::getAllNews($accessToken);
@@ -73,7 +73,7 @@ class BulkRequest extends Libs\RESTModel {
 
     // Also fetch Objects and users attached to news
     $newsRefIds = array();
-    foreach ($news as $item) {
+    foreach ($news['ilias'] as $item) {
       // Make sure all objects attached to news will be fetched
       $newsRefIds[] = $item['ref_id'];
 

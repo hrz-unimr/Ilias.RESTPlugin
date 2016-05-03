@@ -154,7 +154,7 @@ class Calendars extends Libs\RESTModel {
       }
 
     // If every request failed, throw instead
-    if ($noSuccess)
+    if ($noSuccess && count($calendarIds) > 0)
       throw new Exceptions\Calendars(self::MSG_ALL_FAILED, self::ID_ALL_FAILED, $result);
 
     return $result;
@@ -198,7 +198,7 @@ class Calendars extends Libs\RESTModel {
       }
 
     // If every request failed, throw instead
-    if ($noSuccess)
+    if ($noSuccess && count($calendarIds) > 0)
       throw new Exceptions\Calendars(self::MSG_ALL_FAILED, self::ID_ALL_FAILED, $result);
 
     return $result;

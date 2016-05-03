@@ -62,12 +62,12 @@ class UserInfo extends Libs\RESTModel {
   /**
    *
    */
-  protected static function getUserInfo_Intern($userId, $userName, $usingToken) {
+  protected static function getUserInfo_Array($userId, $usingToken) {
     // Fetch user-information
     $ilObj = \ilObjectFactory::getInstanceByObjId($userId);
 
     // Check if clients request is allowed
-    if (!$ilObj || !is_a($ilObj, 'ilObjUser') || $ilObj->login != $userName)
+    if (!$ilObj || !is_a($ilObj, 'ilObjUser'))
       throw new Exceptions\UserInfo(self::MSG_INVALID_USER, self::ID_INVALID_USER);
 
     // Build user information from ilObjUser
@@ -149,25 +149,16 @@ class UserInfo extends Libs\RESTModel {
   /**
    *
    */
-  public static function getUserInfo($accessToken_OR_userId) {
-      // Parse input: Using a userId
-      if (is_numeric($accessToken_OR_userId)) {
-        $usingToken   = false;
-        $userId       = intval($accessToken_OR_userId);
-        $userName     = Libs\RESTilias::getUserName($userId);
-      }
-      // Parse input: Using an access-token
-      elseif (is_a($accessToken_OR_userId, '\RESTController\core\oauth2_v2\Tokens\Generic')) {
-        $usingToken   = true;
-        $accessToken  = $accessToken_OR_userId;
-        $userName     = $accessToken->getUserName();
-        $userId       = $accessToken->getUserId();
-      }
-      // Parse input: fail!
-      else
-        throw new Exceptions\UserInfo(self::MSG_INVALID_TYPE, self::ID_INVALID_TYPE);
-
+  public static function getUserInfo($userId) {
       // Delegate to actual implementation
-      return self::getUserInfo_Intern($userId, $userName, $usingToken);
+      return self::getUserInfo_Array($userId, false);
+  }
+
+  /**
+   *
+   */
+  public static function getFullUserInfo($accessToken) {
+      // Delegate to actual implementation
+      return self::getUserInfo_Array($accessToken->getUserId(), true);
   }
 }

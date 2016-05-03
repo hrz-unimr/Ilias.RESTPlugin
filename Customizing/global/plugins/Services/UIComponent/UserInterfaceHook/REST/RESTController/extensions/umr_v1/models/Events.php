@@ -175,7 +175,7 @@ class Events extends Libs\RESTModel {
         }
 
     // If every request failed, throw instead
-    if ($success == 0)
+    if ($success == 0 && count($eventIds) > 0)
       throw new Exceptions\Events(self::MSG_ALL_FAILED, self::ID_ALL_FAILED, $result);
 
     return $result;
