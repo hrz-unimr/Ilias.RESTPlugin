@@ -53,5 +53,26 @@ $app->group('/v2', function () use ($app) {
       $result   = Util::GetRoutes($routes, $apiKey, $filter);
       $app->success($result);
     });
+
+    /**
+     * Returns the routes that are accessible with the token.
+     * Generic routes that do not require special access permissions
+     * are filtered out by default.
+     *
+     * If all routes should be displayed then the additional parameter
+     * filter must be set to false.
+     *
+     */
+    $app->get('/tokenroutes', function () use ($app) {
+
+      $accessToken = $app->request->getToken();
+      $apiKey = $accessToken->getApiKey();
+      $filter   = $app->request->params('filter', true, false);
+      $routes   = $app->router()->getRoutes();
+
+      // Fetch list of (restricted) routes
+      $result   = Util::GetRoutes($routes, $apiKey, $filter);
+      $app->success($result);
+    });
   });
 });
