@@ -81,7 +81,7 @@ class Misc extends Libs\RESTModel {
     $userId = $token->getUserId();
 
     // Check wether api-keys match
-    if ($apiKey != $access->getApiKey() || $iliasCLient != $access->getIliasClient())
+    if ($apiKey != $token->getApiKey() || $iliasClient != $token->getIliasClient())
       throw new Exceptions\InvalidRequest(
         self::MSG_TOKEN_MISMATCH,
         self::ID_TOKEN_MISMATCH
@@ -129,7 +129,7 @@ class Misc extends Libs\RESTModel {
     Common::FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $userId);
 
     // Check wether api-keys match
-    if ($apiKey != $access->getApiKey() || $iliasCLient != $access->getIliasClient())
+    if ($apiKey != $token->getApiKey() || $iliasClient != $token->getIliasClient())
       throw new Exceptions\InvalidRequest(
         self::MSG_TOKEN_MISMATCH,
         self::ID_TOKEN_MISMATCH
@@ -226,7 +226,7 @@ class Misc extends Libs\RESTModel {
     $client = self::FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $userId);
 
     // Check wether api-keys match
-    if ($apiKey != $access->getApiKey() || $iliasCLient != $access->getIliasClient())
+    if ($apiKey != $access->getApiKey() || $iliasClient != $access->getIliasClient())
       throw new Exceptions\InvalidRequest(
         self::MSG_TOKEN_MISMATCH,
         self::ID_TOKEN_MISMATCH

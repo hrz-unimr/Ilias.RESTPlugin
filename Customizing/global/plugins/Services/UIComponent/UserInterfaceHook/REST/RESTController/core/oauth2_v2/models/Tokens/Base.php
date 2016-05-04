@@ -131,25 +131,25 @@ class Base {
   public static function factory($tokenArray) {
     // Extract token array
     if (!is_array($tokenArray))
-      $tokenArray = Tokens\Base::deserializeToken($tokenArray);
+      $tokenArray = \RESTController\core\oauth2_v2\Tokens\Base::deserializeToken($tokenArray);
 
     // Detect type of token...
     switch($tokenArray['class']) {
       // Create new rfresh-token
       case 'refresh':
-        $settings = Tokens\Settings::load('refresh');
-        return Tokens\Refresh::fromMixed($settings, $tokenArray);
+        $settings = \RESTController\core\oauth2_v2\Tokens\Settings::load('refresh');
+        return \RESTController\core\oauth2_v2\Tokens\Refresh::fromMixed($settings, $tokenArray);
 
       // Create new access-token
       case 'access':
-        $settings = Tokens\Settings::load('access');
-        return Tokens\Access::fromMixed($settings, $tokenArray);
+        $settings = \RESTController\core\oauth2_v2\Tokens\Settings::load('access');
+        return \RESTController\core\oauth2_v2\Tokens\Access::fromMixed($settings, $tokenArray);
 
 
       // Create new access-token
       case 'authorization':
-        $settings = Tokens\Settings::load('authorization');
-        return Tokens\Authorization::fromMixed($settings, $tokenArray);
+        $settings = \RESTController\core\oauth2_v2\Tokens\Settings::load('authorization');
+        return \RESTController\core\oauth2_v2\Tokens\Authorization::fromMixed($settings, $tokenArray);
 
       // Fallback
       default:
