@@ -7,7 +7,21 @@
 
         <div class="panel-body">
             <div class="input-group">
-                <span class="input-group-addon" id="verb-indicator">{{inputVerbIndicator}}</span>
+                <!--<span class="input-group-addon" id="verb-indicator">{{inputVerbIndicator}}</span> -->
+                <div class="input-group-btn">
+                    <button class="btn btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" type="button">
+                        {{inputVerbIndicator}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu .dropdown-menu-right">
+                        <li >
+                            <a data-ng-click="setVerb('GET')">GET</a>
+                            <a data-ng-click="setVerb('POST')">POST</a>
+                            <a data-ng-click="setVerb('PUT')">PUT</a>
+                            <a data-ng-click="setVerb('DELETE')">DELETE</a>
+                        </li>
+                    </ul>
+                </div>
                 <input id="inputRestEndpoint" name="inputRestEndpoint" data-ng-model="inputRestEndpoint" type="text" class="form-control" placeholder="Route" aria-describedby="sizing-addon2">
                 <div class="input-group-btn">
                     <button class="btn btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" type="button">

@@ -144,6 +144,10 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
         $scope.inputRestEndpoint = route.pattern;
     }
 
+    $scope.setVerb = function(verbStr) {
+        $scope.inputVerbIndicator = verbStr;
+    }
+
     $scope.checkout = function() {
         if ($scope.openNewWindow == 1) {
             $scope.restCallInNewWindow();
@@ -162,12 +166,12 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
         Res.query(function (response) {
             var jsonString = JSON.stringify(response);
             $scope.result = jsonPrettyPrint.prettyPrint(response);
-            console.log('result '+jsonPrettyPrint.prettyPrint(jsonString));
+            //console.log('result '+jsonPrettyPrint.prettyPrint(jsonString));
         });
         /*restRoutes.get(function(response) {
             $scope.routes = response.routes;
         });*/
-        console.log('Probe endpoint');
+        console.log('Calling endpoint');
     }
 
     // This method needs to be invoked in case when the rest route requires
