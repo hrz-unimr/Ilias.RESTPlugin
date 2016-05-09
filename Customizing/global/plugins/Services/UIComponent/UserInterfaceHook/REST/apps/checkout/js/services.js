@@ -125,63 +125,6 @@ services.provider('authentication', function() {
 
 });
 
-
-/*
- * This service internally handles all client data received from
- * and send to the REST Interface.
- * This includes adding, removing clients as well as setting the
- * current client (for editing) and providing default settings
- * for new clients.
- */
-services.factory('clientStorage', function() {
-    // Data object that stores all information
-    var data = {
-        clients: [],
-        current: null
-    };
-
-    // Object that will be returned
-    var handler = {};
-
-    // Getter/Setter methods for the list of all clients
-    handler.getClients = function() {
-        return data.clients;
-    };
-    handler.setClients = function(clients) {
-        data.clients = clients;
-    };
-
-    // Adds a new client (internally only!) to the list of clients
-    handler.addClient = function(client) {
-        return data.clients.push(client);
-    };
-
-    // getter/Setter methods for the current client (which eg.
-    // might be edited in the /clientlist/clientedit route)
-    handler.getCurrent = function() {
-        return data.current;
-    };
-    handler.setCurrent = function(client) {
-        data.current = client;
-    };
-
-    // Returns some default client settings, eg.
-    // creating a new client.
-    handler.getDefault = function() {
-        return {
-            id: "-1",
-            permissions: [],
-            oauth2_gt_client_active: "1",
-            oauth2_gt_client_user: "1",
-            oauth2_gt_resourceowner_active: "1"
-        };
-    };
-
-    // Return object
-    return handler;
-});
-
-
 /*
  * This services tries to find the REST Endpoint, in the following order:
  *  - Using the 'restEndpoint' POST variable

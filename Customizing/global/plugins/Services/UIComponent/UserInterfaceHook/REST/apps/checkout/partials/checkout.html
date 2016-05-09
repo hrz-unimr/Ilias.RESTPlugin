@@ -2,38 +2,36 @@
 
     <div class="panel panel-primary">
         <div class="panel-heading">
-            <h3 class="panel-title">{{'Query' | translate}}</h3>
+            <h3 class="panel-title">{{'REST Query' | translate}}</h3>
         </div>
 
         <div class="panel-body">
-            <div class="form-group">
-                <label for="inputRestEndpoint">{{'CHECKOUT_INPUT' | translate}}</label>
-                <input id="inputRestEndpoint" name="inputRestEndpoint" data-ng-model="current.inputRestEndpoint" class="form-control" type="text" data-ng-true-value="'1'" data-ng-false-value="'0'">
-                e.g. /v2/util/routes
+            <div class="input-group">
+                <span class="input-group-addon" id="verb-indicator">{{inputVerbIndicator}}</span>
+                <input id="inputRestEndpoint" name="inputRestEndpoint" data-ng-model="inputRestEndpoint" type="text" class="form-control" placeholder="Route" aria-describedby="sizing-addon2">
+                <div class="input-group-btn">
+                    <button class="btn btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" type="button">
+                        <span class="caret"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <button class="btn btn-success" data-ng-click="checkout()">{{'Submit' | translate}}</button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li data-ng-repeat="route in routes">
+                            <a class="clear" data-ng-click="setRoute(route)">[{{route.verb}}] {{route.pattern}}</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-
             <div class="checkbox">
                 <label>
                     <input type="checkbox" id="openNewWindow" name="openNewWindow" data-ng-model="current.openNewWindow" data-ng-true-value="'1'" data-ng-false-value="'0'">
                     {{'CHECKOUT_OPEN_NEW_WINDOW' | translate}}
                 </label>
             </div>
-            <!--<div class="form-group">
-                <label for="inputDescription">{{'EDIT_CONSENT_MSG' | translate}}</label>
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" id="oauth2_consent_msg_active" name="oauth2_consent_msg_active" data-ng-model="current.oauth2_consent_message_active" data-ng-true-value="'1'" data-ng-false-value="'0'">
-                        {{'EDIT_CONSENT_SCOPE' | translate}}
-                    </label>
-                </div>
-                <textarea id="inputDescription" class="form-control" rows="3" data-ng-model="current.oauth2_consent_message"></textarea>
-            </div> -->
         </div>
     </div>
 
-    <div class="form-group">
-        <button class="btn btn-success" data-ng-click="checkout()">{{'GO' | translate}}</button>
-    </div>
+
 
 
     <div class="panel panel-primary">
@@ -43,7 +41,7 @@
 
 
         <div class="form-group">
-            <pre><code data-ng-bind-html='current.result | formatHTML'></code></pre>
+            <pre><code data-ng-bind-html='result | formatHTML'></code></pre>
         </div>
     </div>
 

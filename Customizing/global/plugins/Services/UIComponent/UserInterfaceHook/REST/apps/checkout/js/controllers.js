@@ -82,7 +82,16 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
      * doing it directly inside the controller.
      */
     $scope.init = function() {
-        //$scope.loadApiRoutes();
+        $scope.loadApiRoutes();
+        $scope.inputVerbIndicator = "GET";
+    };
+
+    /*
+     * Format permissions into easily readable format.
+     * Mainly used for <select> -> <option> formatting.
+     */
+    $scope.formatPermissionOption = function(route, verb, middleware) {
+        return '['+verb+"] "+route;
     };
 
     var jsonPrettyPrint = {
@@ -116,8 +125,12 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
             function(response) {
                 // Enough access rights
                 //console.log(response);
+                $scope.routes = angular.fromJson(angular.toJson(response));
                 $scope.permissions = response.permissions;
-                console.log($scope.permissions);
+                //console.log($scope.permissions);
+                console.log('routes added :-)');
+               // var jsonString = JSON.stringify(response);
+               // $scope.current.result = jsonPrettyPrint.prettyPrint(response);
             },
             // Failure
             function(response) {
@@ -126,8 +139,13 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
         );
     }
 
+    $scope.setRoute = function(route) {
+        $scope.inputVerbIndicator = route.verb;
+        $scope.inputRestEndpoint = route.pattern;
+    }
+
     $scope.checkout = function() {
-        if ($scope.current.openNewWindow == 1) {
+        if ($scope.openNewWindow == 1) {
             $scope.restCallInNewWindow();
         } else {
             $scope.restCall();
@@ -135,7 +153,7 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
     }
 
     $scope.restCall = function() {
-        var route = $scope.current.inputRestEndpoint;
+        var route = $scope.inputRestEndpoint;
         var Res = $resource(restEndpoint.getEndpoint() + route, {}, {
             query: { method:  'GET',  params: {}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
             create: { method: 'POST', params: {}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }}
@@ -143,8 +161,8 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
 
         Res.query(function (response) {
             var jsonString = JSON.stringify(response);
-            $scope.current.result = jsonPrettyPrint.prettyPrint(response);
-            //console.log('result '+jsonPrettyPrint.prettyPrint(jsonString));
+            $scope.result = jsonPrettyPrint.prettyPrint(response);
+            console.log('result '+jsonPrettyPrint.prettyPrint(jsonString));
         });
         /*restRoutes.get(function(response) {
             $scope.routes = response.routes;
@@ -156,7 +174,7 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
     // to initiate a ilias session and to perform a redirect, e.g. calling an ilias learn module
     // /v1/m/htlm/:ref_id
     $scope.restCallInNewWindow = function() {
-        var route = $scope.current.inputRestEndpoint;
+        var route = $scope.inputRestEndpoint;
         var url = restEndpoint.getEndpoint() + route + '?access_token='+authentication.getToken();
         $window.open(url);
     }
