@@ -167,58 +167,59 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
         var route = $scope.inputRestEndpoint;
         var Res = $resource(restEndpoint.getEndpoint() + route, {}, {
             query: { method:  'GET',  params: {}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
-            create: { method: 'POST', params: {}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }}
+            create: { method: 'POST', params: {}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
+            update: { method: 'PUT', params: {}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
+            remove: { method: 'DELETE', params: {}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }}
         });
 
-        switch ($scope.inputVerbIndicator) {
-            case "GET":
-                console.log('Requesting via GET');
-                break;
-            case "POST":
-                console.log('Requesting via POST');
-                break;
-            case "PUT" :
-                console.log('Requesting via PUT');
-                break;
-            case "DELETE" :
-                console.log('Requesting via Delete');
-                break;
-            default:
-                console.log('Requesting via GET (default)');
-        }
+
         var params = $scope.requestParameters;
         if (params=="") {
             params = '{}';
         }
         console.log('parameters: '+params);
 
-        // Success
-        Res.query( JSON.parse(params),
-            // Success
-            function (response) {
-                //var jsonString = JSON.stringify(response);
-                $scope.result = jsonPrettyPrint.prettyPrint(response);
-                //console.log('result '+jsonPrettyPrint.prettyPrint(jsonString));
-            }
-        );
-        /*Res.query( {
-
-            //JSON.parse($scope.requestParameters),
-                // Data
-            //    grant_type: 'password',
-               // username: $scope.formData.userName
-            //$scope.requestParameters
-            },
-            // Success
-            function (response) {
-            //var jsonString = JSON.stringify(response);
-            $scope.result = jsonPrettyPrint.prettyPrint(response);
-            //console.log('result '+jsonPrettyPrint.prettyPrint(jsonString));
-        });*/
-        /*restRoutes.get(function(response) {
-            $scope.routes = response.routes;
-        });*/
-        console.log('Calling endpoint');
+        switch ($scope.inputVerbIndicator) {
+            case "GET":
+                console.log('Requesting via GET');
+                Res.query( JSON.parse(params),
+                    // Success
+                    function (response) {
+                        $scope.result = jsonPrettyPrint.prettyPrint(response);
+                    }
+                );
+                break;
+            case "POST":
+                console.log('Requesting via POST');
+                Res.create( JSON.parse(params),
+                    // Success
+                    function (response) {
+                        $scope.result = jsonPrettyPrint.prettyPrint(response);
+                    }
+                );
+                break;
+            case "PUT" :
+                console.log('Requesting via PUT');
+                Res.update( JSON.parse(params),
+                    // Success
+                    function (response) {
+                        $scope.result = jsonPrettyPrint.prettyPrint(response);
+                    }
+                );
+                break;
+            case "DELETE" :
+                Res.delete( JSON.parse(params),
+                    // Success
+                    function (response) {
+                        $scope.result = jsonPrettyPrint.prettyPrint(response);
+                    }
+                );
+                console.log('Requesting via Delete');
+                break;
+            default:
+                console.log('Requesting via GET (default)');
+        }
+        
     }
 
     // This method needs to be invoked in case when the rest route requires

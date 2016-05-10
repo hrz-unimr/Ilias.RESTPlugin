@@ -44,6 +44,7 @@ $app->group('/v1', function () use ($app) {
     $app->post('/contacts/add', RESTAuth::checkAccess(RESTAuth::PERMISSION), function() use ($app) {
         $accessToken = $app->request->getToken();
         $request = $app->request();
+        //$app->log->debug("debug...".$request->params("param1"));
         $login      = $request->params("login");
         $firstname  = $request->params("firstname");
         $lastname   = $request->params("lastname");
