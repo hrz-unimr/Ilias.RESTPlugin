@@ -84,8 +84,15 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
     $scope.init = function() {
         $scope.loadApiRoutes();
         $scope.inputVerbIndicator = "GET";
+        //$scope.requestParameters = "";
+        $scope.setParameterTemplate();
     };
 
+    $scope.setParameterTemplate = function() {
+        $scope.requestParameters = "{\"param1\":\"value1\", \"param2\":\"value2\"}";
+        //",
+        //    "param2":"value2"}';
+    }
     /*
      * Format permissions into easily readable format.
      * Mainly used for <select> -> <option> formatting.
@@ -163,11 +170,51 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
             create: { method: 'POST', params: {}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }}
         });
 
-        Res.query(function (response) {
-            var jsonString = JSON.stringify(response);
+        switch ($scope.inputVerbIndicator) {
+            case "GET":
+                console.log('Requesting via GET');
+                break;
+            case "POST":
+                console.log('Requesting via POST');
+                break;
+            case "PUT" :
+                console.log('Requesting via PUT');
+                break;
+            case "DELETE" :
+                console.log('Requesting via Delete');
+                break;
+            default:
+                console.log('Requesting via GET (default)');
+        }
+        var params = $scope.requestParameters;
+        if (params=="") {
+            params = '{}';
+        }
+        console.log('parameters: '+params);
+
+        // Success
+        Res.query( JSON.parse(params),
+            // Success
+            function (response) {
+                //var jsonString = JSON.stringify(response);
+                $scope.result = jsonPrettyPrint.prettyPrint(response);
+                //console.log('result '+jsonPrettyPrint.prettyPrint(jsonString));
+            }
+        );
+        /*Res.query( {
+
+            //JSON.parse($scope.requestParameters),
+                // Data
+            //    grant_type: 'password',
+               // username: $scope.formData.userName
+            //$scope.requestParameters
+            },
+            // Success
+            function (response) {
+            //var jsonString = JSON.stringify(response);
             $scope.result = jsonPrettyPrint.prettyPrint(response);
             //console.log('result '+jsonPrettyPrint.prettyPrint(jsonString));
-        });
+        });*/
         /*restRoutes.get(function(response) {
             $scope.routes = response.routes;
         });*/

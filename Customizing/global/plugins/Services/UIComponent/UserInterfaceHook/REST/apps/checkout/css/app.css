@@ -63,6 +63,10 @@
     border-top-right-radius: 0;
 }
 
+#paramBox {
+    margin-top: 5px;
+}
+
 /* Adds some padding to last navbar-right item of class addRightPadding */
 .navbar .addRightPadding:last-of-type {
     padding-right: 15px;
