@@ -31,11 +31,12 @@ class Util extends Libs\RESTModel {
    *  on the given parameters. (See below)
    *
    * Parameters:
-   *  $routes <Array[SlimRoute]> - List of all available routes
-   *  $apiKey <String> - Returns only routes the given API-Key has access (permission) to
-   *  $filter <Boolean> - Filter routes, only returning those requiring a permission to be added
+   * @param $routes <Array[SlimRoute]> - List of all available routes
+   * @param null $apiKey - Returns only routes the given API-Key has access (permission) to
+   * @param bool $filter - Filter routes, only returning those requiring a permission to be added
+   * @return array
    */
-  public static function GetRoutes($routes, $apiKey = null, $filter = null) {
+  public static function GetRoutes($routes, $apiKey = null, $filter = false) {
     $result = array();
     foreach($routes as $route) {
       // Fetch information about route
