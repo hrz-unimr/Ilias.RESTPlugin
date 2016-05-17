@@ -10,12 +10,12 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="210mm"
-   height="297mm"
+   width="198.52391"
+   height="194.21436"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="logo_checkout.svg">
+   sodipodi:docname="logo_checkout.png">
   <defs
      id="defs4">
     <clipPath
@@ -35,9 +35,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="469.6895"
-     inkscape:cy="599.99122"
+     inkscape:zoom="2.8"
+     inkscape:cx="181.64163"
+     inkscape:cy="121.78138"
      inkscape:document-units="px"
      inkscape:current-layer="layer5"
      showgrid="false"
@@ -45,7 +45,11 @@
      inkscape:window-height="1138"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="1"
+     fit-margin-bottom="1" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -61,7 +65,8 @@
   <g
      inkscape:label="Ebene 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(-244.64285,-402.005)">
     <g
        id="g3007"
        transform="translate(251.78571,406.86215)">
@@ -70,14 +75,14 @@
          inkscape:label="Background"
          style="display:inline">
         <rect
-           style="fill:#000000;fill-opacity:1;stroke:none"
+           style="fill:#5bd0ff;fill-opacity:1;stroke:none"
            id="rect3800"
-           width="196.42859"
-           height="192.14293"
+           width="197.52391"
+           height="193.21436"
            x="-7.1428566"
            y="-4.8571472"
            rx="0"
-           ry="50.899971" />
+           ry="51.1838" />
       </g>
       <g
          id="layer2"
@@ -94,19 +99,21 @@
       <g
          id="layer3"
          inkscape:label="Schrift"
-         transform="translate(-211.35715,-332.29074)"
+         transform="translate(-240.65157,-321.17906)"
          style="display:inline">
         <text
            xml:space="preserve"
            style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:10.16999722px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
-           x="237.14287"
-           y="500.07651"
+           x="257.34592"
+           y="494.07651"
            id="text3784"
            sodipodi:linespacing="125%"><tspan
              sodipodi:role="line"
              id="tspan3786"
-             x="237.14287"
-             y="500.07651">TEST</tspan></text>
+             x="257.34592"
+             y="494.07651"><tspan
+               style="font-size:28px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Agency FB;-inkscape-font-specification:Agency FB"
+               id="tspan3791">Checkout</tspan></tspan></text>
       </g>
       <g
          id="layer4"

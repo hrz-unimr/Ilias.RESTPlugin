@@ -3,16 +3,6 @@
     margin: 15px;
 }
 
-
-/* Style for route-premissions */
-.label-granttype {
-    background-color: #363635;
-}
-.label-permission {
-    background-color: #6a8c8a;
-}
-
-
 /* REST-Logos */
 .login-img {
     width: 150px;
@@ -113,3 +103,6 @@ body {
 .json-value  { color: navy; }
 .json-string { color: olive; }
 
+.navbar-default-x {
+    border-bottom: 1px solid #ccc;
+}

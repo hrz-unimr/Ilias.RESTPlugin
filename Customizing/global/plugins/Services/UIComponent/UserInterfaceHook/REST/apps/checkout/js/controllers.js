@@ -215,7 +215,7 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
                 );
                 break;
             case "DELETE" :
-                Res.delete( JSON.parse(params),
+                Res.remove( JSON.parse(params),
                     // Success
                     function (response) {
                         $scope.result = jsonPrettyPrint.prettyPrint(response);
