@@ -137,3 +137,7 @@ body {
 .alert.ng-leave.ng-leave-active {
     opacity:0;
 }
+
+.navbar-default-x {
+    border-bottom: 1px solid #ccc;
+}

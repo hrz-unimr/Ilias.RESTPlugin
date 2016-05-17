@@ -66,7 +66,7 @@
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
         
-        <nav class="navbar navbar-default" role="navigation">
+        <nav class="navbar navbar-default-x" role="navigation">
             <div class="container-fluid">
                 <ul class="nav navbar-header">
                     <span class="navbar-brand"><img class="brand-img" alt="Logo" src="img/icon.png"> {{'INDEX_BRAND' | translate}}</span>
@@ -82,9 +82,9 @@
                 </ul>
                 
                 <ul class="nav navbar-nav navbar-right addRightPadding" data-ng-show="authentication.isAuthenticated()" data-ng-cloak>
-                    <li><button class="btn btn-default navbar-btn" type="button" data-ng-click="reload()"><span class="glyphicon glyphicon-repeat"></span></button></li>
+                    <li><button class="btn btn-default-outline navbar-btn" type="button" data-ng-click="reload()"><span class="glyphicon glyphicon-repeat"></span></button></li>
                     <li><span class="navbar-text">{{'INDEX_LOGGED_IN' | translate:translationData}} [<timer countdown="1800" max-time-unit="'minute'" interval="1000" finish-callback="authentication.logout()">{{mminutes}}:{{sseconds}}</timer>]</span></li>
-                    <li><button class="btn btn-default navbar-btn" type="button" data-ng-click="authentication.logout()">{{'INDEX_LOGOUT' | translate}}</button></li>
+                    <li><button class="btn btn-default-outline navbar-btn" type="button" data-ng-click="authentication.logout()">{{'INDEX_LOGOUT' | translate}}</button></li>
                 </ul>
             </div>
         </nav>
