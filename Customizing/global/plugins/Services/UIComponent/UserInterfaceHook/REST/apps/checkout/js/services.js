@@ -20,7 +20,7 @@ services.provider('authentication', function() {
         isAuthenticated: false,
         userName: null,
         token: null,
-        autoLogin: (postVars.userId.length > 0 && postVars.sessionId.length > 0 && postVars.rtoken.length > 0),
+        autoLogin: false,
         error: null,
         apiKey: "",
         ip: postVars.ip,
@@ -153,16 +153,8 @@ services.factory('restEndpoint', function($q, $http, restRoutesURL) {
     }
 
     var dir;
-    // Use POST variable to establish endpoint
-    // Note: Value is taken 'as-is', no AJAJ call is done to check correctness.
-    if (postVars.restEndpoint !== "")
-        dir = postVars.restEndpoint;
-
-    // Tries to find endpoint by doing AJAJ calls to <ILIAS>/routes and <ILIAS>/restplugin.php
-    // Whichever returns a success first will be used.
-    else
-        // Find ILIAS main folder
-        dir = getInstallDir();
+    // Find ILIAS main folder
+    dir = getInstallDir();
 
     // Stores wether AJAJ call was successfull (true) or not (false) [null means not done]
     var apiPath = null;

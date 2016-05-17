@@ -130,14 +130,9 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
             {},
             // Success
             function(response) {
-                // Enough access rights
-                //console.log(response);
                 $scope.routes = angular.fromJson(angular.toJson(response));
                 $scope.permissions = response.permissions;
                 //console.log($scope.permissions);
-                console.log('routes added :-)');
-               // var jsonString = JSON.stringify(response);
-               // $scope.current.result = jsonPrettyPrint.prettyPrint(response);
             },
             // Failure
             function(response) {
@@ -186,6 +181,10 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
                     // Success
                     function (response) {
                         $scope.result = jsonPrettyPrint.prettyPrint(response);
+                    },
+                    // Failure
+                    function (response){
+                        $scope.result = jsonPrettyPrint.prettyPrint(response);
                     }
                 );
                 break;
@@ -194,6 +193,10 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
                 Res.create( JSON.parse(params),
                     // Success
                     function (response) {
+                        $scope.result = jsonPrettyPrint.prettyPrint(response);
+                    },
+                    // Failure
+                    function (response){
                         $scope.result = jsonPrettyPrint.prettyPrint(response);
                     }
                 );
@@ -204,6 +207,10 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
                     // Success
                     function (response) {
                         $scope.result = jsonPrettyPrint.prettyPrint(response);
+                    },
+                    // Failure
+                    function (response){
+                        $scope.result = jsonPrettyPrint.prettyPrint(response);
                     }
                 );
                 break;
@@ -211,6 +218,10 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
                 Res.delete( JSON.parse(params),
                     // Success
                     function (response) {
+                        $scope.result = jsonPrettyPrint.prettyPrint(response);
+                    },
+                    // Failure
+                    function (response){
                         $scope.result = jsonPrettyPrint.prettyPrint(response);
                     }
                 );
@@ -231,9 +242,6 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
         $window.open(url);
     }
 
-   // $scope.oldKey = $scope.current.api_key;
-
-
     // Do the initialisation
     $scope.init();
 });
@@ -244,60 +252,9 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
 ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAuth, restAuthToken) {
     /*
      * Called during (every) instantiation of this controller.
-     *
-     * Note: Using a dedicated method is cleaner and more reusable than
-     * doing it directly inside the controller.
      */
     $scope.init = function() {
-        // Store postVars in $scope (they don't really change)
-        $scope.postVars = postVars;
-
-        // Try auto-login if required data is available
-        if ($scope.authentication.tryAutoLogin())
-            $scope.autoLogin();
     };
-
-
-    /*
-     * Tries to automatically log, by exchanging ILIAS session-id
-     * and rtoken for an oauth2 bearer-token using a REST auth
-     * interface.
-     * Obviously this only works when this data is given, eg. when
-     * comming from the ILIAS configuration dialog.
-     */
-    $scope.autoLogin = function () {
-        // REST AJAJ invocation
-        restAuth.auth({
-            // Data
-                api_key: $scope.postVars.apiKey,
-                user_id: $scope.postVars.userId,
-                session_id: $scope.postVars.sessionId,
-                rtoken: $scope.postVars.rtoken,
-                userName: $scope.postVars.userName,
-            },
-            // Success
-            function (response) {
-                // Login return OK (Login internally and redirect)
-                if (response.status == "success") {
-                    //console.log(JSON.stringify(response));
-                    $scope.authentication.login($scope.postVars.userName, response.access_token);
-                    $scope.postVars = {};
-                    $location.url("/clientlist");
-                    $scope.$emit('loginPerformed');
-                // Login didn't return an OK (Logout internally and redirdct)
-                } else {
-                    $scope.authentication.logout();
-                    $location.url("/login");
-                }
-            },
-            // Failure  (Logout internally and redirdct)
-            function (response){
-                $scope.authentication.logout();
-                $location.url("/login");
-            }
-        );
-    };
-
 
     /*
      * Tries to login via form-data (given in login.html).
@@ -306,7 +263,7 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
      * then be used to talk to the REST interface.
      */
     $scope.manualLogin = function () {
-        // REST AJAJ invocation
+        // REST call
         restAuthToken.auth({
             // Data
                 grant_type: 'password',
@@ -321,13 +278,13 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
                     $scope.authentication.login($scope.formData.userName, response.access_token, $scope.formData.apiKey, response.ilias_client);
                     $location.url("/checkout");
                     $scope.$emit('loginPerformed');
-                // Authorisation failed  (Logout internally and redirdct)
+                // Authorisation failed  (Logout internally and redirect)
                 } else {
                     $scope.authentication.logout();
                     $location.url("/login");
                 }
             },
-            // Failure  (Logout internally and redirdct)
+            // Failure  (Logout internally and redirect)
             function (response){
                 console.log("NOT OK");
                 // Try to decode the more common error-codes
@@ -353,9 +310,6 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
 /*
  * Simple controller that manages functionality of the route that
  * should be displayed IFF the REST-Interface can't be contacted.
- * Note: Currently this is only implemented for when the "connection" is
- * unavailable during page-load. (Nothing happens when the "connection"
- * is lost after AngularJS was loaded and initialized)
  */
 ctrl.controller('OfflineCtrl', function($scope, $location, restEndpoint) {
     /*
@@ -376,8 +330,7 @@ ctrl.controller('OfflineCtrl', function($scope, $location, restEndpoint) {
 
 
     /*
-     * Retry connection by completly reloading page,
-     * thus reloading AngularJS.
+     * Retry.
      */
     $scope.retry = function() {
         document.location.href = './';
