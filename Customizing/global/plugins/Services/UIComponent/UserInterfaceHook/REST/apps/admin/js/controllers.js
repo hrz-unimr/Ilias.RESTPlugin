@@ -119,14 +119,9 @@ ctrl.controller("OverviewCtrl", function($scope, $location, $filter, dialogs, cl
             function(response) {
                 // Enough access rights
                 console.log('clients response');
-                /* if (response.clients) {
-                 console.log('clients ...');
-                 clientStorage.setClients(response.clients);
-                 $scope.clients = clientStorage.getClients();
-                 }
-                 */
+
                 if (response) {
-                    //console.log('clients ...');
+                    //console.log('receiving clients ...');
                     //console.log(response.toJSON());
                     clientStorage.setClients(response.toJSON());
                     $scope.clients = clientStorage.getClients();
@@ -211,14 +206,9 @@ ctrl.controller("ClientListCtrl", function($scope, $location, $filter, dialogs, 
             function(response) {
                 // Enough access rights
                 console.log('clients response');
-               /* if (response.clients) {
-                    console.log('clients ...');
-                    clientStorage.setClients(response.clients);
-                    $scope.clients = clientStorage.getClients();
-                }
-*/
+
                 if (response) {
-                    console.log('clients ...');
+                    console.log('receiving clients ...');
                     console.log(response.toJSON());
                     clientStorage.setClients(response.toJSON());
                     $scope.clients = clientStorage.getClients();
