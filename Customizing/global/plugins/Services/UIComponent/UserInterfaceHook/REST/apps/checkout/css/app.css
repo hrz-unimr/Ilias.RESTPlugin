@@ -11,10 +11,10 @@
     display: block;
 }
 .navbar-brand > .brand-img {
-    width: 20px; 
-    height: 20px; 
+    width: 20px;
+    height: 20px;
     vertical-align: bottom;
-    display: inline; 
+    display: inline;
 }
 
 
@@ -53,6 +53,23 @@
     border-top-right-radius: 0;
 }
 
+.btn-login-dropdown-grp {
+    margin-bottom: 10px;
+    margin-top: 20px;
+}
+
+#inputApiKey {
+    width: 278px;
+    position: relative;
+    font-size: 16px;
+    height: 44px;
+    padding: 10px 10px 10px 10px;
+}
+
+#btn-login-dropdown {
+    height: 44px;
+}
+
 #paramBox {
     margin-top: 10px;
 }
@@ -63,14 +80,14 @@
 }
 
 
-/* 
+/*
  * For load-time reason we load AngularJS after all content, but this
  * can cause some flashing of ng-cloak, ng-show, ng-hide fields when
  * the page is loading.
  * By adding this code here and loading the app.css inside of <head>
  * this should be fixed.
  */
-[ng-cloak], .ng-cloak , [data-ng-cloak], .data-ng-cloak  { 
+[ng-cloak], .ng-cloak , [data-ng-cloak], .data-ng-cloak  {
     display: none !important;
 }
 
@@ -96,7 +113,7 @@ body {
 /* Increase size of error-tooltip */
 .restInfo .tooltip-inner {
     max-width: 400px;
-    width: 400px; 
+    width: 400px;
 }
 
 .json-key    { color: brown; }

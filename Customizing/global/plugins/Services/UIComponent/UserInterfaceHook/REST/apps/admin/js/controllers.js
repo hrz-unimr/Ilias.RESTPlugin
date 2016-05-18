@@ -79,7 +79,7 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
 /*
  * This controller handles all overview related functionality.
  */
-ctrl.controller("OverviewCtrl", function($scope, $location, $filter, dialogs, clientStorage, restClient, restClients, restRoutes, apiKey) {
+ctrl.controller("OverviewCtrl", function($scope, $location, $filter, dialogs, clientStorage, restClient, restClients, restRoutes, apiKey, $window) {
     /*
      * Called during (every) instantiation of this controller.
      *
@@ -126,8 +126,8 @@ ctrl.controller("OverviewCtrl", function($scope, $location, $filter, dialogs, cl
                  }
                  */
                 if (response) {
-                    console.log('clients ...');
-                    console.log(response.toJSON());
+                    //console.log('clients ...');
+                    //console.log(response.toJSON());
                     clientStorage.setClients(response.toJSON());
                     $scope.clients = clientStorage.getClients();
                 }
@@ -158,6 +158,18 @@ ctrl.controller("OverviewCtrl", function($scope, $location, $filter, dialogs, cl
 
     $scope.enterConfigurationsEditView = function() {
         $location.path("/configurations");
+    };
+
+    $scope.enterCheckoutApp = function() {
+        var api_keys = [];
+        $.each($scope.clients, function(key, value) {
+            api_keys.push(value.api_key);
+        });
+        var api_key_str = api_keys.join(',');
+        //console.log('api_key_str = '+api_key_str);
+
+        var url = '../checkout/index.php?api_keys='+api_key_str;
+        $window.open(url);
     };
 
     // Do the initialisation

@@ -5,9 +5,23 @@
         <img class="login-img" src="img/logo_checkout.png" alt="Logo">
         
         <form class="form-signin" data-ng-submit="manualLogin()">
-            <label for="inputApiKey" class="sr-only">{{'LOGIN_APIKEY' | translate}}</label>
-            <input data-ng-model="formData.apiKey" type="text" id="inputApiKey" class="form-control" placeholder="{{'LOGIN_APIKEY' | translate}}" required autofocus>
 
+            <div class="input-group input-group-lg btn-login-dropdown-grp">
+                <label for="inputApiKey" class="sr-only">{{'LOGIN_APIKEY' | translate}}</label>
+                <input data-ng-model="formData.apiKey" type="text" id="inputApiKey" placeholder="{{'LOGIN_APIKEY' | translate}}" required autofocus />
+
+                <div class="input-group-btn" data-ng-hide="false">
+                    <button class="btn btn-default-outline dropdown-toggle" id="btn-login-dropdown" aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" type="button" ng-disabled="!apikeyssel.length">
+                        <span class="caret"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li data-ng-repeat="apikey in apikeyssel">
+                            <a class="clear" data-ng-click="setLoginApiKey(apikey)">{{apikey}}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
             <label for="inputUser" class="sr-only">{{'LOGIN_USERNAME' | translate}}</label>
             <input data-ng-model="formData.userName" type="text" id="inputUser" class="form-control" placeholder="{{'LOGIN_USERNAME' | translate}}" required />

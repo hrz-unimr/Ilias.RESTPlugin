@@ -254,6 +254,10 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
      * Called during (every) instantiation of this controller.
      */
     $scope.init = function() {
+        $scope.formData = {};
+        $scope.apikeyssel = api_keys_selection;
+        //$scope.loginApiKey = "";
+        $scope.formData.apiKey = "";
     };
 
     /*
@@ -301,6 +305,11 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
             }
         );
     };
+
+    $scope.setLoginApiKey = function(apiKeyStr) {
+        console.log('Set loign api key: '+apiKeyStr);
+        $scope.formData.apiKey = apiKeyStr;
+    }
 
     // Do the initialisation
     $scope.init();
