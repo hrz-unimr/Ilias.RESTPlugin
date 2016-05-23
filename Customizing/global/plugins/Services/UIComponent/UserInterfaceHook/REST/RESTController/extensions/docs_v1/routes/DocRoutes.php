@@ -43,10 +43,19 @@ $app->group('/v1/docs', function () use ($app) {
      */
     $app->get('/api', function () use ($app) {
         //'core/oauth2_v2/views/index.php'
-       $routeDocs = array();
-       $routeDocs[] = array('route' => '/v1/example', 'verb'=> 'GET', 'group' => '/v1/example' ,'description' => 'Example description', 'input' => '{"param1":"value1","param2":"value2"}');
+       $model = new DocumentationModel();
+       $routeDocs = $model->getCompleteApiDocumentation();
+       $plugin     = Libs\RESTilias::getPlugin();
+       $pluginDir  = str_replace('./', '', $plugin->getDirectory());
+       $pluginDir  = $pluginDir . '/RESTController/extensions/docs_v1/views/';
 
-       $app->render('extensions/docs_v1/views/api_view.php',$routeDocs);
+       $app->response()->setFormat('HTML');
+       $app->render('extensions/docs_v1/views/api_view.php',
+           array(
+               'viewURL' => ILIAS_HTTP_PATH . '/' . $pluginDir,
+               'docs' => $routeDocs
+           )
+       );
     });
 
 });

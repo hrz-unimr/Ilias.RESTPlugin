@@ -36,7 +36,7 @@ class DocumentationModel extends Libs\RESTModel
     }
 
     /**
-     * Creates internal (single-) key representation.
+     * Creates an internal (single-) key representation.
      * @param $route
      * @param $verb
      * @return string
@@ -81,7 +81,5 @@ class DocumentationModel extends Libs\RESTModel
         }
         return $result;
     }
-
-
-
+    
 }
