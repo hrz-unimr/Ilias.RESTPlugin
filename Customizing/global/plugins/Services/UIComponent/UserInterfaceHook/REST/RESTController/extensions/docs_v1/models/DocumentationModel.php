@@ -43,6 +43,17 @@ class DocumentationModel extends Libs\RESTModel
             'parameters'         => '{}'
         );
 
+        $this->docs['delete/v1/admin//desktop/overview/:id'] = array(
+            'route'         => '/v1/admin//desktop/overview/:id',
+            'verb'          => 'DELETE',
+            'group'         => '/v1/admin',
+            'description'   => 'Deletes an item specified by ref_id from the personal desktop of the user specified by $id.',
+            'parameters'         => '{"ref_id":"ID"}'
+        );
+
+
+
+
 
     }
 

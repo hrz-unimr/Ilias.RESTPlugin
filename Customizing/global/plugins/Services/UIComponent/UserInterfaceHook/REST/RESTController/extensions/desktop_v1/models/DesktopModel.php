@@ -15,7 +15,7 @@ require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
 require_once('./Modules/File/classes/class.ilObjFile.php');
 require_once('./Services/User/classes/class.ilObjUser.php');
 
-class DesktopModel
+class DesktopModel extends Libs\RESTModel
 {
 
     /**
@@ -43,6 +43,7 @@ class DesktopModel
      */
     function removeItemFromDesktop($user_id, $ref_id)
     {
+        Libs\RESTilias::initAccessHandling();
         $obj = \ilObjectFactory::getInstanceByRefId($ref_id,false);
         $item_type = $obj->getType();
         $this->removeItemFromDesktopWithType($user_id, $ref_id, $item_type);

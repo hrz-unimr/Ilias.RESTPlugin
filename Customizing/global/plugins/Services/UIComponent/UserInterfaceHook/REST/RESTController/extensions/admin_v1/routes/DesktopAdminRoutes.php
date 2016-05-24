@@ -20,7 +20,6 @@ $app->group('/v1/admin', function () use ($app) {
      */
     $app->get('/desktop/overview/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION) , function ($id) use ($app) {
         $accessToken = $app->request->getToken();
-        $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 
         if ($authorizedUserId == $id || Libs\RESTilias::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
@@ -39,15 +38,17 @@ $app->group('/v1/admin', function () use ($app) {
      */
     $app->delete('/desktop/overview/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION),  function ($id) use ($app) {
         $request = $app->request();
-        try {
-            $ref_id = $request->params("ref_id");
+        $accessToken = $app->request->getToken();
+        $authorizedUserId = $accessToken->getUserId();
+
+        //try {
+        if ($authorizedUserId == $id || Libs\RESTilias::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
+            $ref_id = $request->params("ref_id",null,true);
             $model = new Desktop\DesktopModel();
             $model->removeItemFromDesktop($id, $ref_id);
-
-            $app->success(array("msg"=>"Removed item with ref_id=".$ref_id." from desktop."));
-        } catch (\Exception $e) {
-            $app->halt(500, "Error: ".$e->getMessage(), -15);
+            $app->success(array("msg"=>"Removed item with ref_id=".$ref_id." from desktop of user $id."));
         }
+
     });
 
 
