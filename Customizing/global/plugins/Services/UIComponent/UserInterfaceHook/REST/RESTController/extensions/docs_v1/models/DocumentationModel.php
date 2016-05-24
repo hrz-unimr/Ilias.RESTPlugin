@@ -32,8 +32,17 @@ class DocumentationModel extends Libs\RESTModel
             'verb'          => 'GET',
             'group'         => '/v1/admin',
             'description'   => 'Returns a description of an object or user specified by its obj_id, ref_id, usr_id or file_id. Supported types: obj_id, ref_id, usr_id and file_id.',
-            'input'         => '{"id_type":"ref_id"}'
+            'parameters'         => '{"id_type":"ref_id"}'
         );
+
+        $this->docs['get/v1/admin//desktop/overview/:id'] = array(
+            'route'         => '/v1/admin//desktop/overview/:id',
+            'verb'          => 'GET',
+            'group'         => '/v1/admin',
+            'description'   => 'Retrieves all items from the personal desktop of a user specified by its id.',
+            'parameters'         => '{}'
+        );
+
 
     }
 
