@@ -29,9 +29,6 @@ $app->group('/v1/admin', function () use ($app) {
         $request = $app->request();
         $id_type = $request->params('id_type', 'ref_id');
 
-        $app->log->debug('in route '.$id_type);
-
-
         $result = array('msg' => array());
         $model = new DescribrModel();
         if ($id_type == 'ref_id' || $id_type == 'obj_id') {

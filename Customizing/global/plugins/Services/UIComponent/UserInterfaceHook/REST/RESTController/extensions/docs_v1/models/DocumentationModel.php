@@ -18,21 +18,21 @@ class DocumentationModel extends Libs\RESTModel
 
     function __construct() {
         // admin_v1
-        $this->docs['get/v1/example'] = array(
+        $this->docs['get/v1/admin/files/:id'] = array(
             'route'         => '/v1/admin/files/:id',
             'verb'          => 'GET',
             'group'         => '/v1/admin',
-            'description'   => 'Admin Route. Downloads a file with a given id. If parameter is set to
+            'description'   => 'Admin Route. Downloads a file with a given id (ref_id). If parameter is set to
                                 true then only descriptions about a file in json format are provided.',
             'parameters'         => '{"meta_data":"true"}'
         );
 
-        $this->docs['get/v1/example2'] = array(
-            'route'         => '/v1/example2',
-            'verb'          => 'POST',
-            'group'         => '/v1/example2',
-            'description'   => 'Example description 2',
-            'input'         => '{"param1":"value1","param2":"value2"}'
+        $this->docs['get/v1/admin/describe/:id'] = array(
+            'route'         => '/v1/admin/describe/:id',
+            'verb'          => 'GET',
+            'group'         => '/v1/admin',
+            'description'   => 'Returns a description of an object or user specified by its obj_id, ref_id, usr_id or file_id. Supported types: obj_id, ref_id, usr_id and file_id.',
+            'input'         => '{"id_type":"ref_id"}'
         );
 
     }

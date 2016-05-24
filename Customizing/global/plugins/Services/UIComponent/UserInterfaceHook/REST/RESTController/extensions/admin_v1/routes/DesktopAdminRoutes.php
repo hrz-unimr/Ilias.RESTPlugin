@@ -14,7 +14,7 @@ use \RESTController\core\auth as Auth;
 use \RESTController\libs\Exceptions as LibExceptions;
 use \RESTController\extensions\desktop_v1 as Desktop;
 
-$app->group('/admin', function () use ($app) {
+$app->group('/v1/admin', function () use ($app) {
     /**
      * Retrieves all items from the personal desktop of a user specified by its id.
      */
