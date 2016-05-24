@@ -14,7 +14,7 @@ use \RESTController\libs as Libs;
 
 $app->group('/v1/admin', function () use ($app) {
     /**
-     * Queries the content of a the workspaces from a limited amount of users.
+     * Provides an overview of workspaces of a limited amount of users.
      */
     $app->get('/workspaces', RESTAuth::checkAccess(RESTAuth::ADMIN), function () use ($app) {
 

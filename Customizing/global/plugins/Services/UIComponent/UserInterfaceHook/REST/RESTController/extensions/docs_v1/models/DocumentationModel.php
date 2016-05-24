@@ -99,6 +99,30 @@ class DocumentationModel extends Libs\RESTModel
             'description'   => 'Returns the access statistics on all ILIAS repository objects within a 24-h time frame. In addition to the access numbers the route also provides information about the objects, such as title, type, location within the repository hierarchy',
             'parameters'    => '{}'
         );
+
+        $this->docs['get/v1/admin/testquestion/:question_id'] = array(
+            'route'         => '/v1/admin/testquestion/:question_id',
+            'verb'          => 'GET',
+            'group'         => '/v1/admin',
+            'description'   => 'Returns a (json) representation of a test question given its question_id.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/admin/workspaces'] = array(
+            'route'         => '/v1/admin/workspaces',
+            'verb'          => 'GET',
+            'group'         => '/v1/admin',
+            'description'   => 'Provides an overview of workspaces of a limited amount of users.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/admin/workspaces/:user_id'] = array(
+            'route'         => '/v1/admin/workspaces/:user_id',
+            'verb'          => 'GET',
+            'group'         => '/v1/admin',
+            'description'   => 'Returns the content of the workspace from a user specified by her/his user id.',
+            'parameters'    => '{}'
+        );
         // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // bibliography_v1
 
