@@ -123,9 +123,16 @@ class DocumentationModel extends Libs\RESTModel
             'description'   => 'Returns the content of the workspace from a user specified by her/his user id.',
             'parameters'    => '{}'
         );
+
         // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // bibliography_v1
-
+        $this->docs['get/v1/biblio/:ref_id'] = array(
+            'route'         => '/v1/biblio/:ref_id',
+            'verb'          => 'GET',
+            'group'         => '/v1/biblio',
+            'description'   => 'Returns a json representation of a bibliography repository object.',
+            'parameters'    => '{}'
+        );
 
 
     }

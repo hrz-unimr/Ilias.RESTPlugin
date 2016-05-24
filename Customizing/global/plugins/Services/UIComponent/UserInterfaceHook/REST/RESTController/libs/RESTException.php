@@ -13,11 +13,11 @@ namespace RESTController\libs;
 /**
  * Class: RESTException
  *  This is the base-class of all exceptions thrown by the RESTController itself
- *  This does not include onces thrown by PHP or ILIAS.
+ *  This does not include the ones thrown by PHP or ILIAS.
  *  Do not use this class directly, but derive your own (customized)
  *  implementations to allow different exceptions to be distinguished.
  *
- * @See http://php.net/manual/de/class.exception.php for additonal methods.
+ * @See http://php.net/manual/de/class.exception.php for additional methods.
  */
 class RESTException extends \Exception {
   // Error-Type used for redirection

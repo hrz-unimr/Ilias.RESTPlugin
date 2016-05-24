@@ -25,7 +25,8 @@ class BibliographyModel
      * @param $ref_id
      * @param $user_id
      * @return array
-     * @throws Libs\Exceptions\ReadFailed - if user has not enough permissions
+     * @throws Libs\Exceptions\Database
+     * @throws Libs\Exceptions\ilObject
      */
     function getBibliography($ref_id, $user_id) {
         global $ilAccess;
@@ -39,13 +40,13 @@ class BibliographyModel
         if (!(($ilAccess->checkAccess('read', "", $ref_id) )
             || $ilAccess->checkAccess('write', "", $ref_id))
         ) {
-            throw new Libs\Exceptions\ReadFailed("No r/w access.",$ref_id, "biblio", -15);
+            throw new Exceptions\BibliographyException("No r/w access.",$ref_id, "biblio");
         }
 
         $bibObj = new \ilObjBibliographic($obj_id);
 
         if ($bibObj->getOnline() == false) {
-            throw new Libs\Exceptions\ReadFailed("Object is not online.",$ref_id, "biblio", -17);
+            throw new Exceptions\BibliographyException("Object is not online.",$ref_id, "biblio");
         }
 
         $bib_info = array();
@@ -80,6 +81,7 @@ class BibliographyModel
      * Inspired by ilBibliographicDetailsGUI.
      * Todo: language files might be used in the future
      * @param $entry
+     * @return mixed
      */
     static function getBiblioEntryDetails($entry) {
         $attributes = $entry->getAttributes();
