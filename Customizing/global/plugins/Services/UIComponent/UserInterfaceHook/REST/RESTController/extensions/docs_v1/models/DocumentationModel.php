@@ -17,6 +17,7 @@ class DocumentationModel extends Libs\RESTModel
     public $docs = array();
 
     function __construct() {
+        // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // admin_v1
         $this->docs['get/v1/admin/files/:id'] = array(
             'route'         => '/v1/admin/files/:id',
@@ -24,7 +25,7 @@ class DocumentationModel extends Libs\RESTModel
             'group'         => '/v1/admin',
             'description'   => 'Admin Route. Downloads a file with a given id (ref_id). If parameter is set to
                                 true then only descriptions about a file in json format are provided.',
-            'parameters'         => '{"meta_data":"true"}'
+            'parameters'     => '{"meta_data":"true"}'
         );
 
         $this->docs['get/v1/admin/describe/:id'] = array(
@@ -32,7 +33,7 @@ class DocumentationModel extends Libs\RESTModel
             'verb'          => 'GET',
             'group'         => '/v1/admin',
             'description'   => 'Returns a description of an object or user specified by its obj_id, ref_id, usr_id or file_id. Supported types: obj_id, ref_id, usr_id and file_id.',
-            'parameters'         => '{"id_type":"ref_id"}'
+            'parameters'    => '{"id_type":"ref_id"}'
         );
 
         $this->docs['get/v1/admin//desktop/overview/:id'] = array(
@@ -40,7 +41,7 @@ class DocumentationModel extends Libs\RESTModel
             'verb'          => 'GET',
             'group'         => '/v1/admin',
             'description'   => 'Retrieves all items from the personal desktop of a user specified by its id.',
-            'parameters'         => '{}'
+            'parameters'    => '{}'
         );
 
         $this->docs['delete/v1/admin//desktop/overview/:id'] = array(
@@ -48,10 +49,58 @@ class DocumentationModel extends Libs\RESTModel
             'verb'          => 'DELETE',
             'group'         => '/v1/admin',
             'description'   => 'Deletes an item specified by ref_id from the personal desktop of the user specified by $id.',
-            'parameters'         => '{"ref_id":"ID"}'
+            'parameters'    => '{"ref_id":"ID"}'
         );
 
+        $this->docs['get/v1/admin/reporting/active_sessions'] = array(
+            'route'         => '/v1/admin/reporting/active_sessions',
+            'verb'          => 'GET',
+            'group'         => '/v1/admin',
+            'description'   => 'Returns a list of active user sessions.',
+            'parameters'    => '{}'
+        );
 
+        $this->docs['get/v1/admin/reporting/session_stats'] = array(
+            'route'         => '/v1/admin/reporting/session_stats',
+            'verb'          => 'GET',
+            'group'         => '/v1/admin',
+            'description'   => 'Returns statistics about current user sessions.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/admin/reporting/session_stats_daily'] = array(
+            'route'         => '/v1/admin/reporting/session_stats_daily',
+            'verb'          => 'GET',
+            'group'         => '/v1/admin',
+            'description'   => 'Returns statistics about user sessions within a 24-h time frame.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/admin/reporting/session_stats_hourly'] = array(
+            'route'         => '/v1/admin/reporting/session_stats_daily',
+            'verb'          => 'GET',
+            'group'         => '/v1/admin',
+            'description'   => 'Returns statistics about user sessions within a 1-h time frame.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/admin/reporting/object_stats'] = array(
+            'route'         => '/v1/admin/reporting/session_stats_daily',
+            'verb'          => 'GET',
+            'group'         => '/v1/admin',
+            'description'   => 'Provides a snapshot of the total access counts of repository object types.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/admin/reporting/repository_stats'] = array(
+            'route'         => '/v1/admin/reporting/repository_stats',
+            'verb'          => 'GET',
+            'group'         => '/v1/admin',
+            'description'   => 'Returns the access statistics on all ILIAS repository objects within a 24-h time frame. In addition to the access numbers the route also provides information about the objects, such as title, type, location within the repository hierarchy',
+            'parameters'    => '{}'
+        );
+        // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // bibliography_v1
 
 
 
