@@ -18,11 +18,9 @@ $app->group('/v1/admin', function () use ($app) {
      */
     $app->get('/files/:id', RESTAuth::checkAccess(RESTAuth::ADMIN), function ($id) use ($app) {
         $request = $app->request();
+
         try {
-            $meta_data = $request->params('meta_data');
-            if (isset($meta_data)) {
-                $meta_data = true;
-            }
+            $meta_data = filter_var($request->params('meta_data', null, true), FILTER_VALIDATE_BOOLEAN);
         } catch (\Exception $e) {
             $meta_data = false;
         }
@@ -47,7 +45,8 @@ $app->group('/v1/admin', function () use ($app) {
         } else
         {
             $model = new Files\FileModel();
-            $fileObj = $model->getFileObj($id);
+            $obj_id = Libs\RESTilias::getObjId($id);
+            $fileObj = $model->getFileObj($obj_id);
             $fileObj->sendFile();
         }
 

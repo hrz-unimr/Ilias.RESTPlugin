@@ -17,12 +17,14 @@ class DocumentationModel extends Libs\RESTModel
     public $docs = array();
 
     function __construct() {
+        // admin_v1
         $this->docs['get/v1/example'] = array(
-            'route'         => '/v1/example',
+            'route'         => '/v1/admin/files/:id',
             'verb'          => 'GET',
-            'group'         => '/v1/example',
-            'description'   => 'Example description',
-            'input'         => '{"param1":"value1","param2":"value2"}'
+            'group'         => '/v1/admin',
+            'description'   => 'Admin Route. Downloads a file with a given id. If parameter is set to
+                                true then only descriptions about a file in json format are provided.',
+            'parameters'         => '{"meta_data":"true"}'
         );
 
         $this->docs['get/v1/example2'] = array(
