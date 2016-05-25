@@ -15,7 +15,7 @@ require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
 require_once("./Modules/File/classes/class.ilObjFile.php");
 require_once("./Services/User/classes/class.ilObjUser.php");
 
-class CalendarModel
+class CalendarModel extends Libs\RESTModel
 {
 
     /**
@@ -25,13 +25,13 @@ class CalendarModel
      */
     function getCalUpcomingEvents($user_id)
     {
-
+        self::getApp()->log->debug('in getCalUpcomingEvents ...');
         Libs\RESTilias::loadIlUser();
         global    $ilUser;
         $ilUser->setId($user_id);
         $ilUser->read();
         Libs\RESTilias::initAccessHandling();
-
+        
         Libs\RESTilias::initGlobal("ilObjDataCache", "ilObjectDataCache",
             "./Services/Object/classes/class.ilObjectDataCache.php");
 
@@ -49,7 +49,6 @@ class CalendarModel
         // from class.ilCalendarPresentationGUI.php
         include_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
         $cats = \ilCalendarCategories::_getInstance($ilUser->getId());
-        //var_dump($cats);
 
         include_once('./Services/Calendar/classes/class.ilCalendarUserSettings.php');
         if(\ilCalendarUserSettings::_getInstance()->getCalendarSelectionType() == \ilCalendarUserSettings::CAL_SELECTION_MEMBERSHIP)
@@ -73,7 +72,7 @@ class CalendarModel
         foreach($events as $event)
         {
             $entry = $event['event'];
-
+            //self::getApp()->log->debug('processing event : '.print_r($entry,true));
             $rec = \ilCalendarRecurrences::_getFirstRecurrence($entry->getEntryId());
 
             $tmp_arr['id'] = $entry->getEntryId();
@@ -108,7 +107,6 @@ class CalendarModel
             $tmp_arr['reference'] = current($refs); // reference id
             $appointments[] = $tmp_arr;
         }
-
         return $appointments;
     }
 

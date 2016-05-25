@@ -17,15 +17,15 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the calendar events of a user specified by its user_id.
      */
-    $app->get('/cal/events/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($id) use ($app) {
+    $app->get('/cal/events/:user_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($user_id) use ($app) {
         $accessToken = $app->request->getToken();
-        $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 
-        if ($authorizedUserId == $id || Libs\RESTilias::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
+        if ($authorizedUserId == $user_id || Libs\RESTilias::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
             $model = new CalendarModel();
-            $data = $model->getCalUpcomingEvents($id);
-            $app->success($data);
+            $data = $model->getCalUpcomingEvents($user_id);
+            $resp = array('events'=>$data);
+            $app->success($resp);
         }
         else
             $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
@@ -35,16 +35,15 @@ $app->group('/v1', function () use ($app) {
     /**
      * Returns the ICAL Url of the desktop calendar of a user specified by its user_id.
      */
-    $app->get('/cal/icalurl/:id', RESTAuth::checkAccess(RESTAuth::PERMISSION) , function ($id) use ($app) {
+    $app->get('/cal/icalurl/:user_id', RESTAuth::checkAccess(RESTAuth::PERMISSION) , function ($user_id) use ($app) {
         $accessToken = $app->request->getToken();
-        $user = $accessToken->getUserName();
         $authorizedUserId = $accessToken->getUserId();
 
-        if ($authorizedUserId == $id || Libs\RESTilias::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
+        if ($authorizedUserId == $user_id || Libs\RESTilias::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
             $model = new CalendarModel();
-            $data = $model->getIcalAdress($id);
-
-            $app->success($data);
+            $data = $model->getIcalAdress($user_id);
+            $resp = array('ical'=>$data);
+            $app->success($resp);
         }
         else
             $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
@@ -56,15 +55,14 @@ $app->group('/v1', function () use ($app) {
      */
     $app->get('/cal/events', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
         $accessToken = $app->request->getToken();
-        $user = $accessToken->getUserName();
-        $authorizedUserId =  Libs\RESTilias::getUserName($user);
+        //$user = $accessToken->getUserName();
+        $authorizedUserId = $accessToken->getUserId();
 
         if ($authorizedUserId > -1) { // only the user is allowed to access the data
-            $id = $authorizedUserId;
             $model = new CalendarModel();
-            $data = $model->getCalUpcomingEvents($id);
-
-            $app->success($data);
+            $data = $model->getCalUpcomingEvents($authorizedUserId);
+            $resp = array('events'=>$data);
+            $app->success($resp);
         }
         else
             $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
@@ -77,14 +75,14 @@ $app->group('/v1', function () use ($app) {
     $app->get('/cal/icalurl', RESTAuth::checkAccess(RESTAuth::PERMISSION) , function () use ($app) {
         $accessToken = $app->request->getToken();
         $user = $accessToken->getUserName();
-        $authorizedUserId =  Libs\RESTilias::getUserName($user);
+        $authorizedUserId =  Libs\RESTilias::getUserId($user);
 
         if ($authorizedUserId > -1 ) { // only the user or the admin is allowed to access the data
             $id = $authorizedUserId;
             $model = new CalendarModel();
             $data = $model->getIcalAdress($id);
-
-            $app->success($data);
+            $resp = array('ical'=>$data);
+            $app->success($resp);
         }
         else
             $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);

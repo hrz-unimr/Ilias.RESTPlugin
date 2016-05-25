@@ -134,7 +134,41 @@ class DocumentationModel extends Libs\RESTModel
             'parameters'    => '{}'
         );
 
+        // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // calendar_v1
+        $this->docs['get/v1/cal/events/:user_id'] = array(
+            'route'         => '/v1/cal/events/:user_id',
+            'verb'          => 'GET',
+            'group'         => '/v1/cal',
+            'description'   => 'Returns the calendar events of a user specified by user_id. Events are only returned for a user if the user is the authorized user or a user owns the administrator role.',
+            'parameters'    => '{}'
+        );
 
+        $this->docs['get/v1/cal/events'] = array(
+            'route'         => '/v1/cal/events',
+            'verb'          => 'GET',
+            'group'         => '/v1/cal',
+            'description'   => 'Returns the calendar events of the authenticated user.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/cal/icalurl/:user_id'] = array(
+         'route'         => '/v1/cal/icalurl/:user_id',
+         'verb'          => 'GET',
+         'group'         => '/v1/cal',
+         'description'   => 'Returns the ICAL Url of the desktop calendar of a user specified by its user_id.',
+         'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/cal/icalurl'] = array(
+            'route'         => '/v1/cal/icalurl',
+            'verb'          => 'GET',
+            'group'         => '/v1/cal',
+            'description'   => 'Returns the ICAL Url of the desktop calendar of the authenticated user.',
+            'parameters'    => '{}'
+        );
+
+      
     }
 
     /**
