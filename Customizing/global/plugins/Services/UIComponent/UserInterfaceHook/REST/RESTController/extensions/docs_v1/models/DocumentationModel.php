@@ -268,7 +268,31 @@ class DocumentationModel extends Libs\RESTModel
             'parameters'    => '{"mode":"by_id", "usr_id":"240","crs_ref_id":"111"}'
         );
 
+        // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // desktop_v1
+        $this->docs['get/v1/desktop/overview'] = array(
+            'route'         => '/v1/desktop/overview',
+            'verb'          => 'GET',
+            'group'         => '/v1/desktop',
+            'description'   => 'Retrieves all items from the personal desktop of the authenticated user.',
+            'parameters'    => '{}'
+        );
 
+        $this->docs['post/v1/desktop/overview'] = array(
+            'route'         => '/v1/desktop/overview',
+            'verb'          => 'POST',
+            'group'         => '/v1/desktop',
+            'description'   => 'Adds an item specified by ref_id to the users\'s desktop. The user must be the owner or at least has read access of the item.',
+            'parameters'    => '{"ref_id":"63"}'
+        );
+
+        $this->docs['delete/v1/desktop/overview'] = array(
+            'route'         => '/v1/desktop/overview',
+            'verb'          => 'DELETE',
+            'group'         => '/v1/desktop',
+            'description'   => 'Deletes an item specified by ref_id from the personal desktop of the authenticated user.',
+            'parameters'    => '{"ref_id":"63"}'
+        );
     }
 
     /**

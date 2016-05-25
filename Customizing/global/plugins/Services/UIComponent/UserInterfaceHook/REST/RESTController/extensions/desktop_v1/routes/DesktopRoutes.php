@@ -30,7 +30,7 @@ $app->group('/v1', function () use ($app) {
 
 
     /**
-     * Deletes an item specified by ref_id from the personal desktop of the user specified by $id.
+     * Deletes an item specified by ref_id from the personal desktop of the authenticated user.
      */
     $app->delete('/desktop/overview', RESTAuth::checkAccess(RESTAuth::PERMISSION),  function () use ($app) {
         $accessToken = $app->request->getToken();
