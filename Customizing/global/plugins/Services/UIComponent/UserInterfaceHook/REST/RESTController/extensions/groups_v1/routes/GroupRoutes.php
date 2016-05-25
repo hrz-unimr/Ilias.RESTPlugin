@@ -5,7 +5,7 @@
  * Authors: D. Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * Since 2014
  */
-namespace RESTController\extensions\mobile_v1;
+namespace RESTController\extensions\groups_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs\RESTAuth as RESTAuth;
@@ -18,14 +18,13 @@ use \RESTController\extensions\groups_v1 as Groups;
 $app->group('/v1', function () use ($app) {
 
     /**
-     *  Returns all groups for the authorized user.
-     *
-     *  Version 15.7.08
+     *  Returns all groups of the authorized user.
      */
-    $app->get('/groups4user', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
+    $app->get('/groups', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) {
 
         $result = array();
-        $user_id = Auth\Util::getAccessToken()->getUserId();
+        $accessToken = $app->request->getToken();
+        $user_id = $accessToken->getUserId();
 
         try {
             Libs\RESTilias::initAccessHandling();
@@ -33,18 +32,17 @@ $app->group('/v1', function () use ($app) {
             $my_groups = $grpModel->getGroupsOfUser($user_id);
             $result['groups'] = $my_groups;
             $app->success($result);
-        } catch (Libs\ReadFailed $e) {
-            $app->halt(400, $e->getFormatedMessage());
+        } catch (Libs\RESTException $e) {
+            $app->halt(401, "Error: ".$e->getRESTMessage(), -5);
         }
     });
 
     /**
-     * Get content of group identified by ref_id
+     * Get content description of a group identified by ref_id.
      */
     $app->get('/groups/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         $result = array();
         $accessToken = $app->request->getToken();
-        $user_id = $accessToken->getUserId();
 
         try {
             Libs\RESTilias::initAccessHandling();
@@ -56,13 +54,13 @@ $app->group('/v1', function () use ($app) {
             $members = $grpModel->getGroupMembers($ref_id);
             $result['members'] = $members;
             $app->success($result);
-        } catch (Libs\ReadFailed $e) {
-            $app->halt(400, $e->getFormatedMessage());
+        } catch (Libs\RESTException $e) {
+            $app->halt(401, "Error: ".$e->getRESTMessage(), -5);
         }
     });
 
     /**
-     * Assigns the authenticated user to a group specified by the GET parameter ref_id.
+     * Adds the authenticated user as a member to the group specified by its parameter ref_id.
      */
     $app->get('/groups/join/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         $accessToken = $app->request->getToken();
@@ -88,7 +86,7 @@ $app->group('/v1', function () use ($app) {
     });
 
     /**
-     * Removes the authenticated user from a group specified by the GET parameter "ref_id".
+     * Removes the authenticated user from a group specified by the parameter "ref_id".
      */
     $app->get('/groups/leave/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         $accessToken = $app->request->getToken();

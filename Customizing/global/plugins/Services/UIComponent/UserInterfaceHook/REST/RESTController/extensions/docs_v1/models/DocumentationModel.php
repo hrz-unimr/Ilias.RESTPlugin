@@ -320,6 +320,40 @@ class DocumentationModel extends Libs\RESTModel
             'parameters'    => '{}'
         );
 
+        // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // groups_v1
+        $this->docs['get/v1/groups'] = array(
+            'route'         => '/v1/groups',
+            'verb'          => 'GET',
+            'group'         => '/v1/groups',
+            'description'   => 'Returns all groups of the authorized user.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/groups/:ref_id'] = array(
+            'route'         => '/v1/groups/:ref_id',
+            'verb'          => 'GET',
+            'group'         => '/v1/groups',
+            'description'   => 'Get content description of a group identified by ref_id.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/groups/join/:ref_id'] = array(
+            'route'         => '/v1/groups',
+            'verb'          => 'GET',
+            'group'         => '/v1/groups/join/:ref_id',
+            'description'   => 'Adds the authenticated user as a member to the group specified by its parameter ref_id.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/groups/leave/:ref_id'] = array(
+            'route'         => '/v1/groups',
+            'verb'          => 'GET',
+            'group'         => '/v1/groups/leave/:ref_id',
+            'description'   => 'Removes the authenticated user from a group specified by the parameter "ref_id".',
+            'parameters'    => '{}'
+        );
+
 
 
     }
