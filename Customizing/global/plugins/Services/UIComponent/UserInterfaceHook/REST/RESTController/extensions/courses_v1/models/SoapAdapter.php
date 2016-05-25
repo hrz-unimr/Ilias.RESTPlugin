@@ -35,25 +35,22 @@ class SoapAdapter {
         \ilContext::init(\ilContext::CONTEXT_SOAP);
 
         // Load username/password from DB
-        $query = 'SELECT setting_name, setting_value FROM ui_uihk_rest_config WHERE setting_name IN ("rest_soap_user", "rest_soap_pass")';
+        $query = 'SELECT setting_name, setting_value FROM ui_uihk_rest_config WHERE setting_name IN ("soap_username", "soap_password")';
         $set = $ilDB->query($query);
         while ($row = $ilDB->fetchAssoc($set))
             switch ($row['setting_name']) {
-                case "rest_soap_user":
+                case "soap_username":
                     $username = $row['setting_value'];
                     break;
-                case "rest_soap_pass":
+                case "soap_password":
                     $password = $row['setting_value'];
                     break;
             }
-
-
 
         // TODO: Throw an error header here!
         if (!isset($username) || !isset($password))  {
             self::logoutSOAP();
         }
-
 
         // Get username and password
         require_once("./Services/Calendar/classes/class.ilDatePresentation.php");
@@ -101,7 +98,7 @@ class SoapAdapter {
     public function executeSOAPFunction($str_function, $a_parameters) {
         $ilLog = $GLOBALS['ilLog'];
         $ilUser = $GLOBALS['ilUser'];
-        $ilLog->write("execute SOAP function : uid: ".$ilUser->getId());
+        $ilLog->write("executing SOAP function : uid: ".$ilUser->getId());
 
         include_once('webservice/soap/include/inc.soap_functions.php');
         $result = call_user_func_array('ilSoapFunctions::'.$str_function, $a_parameters);

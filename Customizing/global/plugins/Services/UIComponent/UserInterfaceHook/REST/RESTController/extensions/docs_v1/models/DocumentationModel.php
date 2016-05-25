@@ -210,6 +210,63 @@ class DocumentationModel extends Libs\RESTModel
             'parameters'    => '{"login":"newbie", "firstname":"Jonny", "lastname":"Doe", "email":"john@doe.com"}'
         );
 
+        // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // courses_v1
+        $this->docs['get/v1/courses'] = array(
+            'route'         => '/v1/courses',
+            'verb'          => 'GET',
+            'group'         => '/v1/courses',
+            'description'   => 'Retrieves a list of all courses of the authenticated user and meta-information about them (no content).',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/courses/:ref_id'] = array(
+            'route'         => '/v1/courses/:ref_id',
+            'verb'          => 'GET',
+            'group'         => '/v1/courses',
+            'description'   => 'Retrieves more detailed information about a course specified by its ref_id. Besides the basic information a list of repository object descriptions are provided and a list of user_ids that belong to the course.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['post/v1/courses'] = array(
+            'route'         => '/v1/courses',
+            'verb'          => 'POST',
+            'group'         => '/v1/courses',
+            'description'   => 'Creates a new course. Please provide the ref_id of the parent repository object, title and description. Note that the new course will be offline initially.',
+            'parameters'    => '{"parent_ref_id":"62", "title":"Test Course2", "description" : "A meaningful description."}'
+        );
+
+        $this->docs['delete/v1/courses/:ref_id'] = array(
+            'route'         => '/v1/courses/:ref_id',
+            'verb'          => 'DELETE',
+            'group'         => '/v1/courses',
+            'description'   => 'Deletes a course specified by its ref_id.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/courses/join/:ref_id'] = array(
+            'route'         => '/v1/courses/join/:ref_id',
+            'verb'          => 'GET',
+            'group'         => '/v1/courses',
+            'description'   => 'Adds the authenticated user as a member to a course specified by the parameter ref_id.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/courses/leave/:ref_id'] = array(
+            'route'         => '/v1/courses/leave/:ref_id',
+            'verb'          => 'GET',
+            'group'         => '/v1/courses',
+            'description'   => 'Removes the authenticated user from a course specified by the parameter ref_id.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['post/v1/courses/enroll'] = array(
+            'route'         => '/v1/courses/enroll',
+            'verb'          => 'POST',
+            'group'         => '/v1/courses',
+            'description'   => 'Admin: Enrolls a user to a course. Expects a "mode" parameter ("by_login"/"by_id") that determines the lookup method for the user. If "mode" is "by_login" then the "login" parameter will be used for the lookup (internal or ldap). If "mode" is "by_id" then the parameter "usr_id" will be used for the lookup. The user will be enrolled in the course specified by crs_ref_id.',
+            'parameters'    => '{"mode":"by_id", "usr_id":"240","crs_ref_id":"111"}'
+        );
 
 
     }

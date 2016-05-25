@@ -58,11 +58,14 @@ $app->group('/v1', function () use ($app) {
         }
     });
 
-
+    /**
+     * Creates a new course. Please provide the ref_id of the parent repository object, title and description. Note that the new course will be offline initially.
+     *
+     */
     $app->post('/courses', RESTAuth::checkAccess(RESTAuth::PERMISSION), function() use ($app) {
         try {
             $request = $app->request();
-            $ref_id = $request->params('ref_id', null, true);
+            $ref_id = $request->params('parent_ref_id', null, true);
             $title = $request->params('title', null, true);
             $description = $request->params('description', '');
 
@@ -83,11 +86,9 @@ $app->group('/v1', function () use ($app) {
     });
 
     /**
-     * Deletes the course specified by ref_id.
+     * Deletes a course specified by its ref_id.
      */
     $app->delete('/courses/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
-        $request = $app->request();
-
         $accessToken = $app->request->getToken();
         $user_id = $accessToken->getUserId();
         global $ilUser;
@@ -102,8 +103,8 @@ $app->group('/v1', function () use ($app) {
             $result = array();
             $crs_model = new CoursesModel();
             $soap_result = $crs_model->deleteCourse($ref_id);
-
-            $app->success($soap_result);
+            $resp = array("course_deleted" => $soap_result);
+            $app->success($resp);
         } else {
             $app->success(array("msg"=>"No Permission."));
         }
@@ -141,7 +142,7 @@ $app->group('/v1', function () use ($app) {
         else if ($mode == "by_id")
             $user_id = $request->params("usr_id");
         else
-            $app->halt(400, "Unsupported or missing mode: '$mode'. Use eiter 'by_login' or 'by_id'");
+            $app->halt(400, "Unsupported or missing mode: '$mode'. Use either 'by_login' or 'by_id'");
 
         $crs_ref_id = $request->params("crs_ref_id");
         try {
@@ -159,7 +160,7 @@ $app->group('/v1', function () use ($app) {
     });
 
     /**
-     * Assigns the authenticated user to a course specified by the GET parameter ref_id.
+     * Adds the authenticated user as a member to a course specified by the parameter ref_id.
      */
     $app->get('/courses/join/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         $accessToken = $app->request->getToken();
@@ -181,7 +182,7 @@ $app->group('/v1', function () use ($app) {
     });
 
     /**
-     * Removes the authenticated user from a course speicifed by the GET parameter "ref_id".
+     * Removes the authenticated user from a course specified by the GET parameter "ref_id".
      */
     $app->get('/courses/leave/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         $accessToken = $app->request->getToken();
