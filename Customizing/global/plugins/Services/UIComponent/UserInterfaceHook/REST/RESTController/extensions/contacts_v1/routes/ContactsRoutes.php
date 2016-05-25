@@ -29,7 +29,8 @@ $app->group('/v1', function () use ($app) {
 
             $model = new ContactsModel();
             $data = $model->getMyContacts($id);
-            $app->success($data);
+            $resp = array("contacts" => $data);
+            $app->success($resp);
 
         }
         else {
@@ -42,9 +43,9 @@ $app->group('/v1', function () use ($app) {
      * Requires POST variables: login, firstname, lastname, email
      */
     $app->post('/contacts/add', RESTAuth::checkAccess(RESTAuth::PERMISSION), function() use ($app) {
+        $app->log->debug("POST contacts add ...");
         $accessToken = $app->request->getToken();
         $request = $app->request();
-        //$app->log->debug("debug...".$request->params("param1"));
         $login      = $request->params("login");
         $firstname  = $request->params("firstname");
         $lastname   = $request->params("lastname");
@@ -53,11 +54,11 @@ $app->group('/v1', function () use ($app) {
         $authorizedUserId =  $accessToken->getUserId();
 
         if ($authorizedUserId > -1) { // only the user is allowed to access the data
-            $id = $authorizedUserId;
-
+            $app->log->debug("contacts add ...".$request->params("login"));
             $model = new ContactsModel();
-            $data = $model->addContactEntry($id,$login,$firstname,$lastname,$email);
-            $app->success($data);
+            $data = $model->addContactEntry($authorizedUserId,$login,$firstname,$lastname,$email);
+            $resp = array("contact_added"=>$data);
+            $app->success($resp);
 
         }
         else {
@@ -78,8 +79,8 @@ $app->group('/v1', function () use ($app) {
         
             $model = new ContactsModel();
             $data = $model->deleteContactEntry($id, $addr_id);
-
-            $app->success($data);
+            $resp = array("contact_removed" => $data);
+            $app->success($resp);
         }
         else {
             $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
@@ -95,15 +96,15 @@ $app->group('/v1', function () use ($app) {
         $request = $app->request();
 
         if ($authorizedUserId > -1) { // only the user is allowed to access the data
-            $id = $authorizedUserId;
             $model = new ContactsModel();
-            $data = $model->getContactEntry($id, $addr_id);
+            $data = $model->getContactEntry($authorizedUserId, $addr_id);
             $new_login = $request->params("login",$data['login'],false);
             $new_firstname = $request->params("firstname",$data['firstname'],false);
             $new_lastname = $request->params("lastname",$data['lastname'],false);
             $new_email = $request->params("email",$data['email'],false);
-            $success = $model->updateContactEntry($id, $addr_id, $new_login, $new_firstname, $new_lastname, $new_email);
-            $app->success($success);
+            $success = $model->updateContactEntry($authorizedUserId, $addr_id, $new_login, $new_firstname, $new_lastname, $new_email);
+            $resp = array("contact_updated" => $success);
+            $app->success($resp);
         }
         else {
             $app->halt(401, Libs\OAuth2Middleware::MSG_NO_ADMIN, Libs\OAuth2Middleware::ID_NO_ADMIN);
@@ -113,18 +114,18 @@ $app->group('/v1', function () use ($app) {
     /**
      * Admin: Returns all contacts of a user specified by id.
      */
-    $app->get('/contacts/:id', RESTAuth::checkAccess(RESTAuth::ADMIN), function ($id) use ($app) {
+    $app->get('/contacts/:user_id', RESTAuth::checkAccess(RESTAuth::ADMIN), function ($user_id) use ($app) {
         $accessToken = $app->request->getToken();
         $authorizedUserId = $accessToken->getUserId();
 
-        if ($authorizedUserId == $id || Libs\RESTilias::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
+        if ($authorizedUserId == $user_id || Libs\RESTilias::isAdmin($authorizedUserId)) { // only the user or the admin is allowed to access the data
             try {
                 $model = new ContactsModel();
-                $data = $model->getMyContacts($id);
-
-                $app->success($data);
+                $data = $model->getMyContacts($user_id);
+                $resp = array("contacts" => $data);
+                $app->success($resp);
             } catch (Libs\ReadFailed $e) {
-                $app->halt(404, 'Error: Could not retrieve data for user '.$id.".", -15);
+                $app->halt(404, 'Error: Could not retrieve data for user '.$user_id.".", -15);
             }
         }
         else

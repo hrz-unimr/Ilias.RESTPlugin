@@ -168,7 +168,50 @@ class DocumentationModel extends Libs\RESTModel
             'parameters'    => '{}'
         );
 
-      
+        // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // contacts_v1
+        $this->docs['get/v1/contacts'] = array(
+            'route'         => '/v1/contacts',
+            'verb'          => 'GET',
+            'group'         => '/v1/contacts',
+            'description'   => 'Returns the personal ILIAS contacts of the authenticated user.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/contacts/:user_id'] = array(
+            'route'         => '/v1/contacts/:user_id',
+            'verb'          => 'GET',
+            'group'         => '/v1/contacts',
+            'description'   => 'Admin: Returns all contacts of a user specified by user_id.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['post/v1/contacts/add'] = array(
+            'route'         => '/v1/contacts/add',
+            'verb'          => 'POST',
+            'group'         => '/v1/contacts',
+            'description'   => 'Creates a new contact entry to the contact list of the authenticated user.Requires POST variables: login, firstname, lastname, email.',
+            'parameters'    => '{"login":"newbie", "firstname":"John", "lastname":"Doe", "email":"john@doe.com"}'
+        );
+
+        $this->docs['delete/v1/contacts/:addr_id'] = array(
+            'route'         => '/v1/contacts/:addr_id',
+            'verb'          => 'DELETE',
+            'group'         => '/v1/contacts',
+            'description'   => 'Deletes entry specified by addr_id from the contact list of the authenticated user.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['put/v1/contacts/:addr_id'] = array(
+            'route'         => '/v1/contacts/:addr_id',
+            'verb'          => 'PUT',
+            'group'         => '/v1/contacts',
+            'description'   => 'Updates contact entry addr_id of the authenticated user. Note: it is sufficient to specify only the field that needs to be changed.',
+            'parameters'    => '{"login":"newbie", "firstname":"Jonny", "lastname":"Doe", "email":"john@doe.com"}'
+        );
+
+
+
     }
 
     /**
