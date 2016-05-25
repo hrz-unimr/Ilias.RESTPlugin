@@ -293,6 +293,35 @@ class DocumentationModel extends Libs\RESTModel
             'description'   => 'Deletes an item specified by ref_id from the personal desktop of the authenticated user.',
             'parameters'    => '{"ref_id":"63"}'
         );
+
+        // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // docs_v1
+        $this->docs['get/v1/docs/route'] = array(
+            'route'         => '/v1/docs/route',
+            'verb'          => 'GET',
+            'group'         => '/v1/docs',
+            'description'   => 'Retrieves meta-information about a particular route. The following parameters must be specified: verb and route.',
+            'parameters'    => '{"verb":"get","route":"/v1/courses/:ref_id"}'
+        );
+
+        $this->docs['get/v1/docs/routes'] = array(
+            'route'         => '/v1/docs/routes',
+            'verb'          => 'GET',
+            'group'         => '/v1/docs',
+            'description'   => 'Retrieves meta-information on all documented routes.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/docs/api'] = array(
+            'route'         => '/v1/docs/api',
+            'verb'          => 'GET',
+            'group'         => '/v1/docs',
+            'description'   => 'Provides the API documentation as html page. Needs to be called within a web browser.',
+            'parameters'    => '{}'
+        );
+
+
+
     }
 
     /**

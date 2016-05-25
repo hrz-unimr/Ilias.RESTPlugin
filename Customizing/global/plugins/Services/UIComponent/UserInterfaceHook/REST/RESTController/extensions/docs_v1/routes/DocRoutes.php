@@ -8,7 +8,6 @@
 namespace RESTController\extensions\docs_v1;
 
 // This allows us to use shortcuts instead of full quantifier
-use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs as Libs;
 use \RESTController\core\auth as Auth;
 use \RESTController\libs\Exceptions as LibExceptions;
@@ -16,20 +15,27 @@ use \RESTController\libs\Exceptions as LibExceptions;
 $app->group('/v1/docs', function () use ($app) {
 
     /**
-     *
+     * Retrieves meta-information about a particular route. The following parameters must be specified: verb and route.
      */
     $app->get('/route', function () use ($app) {
-        $model = new DocumentationModel();
-        $verb = 'GET';
-        $route = 'v1/example';
-        $result = $model->getDocumentation($route, $verb);
-        $resp = array('results ' => $result);
-        $app->success($resp);
+        $request = $app->request();
+        try {
+            $verb = $request->params("verb", null, true);
+            $route = $request->params("route", null, true);
+
+            $model = new DocumentationModel();
+            $result = $model->getDocumentation($route, $verb);
+            $resp = array('results ' => $result);
+
+            $app->success($resp);
+        } catch (Libs\RESTException $e) {
+            $app->halt(401, "Error: ".$e->getRESTMessage(), -1);
+        }
     });
 
 
      /**
-      *
+      * Retrieves meta-information on all documented routes.
       */
     $app->get('/routes', function () use ($app) {
         $model = new DocumentationModel();
@@ -39,10 +45,9 @@ $app->group('/v1/docs', function () use ($app) {
     });
 
     /**
-     *
+     * Provides the API documentation as html page. Needs to be called within a web browser.
      */
     $app->get('/api', function () use ($app) {
-        //'core/oauth2_v2/views/index.php'
        $model = new DocumentationModel();
        $routeDocs = $model->getCompleteApiDocumentation();
        $plugin     = Libs\RESTilias::getPlugin();

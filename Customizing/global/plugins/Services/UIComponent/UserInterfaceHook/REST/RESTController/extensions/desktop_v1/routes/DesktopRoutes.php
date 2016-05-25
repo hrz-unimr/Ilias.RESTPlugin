@@ -37,12 +37,12 @@ $app->group('/v1', function () use ($app) {
         $authorizedUserId = $accessToken->getUserId();
         $request = $app->request();
         try {
-            $ref_id = $request->params("ref_id");
+            $ref_id = $request->params("ref_id",null,true);
             $model = new DesktopModel();
             $model->removeItemFromDesktop($authorizedUserId, $ref_id);
             $app->success(array("msg"=>"Removed item with ref_id=".$ref_id." from desktop."));
-        } catch (Libs\DeleteFailed $e) {
-            $app->halt(401, "Error: ".$e->getFormatedMessage(), -15);
+        } catch (Libs\RESTException $e) {
+            $app->halt(401, "Error: ".$e->getRESTMessage(), -15);
         }
     });
 
@@ -55,12 +55,12 @@ $app->group('/v1', function () use ($app) {
         $authorizedUserId = $accessToken->getUserId();
         $request = $app->request();
         try {
-            $ref_id = $request->params("ref_id");
+            $ref_id = $request->params("ref_id",null,true);
             $model = new DesktopModel();
             $model->addItemToDesktop($authorizedUserId, $ref_id);
             $app->success(array("msg"=>"Added item with ref_id=".$ref_id." to the desktop."));
-        } catch (Libs\UpdateFailed $e) {
-            $app->halt(401, "Error: ".$e->getFormatedMessage(), -15);
+        } catch (Libs\RESTException $e) {
+            $app->halt(401, "Error: ".$e->getRESTMessage(), -15);
         }
     });
 
