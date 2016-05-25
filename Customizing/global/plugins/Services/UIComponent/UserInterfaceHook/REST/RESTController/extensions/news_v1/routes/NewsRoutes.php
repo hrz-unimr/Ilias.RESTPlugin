@@ -19,7 +19,7 @@ use \RESTController\core\auth as Auth;
 $app->group('/v1/news', function () use ($app) {
 
     /**
-     * Gets the personal desktop (pd) news items of the authenticated user.
+     * Returns the personal desktop (pd) news items of the authenticated user.
      */
     $app->get('/pdnews', RESTAuth::checkAccess(RESTAuth::PERMISSION) ,  function () use ($app) {
         //$request = $app->request();

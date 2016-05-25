@@ -339,18 +339,28 @@ class DocumentationModel extends Libs\RESTModel
         );
 
         $this->docs['get/v1/groups/join/:ref_id'] = array(
-            'route'         => '/v1/groups',
+            'route'         => '/v1/groups/join/:ref_id',
             'verb'          => 'GET',
-            'group'         => '/v1/groups/join/:ref_id',
+            'group'         => '/v1/groups',
             'description'   => 'Adds the authenticated user as a member to the group specified by its parameter ref_id.',
             'parameters'    => '{}'
         );
 
         $this->docs['get/v1/groups/leave/:ref_id'] = array(
-            'route'         => '/v1/groups',
+            'route'         => '/v1/groups/leave/:ref_id',
             'verb'          => 'GET',
-            'group'         => '/v1/groups/leave/:ref_id',
+            'group'         => '/v1/groups',
             'description'   => 'Removes the authenticated user from a group specified by the parameter "ref_id".',
+            'parameters'    => '{}'
+        );
+
+        // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // news_v1
+        $this->docs['get/v1/news/pdnews'] = array(
+            'route'         => '/v1/news/pdnews',
+            'verb'          => 'GET',
+            'group'         => '/v1/news',
+            'description'   => 'Returns the personal desktop (pd) news items of the authenticated user.',
             'parameters'    => '{}'
         );
 
