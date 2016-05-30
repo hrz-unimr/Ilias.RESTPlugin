@@ -364,7 +364,55 @@ class DocumentationModel extends Libs\RESTModel
             'parameters'    => '{}'
         );
 
+        // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // surveys_v1
+        $this->docs['get/v1/surveys'] = array(
+            'route'         => '/v1/surveys',
+            'verb'          => 'GET',
+            'group'         => '/v1/surveys',
+            'description'   => '(Admin) Provides an overview about all existing surveys.',
+            'parameters'    => '{}'
+        );
 
+        $this->docs['get/v1/surveys/:ref_id'] = array(
+            'route'         => '/v1/surveys/:ref_id',
+            'verb'          => 'GET',
+            'group'         => '/v1/surveys',
+            'description'   => 'Returns a json representation of the survey specified by its "ref_id". The representation includes meta-information about the survey and the questions.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/surveys/survey_answers/:ref_id'] = array(
+            'route'         => '/v1/surveys/survey_answers/:ref_id',
+            'verb'          => 'GET',
+            'group'         => '/v1/surveys',
+            'description'   => 'Returns the answers of the authenticated user of a survey specified by ref_id.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['delete/v1/surveys/survey_answers/:ref_id'] = array(
+            'route'         => '/v1/surveys/survey_answers/:ref_id',
+            'verb'          => 'DELETE',
+            'group'         => '/v1/surveys',
+            'description'   => 'Deletes the answers of all users of a survey  specified by ref_id.',
+            'parameters'    => '{}'
+        );
+
+        /*$this->docs['post/v1/surveys/survey_answers/:ref_id'] = array(
+            'route'         => '/v1/surveys/survey_answers/:ref_id',
+            'verb'          => 'POST',
+            'group'         => '/v1/surveys',
+            'description'   => 'Submits the answers of one particular question of survey ref_id. Note: Only question types SC and MPC are supported (yet).',
+            'parameters'    => '{"nQuestions":"2", "q1_id":"1", "q2_id":"1"}'
+        );
+
+        $this->docs['post/v1/surveys/survey_answers_randfill/:ref_id'] = array(
+            'route'         => '/v1/surveys/survey_answers_randfill/:ref_id',
+            'verb'          => 'POST',
+            'group'         => '/v1/surveys',
+            'description'   => '(Admin) Assigns random answers to the question of survey (ref_id) for user (user_id).',
+            'parameters'    => '{"user_id":"6"}'
+        );*/
 
     }
 

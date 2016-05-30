@@ -16,6 +16,9 @@ use \RESTController\extensions\surveys_v1 as Surveys;
 
 $app->group('/v1', function () use ($app) {
 
+    /**
+     * (Admin) Provides an overview about all existing surveys.
+     */
     $app->get('/surveys', RESTAuth::checkAccess(RESTAuth::ADMIN), function() use ($app) {
         $accessToken = $app->request->getToken();
         $user_id = $accessToken->getUserId();
@@ -41,9 +44,9 @@ $app->group('/v1', function () use ($app) {
     });
 
     /**
-     * Returns the answers of a survey (ref_id) of the authenticated user.
+     * Returns the answers of the authenticated user of a survey specified by ref_id.
      */
-    $app->get('/survey_answers/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function($ref_id) use ($app) {
+    $app->get('/surveys/survey_answers/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function($ref_id) use ($app) {
         $accessToken = $app->request->getToken();
         $user_id = $accessToken->getUserId();
 
@@ -53,9 +56,9 @@ $app->group('/v1', function () use ($app) {
     });
 
     /**
-     * Deletes answers of all users of a survey (ref_id).
+     * Deletes the answers of all users of a survey  specified by ref_id.
      */
-    $app->delete('/survey_answers/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function($ref_id) use ($app) {
+    $app->delete('/surveys/survey_answers/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function($ref_id) use ($app) {
         $accessToken = $app->request->getToken();
         $user_id = $accessToken->getUserId();
         $model = new Surveys\SurveyModel();
@@ -64,13 +67,13 @@ $app->group('/v1', function () use ($app) {
     });
 
     /**
-     * Stores the answers of one particular question of survey ref_id.
+     * Submits the answers of one particular question of survey ref_id.
      * Note: Only question types SC and MPC are supported.
      *
      * Post-data:
      * {'nQuestions' => '5', 'q1_id'=>'1', 'q1_answer'=>'2,3',...}
      */
-    $app->post('/survey_answers/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function($ref_id) use ($app) {
+    /*$app->post('/surveys/survey_answers/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function($ref_id) use ($app) {
         $accessToken = $app->request->getToken();
         $user_id = $accessToken->getUserId();
 
@@ -99,17 +102,18 @@ $app->group('/v1', function () use ($app) {
             $app->success(422);
         }
 
-    });
+    });*/
 
     /**
      * (Admin) Assigns random answers to the question of survey (ref_id) for user (user_id).
      */
-    $app->post('/survey_answers_randfill/:ref_id', RESTAuth::checkAccess(RESTAuth::ADMIN), function ($ref_id) use ($app) {
+    /*$app->post('/surveys/survey_answers_randfill/:ref_id', RESTAuth::checkAccess(RESTAuth::ADMIN), function ($ref_id) use ($app) {
         $request = $app->request();
         $user_id = $request->params("user_id");
         $model = new Surveys\SurveyModel();
         $model->fillRandomAnswers($$ref_id, $user_id);
         $app->success(200);
     });
+    */
 
 });
