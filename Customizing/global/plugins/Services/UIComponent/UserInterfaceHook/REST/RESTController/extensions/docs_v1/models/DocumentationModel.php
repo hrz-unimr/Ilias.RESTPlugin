@@ -364,6 +364,14 @@ class DocumentationModel extends Libs\RESTModel
             'parameters'    => '{}'
         );
 
+        $this->docs['get/v1/news/pdnews/:user_id'] = array(
+            'route'         => '/v1/news/pdnews/:user_id',
+            'verb'          => 'GET',
+            'group'         => '/v1/news',
+            'description'   => '(Admin) Returns the personal desktop (pd) news items of the user specified by (user_id).',
+            'parameters'    => '{}'
+        );
+
         // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // surveys_v1
         $this->docs['get/v1/surveys'] = array(
