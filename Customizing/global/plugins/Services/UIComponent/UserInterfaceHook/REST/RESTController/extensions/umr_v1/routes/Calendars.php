@@ -57,8 +57,8 @@ $app->group('/v1/umr', function () use ($app) {
 
 
   /**
-   * Route: GET /v1/umr/calendars/:calendarIds
-   *  Get the calendars with given calendarIds for the user given by the access-token.
+   * Route: GET /v1/umr/calendars/:calendarId
+   *  Returns a calendar of the authenticated user specified by calendarId.
    *  [This endpoint parses one URI parameter, eg. .../10]
    *
    * @See docs/api.pdf

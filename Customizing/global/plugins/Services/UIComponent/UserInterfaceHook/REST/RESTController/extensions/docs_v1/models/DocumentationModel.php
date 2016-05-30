@@ -422,6 +422,144 @@ class DocumentationModel extends Libs\RESTModel
             'parameters'    => '{"user_id":"6"}'
         );*/
 
+        // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // umr_v1
+        $this->docs['get/v1/umr/bulkrequest'] = array(
+            'route'         => '/v1/umr/bulkrequest',
+            'verb'          => 'GET',
+            'group'         => '/v1/umr',
+            'description'   => 'Returns collected (bulk) information of all contacts, calendars, events, groups, courses, user-info, items on users desktop combined with contents of those items for the user given by the access-token.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/umr/calendars'] = array(
+            'route'         => '/v1/umr/calendars',
+            'verb'          => 'GET',
+            'group'         => '/v1/umr',
+            'description'   => '[Without HTTP-GET Parameters] Fetches all calendars of the user given by the access-token.[With HTTP-GET Parameters] Get the calendars with given calendarIds for the user given by the access-token.',
+            'parameters'    => '{"calendarids":"1,2,10"}'
+        );
+
+        $this->docs['get/v1/umr/calendars/:calendarId'] = array(
+            'route'         => '/v1/umr/calendars/:calendarId',
+            'verb'          => 'GET',
+            'group'         => '/v1/umr',
+            'description'   => 'Returns a calendar of the authenticated user specified by calendarId.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/umr/calendars/events'] = array(
+            'route'         => '/v1/umr/calendars/events',
+            'verb'          => 'GET',
+            'group'         => '/v1/umr',
+            'description'   => 'Get all events of the calendars with given calendarIds for the authenticated user.',
+            'parameters'    => '{"calendarids":"1,2,10"}'
+        );
+
+        $this->docs['get/v1/umr/calendar/:calendarId/events'] = array(
+            'route'         => '/v1/umr/calendar/:calendarId/events',
+            'verb'          => 'GET',
+            'group'         => '/v1/umr',
+            'description'   => 'Get all events of the calendars with given calendarIds for the user given by the access-token.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/umr/contacts'] = array(
+            'route'         => '/v1/umr/calendars/events',
+            'verb'          => 'GET',
+            'group'         => '/v1/umr',
+            'description'   => 'Without HTTP-GET Parameters] Get all contacts of the user given by the access-token. [With HTTP-GET Parameters] Get the contact with given contactIds for the user given by the access-token.',
+            'parameters'    => '{"contactids":"1,6,10"}'
+        );
+
+        $this->docs['get/v1/umr/contacts/:contactId'] = array(
+            'route'         => '/v1/umr/contacts/:contactId',
+            'verb'          => 'GET',
+            'group'         => '/v1/umr',
+            'description'   => 'Get the contact with given contactId for the user given by the access-token.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/umr/events'] = array(
+            'route'         => '/v1/umr/events',
+            'verb'          => 'GET',
+            'group'         => '/v1/umr',
+            'description'   => '[Without HTTP-GET Parameters] Gets all events (appointments) of the user given by the access-token. [With HTTP-GET Parameters] Get the events with given eventIds for the user given by the access-token.',
+            'parameters'    => '{"eventids":"6,15"}'
+        );
+
+        $this->docs['get/v1/umr/events/:eventId'] = array(
+            'route'         => '/v1/umr/events/:eventId',
+            'verb'          => 'GET',
+            'group'         => '/v1/umr',
+            'description'   => 'Get the events with given eventIds for the user given by the access-token.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['post/v1/umr/events'] = array(
+            'route'         => '/v1/umr/events',
+            'verb'          => 'POST',
+            'group'         => '/v1/umr',
+            'description'   => 'Adds an event (appointment) to a calendar of the authenticated user.',
+            'parameters'    => '{"cal_id":"10","title":"Test title","description":"Test description","full_day":"0","start_hour":"10","start_minute":"0","start_month":"7","start_day":"1","start_year":"2038", "end_hour":"11","end_minute":"30","end_month":"7","end_day":"1","end_year":"2038"}'
+        );
+
+        $this->docs['put/v1/umr/events/:eventId'] = array(
+            'route'         => '/v1/umr/events',
+            'verb'          => 'PUT',
+            'group'         => '/v1/umr',
+            'description'   => 'Updates an event (appointment) of the authenticated user. Another parameter not mentioned in the example is "full_day":"1".',
+            'parameters'    => '{"title":"Renamed title2","description":"Test2","full_day":"0","start_hour":"10","start_minute":"0","start_month":"7","start_day":"1","start_year":"2038", "end_hour":"11","end_minute":"30","end_month":"7","end_day":"1","end_year":"2038"}'
+        );
+
+        $this->docs['delete/v1/umr/events/:eventId'] = array(
+            'route'         => '/v1/umr/events/:eventId',
+            'verb'          => 'DELETE',
+            'group'         => '/v1/umr',
+            'description'   => 'Deletes an event (appointment) of the authenticated user.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/umr/mycoursesandgroups'] = array(
+            'route'         => '/v1/umr/mycoursesandgroups',
+            'verb'          => 'GET',
+            'group'         => '/v1/umr',
+            'description'   => 'Fetches all groups and courses the user given by the access-token is a member of.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/umr/news'] = array(
+            'route'         => '/v1/umr/news',
+            'verb'          => 'GET',
+            'group'         => '/v1/umr',
+            'description'   => '[Without HTTP-GET Parameters] Gets all news for the user encoded by the access-token.',
+            'parameters'    => '{"period":"100", "offset":"0","limit":"100","last_id":"-1"}'
+        );
+
+        $this->docs['get/v1/umr/objects'] = array(
+            'route'         => '/v1/umr/objects',
+            'verb'          => 'GET',
+            'group'         => '/v1/umr',
+            'description'   => 'Returns all relevant data for the ILIAS-Object given by the provided refId(s).',
+            'parameters'    => '{"refids":"122"}'
+        );
+
+        $this->docs['get/v1/umr/objects/:refId'] = array(
+            'route'         => '/v1/umr/objects/:refId',
+            'verb'          => 'GET',
+            'group'         => '/v1/umr',
+            'description'   => 'Returns all relevant data for the ILIAS-Object given by the provided refId(s).',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/umr/personaldesktop'] = array(
+            'route'         => '/v1/umr/personaldesktop',
+            'verb'          => 'GET',
+            'group'         => '/v1/umr',
+            'description'   => 'Fetches all items on the personel desktop of the user given by the access-token.',
+            'parameters'    => '{}'
+        );
+
     }
 
     /**

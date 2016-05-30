@@ -28,7 +28,7 @@ $app->group('/v1/umr', function () use ($app) {
 
     try {
       // Fetch user-information
-      $userInfo     = UserInfo::getUserInfo($accessToken);
+      $userInfo     = UserInfo::getUserInfo($accessToken->getUserId());
 
       // Output result
       $app->success($userInfo);

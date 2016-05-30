@@ -35,7 +35,7 @@ $app->group('/v1/umr', function () use ($app) {
 
       // With HTTP-GET Parameter (fetch by contactIds)
       if ($eventIdString) {
-        $eventIds   = Libs\RESTLib::parseIdsFromString($eventIdString, true);
+        $eventIds   = Libs\RESTRequest::parseIDList($eventIdString, true);
         $events     = Events::getEvents($accessToken, $eventIds);
       }
       // Fetch all events
@@ -84,7 +84,7 @@ $app->group('/v1/umr', function () use ($app) {
 
   /**
    * Route: POST /v1/umr/events
-   *  Adds an event (appointment) to a calendar of the user given by the access-token.
+   * Adds an event (appointment) to a calendar of the authenticated user.
    *
    * Example with IShell:
    * i.post('v1/umr/events',{'cal_id':'10','title':'test','description':'created with ishell','full_day':'0','start_hour':'10','start_minute':'0','start_month':'7','start_day':'1','start_year':'2016', 'end_hour':'11','end_minute':'30','end_month':'7','end_day':'1','end_year':'2016'})
@@ -204,7 +204,7 @@ $app->group('/v1/umr', function () use ($app) {
 
   /**
    * Route: DELETE /v1/umr/events
-   *  Deletes an event (appointments) of the user given by the access-token.
+   *  Deletes an event (appointment) of the user given by the access-token.
    *
    * @See docs/api.pdf
    */

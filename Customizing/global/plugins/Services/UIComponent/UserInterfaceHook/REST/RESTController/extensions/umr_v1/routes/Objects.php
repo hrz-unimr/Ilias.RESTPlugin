@@ -32,7 +32,7 @@ $app->group('/v1/umr', function () use ($app) {
         // Fetch refIds
         $request      = $app->request;
         $refIdString  = $request->params('refids', null, true);
-        $refIds       = Libs\RESTLib::parseIdsFromString($refIdString, true);
+        $refIds       = Libs\RESTRequest::parseIDList($refIdString, true);
 
         // Fetch data for refIds
         $data         = Objects::getData($accessToken, $refIds);

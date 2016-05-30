@@ -18,7 +18,7 @@ use \RESTController\core\oauth2_v2 as Auth;
 $app->group('/v1/umr', function () use ($app) {
   /**
    * Route: GET /v1/umr/personaldesktop
-   *  Fetches all items on the personel desktop of the user given by the access-token.
+   *  Fetches all items on the personal desktop of the user given by the access-token.
    *
    * @See docs/api.pdf
    */
@@ -27,10 +27,10 @@ $app->group('/v1/umr', function () use ($app) {
     $accessToken = $app->request->getToken();
 
     // Fetch user-information
-    $personelDesktop = PersonalDesktop::getPersonalDesktop($accessToken);
+    $personalDesktop = PersonalDesktop::getPersonalDesktop($accessToken);
 
     // Output result
-    $app->success($personelDesktop);
+    $app->success($personalDesktop);
   });
 
 
