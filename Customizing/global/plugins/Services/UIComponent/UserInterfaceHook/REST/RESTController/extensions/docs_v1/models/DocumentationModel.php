@@ -560,6 +560,15 @@ class DocumentationModel extends Libs\RESTModel
             'parameters'    => '{}'
         );
 
+        // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // users_v1
+        $this->docs['get/v1/users'] = array(
+            'route'         => '/v1/users',
+            'verb'          => 'GET',
+            'group'         => '/v1/users',
+            'description'   => 'Fetches all items on the personel desktop of the user given by the access-token.',
+            'parameters'    => '{"fields":"login,email", "limit":"100","offset":"0"}'
+        );
     }
 
     /**

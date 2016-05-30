@@ -14,7 +14,7 @@ use \RESTController\libs as Libs;
 use \RESTController\libs\Exceptions as LibExceptions;
 
 /**
- * Retrieves user information on a limited number of users.
+ * (Admin) Retrieves a list of system users.
  */
 $app->get('/v1/users', RESTAuth::checkAccess(RESTAuth::ADMIN), function () use ($app) {
         $limit = 10;
