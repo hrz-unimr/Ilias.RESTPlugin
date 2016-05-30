@@ -31,7 +31,7 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
         };
         $scope.breadcrumbs = breadcrumbs;
 
-        // Add authentification and ebdpoint to scope
+        // Add authentication and endpoint to scope
         $scope.authentication = authentication;
         $scope.restEndpoint = restEndpoint;
 
@@ -144,6 +144,26 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
     $scope.setRoute = function(route) {
         $scope.inputVerbIndicator = route.verb;
         $scope.inputRestEndpoint = route.pattern;
+        // Call API for auxiliary information about the route.
+        $scope.callDocAPI(route);
+    }
+    
+    $scope.callDocAPI = function(route) {
+        var docApiRoute = '/v1/docs/route/';
+        var Res = $resource(restEndpoint.getEndpoint() + docApiRoute, {}, {
+            query: { method:  'GET',  params: {}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }}
+        });
+        var params = '{"verb":"'+route.verb+'","route":"'+route.pattern+'"}';
+        Res.query( JSON.parse(params),
+            // Success
+            function (response) {
+                $scope.result = jsonPrettyPrint.prettyPrint(response);
+            },
+            // Failure
+            function (response){
+                console.log('Could not retrieve DOC API information');
+            }
+        );
     }
 
     $scope.setVerb = function(verbStr) {
