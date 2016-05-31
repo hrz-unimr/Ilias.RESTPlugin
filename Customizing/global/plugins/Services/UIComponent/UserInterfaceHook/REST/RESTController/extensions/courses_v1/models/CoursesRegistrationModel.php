@@ -22,7 +22,7 @@ require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
 //require_once('./Modules/Course/classes/class.ilCourseConstants.php');
 
 
-class CoursesRegistrationModel
+class CoursesRegistrationModel extends Libs\RESTModel
 {
     protected $waiting_list;
     protected $participants;

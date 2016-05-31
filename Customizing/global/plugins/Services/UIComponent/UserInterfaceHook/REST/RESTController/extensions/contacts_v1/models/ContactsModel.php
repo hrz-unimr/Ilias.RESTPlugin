@@ -16,7 +16,7 @@ require_once("./Services/User/classes/class.ilObjUser.php");
 require_once("Services/Contact/classes/class.ilAddressbook.php");
 
 
-class ContactsModel
+class ContactsModel extends Libs\RESTModel
 {
 
     /**

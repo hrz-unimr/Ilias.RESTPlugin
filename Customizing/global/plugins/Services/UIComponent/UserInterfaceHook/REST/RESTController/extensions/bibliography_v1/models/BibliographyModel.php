@@ -18,7 +18,7 @@ require_once('./Modules/Bibliographic/classes/Types/class.ilBibTex.php');
 require_once('./Modules/Bibliographic/classes/Types/class.ilRis.php');
 
 
-class BibliographyModel
+class BibliographyModel extends Libs\RESTModel
 {
     /**
      * Reads the bibliography object with ref_id for a user.

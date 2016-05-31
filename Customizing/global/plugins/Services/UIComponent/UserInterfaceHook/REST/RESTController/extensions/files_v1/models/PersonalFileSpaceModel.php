@@ -21,7 +21,7 @@ require_once('./Services/Object/classes/class.ilObjectFactory.php');
  * This class comprises methods that operate on files and personal workspaces.
  * @package RESTController\extensions\files_v1
  */
-class PersonalFileSpaceModel {
+class PersonalFileSpaceModel extends Libs\RESTModel {
 
     /**
      * Copies a file (object) from the personal file space to some container within the repository.

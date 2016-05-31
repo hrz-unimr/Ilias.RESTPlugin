@@ -12,7 +12,7 @@ require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
 require_once("./Services/User/classes/class.ilObjUser.php");
 require_once("./Services/Object/classes/class.ilObjectFactory.php");
 
-class WorkspaceAdminModel
+class WorkspaceAdminModel extends Libs\RESTModel
 {
     public $tree;
     public $fields_of_interest = array("file"); // ,blog

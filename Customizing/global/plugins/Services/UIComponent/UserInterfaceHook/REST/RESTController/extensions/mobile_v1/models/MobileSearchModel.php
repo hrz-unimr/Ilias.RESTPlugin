@@ -8,7 +8,7 @@
 namespace RESTController\extensions\mobile_v1;
 
 
-class MobileSearchModel
+class MobileSearchModel extends Libs\RESTModel
 {
     /**
      * This method triggers an 'elastic search' on basis of repository titles by using the php client

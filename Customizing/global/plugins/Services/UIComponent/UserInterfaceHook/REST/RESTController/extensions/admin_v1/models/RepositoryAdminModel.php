@@ -11,7 +11,7 @@ namespace RESTController\extensions\admin_v1;
 use \RESTController\libs as Libs;
 
 
-class RepositoryAdminModel
+class RepositoryAdminModel extends Libs\RESTModel
 {
     /**
      * Reads top 1 read event which occurred on the object.
