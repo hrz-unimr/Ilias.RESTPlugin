@@ -25,7 +25,7 @@ $app->group('/v1/docs', function () use ($app) {
 
             $model = new DocumentationModel();
             $result = $model->getDocumentation($route, $verb);
-            $resp = array('results ' => $result);
+            $resp = array('results' => $result);
 
             $app->success($resp);
         } catch (Libs\RESTException $e) {
@@ -40,7 +40,7 @@ $app->group('/v1/docs', function () use ($app) {
     $app->get('/routes', function () use ($app) {
         $model = new DocumentationModel();
         $result = $model->getCompleteApiDocumentation();
-        $resp = array('results ' => $result);
+        $resp = array('results' => $result);
         $app->success($resp);
     });
 

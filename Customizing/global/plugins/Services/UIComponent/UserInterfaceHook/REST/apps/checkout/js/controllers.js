@@ -86,6 +86,7 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
         $scope.inputVerbIndicator = "GET";
         //$scope.requestParameters = "";
         $scope.setParameterTemplate();
+        $scope.description = "";
     };
 
     $scope.setParameterTemplate = function() {
@@ -145,6 +146,7 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
         $scope.inputVerbIndicator = route.verb;
         $scope.inputRestEndpoint = route.pattern;
         // Call API for auxiliary information about the route.
+        $scope.description = "";
         $scope.callDocAPI(route);
     }
     
@@ -157,7 +159,16 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
         Res.query( JSON.parse(params),
             // Success
             function (response) {
-                $scope.result = jsonPrettyPrint.prettyPrint(response);
+                try {
+                    if (response['results'][0]!=null) {
+                        //$scope.result = jsonPrettyPrint.prettyPrint(response);
+                        $scope.description = response['results'][0]['description'];
+                        $scope.requestParameters = response['results'][0]['parameters'];
+                    }
+
+                } catch (err) {
+                    console.log(err);
+                }
             },
             // Failure
             function (response){
