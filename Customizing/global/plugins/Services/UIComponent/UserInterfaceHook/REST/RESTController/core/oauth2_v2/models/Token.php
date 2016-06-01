@@ -27,11 +27,7 @@ class Token extends Libs\RESTModel {
   const ID_AUTHORIZATION_EXPIRED        = 'RESTController\\core\\auth\\Token::ID_AUTHORIZATION_EXPIRED';
   const MSG_AUTHORIZATION_MISTMATCH     = 'The Authorization-Code token content does not match the request parameters.';
   const ID_AUTHORIZATION_MISTMATCH      = 'RESTController\\core\\auth\\Token::ID_AUTHORIZATION_MISTMATCH';
-  const MSG_GRANT_TYPE                  = 'Invalid grant_type \'{{grant_type}}\', must be one of ' .
-                                          '\'authorization_code\' for Authorization-Code, ' .
-                                          '\'password\' for Resource-Owner Credentials,' .
-                                          '\'client_credentials\' for Client-Credentials or'.
-                                          '\'refresh_token\' for exchaning a Refresh-Token.';
+  const MSG_GRANT_TYPE                  = 'Invalid grant_type \'{{grant_type}}\', must be one of \'authorization_code\' for Authorization-Code, \'password\' for Resource-Owner Credentials, \'client_credentials\' for Client-Credentials or \'refresh_token\' for exchaning a Refresh-Token.';
   const ID_GRANT_TYPE                   = 'RESTController\\core\\auth\\Token::ID_GRANT_TYPE';
   const MSG_RESOURCE_OWNER_DISABLED     = 'Resource-Owner grant is disabled for this client (api-key).';
   const ID_RESOURCE_OWNER_DISABLED      = 'RESTController\\core\\auth\\Token::ID_RESOURCE_OWNER_DISABLED';

@@ -157,7 +157,7 @@ class Base {
           self::MSG_UNKNOWN_CLASS,
           self::ID_UNKNOWN_CLASS,
           array(
-            'class' => tokenArray['class']
+            'class' => $tokenArray['class']
           )
         );
     }

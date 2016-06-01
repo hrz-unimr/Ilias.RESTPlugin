@@ -56,13 +56,13 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
      */
     $scope.reload = function() {
          $route.reload();
-    }
+    };
 
 
     $scope.resetTimer = function() {
         $scope.$broadcast('timer-reset');
         $scope.$broadcast('timer-start');
-    }
+    };
 
 
     $scope.$on('loginPerformed', function (event) {
@@ -317,7 +317,7 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
         var v = ((c == 'x') ? r : (r & 0x3 | 0x8));
 
         return v.toString(16);
-    }
+    };
 
 
     /*
@@ -401,7 +401,7 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
             console.log('addAllPerms process perm k='+key+' v='+value);
             $scope.addPermission(value);
         });
-    }
+    };
 
 
     /*
@@ -520,11 +520,11 @@ ctrl.controller("ClientEditCtrl", function($scope, $filter, dialogs, clientStora
 
     $scope.successFlashAlert = function (message) {
         var id = Flash.create('success', message, 800, {class: 'custom-class', id: 'custom-id'}, true);
-    }
+    };
 
     $scope.failureFlashAlert = function (message) {
         var id = Flash.create('danger', message, 0, {class: 'custom-class', id: 'custom-id'}, true);
-    }
+    };
 
     // Do the initialisation
     $scope.init();
@@ -664,11 +664,11 @@ ctrl.controller("ConfigCtrl", function(Flash, $scope, $filter, dialogs, $locatio
 
     $scope.successFlashAlert = function (message) {
         var id = Flash.create('success', message, 800, {class: 'custom-class', id: 'custom-id'}, true);
-    }
+    };
 
     $scope.failureFlashAlert = function (message) {
         var id = Flash.create('danger', message, 0, {class: 'custom-class', id: 'custom-id'}, true);
-    }
+    };
 
 
 

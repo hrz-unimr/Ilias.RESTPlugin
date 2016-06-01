@@ -18,7 +18,7 @@ use \RESTController\database as Database;
  */
 class Util extends Libs\RESTModel {
   // List of routes that need explicit permission entry
-  const NeedPermission = array(
+  static $needPermission = array(
     'RESTController\\libs\\Middleware\\OAuth2::PERMISSION',
     'RESTController\\libs\\Middleware\\ILIAS::ADMIN'
   );
@@ -57,7 +57,7 @@ class Util extends Libs\RESTModel {
 
       // Fetch only those routes the api-key has access to
       $hasPermission = true;
-      if ($apiKey && in_array($access, self::NeedPermission)) {
+      if ($apiKey && in_array($access, self::$needPermission)) {
         $where      = sprintf(
           'RESTpermission.pattern = %s AND RESTpermission.verb = %s AND RESTclient.api_key = %s',
           Database\RESTpermission::quote($pattern, 'text'),
@@ -68,14 +68,14 @@ class Util extends Libs\RESTModel {
       }
 
       // Only return routes which require a permission entry (and client has a permission for)
-      if ($hasPermission && (!$filter || in_array($access, self::NeedPermission))) {
+      if ($hasPermission && (!$filter || in_array($access, self::$needPermission))) {
         // Build result array
         $id           = sprintf('[%s]%s', $verb, $pattern);
         $result[$id]  = array_filter(array(
-          pattern     => $pattern,
-          verb        => $verb,
-          access      => $access,
-          scope       => $scope
+          'pattern'     => $pattern,
+          'verb'        => $verb,
+          'access'      => $access,
+          'scope'       => $scope
         ), function($value) { return !is_null($value); });
       }
     }

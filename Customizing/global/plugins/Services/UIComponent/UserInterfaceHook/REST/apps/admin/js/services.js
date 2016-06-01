@@ -23,7 +23,7 @@ services.provider('authentication', function() {
         token: null,
         autoLogin: (postVars.userId.length > 0 && postVars.sessionId.length > 0 && postVars.rtoken.length > 0),
         iliasClient: null,
-        error: null,
+        error: null
     };
 
     // Return object containing login-related functions.
@@ -45,7 +45,7 @@ services.provider('authentication', function() {
 
         handler.getIliasClient = function() {
             return data.iliasClient;
-        }
+        };
 
         // Function that returns the current login-state
         // of the user. If this returns true then getToken
@@ -190,8 +190,7 @@ services.factory('clientStorage', function() {
 services.factory('restEndpoint', function($q, $http, restRoutesURL) {
     // Promise and endpoint variables
     var deferred = $q.defer();
-    var restEndpoint = ""
-
+    var restEndpoint = "";
     // Tries to find ILIAS main folder by looking at window.location.pathname
     // and finding the 'Customizing' folder
     var getInstallDir = function() {
@@ -204,7 +203,7 @@ services.factory('restEndpoint', function($q, $http, restRoutesURL) {
                 iliasSubFolder += '/'+pathArray[i];
         }
         return iliasSubFolder;
-    }
+    };
 
     var dir;
     // Use POST variable to establish endpoint
@@ -323,7 +322,7 @@ services.service('restClient', function($resource, restClientURL, restEndpoint, 
     return $resource(restEndpoint.getEndpoint() + restClientURL, {}, {
         show: {     method: 'GET',                         headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
         update: {   method: 'PUT',    params: {id: '@id'}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
-        'delete': { method: 'DELETE', params: {id: '@id'}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
+        'delete': { method: 'DELETE', params: {id: '@id'}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }}
         // Note: Use array-notation to pamper the syntax-validator (delete is a keyword)
     });
 });
@@ -347,6 +346,6 @@ services.service('restRoutes', function($resource, restRoutesURL, restEndpoint) 
 services.service('restConfig', function($resource, restConfigURL, restEndpoint, authentication) {
     return $resource(restEndpoint.getEndpoint() + restConfigURL, {}, {
         query: {  method: 'GET', params: {key: '@key'}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
-        update: {  method: 'PUT', params: {key: '@key'}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }},
+        update: {  method: 'PUT', params: {key: '@key'}, headers: { 'Authorization': 'Bearer '+authentication.getToken() }}
     });
 });

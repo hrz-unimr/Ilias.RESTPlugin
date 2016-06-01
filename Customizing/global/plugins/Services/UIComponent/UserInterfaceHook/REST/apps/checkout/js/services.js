@@ -54,7 +54,7 @@ services.provider('authentication', function() {
 
         handler.getIp = function() {
             return data.ip;
-        }
+        };
 
         // Function that returns the current login-state
         // of the user. If this returns true then getToken
@@ -136,7 +136,7 @@ services.provider('authentication', function() {
 services.factory('restEndpoint', function($q, $http, restRoutesURL) {
     // Promise and endpoint variables
     var deferred = $q.defer();
-    var restEndpoint = ""
+    var restEndpoint = "";
 
     // Tries to find ILIAS main folder by looking at window.location.pathname
     // and finding the 'Customizing' folder
