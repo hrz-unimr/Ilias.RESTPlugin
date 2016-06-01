@@ -28,7 +28,7 @@
                         <span class="sr-only">Toggle Dropdown</span>
                     </button>
                     <button class="btn btn-success" data-ng-click="checkout()">{{'Submit' | translate}}</button>
-                    <ul class="dropdown-menu dropdown-menu-right">
+                    <ul class="dropdown-menu dropdown-menu-right dropdown_menu_stretch ">
                         <li data-ng-repeat="route in routes | orderBy:'access'">
                             <a class="clear" data-ng-click="setRoute(route)">[{{route.verb}}] {{route.pattern}}</a>
                         </li>

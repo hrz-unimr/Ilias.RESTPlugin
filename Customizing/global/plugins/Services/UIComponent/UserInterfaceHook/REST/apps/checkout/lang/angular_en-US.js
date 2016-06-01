@@ -40,7 +40,7 @@ lang_en_us.config(function($translateProvider) {
         
         // Breadcrumb labels
         LABEL_OFFLINE: 'Offline',
-        LABEL_LOGIN: 'Login',
+        LABEL_LOGIN: 'Checkout Login',
         LABEL_CLIENTS: 'Clients',
         LABEL_EDIT: 'Edit',
         LABEL_CHECKOUT: 'Checkout',
@@ -57,7 +57,7 @@ lang_en_us.config(function($translateProvider) {
         
         // Index.php
         INDEX_TITLE: 'Checkout',
-        INDEX_BRAND: 'ILIAS REST',
+        INDEX_BRAND: 'ILIAS REST Plugin',
         INDEX_LOGGED_IN: 'Logged in as {{authentication.getUserName()}}@{{authentication.getApiKey()}} ({{authentication.getIp()}}) / {{authentication.getIliasClient()}}',
         INDEX_LOGOUT: 'Logout',
         INDEX_VERSION: 'Version',

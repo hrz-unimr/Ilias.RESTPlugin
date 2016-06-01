@@ -58,7 +58,7 @@ lang_en_us.config(function($translateProvider) {
         
         // Index.php
         INDEX_TITLE: 'ILIAS REST Plugin - Administration',
-        INDEX_BRAND: 'ILIAS REST',
+        INDEX_BRAND: 'ILIAS REST Plugin',
         INDEX_LOGGED_IN: 'Logged in as {{authentication.getUserName()}} / {{authentication.getIliasClient()}}',
         INDEX_LOGOUT: 'Logout',
         INDEX_VERSION: 'Version',
@@ -66,7 +66,7 @@ lang_en_us.config(function($translateProvider) {
         
         // partials/login.html
         LOGIN_AUTO: 'You came from the ILIAS platform. Trying to login automatically ...',
-        LOGIN_HEAD: 'REST Administration',
+        LOGIN_HEAD: 'REST Plugin Administration',
         LOGIN_USERNAME: 'Username',
         LOGIN_PASSWORD: 'Password',
         LOGIN_LOGIN: 'Login',
@@ -77,6 +77,11 @@ lang_en_us.config(function($translateProvider) {
         OVERVIEW_NUM_APIKEYS : '# API-Keys',
         OVERVIEW_NUM_ACTIVETOKENS : '# Active Tokens',
         OVERVIEW_NUM_ROUTES : '# Routes (core & extensions)',
+        OVERVIEW_APITESTING : 'API Testing',
+        OVERVIEW_BTN_MANAGE_CLIENTS : 'Manage API-Keys and Authorization Schemes',
+        OVERVIEW_BTN_ENTER_BASIC_SETTINGS:' Configure Basic Settings',
+        OVERVIEW_BTN_ENTER_CHECKOUT: 'Enter Checkout App',
+
 
         // partials/clientlist.html
         LIST_ID: 'ID',
