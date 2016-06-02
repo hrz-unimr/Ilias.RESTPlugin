@@ -74,6 +74,12 @@ class CoursesModel extends Libs\RESTModel
         return $status;
     }
 
+    public function getCourseZIP($crs_ref_id)
+    {
+        $crs = new \ilObjCourse($crs_ref_id, true);
+        return $crs->getXMLZip();
+    }
+
     /**
      * This method delivers basic information such as title and description about a course.
      *

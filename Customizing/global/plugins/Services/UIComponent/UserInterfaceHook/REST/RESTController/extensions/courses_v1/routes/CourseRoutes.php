@@ -198,5 +198,28 @@ $app->group('/v1', function () use ($app) {
         }
     });
 
+    /**
+     * Downloads a course as zip file. The course must be specified by the GET parameter "ref_id".
+     */
+    $app->get('/courses/download/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
+        $accessToken = $app->request->getToken();
+        $authorizedUserId = $accessToken->getUserId();
+
+        try {
+            $crs_model = new CoursesModel();
+
+            $crs = new \ilObjCourse($ref_id, true);
+            $xml = $crs->getXMLZip();
+            /*$result = array(
+                'courseFile' =>  base64_encode(file_get_contents($xml)), 'filename' => basename($xml), 'fullname' => $xml
+            );*/
+            $result = array("msg"=>"course download", "xml" => $xml);
+            $app->success($result);
+
+        } catch (Libs\RESTException $e) {
+            $app->halt(400, 'Error: Could not perform action for user '.$authorizedUserId.". ".$e->getMessage(), -15);
+        }
+    });
+
 
 });
