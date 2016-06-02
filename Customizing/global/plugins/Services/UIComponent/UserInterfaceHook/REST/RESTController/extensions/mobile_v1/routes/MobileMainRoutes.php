@@ -40,7 +40,8 @@ $app->group('/v1/m', function () use ($app) {
         $t_start = microtime();
         $result = array();
 
-        $user_id = Auth\Util::getAccessToken()->getUserId();
+        $accessToken = $app->request->getToken();
+        $user_id = $accessToken->getUserId();
 
         Libs\RESTilias::initAccessHandling();
 
