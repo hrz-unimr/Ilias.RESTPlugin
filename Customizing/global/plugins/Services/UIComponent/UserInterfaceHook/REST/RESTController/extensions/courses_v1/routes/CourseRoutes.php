@@ -199,27 +199,18 @@ $app->group('/v1', function () use ($app) {
     });
 
     /**
-     * Downloads a course as zip file. The course must be specified by the GET parameter "ref_id".
+     * Creates a course a new export file (i.e. a zip file with the course contents). The course must be specified by the GET parameter "ref_id".
      */
-    $app->get('/courses/download/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
-        $accessToken = $app->request->getToken();
-        $authorizedUserId = $accessToken->getUserId();
+    $app->get('/courses/export/create/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
-        try {
-            $crs_model = new CoursesModel();
+    /**
+     * List all available export files for the course specified by "ref_id".
+     */
+    $app->get('/courses/export/list/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
-            $crs = new \ilObjCourse($ref_id, true);
-            $xml = $crs->getXMLZip();
-            /*$result = array(
-                'courseFile' =>  base64_encode(file_get_contents($xml)), 'filename' => basename($xml), 'fullname' => $xml
-            );*/
-            $result = array("msg"=>"course download", "xml" => $xml);
-            $app->success($result);
-
-        } catch (Libs\RESTException $e) {
-            $app->halt(400, 'Error: Could not perform action for user '.$authorizedUserId.". ".$e->getMessage(), -15);
-        }
-    });
-
+    /**
+     * Download an export files for the course specified by "ref_id".
+     */
+    $app->get('/courses/export/download/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
 });
