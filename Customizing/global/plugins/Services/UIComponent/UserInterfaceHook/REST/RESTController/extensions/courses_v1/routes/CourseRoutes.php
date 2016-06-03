@@ -206,11 +206,24 @@ $app->group('/v1', function () use ($app) {
     /**
      * List all available export files for the course specified by "ref_id".
      */
-    $app->get('/courses/export/list/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+    $app->get('/courses/export/download/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
     /**
      * Download an export files for the course specified by "ref_id".
      */
-    $app->get('/courses/export/download/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+    $app->get('/courses/export/list/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
+        //$accessToken = $app->request->getToken();
+        try {
+            $crs_model = new CoursesModel();
+            $xmlFiles =  $crs_model->listExportFiles($ref_id);
+
+            $result = array(
+                'export_files' => $xmlFiles
+            );
+            $app->success($result);
+        } catch (Libs\Exceptions\ReadFailed $e) {
+            $app->halt(500, $e->getFormatedMessage());
+        }
+    });
 
 });

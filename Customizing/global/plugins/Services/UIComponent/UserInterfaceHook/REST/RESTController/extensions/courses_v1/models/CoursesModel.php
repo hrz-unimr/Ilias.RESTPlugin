@@ -257,7 +257,6 @@ class CoursesModel extends Libs\RESTModel
         }
     }
 
-
     /*public function soapTest()
     {
         $adapter = new SoapAdapter();
@@ -270,5 +269,19 @@ class CoursesModel extends Libs\RESTModel
         $adapter->logoutSOAP();
         return $result;
     }*/
+
+    /**
+     * Returns a list of available xml export files to a course specified by ref_id.
+     * @param $ref_id
+     * @return mixed
+     */
+    public function listExportFiles($ref_id)
+    {
+        $types = array('xml');
+        $obj_id = Libs\RESTilias::getObjId($ref_id);
+        include_once('./Services/Export/classes/class.ilExport.php');
+        $files = \ilExport::_getExportFiles($obj_id, $types, "crs");
+        return $files;
+    }
 
 }
