@@ -126,7 +126,7 @@ lang_en_us.config(function($translateProvider) {
         EDIT_CONSENT_SCOPE: 'Enable an additional page for the OAuth2 grant types "authcode" and "implicit grant" to inform the user about the scope of the application.',
 
         CHECKOUT_INPUT: 'Please enter a route:',
-        CHECKOUT_OPEN_NEW_WINDOW: 'Send the request to a new window. This can be necessary if a route triggers a redirect (e.g. /v1/m/htlm/id).'
+        CHECKOUT_OPEN_NEW_WINDOW: 'Send the request to a new window. This option can be necessary for routes involving downloads or redirects.'
     });
     
     // Ste default language

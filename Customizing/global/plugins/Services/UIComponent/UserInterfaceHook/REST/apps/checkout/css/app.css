@@ -120,6 +120,15 @@ body {
 .json-value  { color: navy; }
 .json-string { color: olive; }
 
+#response {
+    margin-bottom: 0px;
+}
+
+#responsePanel {
+    padding-bottom: 0px;
+    margin: 0px;
+}
+
 .navbar-default-x {
     border-bottom: 1px solid #ccc;
 }
