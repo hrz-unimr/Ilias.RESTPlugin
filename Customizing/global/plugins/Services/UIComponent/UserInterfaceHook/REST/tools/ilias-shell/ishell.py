@@ -10,7 +10,7 @@ class IShell:
     """  
     ILIAS-Shell
     For personalized and administrative operations on your ILIAS LMS.
-    v.1.9
+    v.2.0
     """
 
     def __init__(self, quite=False, connect=True):
@@ -202,6 +202,23 @@ class IShell:
         	req = urllib2.urlopen(request)
 		with open(fileName, 'wb') as fp:
 			shutil.copyfileobj(req,fp)
+	except Exception as e:
+		print e
+
+
+    def downloadCourseExportFile(self, refID, fileName):
+	"""Retrieves a course export file (Zip) from ILIAS and stores it to 
+	   the current folder.
+	"""
+	routeStr = 'v1/courses/export/download/' + str(refID)
+	try:
+        	enc_data = urllib.urlencode({'filename':fileName});
+		request = urllib2.Request(self.rest_endpoint+'/'+routeStr+'?'+enc_data)
+        	request.add_header('Authorization', ' Bearer '+ self.token)
+        	req = urllib2.urlopen(request)
+		with open(fileName, 'wb') as fp:
+			shutil.copyfileobj(req,fp)
+		print "Saving object as ... "+ fileName
 	except Exception as e:
 		print e
 

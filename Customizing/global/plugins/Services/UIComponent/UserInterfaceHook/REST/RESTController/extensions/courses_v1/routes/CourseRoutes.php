@@ -216,8 +216,6 @@ $app->group('/v1', function () use ($app) {
         } catch (Libs\Exceptions\ReadFailed $e) {
             $app->halt(500, $e->getFormatedMessage());
         }
-
-
     });
 
     /**
