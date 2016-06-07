@@ -268,6 +268,22 @@ class DocumentationModel extends Libs\RESTModel
             'parameters'    => '{"mode":"by_id", "usr_id":"240","crs_ref_id":"111"}'
         );
 
+        $this->docs['get/v1/courses/export/list/:ref_id'] = array(
+            'route'         => '/v1/courses/export/list/:ref_id',
+            'verb'          => 'GET',
+            'group'         => '/v1/courses',
+            'description'   => 'List all available export files for the course specified by "ref_id".',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/courses/export/download/:ref_id'] = array(
+            'route'         => '/v1/courses/export/download/:ref_id',
+            'verb'          => 'GET',
+            'group'         => '/v1/courses',
+            'description'   => 'Download an export files for the course specified by "ref_id". Note: Parameter "filename" must be specified (see /v1/courses/export/list/:ref_id).',
+            'parameters'    => '{"filename":"1464866943__0__crs_288.zip"}'
+        );
+
         // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // desktop_v1
         $this->docs['get/v1/desktop/overview'] = array(

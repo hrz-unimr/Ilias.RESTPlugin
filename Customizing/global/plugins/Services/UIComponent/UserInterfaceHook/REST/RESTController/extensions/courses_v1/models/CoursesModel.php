@@ -284,4 +284,21 @@ class CoursesModel extends Libs\RESTModel
         return $files;
     }
 
+    /**
+     * Download file
+     * see also
+     */
+    public function downloadExportFile($ref_id, $filename)
+    {
+        global $ilCtrl, $lng;
+
+        $obj_id = Libs\RESTilias::getObjId($ref_id);
+        include_once("./Services/Export/classes/class.ilExport.php");
+        $export_dir = \ilExport::_getExportDirectory($obj_id, $filename, "crs");
+        $export_file = str_replace('export_','export/', $export_dir);
+        self::getApp()->log->debug('DownloadExportFile '.$export_file);
+        \ilUtil::deliverFile($export_file,
+            $filename);
+    }
+
 }

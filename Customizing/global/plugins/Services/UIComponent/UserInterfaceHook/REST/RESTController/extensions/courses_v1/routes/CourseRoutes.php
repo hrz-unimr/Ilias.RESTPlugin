@@ -204,19 +204,30 @@ $app->group('/v1', function () use ($app) {
     $app->get('/courses/export/create/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
 
     /**
-     * List all available export files for the course specified by "ref_id".
+     * Download an export files for the course specified by "ref_id".
+     * Note: Parameter "filename" must be specified (see /v1/courses/export/list/:ref_id).
      */
-    $app->get('/courses/export/download/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+    $app->get('/courses/export/download/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
+        $request = $app->request();
+        try {
+            $filename = $request->params("filename", null, true);
+            $crs_model = new CoursesModel();
+            $crs_model->downloadExportFile($ref_id, $filename);
+        } catch (Libs\Exceptions\ReadFailed $e) {
+            $app->halt(500, $e->getFormatedMessage());
+        }
+
+
+    });
 
     /**
-     * Download an export files for the course specified by "ref_id".
+     * List all available export files for the course specified by "ref_id".
      */
     $app->get('/courses/export/list/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         //$accessToken = $app->request->getToken();
         try {
             $crs_model = new CoursesModel();
             $xmlFiles =  $crs_model->listExportFiles($ref_id);
-
             $result = array(
                 'export_files' => $xmlFiles
             );

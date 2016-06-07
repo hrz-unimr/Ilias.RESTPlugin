@@ -87,6 +87,7 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
         //$scope.requestParameters = "";
         $scope.setParameterTemplate();
         $scope.description = "";
+        $scope.openNewWindow = 0;
     };
 
     $scope.setParameterTemplate = function() {
@@ -265,11 +266,26 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
     }
 
     // This method needs to be invoked in case when the rest route requires
-    // to initiate a ilias session and to perform a redirect, e.g. calling an ilias learn module
+    // to initiate an ilias session and to perform a redirect, e.g. calling an ilias learn module
     // /v1/m/htlm/:ref_id
+    // Note: this method does not support sending additional parameters
     $scope.restCallInNewWindow = function() {
         var route = $scope.inputRestEndpoint;
-        var url = restEndpoint.getEndpoint() + route + '?access_token='+authentication.getToken();
+        var url = "";
+        var params = $scope.requestParameters;
+        if (params=="") {
+            params = '{}';
+        }
+        var data = JSON.parse(params);
+        var getParams = Object.keys(data).map(function(k) {
+            return encodeURIComponent(k) + '=' + encodeURIComponent(data[k])
+        }).join('&');
+        console.log('Get param String : ' + getParams);
+        if (route.indexOf('?') > -1) {
+            url = restEndpoint.getEndpoint() + route + '&access_token='+authentication.getToken() + '&' + getParams;
+        } else {
+            url = restEndpoint.getEndpoint() + route + '?access_token='+authentication.getToken() + '&' + getParams;
+        }
         $window.open(url);
     }
 
