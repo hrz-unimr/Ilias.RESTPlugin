@@ -74,7 +74,7 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
 });
 
 
-ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $resource, dialogs, restApiRoutes, authentication, restEndpoint, $window) {
+ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $resource, restApiRoutes, authentication, restEndpoint, $window) {
     /*
      * Called during (every) instantiation of this controller.
      *
@@ -88,6 +88,7 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
         $scope.setParameterTemplate();
         $scope.description = "";
         $scope.openNewWindow = 0;
+        $scope.routeArray = [];
     };
 
     $scope.setParameterTemplate = function() {
@@ -128,13 +129,17 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
     $scope.loadApiRoutes = function() {
         // Perform REST call
         restApiRoutes.query(
-            // Data
+            // Data)
             {},
             // Success
             function(response) {
                 $scope.routes = angular.fromJson(angular.toJson(response));
                 $scope.permissions = response.permissions;
-                //console.log($scope.permissions);
+                //console.log($scope.routes);
+                angular.forEach($scope.routes, function(value, key) {
+                    //this.push(key + ': ' + value);
+                    this.push('['+value.verb+'] '+value.pattern);
+                }, $scope.routeArray);
             },
             // Failure
             function(response) {
@@ -143,14 +148,38 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
         );
     }
 
+    $scope.openTypeAhead = function () {
+        $scope.inputRestEndpoint = "/";
+    }
+    
+    $scope.onSelect = function ($item, $model, $label) {
+        console.log("on Selected called.");
+        console.log("item "+$item);
+        console.log("model "+$model);
+        console.log("label "+$label);
+
+        $scope.$item = $item;
+        $scope.$model = $model;
+        $scope.$label = $label;
+        var parts = $item.split("] ");
+        var myverb = parts[0].replace("[","");
+        var mypattern = parts[1];
+        var route = {"verb" : myverb, "pattern": mypattern};
+        $scope.setRoute(route);
+        /*console.log("myverb: "+myverb);
+        console.log("mypattern: "+mypattern);
+        $scope.inputRestEndpoint = "here";*/
+    };
+
     $scope.setRoute = function(route) {
+        console.log("setRoute called - verb : "+route.verb);
         $scope.inputVerbIndicator = route.verb;
         $scope.inputRestEndpoint = route.pattern;
         // Call API for auxiliary information about the route.
         $scope.description = "";
         $scope.callDocAPI(route);
     }
-    
+
     $scope.callDocAPI = function(route) {
         var docApiRoute = '/v1/docs/route/';
         var Res = $resource(restEndpoint.getEndpoint() + docApiRoute, {}, {

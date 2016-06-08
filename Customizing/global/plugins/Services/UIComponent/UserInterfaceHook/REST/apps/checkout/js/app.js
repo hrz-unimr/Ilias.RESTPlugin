@@ -30,7 +30,7 @@ var app = angular.module('myApp', [
 /*
  * Some (important) global constants, all in one place
  */
-app.constant('version',             '0.4');                               // Application version
+app.constant('version',             '1.0');                               // Application version
 app.constant('apiKey',              'apollon');                           // API-Key used to log into admin-panel (via username/password)
 app.constant('restIliasLoginURL',   '/v2/bridge/ilias');                  // rToken to Bearer-Token Endpoint
 app.constant('restTokenURL',        '/v2/oauth2/token');                  // Bearer-Token from Username, Password, API-Key pair Endpoint

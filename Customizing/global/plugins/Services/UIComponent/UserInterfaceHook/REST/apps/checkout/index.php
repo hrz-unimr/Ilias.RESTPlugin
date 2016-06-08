@@ -125,7 +125,6 @@
     <script src="libs/js/angular-translate.js"></script>
     <script src="libs/js/angular-dialogs.js"></script>
     <script src="libs/js/angular-timer-all.min.js"></script>
-
     <script src="lang/angular_en-US.js"></script>
     <script src="lang/angular_de-DE.js"></script>
     

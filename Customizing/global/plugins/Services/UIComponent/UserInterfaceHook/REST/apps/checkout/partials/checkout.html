@@ -5,7 +5,7 @@
         </div>
 
         <div class="panel-body">
-            <div class="input-group">
+            <div class="input-group typeahead"> <!-- container-fluid typeahead -->
                 <!--<span class="input-group-addon" id="verb-indicator">{{inputVerbIndicator}}</span> -->
                 <div class="input-group-btn">
                     <button class="btn btn-default-outline dropdown-toggle" aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" type="button">
@@ -21,18 +21,19 @@
                         </li>
                     </ul>
                 </div>
-                <input id="inputRestEndpoint" name="inputRestEndpoint" data-ng-model="inputRestEndpoint" type="text" class="form-control" placeholder="Route" aria-describedby="sizing-addon2">
+                <input id="inputRestEndpoint" name="inputRestEndpoint" data-ng-model="inputRestEndpoint" type="text" class="form-control" placeholder="Route" aria-describedby="sizing-addon2" uib-typeahead="route for route in routeArray | filter:$viewValue | limitTo:1000" typeahead-on-select="onSelect($item, $model, $label)">
                 <div class="input-group-btn">
-                    <button class="btn btn-default-outline dropdown-toggle" aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" type="button">
+                   <!-- <button class="btn btn-default-outline dropdown-toggle" aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" type="button">
                         <span class="caret"></span>
                         <span class="sr-only">Toggle Dropdown</span>
-                    </button>
+                    </button>-->
                     <button class="btn btn-success" data-ng-click="checkout()">{{'Submit' | translate}}</button>
                     <ul class="dropdown-menu dropdown-menu-right dropdown_menu_stretch ">
                         <li data-ng-repeat="route in routes | orderBy:'access'">
                             <a class="clear" data-ng-click="setRoute(route)">[{{route.verb}}] {{route.pattern}}</a>
                         </li>
                     </ul>
+
                 </div>
             </div>
             <div id="descriptionBox">
