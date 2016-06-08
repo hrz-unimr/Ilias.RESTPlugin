@@ -205,13 +205,19 @@ $app->group('/v1', function () use ($app) {
 
     /**
      * Download an export files for the course specified by "ref_id".
-     * Note: Parameter "filename" must be specified (see /v1/courses/export/list/:ref_id).
+     * Note: Parameter "filename" must be specified (see /v1/courses/export/list/:ref_id) or the most recent export
+     * file will be determined if it exists.
      */
     $app->get('/courses/export/download/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         $request = $app->request();
         try {
-            $filename = $request->params("filename", null, true);
+            $filename = $request->params("filename", null, false);
             $crs_model = new CoursesModel();
+            if ($filename == null) {
+                // try to determine the latest export file
+                $filename = $crs_model->determineLatestCourseExportFile($ref_id);
+                if ($filename == null) throw new Libs\RESTException("Parameter 'filename' is missing. Could not find an existing export file.",-1);
+            }
             $crs_model->downloadExportFile($ref_id, $filename);
         } catch (Libs\Exceptions\ReadFailed $e) {
             $app->halt(500, $e->getFormatedMessage());

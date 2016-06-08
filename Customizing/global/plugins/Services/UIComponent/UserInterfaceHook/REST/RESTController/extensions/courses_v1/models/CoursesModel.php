@@ -301,4 +301,26 @@ class CoursesModel extends Libs\RESTModel
             $filename);
     }
 
+    /**
+     * Determines the latest export filename and will return null if there is no export file.
+     * @param $ref_id
+     * @return $filename
+     */
+    public function determineLatestCourseExportFile($ref_id)
+    {
+        $filename = null;
+        $list = $this->listExportFiles($ref_id);
+        self::getApp()->log->debug('all export files '.print_r($list,true));
+        if (count($list) == 0) return null;
+        $maxts = 0;
+        foreach ($list as $entry) {
+            $currentTS = intval($entry['timestamp']);
+            if ( $currentTS > $maxts) {
+                $maxts = $currentTS;
+                $filename = $entry['file'];
+            }
+        }
+        return $filename;
+    }
+
 }
