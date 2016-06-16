@@ -211,7 +211,7 @@ class CoursesModel extends Libs\RESTModel
 
 
     /**
-     * Create a course in the ILIAS repository. Does *not* check for permissions,
+     * Creates a course in the ILIAS repository. Does *not* check for permissions,
      * this has to be done at route level ($ilAccess->checkAccess()). The course
      * has only atitle and a description. Permissions are cloned from the parent.
      *
@@ -238,7 +238,7 @@ class CoursesModel extends Libs\RESTModel
     }
 
     /**
-     * Delete a course reference.
+     * Deletes a course reference.
      * @deprecated Note: this function uses SOAP, which might not be supported in the future.
      * @param $ref_id
      * @return array|mixed
@@ -285,8 +285,10 @@ class CoursesModel extends Libs\RESTModel
     }
 
     /**
-     * Download file
-     * see also
+     * Triggers the download of an export file.
+     * @param $ref_id
+     * @param $filename
+     * see also determineLatestCourseExportFile
      */
     public function downloadExportFile($ref_id, $filename)
     {
@@ -302,6 +304,17 @@ class CoursesModel extends Libs\RESTModel
     }
 
     /**
+     * Deletes an course export file (STUB)
+     * @param $ref_id
+     * @param $filename
+     */
+    public function deleteExportFile($ref_id, $filename)
+    {
+        // STUB
+        // TODO c.f. class.ilExportGUI.php -> delete()
+    }
+
+    /**
      * Determines the latest export filename and will return null if there is no export file.
      * @param $ref_id
      * @return $filename
@@ -310,7 +323,7 @@ class CoursesModel extends Libs\RESTModel
     {
         $filename = null;
         $list = $this->listExportFiles($ref_id);
-        self::getApp()->log->debug('all export files '.print_r($list,true));
+        // self::getApp()->log->debug('all export files '.print_r($list,true));
         if (count($list) == 0) return null;
         $maxts = 0;
         foreach ($list as $entry) {
@@ -321,6 +334,31 @@ class CoursesModel extends Libs\RESTModel
             }
         }
         return $filename;
+    }
+
+    /**
+     * Creates a new coures export file fo a course specified by its ref_id.
+     * This action corresponds to the GUI version: Export > Create Export File (XML)
+     *
+     * @param $ref_id
+     * @return an array with a success indicator in it
+     */
+    public function createNewCourseExportFile($ref_id)
+    {
+        $success = false;
+        $obj_id = Libs\RESTilias::getObjId($ref_id);
+
+        include_once './Services/Export/classes/class.ilExportOptions.php';
+        $eo = \ilExportOptions::newInstance(\ilExportOptions::allocateExportId());
+        $eo->addOption(\ilExportOptions::KEY_ROOT,0,0,$obj_id);
+
+        // TODO: Further improve it by simulating user choices. To this end
+        // the ExportOption data structure must be filled by traversing over the course contents.
+        // c.f. Services/Export/classses/class.ilExportGUI.php
+
+        include_once("./Services/Export/classes/class.ilExport.php");
+        $exp = new \ilExport();
+        return $exp->exportObject("crs",$obj_id, "5.0.0");
     }
 
 }

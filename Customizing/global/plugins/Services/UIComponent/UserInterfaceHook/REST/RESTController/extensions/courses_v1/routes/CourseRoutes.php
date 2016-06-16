@@ -201,7 +201,16 @@ $app->group('/v1', function () use ($app) {
     /**
      * Creates a course a new export file (i.e. a zip file with the course contents). The course must be specified by the GET parameter "ref_id".
      */
-    $app->get('/courses/export/create/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function () use ($app) { $app->halt(500, '<STUB - IMPLEMENT ME!>'); });
+    $app->get('/courses/export/create/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
+        try {
+            $crs_model = new CoursesModel();
+            $aSuccess = $crs_model->createNewCourseExportFile($ref_id);
+
+            $app->success(array("msg"=>$aSuccess));
+        } catch (Libs\Exceptions\ReadFailed $e) {
+            $app->halt(500, $e->getFormatedMessage());
+        }
+    });
 
     /**
      * Download an export files for the course specified by "ref_id".
