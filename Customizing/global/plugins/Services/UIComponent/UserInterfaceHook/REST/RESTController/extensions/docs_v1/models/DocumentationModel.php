@@ -284,6 +284,14 @@ class DocumentationModel extends Libs\RESTModel
             'parameters'    => '{"filename":"1464866943__0__crs_288.zip"}'
         );
 
+        $this->docs['get/v1/courses/export/create/:ref_id'] = array(
+            'route'         => '/v1/courses/export/create/:ref_id',
+            'verb'          => 'GET',
+            'group'         => '/v1/courses',
+            'description'   => 'Creates a course a new export file (i.e. a zip file with the course contents). The course must be specified by the GET parameter "ref_id".',
+            'parameters'    => '{}'
+        );
+
         // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // desktop_v1
         $this->docs['get/v1/desktop/overview'] = array(
@@ -437,6 +445,24 @@ class DocumentationModel extends Libs\RESTModel
             'description'   => '(Admin) Assigns random answers to the question of survey (ref_id) for user (user_id).',
             'parameters'    => '{"user_id":"6"}'
         );*/
+
+        // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // tests_v1
+        $this->docs['get/v1/tests/download/:ref_id'] = array(
+            'route'         => '/v1/tests/download/:ref_id',
+            'verb'          => 'GET',
+            'group'         => '/v1/tests',
+            'description'   => 'Downloads a tests specified by its ref_id.',
+            'parameters'    => '{}'
+        );
+
+        $this->docs['get/v1/tests/:ref_id'] = array(
+            'route'         => '/v1/tests/:ref_id',
+            'verb'          => 'GET',
+            'group'         => '/v1/tests',
+            'description'   => 'Delivers a JSON representation of a test.',
+            'parameters'    => '{}'
+        );
 
         // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // umr_v1

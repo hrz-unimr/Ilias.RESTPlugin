@@ -232,7 +232,7 @@ $app->group('/v1', function () use ($app) {
             $app->halt(500, $e->getFormatedMessage());
         }
     });
-
+    
     /**
      * List all available export files for the course specified by "ref_id".
      */

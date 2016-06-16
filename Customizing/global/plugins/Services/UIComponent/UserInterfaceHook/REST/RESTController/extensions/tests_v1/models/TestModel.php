@@ -20,7 +20,7 @@ class TestModel extends Libs\RESTModel {
      * @param $ref_id - reference id of the test
      * @param $user_id - a user's id
      */
-    public function getTestExportFile($ref_id, $user_id)
+    public function downloadTestExportFile($ref_id, $user_id)
     {
         Libs\RESTilias::loadIlUser($user_id);
         Libs\RESTilias::initAccessHandling();
@@ -47,6 +47,12 @@ class TestModel extends Libs\RESTModel {
         return $participants;
     }
 
+    /**
+     * Returns some basic information about a test.
+     * @param $ref_id
+     * @param $user_id
+     * @return array
+     */
     public function getBasicInformation($ref_id, $user_id)
     {
         Libs\RESTilias::loadIlUser($user_id);

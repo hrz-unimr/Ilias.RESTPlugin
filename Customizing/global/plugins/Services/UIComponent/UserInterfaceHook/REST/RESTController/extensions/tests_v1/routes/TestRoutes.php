@@ -23,12 +23,7 @@ $app->group('/v1', function () use ($app) {
             $user_id = $accessToken->getUserId();
 
             $test_model = new TestModel();
-            $xml =  $test_model->getTestExportFile($ref_id,$user_id);
-
-
-            $app->success(['testFile' => base64_encode(file_get_contents($xml)),
-                'filename' => basename($xml),
-                'fullname' => $xml]);
+            $test_model->downloadTestExportFile($ref_id,$user_id);
 
         } catch (Libs\Exceptions\ReadFailed $e) {
             $app->halt(500, $e->getFormatedMessage());
