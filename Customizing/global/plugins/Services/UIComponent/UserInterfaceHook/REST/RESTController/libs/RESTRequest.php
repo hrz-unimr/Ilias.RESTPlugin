@@ -43,11 +43,33 @@ class RESTRequest extends \Slim\Http\Request {
 
     // Store all available headers
     // For some reason slim fails to do this...
-    foreach (getallheaders() as $key => $value)
+    foreach (self::getallheaders() as $key => $value)
       $this->headers->set($key, $value);
 
     // This will store the tokens once fetched
     $this->tokens = array();
+  }
+
+
+  /**
+   * Static-Function: getallheaders()
+   *  Wrapper, when not using Apache mod_php.
+   *  See: http://www.php.net/manual/en/function.getallheaders.php#84262
+   */
+  protected static function getallheaders() {
+    if (function_exists('getallheaders'))
+      return getallheaders();
+    else {
+      if (!is_array($_SERVER))
+        return array();
+
+      $headers = array();
+      foreach ($_SERVER as $name => $value)
+        if (substr($name, 0, 5) == 'HTTP_')
+          $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+
+       return $headers;
+    }
   }
 
 
