@@ -368,6 +368,9 @@ class Token extends Libs\RESTModel {
    *  <Array[Mixed]> - Data containing access- (and possibly refresh-) token upon successfull grant flow
    */
   public static function FlowRefreshToken($grantType, $apiKey, $apiSecret, $apiCert, $refreshCode, $iliasClient, $scope, $remoteIp) {
+    // Convert refresh-token (string) into refresh-token (object) (throws on problem or mismatched entries)
+    $refresh = self::CheckRefreshToken($refreshCode, $apiKey, $iliasClient, $scope);
+
     // Use refresh-token scope if non was given
     if (!isset($scope))
       $scope = $refresh->getScope();
@@ -375,9 +378,6 @@ class Token extends Libs\RESTModel {
     // Check if client with api-key exists (throws on problem)
     $type   = ($grantType == 'refresh_token') ? $grantType : null;
     $client = self::FlowAll($type, $apiKey, $apiSecret, $apiCert, false, $scope, $remoteIp);
-
-    // Convert refresh-token (string) into refresh-token (object) (throws on problem or mismatched entries)
-    $refresh = self::CheckRefreshToken($refreshCode, $apiKey, $iliasClient, $scope);
 
     // Check resource-owner fullfills user-restriction (throws on problem)
     $userId = $refresh->getUserId();
