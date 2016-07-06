@@ -88,7 +88,7 @@ class Misc extends Libs\RESTModel {
       );
 
     // Invoke common checks for all flows (throws on error)
-    Common::FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $userId);
+    self::FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $userId);
 
     // Store TTL (since it might change over time)
     $ttl = $token->getRemainingTime();
@@ -126,7 +126,7 @@ class Misc extends Libs\RESTModel {
     $userId = $token->getUserId();
 
     // Invoke common checks for all flows (throws on error)
-    Common::FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $userId);
+    self::FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $userId);
 
     // Check wether api-keys match
     if ($apiKey != $token->getApiKey() || $iliasClient != $token->getIliasClient())
@@ -265,7 +265,7 @@ class Misc extends Libs\RESTModel {
    */
   public static function FlowDeleteSession($apiKey, $apiSecret, $apiCert, $remoteIp, $userId, $token, $sessionID) {
     // Invoke common checks for all flows (throws on error)
-    Common::FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $userId);
+    self::FlowAll($apiKey, $apiSecret, $apiCert, $remoteIp, $userId);
 
     // Destroy given ILIAS session
     Libs\RESTilias::deleteSession($userId, $token, $sessionID);

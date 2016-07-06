@@ -80,7 +80,7 @@
   ));
   $ilDB->insert('ui_uihk_rest_config', array(
     'setting_name'  => array('text', 'refresh_token_ttl'),
-    'setting_value' => array('text', '315360000')
+    'setting_value' => array('text', '525600')
   ));
   $ilDB->insert('ui_uihk_rest_config', array(
     'setting_name'  => array('text', 'authorization_token_ttl'),
