@@ -1,6 +1,6 @@
 ILIAS REST Plugin
 =====================
-This is a plugin for the [ILIAS Learning Management System](http://www.ilias.de), which provides a customizable REST API. 
+This is a plugin for the [ILIAS Learning Management System](http://www.ilias.de), which provides a customizable REST API.
 
 #### Features:
 * Permission management for resources depending on REST clients using API-Keys
@@ -16,10 +16,7 @@ This is a plugin for the [ILIAS Learning Management System](http://www.ilias.de)
 
 Note: Please refer to the wiki pages for further information.
 
-#### Example 
+#### Example
 **Retrieve all available routes**
 
-    curl -X GET http://api.myilias.edu/routes
-    
-
-
+    curl -X GET http://api.my-ilias.de/v2/routes
