@@ -622,7 +622,7 @@ class Admin extends Libs\RESTModel {
       );
 
     // RefID must match time-limit owner
-    if ($refId != $userObj->getTimeLimitOwner())
+    if ($refId != self::USER_FOLDER_ID && $refId != $userObj->getTimeLimitOwner())
       throw new LibExceptions\RBAC(
         self::MSG_REFID_MISMATCH,
         self::ID_REFID_MISMATCH,
@@ -843,7 +843,7 @@ class Admin extends Libs\RESTModel {
         );
 
       // RefID must match time-limit owner
-      if ($refId != $userObj->getTimeLimitOwner())
+      if ($refId != self::USER_FOLDER_ID && $refId != $userObj->getTimeLimitOwner())
         throw new LibExceptions\RBAC(
           self::MSG_REFID_MISMATCH,
           self::ID_REFID_MISMATCH,
@@ -1097,7 +1097,7 @@ class Admin extends Libs\RESTModel {
 
     // Check if given refid matches
     $userObj = new \ilObjUser($userId);
-    if ($refId != $userObj->getTimeLimitOwner())
+    if ($refId != self::USER_FOLDER_ID && $refId != $userObj->getTimeLimitOwner())
       throw new LibExceptions\RBAC(
         self::MSG_REFID_MISMATCH,
         self::ID_REFID_MISMATCH,
