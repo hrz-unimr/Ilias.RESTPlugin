@@ -24,7 +24,6 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
         // Add breadcrumbs to scope and setup translations
         breadcrumbs.options = {
             'LABEL_LOGIN': $filter('translate')('LABEL_LOGIN'),
-            'LABEL_OFFLINE': $filter('translate')('LABEL_OFFLINE'),
             'LABEL_CLIENTS': $filter('translate')('LABEL_CLIENTS'),
             'LABEL_EDIT': $filter('translate')('LABEL_EDIT'),
             'LABEL_OVERVIEW': $filter('translate')('LABEL_OVERVIEW'),
@@ -736,8 +735,20 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
             },
             // Failure  (Logout internally and redirdct)
             function (response){
-                $scope.authentication.logout();
-                $location.url("/login");
+              // Try to decode the more common error-codes
+              if (response.status == 401)
+                  $scope.authentication.setError($filter('translate')('LOGIN_REJECTED'));
+              else if (response.status == 404)
+                  $scope.authentication.setError($filter('translate')('NOT_INSTALLED'));
+              else if (response.status == 405)
+                  $scope.authentication.setError($filter('translate')('LOGIN_DISABLED'));
+              else if (response.status == 500)
+                  $scope.authentication.setError($filter('translate')('CRITICAL_ERROR'));
+              else if (response.status != 200)
+                  $scope.authentication.setError($filter('translate')('LOGIN_UNKNOWN'));
+
+              $scope.authentication.logout();
+              $location.url("/login");
             }
         );
     };
@@ -775,14 +786,17 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
             },
             // Failure  (Logout internally and redirdct)
             function (response){
-                console.log("NOT OK");
                 // Try to decode the more common error-codes
                 if (response.status == 401)
-                    $scope.authentication.setError($filter('restInfo')($filter('translate')('LOGIN_REJECTED'), response.status, response.data));
+                    $scope.authentication.setError($filter('translate')('LOGIN_REJECTED'));
+                else if (response.status == 404)
+                    $scope.authentication.setError($filter('translate')('NOT_INSTALLED'));
                 else if (response.status == 405)
-                    $scope.authentication.setError($filter('restInfo')($filter('translate')('LOGIN_DISABLED'), response.status, response.data));
+                    $scope.authentication.setError($filter('translate')('LOGIN_DISABLED'));
+                else if (response.status == 500)
+                    $scope.authentication.setError($filter('translate')('CRITICAL_ERROR'));
                 else if (response.status != 200)
-                    $scope.authentication.setError($filter('restInfo')($filter('translate')('LOGIN_UNKNOWN'), response.status, response.data));
+                    $scope.authentication.setError($filter('translate')('LOGIN_UNKNOWN'));
 
                 // Logout and redirect
                 $scope.authentication.logout();
@@ -790,45 +804,6 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
             }
         );
     };
-
-    // Do the initialisation
-    $scope.init();
-});
-
-
-/*
- * Simple controller that manages functionality of the route that
- * should be displayed IFF the REST-Interface can't be contacted.
- * Note: Currently this is only implemented for when the "connection" is
- * unavailable during page-load. (Nothing happens when the "connection"
- * is lost after AngularJS was loaded and initialized)
- */
-ctrl.controller('OfflineCtrl', function($scope, $location, restEndpoint) {
-    /*
-     * Called during (every) instantiation of this controller.
-     *
-     * Note: Using a dedicated method is cleaner and more reusable than
-     * doing it directly inside the controller.
-     */
-    $scope.init = function() {
-        // Convert URL to absolute [Cheat a bit >:->]
-        var a = document.createElement('a');
-        a.href = "/";
-
-        // Set endpoints (for display purpose only)
-        $scope.postEndPoint = a.href+postVars.restEndpoint;
-        $scope.installDir = a.href+restEndpoint.getInstallDir();
-    };
-
-
-    /*
-     * Retry connection by completly reloading page,
-     * thus reloading AngularJS.
-     */
-    $scope.retry = function() {
-        document.location.href = './';
-    };
-
 
     // Do the initialisation
     $scope.init();

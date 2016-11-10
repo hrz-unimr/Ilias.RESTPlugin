@@ -125,78 +125,37 @@ services.provider('authentication', function() {
 
 });
 
+
 /*
  * This services tries to find the REST Endpoint, in the following order:
  *  - Using the 'restEndpoint' POST variable
  *  - Find the ILIAS main folder (<ILIAS>) by using 'window.location.pathname' and finding the 'Customizing' folder
- *   - Try to find restplugin.php endpoint using http.get(<ILIAS>/restplugin.php/routes)
- *   - Try to find sub-domain endpoint using http.get(<ILIAS>/routes)
  * Als contains a promise that gets resolved once endpoint has been found (or rejected if non is found).
  */
 services.factory('restEndpoint', function($q, $http, restRoutesURL) {
     // Promise and endpoint variables
     var deferred = $q.defer();
-    var restEndpoint = "";
 
-    // Tries to find ILIAS main folder by looking at window.location.pathname
-    // and finding the 'Customizing' folder
-    var getInstallDir = function() {
-        var pathArray = window.location.pathname.split('/');
-        var iliasSubFolder = '';
-        for (var i = 0; i < pathArray.length; i++) {
-            if (pathArray[i] == 'Customizing')
-                break;
-            if (pathArray[i] !== '')
-                iliasSubFolder += '/'+pathArray[i];
-        }
-        return iliasSubFolder;
-    }
+    // Fetch installation directory from current path
+    var pluginPath = '/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST';
+    var fullPath   = window.location.pathname;
+    var index      = fullPath.indexOf(pluginPath);
 
-    var dir;
-    // Find ILIAS main folder
-    dir = getInstallDir();
+    // Fallback value
+    var installDir = pluginPath;
 
-    // Stores wether AJAJ call was successfull (true) or not (false) [null means not done]
-    var apiPath = null;
-    var phpPath = null;
+    // Extract from window-location
+    if (index >= 0)
+      installDir = fullPath.substring(0, index + pluginPath.length)
+    // Extract from post-variable passed by ILIAS
+    else if (postVars.restEndpoint !== "")
+      installDir = postVars.restEndpoint.concat(pluginPath);
 
-    // Initiate AJAJ call
-    var apiQuery = $http.get(dir+restRoutesURL);
-    var phpQuery = $http.get(dir+'/restplugin.php'+restRoutesURL);
+    // Append endpoint location
+    var endPoint   = installDir.concat('/api.php');
 
-    // AJAJ call succeeded, save result and forward to promise (resolve)
-    // Note: Also make sure, that promise is only resolved once.
-    apiQuery.success(function(data, status, headers, config) {
-        apiPath = true;
-        if (phpPath !== true) {
-            restEndpoint = dir;
-            deferred.resolve(restEndpoint);
-        }
-    });
-    phpQuery.success(function(data, status, headers, config) {
-        phpPath = true;
-        if (apiPath !== true) {
-            restEndpoint = dir+"/restplugin.php";
-            deferred.resolve(restEndpoint);
-        }
-    });
-
-    // AJAJ call failed, forward to promise (reject)
-    // Note: Also make sure, that promise is only rejected once.
-    apiQuery.error(function(data, status, headers, config) {
-        apiPath = false;
-        if (phpPath === false) {
-            restEndpoint = null;
-            deferred.reject("NoEndpoint");
-        }
-    });
-    phpQuery.error(function(data, status, headers, config) {
-        phpPath = false;
-        if (apiPath === false) {
-            restEndpoint = null;
-            deferred.reject("NoEndpoint");
-        }
-    });
+    // Legacy-code, because I'm to lazy to update the other code >_>
+    deferred.resolve(endPoint);
 
     // Return object containing:
     return {
@@ -207,11 +166,13 @@ services.factory('restEndpoint', function($q, $http, restRoutesURL) {
         // Function to query found endpoint
         // Note: If promise got resolved this contains a valid endpoint!
         getEndpoint: function () {
-            return restEndpoint;
+            return endPoint;
         },
 
         // Function that returns the ILIAS main folder
-        getInstallDir: getInstallDir
+        getInstallDir: function () {
+            return installDir;
+        }
     };
 });
 

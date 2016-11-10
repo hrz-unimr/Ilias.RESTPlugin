@@ -45,13 +45,6 @@ app.constant('restConfigURL',       '/v2/admin/config/:key');             // Con
  */
 app.config(function($routeProvider) {
     // Login page
-    $routeProvider.when('/offline', {
-        templateUrl : 'partials/offline.html',
-        label: 'LABEL_LATER', // This will be replaced later!
-        controller: 'OfflineCtrl'
-    });
-
-    // Login page
     $routeProvider.when('/login', {
         templateUrl : 'partials/login.html',
         label: 'LABEL_LOGIN', // This will be replaced later!
@@ -132,15 +125,8 @@ app.config(function(cfpLoadingBarProvider) {
 app.run(function($rootScope, $location, authentication, restEndpoint, $templateCache) {
     // Go to login page if not logged in (and we should not display the offline notification)
     $rootScope.$on('$routeChangeStart', function(event, current, previous, rejection) {
-        if (!(authentication.isAuthenticated() || $location.url() == "/offline")) {
+        if (!authentication.isAuthenticated()) {
             $location.url("/login");
-        }
-    });
-
-    // Something went wrong (rest-interfac down, maybe?)
-    $rootScope.$on('$routeChangeError', function(event, current, previous, rejection) {
-        if (rejection == "NoEndpoint") {
-            $location.path("/offline");
         }
     });
 });

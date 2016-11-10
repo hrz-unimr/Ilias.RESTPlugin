@@ -183,8 +183,6 @@ services.factory('clientStorage', function() {
  * This services tries to find the REST Endpoint, in the following order:
  *  - Using the 'restEndpoint' POST variable
  *  - Find the ILIAS main folder (<ILIAS>) by using 'window.location.pathname' and finding the 'Customizing' folder
- *   - Try to find restplugin.php endpoint using http.get(<ILIAS>/restplugin.php/routes)
- *   - Try to find sub-domain endpoint using http.get(<ILIAS>/routes)
  * Als contains a promise that gets resolved once endpoint has been found (or rejected if non is found).
  */
 services.factory('restEndpoint', function($q, $http, restRoutesURL) {

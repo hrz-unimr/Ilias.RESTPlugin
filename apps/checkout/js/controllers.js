@@ -24,7 +24,6 @@ ctrl.controller("MainCtrl", function($scope, $location, $filter, breadcrumbs, au
         // Add breadcrumbs to scope and setup translations
         breadcrumbs.options = {
             'LABEL_LOGIN': $filter('translate')('LABEL_LOGIN'),
-            'LABEL_OFFLINE': $filter('translate')('LABEL_OFFLINE'),
             'LABEL_CLIENTS': $filter('translate')('LABEL_CLIENTS'),
             'LABEL_EDIT': $filter('translate')('LABEL_EDIT'),
             'LABEL_CHECKOUT': $filter('translate')('LABEL_CHECKOUT')
@@ -151,7 +150,7 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
     $scope.openTypeAhead = function () {
         $scope.inputRestEndpoint = "/";
     }
-    
+
     $scope.onSelect = function ($item, $model, $label) {
         console.log("on Selected called.");
         console.log("item "+$item);
@@ -291,7 +290,7 @@ ctrl.controller("CheckoutCtrl", function($sce, $scope, $location, $filter, $reso
             default:
                 console.log('Requesting via GET (default)');
         }
-        
+
     }
 
     // This method needs to be invoked in case when the rest route requires
@@ -366,18 +365,21 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
             },
             // Failure  (Logout internally and redirect)
             function (response){
-                console.log("NOT OK");
-                // Try to decode the more common error-codes
-                if (response.status == 401)
-                    $scope.authentication.setError($filter('restInfo')($filter('translate')('LOGIN_REJECTED'), response.status, response.data));
-                else if (response.status == 405)
-                    $scope.authentication.setError($filter('restInfo')($filter('translate')('LOGIN_DISABLED'), response.status, response.data));
-                else if (response.status != 200)
-                    $scope.authentication.setError($filter('restInfo')($filter('translate')('LOGIN_UNKNOWN'), response.status, response.data));
+              // Try to decode the more common error-codes
+              if (response.status == 401)
+                  $scope.authentication.setError($filter('translate')('LOGIN_REJECTED'));
+              else if (response.status == 404)
+                  $scope.authentication.setError($filter('translate')('NOT_INSTALLED'));
+              else if (response.status == 405)
+                  $scope.authentication.setError($filter('translate')('LOGIN_DISABLED'));
+              else if (response.status == 500)
+                  $scope.authentication.setError($filter('translate')('CRITICAL_ERROR'));
+              else if (response.status != 200)
+                  $scope.authentication.setError($filter('translate')('LOGIN_UNKNOWN'));
 
-                // Logout and redirect
-                $scope.authentication.logout();
-                $location.url("/login");
+              // Logout and redirect
+              $scope.authentication.logout();
+              $location.url("/login");
             }
         );
     };
@@ -386,41 +388,6 @@ ctrl.controller('LoginCtrl', function($scope, $location, $filter, apiKey, restAu
         console.log('Set loign api key: '+apiKeyStr);
         $scope.formData.apiKey = apiKeyStr;
     }
-
-    // Do the initialisation
-    $scope.init();
-});
-
-
-/*
- * Simple controller that manages functionality of the route that
- * should be displayed IFF the REST-Interface can't be contacted.
- */
-ctrl.controller('OfflineCtrl', function($scope, $location, restEndpoint) {
-    /*
-     * Called during (every) instantiation of this controller.
-     *
-     * Note: Using a dedicated method is cleaner and more reusable than
-     * doing it directly inside the controller.
-     */
-    $scope.init = function() {
-        // Convert URL to absolute [Cheat a bit >:->]
-        var a = document.createElement('a');
-        a.href = "/";
-
-        // Set endpoints (for display purpose only)
-        $scope.postEndPoint = a.href+postVars.restEndpoint;
-        $scope.installDir = a.href+restEndpoint.getInstallDir();
-    };
-
-
-    /*
-     * Retry.
-     */
-    $scope.retry = function() {
-        document.location.href = './';
-    };
-
 
     // Do the initialisation
     $scope.init();

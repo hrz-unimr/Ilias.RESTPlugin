@@ -6,7 +6,7 @@
  * This variable will manage all en-US translations
  */
 var lang_en_us = angular.module('myApp.translate.en-US', []);
- 
+
 
 /*
  * Load en-US translations
@@ -29,7 +29,7 @@ lang_en_us.config(function($translateProvider) {
         DIALOGS_OK: "OK",
         DIALOGS_YES: "Yes",
         DIALOGS_NO: "No",
-        
+
         // Custom AngularJS texts
         DIALOG_DELETE: 'Delete Client',
         DIALOG_DELETE_MSG: 'Do you really want to remove this client?',
@@ -37,25 +37,26 @@ lang_en_us.config(function($translateProvider) {
         DIALOG_DELETE_AP_MSG: 'This clients API-Key is required by the the Admin-Panel, you should change the default api-key (inside app.js) first!<br/><br/>Do you really want to remove this client?',
         DIALOG_UPDATE: 'Update Admin-Panel Client',
         DIALOG_UPDATE_MSG: 'This clients API-Key is required by the the Admin-Panel, you should change the default api-key (inside app.js) first!<br/><br/>Do you really want to apply this changes?',
-        
+
         // Breadcrumb labels
-        LABEL_OFFLINE: 'Offline',
         LABEL_LOGIN: 'Login',
         LABEL_CLIENTS: 'Clients',
         LABEL_EDIT: 'Edit',
         LABEL_OVERVIEW: 'Overview',
         LABEL_CONFIGURATIONS: 'Configurations',
-        
+
         // Warning & error-messages
         AUTH_PERM: 'You have been logged out because you don\'t have enough permissions to access this menu.',
-        NO_CLIENTS: '<strong>Warning:</strong> Could not contact REST-Interface to fetch client data! %INFO%',
-        DEL_FAILED_REMOTE: '<strong>Warning:</strong> Delete-Operation failed, could not contact REST-Interface! %INFO%',
-        SAVE_FAILED_UNKOWN: '<strong>Warning:</strong> Save-Operation failed, for unknown reason! %INFO%',
-        SAVE_FAILED_REMOTE: '<strong>Warning:</strong> Save-Operation failed, could not contact REST-Interface! %INFO%',
-        LOGIN_REJECTED: '<strong>Login failed:</strong> Username/Password combination was rejected. %INFO%',
-        LOGIN_DISABLED: '<strong>Login failed:</strong> REST-Interface is disabled! %INFO%',
-        LOGIN_UNKNOWN: '<strong>Login failed:</strong> An unknown error occured while trying to contact the REST-Interface. %INFO%',
-        
+        NO_CLIENTS: '<strong>Warning:</strong> Could not contact REST-Interface to fetch client data!',
+        DEL_FAILED_REMOTE: '<strong>Warning:</strong> Delete-Operation failed, could not contact REST-Interface!',
+        SAVE_FAILED_UNKOWN: '<strong>Warning:</strong> Save-Operation failed, for unknown reason!',
+        SAVE_FAILED_REMOTE: '<strong>Warning:</strong> Save-Operation failed, could not contact REST-Interface!',
+        LOGIN_REJECTED: '<strong>Login failed:</strong> Username/Password combination was rejected.',
+        LOGIN_DISABLED: '<strong>Login failed:</strong> REST-Interface is disabled!',
+        LOGIN_UNKNOWN: '<strong>Login failed:</strong> An unknown error occured while trying to contact the REST-Interface.',
+        NOT_INSTALLED: '<strong>Login failed:</strong> The RESTPlugin does not seem to be installed correclty (404).',
+        CRITICAL_ERROR: '<strong>Login failed:</strong> The RESTPlugin raised a critical error, please report as bug.',
+
         // Index.php
         INDEX_TITLE: 'ILIAS REST Plugin - Administration',
         INDEX_BRAND: 'ILIAS REST Plugin',
@@ -63,7 +64,7 @@ lang_en_us.config(function($translateProvider) {
         INDEX_LOGOUT: 'Logout',
         INDEX_VERSION: 'Version',
         INDEX_POWERED: 'Powered by',
-        
+
         // partials/login.html
         LOGIN_AUTO: 'You came from the ILIAS platform. Trying to login automatically ...',
         LOGIN_HEAD: 'REST Plugin Administration',
@@ -98,16 +99,7 @@ lang_en_us.config(function($translateProvider) {
         LIST_GRANT_CC: 'Client Credentials',
         LIST_NEW_CLIENT: 'Create a new REST client',
         LIST_IP_RESTRICTION: 'IP',
-        
-        // partials/offline.html
-        OFFLINE_WARNING: 'Warning!',
-        OFFLINE_ISSUE: 'Could not locate/contact the REST-API endpoint(s) at:',
-        OFFLINE_URL_POST: '[POST information]',
-        OFFLINE_URL_FILE: '[File URL]',
-        OFFLINE_URL_SUB: '[Subdomain URL]',
-        OFFLINE_EXPLANATION: 'The Admin-Panel requires an active REST-Endpoint to work.',
-        OFFLINE_RETRY: 'Retry',
-        
+
         // partials/clientedit.html
         EDIT_BACK: 'Back',
         EDIT_SAVE: 'Save',
@@ -156,7 +148,7 @@ lang_en_us.config(function($translateProvider) {
         EDIT_CONFIG_SALT_DESCRIPTION_TEXT: 'SALT is a unique character sequence which is used to lift the entropy of the tokens.',
 
     });
-    
+
     // Ste default language
     $translateProvider.preferredLanguage('en-US');
 });
