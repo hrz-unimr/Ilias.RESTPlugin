@@ -141,7 +141,7 @@ class RESTilias {
    * Function: FetchILIASClient()
    *  Returns the current ILIAS Client-ID. This cannot be changed
    *  and can only be controlled by setting $_GET['ilias_client_id']
-   *  (see restplugin.php) or via $_COOKIE['client_id'] (See ilInitialize)
+   *  (see RESTController.php) or via $_COOKIE['client_id'] (See ilInitialize)
    *
    * Return:
    *  <String> - ILIAS Client-ID (fixed)

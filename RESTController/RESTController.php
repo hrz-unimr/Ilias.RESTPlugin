@@ -109,7 +109,7 @@ class RESTController extends \Slim\Slim {
     $this->container->singleton('response', function ($c) { return new libs\RESTResponse(); });
     $this->container->singleton('request',  function ($c) { return new libs\RESTRequest($this->environment()); });
 
-    // Initialize ILIAS (if not created via restplugin.php)
+    // Initialize ILIAS (if not created via api.php)
     $this->initILIAS();
 
     # Configure the logger
@@ -389,7 +389,7 @@ class RESTController extends \Slim\Slim {
    * Function: initILIAS()
    *  Makes sure ILIAS was initialized, eg.
    *  when this has not already been done
-   *  by the restplugin.php
+   *  by the api.php
    */
   protected function initILIAS() {
     // Initialize ILIAS (if not created via api.php)

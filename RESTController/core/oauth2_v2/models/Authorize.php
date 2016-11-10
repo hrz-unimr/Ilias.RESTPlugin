@@ -342,7 +342,7 @@ class Authorize extends Libs\RESTModel {
       array(
         'baseURL'     => ILIAS_HTTP_PATH,
         'viewURL'     => ILIAS_HTTP_PATH . '/' . $pluginDir,
-        'endpoint'    => ILIAS_HTTP_PATH . '/restplugin.php' . $routeURL,
+        'endpoint'    => ILIAS_HTTP_PATH . '/' . $pluginDir . '/api.php' . $routeURL,
         'client'      => CLIENT_ID,
         'parameters'  => $param,
       )

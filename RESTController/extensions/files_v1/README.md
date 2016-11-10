@@ -15,7 +15,7 @@ Examples
 ---------
 Example
 > **Retrieve a file with ref_id 67 **
-curl -X GET http://localhost/restplugin.php/v1/files/67 > x.pdf
+curl -X GET http://localhost/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/api.php/v1/files/67 > x.pdf
 
 > ** Add a file to repository object with ref_id 65 (e.g. a course) **
-curl --form uploadfile=@image.jpg --form ref_id=65 http://localhost/restplugin.php/v1/files
+curl --form uploadfile=@image.jpg --form ref_id=65 http://localhost/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/api.php/v1/files

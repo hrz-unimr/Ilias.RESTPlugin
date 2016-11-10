@@ -10,7 +10,7 @@ The goal is to provide additional REST endpoints for a mobile app.
 * todo
 
 #### Notes
-Mobile Search: 
+Mobile Search:
 For the installation of Elastic Search and the River Connector please refer to:
 https://github.com/jprante/elasticsearch-river-jdbc
 
@@ -31,7 +31,7 @@ Examples
 ---------
 Example
 > **Retrieve info about an object with ref_id 67 **
-curl -K token --data "q=Test" -X POST http://localhost/ilias5/restplugin.php/m/v1/search
+curl -K token --data "q=Test" -X POST http://localhost/ilias5/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/api.php/m/v1/search
 
 #### History:
 v0.2 - 2014-12 Mobile Search --

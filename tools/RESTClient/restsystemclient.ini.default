@@ -1,6 +1,6 @@
 ; ILIAS REST System Client -  Configuration File
 ; by D.Schaefer
-host = "http://localhost/ilias5/restplugin.php"
+host = "http://localhost/ilias5/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/api.php"
 oauth2_endpoint = "/v2/oauth2/token"
 
 ; Please do not change grant_type - at current the tool only supports this type.

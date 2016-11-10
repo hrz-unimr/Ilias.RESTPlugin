@@ -5,5 +5,4 @@ modules:
       PhpBrowser:
           url: http://localhost/ilias5/
       REST:
-          url: http://localhost/ilias5/restplugin.php/
-
+          url: http://localhost/ilias5/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/api.php/

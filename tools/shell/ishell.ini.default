@@ -8,4 +8,4 @@ oauth2_endpoint=/v2/oauth2/token
 
 [System]
 ilias_client_id=beta
-rest_endpoint=http://localhost/ilias5/restplugin.php
+rest_endpoint=http://localhost/ilias5/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/api.php

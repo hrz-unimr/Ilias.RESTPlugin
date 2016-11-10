@@ -39,7 +39,7 @@ Examples
 ---------
 Example
 > **Retrieve info about an object with ref_id 67 **
-curl -X GET http://localhost/restplugin.php/admin/describe/67
+curl -X GET http://localhost/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/api.php/admin/describe/67
 
 > ** Retrieve object properties with an obj_id **
-curl -X GET http://localhost/restplugin.php/admin//describe/308?id_type=obj_id
+curl -X GET http://localhost/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/api.php/admin/describe/308?id_type=obj_id
