@@ -103,7 +103,7 @@ class RESTilias {
    *  It does some extra-work to make sure ILIAS does not get any wrong idea
    *  when having 'unpredicted' values in $_SERVER array.
    */
-  public static function initILIAS($client) {
+  public static function initILIAS($client = null) {
     // Apply oAuth2 fix for client_id GET/POST value
     self::applyOAuth2Fix($client);
 

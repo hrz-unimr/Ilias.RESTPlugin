@@ -158,22 +158,28 @@
       'default' => -1
     ),
     'grant_client_credentials' => array(
-      'type'    => 'integer'
+      'type'    => 'integer',
+      'length'  => 1
     ),
     'grant_authorization_code' => array(
-      'type'    => 'integer'
+      'type'    => 'integer',
+      'length'  => 1
     ),
     'grant_implicit' => array(
-      'type'    => 'integer'
+      'type'    => 'integer',
+      'length'  => 1
     ),
     'grant_resource_owner' => array(
-      'type'    => 'integer'
+      'type'    => 'integer',
+      'length'  => 1
     ),
     'refresh_authorization_code' => array(
-      'type'    => 'integer'
+      'type'    => 'integer',
+      'length'  => 1
     ),
     'refresh_resource_owner' => array(
-      'type'    => 'integer'
+      'type'    => 'integer',
+      'length'  => 1
     ),
     'grant_bridge' => array(
       'type'    => 'text',

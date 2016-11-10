@@ -96,7 +96,7 @@ class RESTController extends \Slim\Slim {
 
     // Fetch environment and remeber base-directory (just in case)
     $env = $this->environment();
-    $env['ilias_root'] = $root;
+    $env['ilias_root'] = $iliasRoot;
     $env['ctl_root']   = __DIR__;
     // Alternatively set as hard-coded path: "$root/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/RESTController"
 
@@ -392,10 +392,11 @@ class RESTController extends \Slim\Slim {
    *  by the restplugin.php
    */
   protected function initILIAS() {
-    // Initialize ILIAS (if not created via restplugin.php)
+    // Initialize ILIAS (if not created via api.php)
     if (!defined('CLIENT_ID')) {
       // Fetch request object
       $request = $this->request();
+      $client  = null;
 
       // Try to fetch ilias-client from access-token
       try {
