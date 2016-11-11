@@ -9,21 +9,18 @@
       // Include settings
       require_once('config.ini.php');
 
-      // Generate GET/POST URLs
-      if (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off') {
-        $protocol = 'http://';
-      } else {
-        $protocol = 'https://';
-      }
-      $base_url = $protocol . $_SERVER['SERVER_NAME'] . dirname($_SERVER['PHP_SELF']);
-      if ($_SERVER["SERVER_PORT"] != "80") {
-        $base_url = $protocol . $_SERVER['SERVER_NAME'] . ":" . $_SERVER["SERVER_PORT"] . dirname($_SERVER['PHP_SELF']);
-      }
-      $loginUrl = $subFolder. "/v2/oauth2/authorize?api_key=".urlencode($api_key);
+      $self = dirname($_SERVER['PHP_SELF']);
 
-      // This will be the redirect targets for generating bearer tokens via GET (POST contains this info in the header)
-      $authGrantUrl = $loginUrl."&redirect_uri=".urlencode($base_url."/endpoints/authcode_endpoint.php")."&response_type=code";
-      $implicitGrantUrl = $loginUrl."&redirect_uri=".urlencode($base_url."/endpoints/implicitgrant_endpoint.php")."&response_type=token";
+      $apiDir   = $ilias_url . "/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST";
+      $authUrl  = $apiDir . "/api.php/v2/oauth2/authorize";
+      $tokenUrl = $apiDir . "/api.php/v2/oauth2/token";
+
+      $authGrantRedirect      = $self . "/endpoints/authcode_endpoint.php";
+      $implicitGrantRedirect  = $self . "/endpoints/implicitgrant_endpoint.php";
+
+      $loginUrl         = $authUrl . "?api_key=" . urlencode($api_key);
+      $authGrantUrl     = $loginUrl . "&response_type=code&redirect_uri="  . urlencode($authGrantRedirect);
+      $implicitGrantUrl = $loginUrl . "&response_type=token&redirect_uri=" . urlencode($implicitGrantRedirect);
       ?>
       <h3>Initiating one of the following OAuth2 Grant Mechanism via a GET Request:</h3>
       <ul>
@@ -33,23 +30,23 @@
       <h3>Initiating one of the following OAuth2 Grant Mechanism via a POST Request:</h3>
       <ul>
         <li>
-          <form method="POST" action="<?php echo $subFolder;?>/v2/oauth2/authorize">
+          <form method="POST" action="<?php echo $authUrl; ?>">
             <input type="hidden" name="api_key" value="<?php echo $api_key; ?>" />
             <input type="hidden" name="response_type" value="code" />
-            <input type="hidden" name="redirect_uri" value="<?php echo $base_url."/endpoints/authcode_endpoint.php";?>" />
+            <input type="hidden" name="redirect_uri" value="<?php echo $authGrantRedirect; ?>" />
             <input type="submit" value="Authorization Code Grant" />
           </form>
         </li>
         <li>
-          <form method="POST" action="<?php echo $subFolder;?>/v2/oauth2/authorize">
+          <form method="POST" action="<?php echo $authUrl; ?>">
             <input type="hidden" name="api_key" value="<?php echo $api_key; ?>" />
             <input type="hidden" name="response_type" value="token" />
-            <input type="hidden" name="redirect_uri" value="<?php echo $base_url."/endpoints/implicitgrant_endpoint.php"; ?>" />
+            <input type="hidden" name="redirect_uri" value="<?php echo $implicitGrantRedirect; ?>" />
             <input type="submit" value="Implicit Grant" />
           </form>
         </li>
         <li>
-          <form method="POST" action="<?php echo $subFolder;?>/v2/oauth2/token">
+          <form method="POST" action="<?php echo $tokenUrl; ?>">
             <input type="hidden" name="grant_type" value="client_credentials" />
             <input type="hidden" name="scope" value="" />
             <input type="hidden" name="api_key" value="<?php echo $api_key; ?>" />
@@ -58,7 +55,7 @@
           </form>
         </li>
         <li>
-          <form method="POST" action="<?php echo $subFolder;?>/v2/oauth2/token">
+          <form method="POST" action="<?php echo $tokenUrl;?>">
             <div>
               <input type="hidden" name="grant_type" value="password" />
               <input type="hidden" name="scope" value="" />

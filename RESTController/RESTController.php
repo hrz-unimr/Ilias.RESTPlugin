@@ -90,15 +90,9 @@ class RESTController extends \Slim\Slim {
    *  $iliasRoot <String> - Absolute path to ILIAS directory
    *  $userSettings <Array[Mixed]> - Associative array of application settings
    */
-  public function __construct($iliasRoot, array $userSettings = array()) {
+  public function __construct(array $userSettings = array()) {
     // Call parent (SLIM) constructor
     parent::__construct($userSettings);
-
-    // Fetch environment and remeber base-directory (just in case)
-    $env = $this->environment();
-    $env['ilias_root'] = $iliasRoot;
-    $env['ctl_root']   = __DIR__;
-    // Alternatively set as hard-coded path: "$root/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/RESTController"
 
     // Add Content-Type middleware (support for JSON/XML requests)
     $contentType = new libs\Middleware\ContentTypes();
@@ -123,7 +117,7 @@ class RESTController extends \Slim\Slim {
 
     // Set default template base-directory
     // DoIt: Extract using ILIAS (or keep constant)
-    $this->view()->setTemplatesDirectory($appDirectory);
+    $this->view()->setTemplatesDirectory(__DIR__);
 
     // Set default 404 template
     $this->notFound(function () {

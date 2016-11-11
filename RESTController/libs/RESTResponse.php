@@ -57,8 +57,15 @@ class RESTResponse extends \Slim\Http\Response {
    *  @See \Slim\Http\Response->write(...) for more details
    */
   public function write($body, $replace = false) {
+    // Keep normal mode of operation for HTML/RAW
+    switch ($this->format) {
+      case 'HTML':
+      case 'RAW':
+        return parent::write($body, $replace);
+    }
+
     // Merged new body with old content
-    if ($replace === false) {
+    if ($replace !== true) {
       // Decode old content
       $oldBody = $this->decode($this->getBody());
 

@@ -222,6 +222,10 @@ class RESTRequest extends \Slim\Http\Request {
     if (isset($this->tokens[$name]))
       return $this->tokens[$name];
 
+    // Prevent undefined variables
+    $tokenString = null;
+
+    // Extract token
     switch ($name) {
       // Fetch access-token
       default:

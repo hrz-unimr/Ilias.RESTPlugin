@@ -185,7 +185,8 @@ abstract class RESTDatabase {
 
     // Build a simple where-based query
     $table  = static::getTableName();
-    $class  = end(explode('\\', get_called_class()));
+    $array  = explode('\\', get_called_class());
+    $class  = end($array);
     $sql    = sprintf('SELECT %s.* FROM %s AS %s %s %s %s %s', $class, $table, $class, $joinSQL, $whereSQL, $limitSQL, $offsetSQL);
 
     // Generate ilDB query-object
@@ -1175,7 +1176,8 @@ abstract class RESTDatabase {
    *  <String> - Short name of current class name (late static binding)
    */
   public static function getName() {
-    return end(explode('\\', get_called_class()));
+    $array = explode('\\', get_called_class());
+    return end($array);
   }
 
 

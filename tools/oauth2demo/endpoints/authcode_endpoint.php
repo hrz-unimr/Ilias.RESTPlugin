@@ -18,18 +18,8 @@ require_once('../config.ini.php');
 // Exchange OAuth 2 authorization code for bearer token
 if (isset($_GET['code'])){
   if (isset($_GET['make_curl_call'])) {
-    // Protocol used for curl call
-    if (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off') {
-      $protocol = 'http://';
-    } else {
-      $protocol = 'https://';
-    }
-
-    // Redirection URL (but into body)
-    $redirect_uri = $protocol . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF'];
-    if ($_SERVER["SERVER_PORT"] != "80") {
-      $redirect_uri = $protocol . $_SERVER['SERVER_NAME'] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER['PHP_SELF'];
-    }
+    $apiDir   = $ilias_url . "/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST";
+    $tokenUrl = $apiDir . "/api.php/v2/oauth2/token";
 
     // Build the body for curl call
     $post = array(
@@ -37,14 +27,11 @@ if (isset($_GET['code'])){
       'code' => $_GET['code'],
       'api_key' => $api_key,
       'api_secret' => $api_secret,
-      'redirect_uri' => $redirect_uri
+      'redirect_uri' => $_SERVER['PHP_SELF']
     );
 
-    // Endpoint (url) used for curl call
-    $url =  $subFolder. "/v2/oauth2/token";
-
     //
-    $ch = curl_init($url);
+    $ch = curl_init($tokenUrl);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -61,18 +48,27 @@ if (isset($_GET['code'])){
     // Convert to array
     $decoded = json_decode($body, true);
 
-    ?>
-    <h3>OAuth2 Token via Authorization Code Workflow Retrieved!</h3>
-    <pre>Access-Token: <?php echo (isset($decoded["access_token"]))   ? $decoded["access_token"]  : "[ No Data ]"; ?></pre>
-    <pre>Refresh-Token: <?php echo (isset($decoded["refresh_token"])) ? $decoded["refresh_token"] : "[ No Data ]"; ?></pre>
-    <h4> The client can continue now making further API requests with the obtained bearer token.</h4>
-    <?php
+    if (isset($decoded["access_token"])) {
+      ?>
+      <h3>OAuth2 Token via Authorization Code Workflow Retrieved!</h3>
+      <pre>Access-Token: <?php echo (isset($decoded["access_token"]))   ? $decoded["access_token"]  : "[ No Data ]"; ?></pre>
+      <pre>Refresh-Token: <?php echo (isset($decoded["refresh_token"])) ? $decoded["refresh_token"] : "[ No Data ]"; ?></pre>
+      <h4> The client can continue now making further API requests with the obtained bearer token.</h4>
+      <?php
+    }
+    else {
+      ?>
+      <h3>Error when requesting OAuth2 Token:</h3>
+      <pre><?php var_dump($body); ?></pre>
+      <?php
+    }
   }
   else {
+    $call = $_SERVER['REQUEST_URI'] . '&make_curl_call=1';
     ?>
     <h3>The Server has authenticated your request and generated an authentication code that can be traded for a bearer token.</h3>
     <pre>Authorization Code: <?php echo $_GET['code']; ?></pre>
-    <a href='<?php echo $_SERVER['REQUEST_URI']; ?>&make_curl_call=1'>Trade authentication code for bearer token</a><br><br>
+    <a href='<?php echo $call; ?>'>Trade authentication code for bearer token</a><br><br>
     <?php
   }
 }

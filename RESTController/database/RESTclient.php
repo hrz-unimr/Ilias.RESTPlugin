@@ -67,9 +67,9 @@ class RESTclient extends Libs\RESTDatabase {
    * Function: getKey($key)
    *  @See RESTDatabase->getKey(...)
    */
-  public function getKey($key) {
+  public function getKey($key, $read = false) {
     // Fetch internal value from parent
-    $value = parent::getKey($key);
+    $value = parent::getKey($key, $read);
 
     // Convert internal value when publshing
     // Note: Make sure to 'revert' those changes in setKey(...)!
@@ -329,7 +329,7 @@ class RESTclient extends Libs\RESTDatabase {
     return Libs\RESTLib::CheckComplexRestriction($allowed, $scopes, ' ');
   }
 
-  
+
   /**
    * Function: isBridgeAllowed($direction)
    *  Checks if the ILIAS <-> oAuth2 bridge is allowed for this client in the requested direction.

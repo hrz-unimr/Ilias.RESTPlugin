@@ -40,7 +40,7 @@ $consentMessage = (isset($parameters['consent_message'])) ? $parameters['consent
   <div class="card">
     <img class="logo" src="<?php echo $viewURL; ?>img/logo.png">
 
-    <h1>Anmeldung</h1>
+    <h1>OAuth2</h1>
     <h2>Anwendungs-Zugriff</h2><br>
 
     <?php

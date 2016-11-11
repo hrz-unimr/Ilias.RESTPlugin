@@ -19,5 +19,5 @@ if (is_file('path.conf'))
 chdir($directory);
 
 // Instantate and run the RESTController application
-$restCTL = new \RESTController\RESTController($directory);
+$restCTL = new \RESTController\RESTController();
 $restCTL->run();
