@@ -96,7 +96,7 @@ class SurveyModel extends Libs\RESTModel
         $ilUser->setId($user_id);
         $ilUser->read();
         $svyObj = new \ilObjSurvey($ref_id);
-        $pages =& $svyObj->getSurveyPages();
+        $pages = $svyObj->getSurveyPages();
         $result = array();
         $res_questions = array();
         $cnt = 1;
@@ -106,7 +106,7 @@ class SurveyModel extends Libs\RESTModel
             {
                 // instanciate question
                 require_once "./Modules/SurveyQuestionPool/classes/class.SurveyQuestion.php";
-                $question =&  \SurveyQuestion::_instanciateQuestion($question["question_id"]);
+                $question =  \SurveyQuestion::_instanciateQuestion($question["question_id"]);
                 //(SurveyMultipleChoiceQuestion)
                 //$question = (\SurveyMultipleChoiceQuestion)$question;
                 $q = array();
@@ -242,7 +242,7 @@ class SurveyModel extends Libs\RESTModel
         $ilUser->setId($user_id);
         $ilUser->read();
         $svyObj = new \ilObjSurvey($ref_id);
-        $pages =& $svyObj->getSurveyPages();
+        $pages = $svyObj->getSurveyPages();
         $result = array();
         $res_questions = array();
         $cnt = 1;
@@ -252,7 +252,7 @@ class SurveyModel extends Libs\RESTModel
             {
                 // instanciate question
                 require_once "./Modules/SurveyQuestionPool/classes/class.SurveyQuestion.php";
-                $question =&  \SurveyQuestion::_instanciateQuestion($question["question_id"]);
+                $question =  \SurveyQuestion::_instanciateQuestion($question["question_id"]);
                 if ($question->getId() == $question_id) {
                     if ($question->getQuestionTypeID()==1) { // MPC, see table svy_qtype
                         $post_data[$question_id.'_value'] = $mpc_answers;

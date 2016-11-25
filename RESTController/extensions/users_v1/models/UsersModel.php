@@ -75,7 +75,7 @@ class UsersModel extends Libs\RESTModel
      */
     function addUser($user_data)
     {
-        $new_user =& new \ilObjUser();
+        $new_user = new \ilObjUser();
 
         if(strlen($user_data['passwd']) != 32)
         {

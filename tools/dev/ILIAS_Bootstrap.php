@@ -39,7 +39,7 @@ function setUserContext($login) {
     global $ilias, $ilInit;
     $userId = ilObjUser::_lookupId($login);
     $ilUser = new ilObjUser($userId);
-    $ilias->account =& $ilUser;
+    $ilias->account = $ilUser;
     initGlobal("ilUser", $ilUser);
 }
 
