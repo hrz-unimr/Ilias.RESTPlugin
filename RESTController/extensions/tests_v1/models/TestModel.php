@@ -61,4 +61,25 @@ class TestModel extends Libs\RESTModel {
         $test->read();
         return array("title"=>$test->getTitle(),"description"=>$test->getDescription(),"type"=>$type = $test->getType());
     }
+
+    /**
+     * Returns all questions of a test.
+     * @param $ref_id
+     * @param $user_id
+     * @return array
+     */
+    public function getQuestions($ref_id, $user_id)
+    {
+        Libs\RESTilias::loadIlUser($user_id);
+        Libs\RESTilias::initAccessHandling();
+        $test = new \ilObjTest($ref_id);
+        $questions = $test->getAllQuestions();
+
+        $result = array();
+        foreach($questions as $question){
+            array_push($result, $question);
+        }
+
+        return $result;
+    }
 }

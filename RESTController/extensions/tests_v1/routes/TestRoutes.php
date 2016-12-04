@@ -52,4 +52,25 @@ $app->group('/v1', function () use ($app) {
         }
     });
 
+    /**
+     * Retrieves all questions of a test.
+     */
+    $app->get('/tests/getQuestions/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
+        try {
+            $accessToken = $app->request->getToken();
+            $user_id = $accessToken->getUserId();
+
+            $test_model = new TestModel();
+            $questions = $test_model->getQuestions($ref_id,$user_id);
+
+            $result = array(
+                'test' => $questions
+            );
+
+            $app->success($result);
+        } catch (Libs\Exceptions\ReadFailed $e) {
+            $app->halt(500, $e->getFormatedMessage());
+        }
+    });
+
 });
