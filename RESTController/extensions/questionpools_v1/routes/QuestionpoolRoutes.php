@@ -74,6 +74,25 @@ $app->group('/v1', function () use ($app) {
             $app->halt(500, $e->getFormatedMessage());
         }
     });
+    /**
+     * Gets the answers for a question of type 2 = assMultipleChoice
+     */
+    $app->get('/questionpools/getMultipleChoiceAnswers/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
+        try {
+            $accessToken = $app->request->getToken();
+            $user_id = $accessToken->getUserId();
 
+            $questionpool_model = new QuestionpoolModel();
+            $answers = $questionpool_model->getMultipleChoiceAnswers($ref_id, $user_id);
+
+            $result = array(
+                'answers' => $answers
+            );
+
+            $app->success($result);
+        } catch (Libs\Exceptions\ReadFailed $e) {
+            $app->halt(500, $e->getFormatedMessage());
+        }
+    });
 
 });
