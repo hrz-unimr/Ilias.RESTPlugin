@@ -13,6 +13,8 @@ use \RESTController\libs as Libs;
 require_once('./Services/Utilities/classes/class.ilUtil.php');
 require_once('./Modules/TestQuestionPool/classes/class.ilObjQuestionPool.php');
 require_once('./Modules/TestQuestionPool/classes/class.assTextQuestion.php');
+require_once('./Modules/TestQuestionPool/classes/class.assSingleChoice.php');
+
 
 class QuestionpoolModel extends Libs\RESTModel {
 
@@ -56,4 +58,29 @@ class QuestionpoolModel extends Libs\RESTModel {
         }
         return $answers;
     }  
+
+    /**
+     * Returns the answer for a question of type 1 = assSingleChoice
+     * @param $ref_id
+     * @param $user_id
+     * @return array
+    */
+    public function getSingleChoiceAnswers($ref_id, $user_id)
+    {
+        Libs\RESTilias::loadIlUser($user_id);
+        Libs\RESTilias::initAccessHandling();
+
+        $sc_question = new \assSingleChoice();
+        $sc_question->loadFromDb($ref_id);
+
+        $answers = array();
+        foreach($sc_question->answers as $answer){
+           $result = array(
+                'answertext' => $answer->getAnswertext(),
+                'points' => $answer->getPoints()
+            ); 
+           array_push($answers, $result);
+        }
+        return $answers;
+    }
 }
