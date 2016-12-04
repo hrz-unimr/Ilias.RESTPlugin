@@ -12,11 +12,12 @@ use \RESTController\libs as Libs;
 
 require_once('./Services/Utilities/classes/class.ilUtil.php');
 require_once('./Modules/TestQuestionPool/classes/class.ilObjQuestionPool.php');
+require_once('./Modules/TestQuestionPool/classes/class.assTextQuestion.php');
 
 class QuestionpoolModel extends Libs\RESTModel {
 
     /**
-     * Returns all questions of a test
+     * Returns all questions of a questionpool
      * @param $ref_id
      * @param $user_id
      * @return array
@@ -25,10 +26,34 @@ class QuestionpoolModel extends Libs\RESTModel {
     {
         Libs\RESTilias::loadIlUser($user_id);
         Libs\RESTilias::initAccessHandling();
-        $test = new \ilObjQuestionPool($ref_id);
-        $test->read();
-        $questions = $test->getPrintviewQuestions();
+        $questionpool = new \ilObjQuestionPool($ref_id);
+        $questionpool->read();
+        $questions = $questionpool->getPrintviewQuestions();
         return $questions;
     }
-    
+
+    /**
+     * Returns the answers for a question of type 8 = assTextQuestion
+     * @param $ref_id
+     * @param $user_id
+     * @return array
+    */
+    public function getTextAnswers($ref_id, $user_id)
+    {
+        Libs\RESTilias::loadIlUser($user_id);
+        Libs\RESTilias::initAccessHandling();
+
+        $text_question = new \assTextQuestion();
+        $text_question->loadFromDb($ref_id);
+        
+        $answers = array();
+        foreach($text_question->answers as $answer){
+           $result = array(
+                'answertext' => $answer->getAnswertext(),
+                'points' => $answer->getPoints()
+            ); 
+           array_push($answers, $result);
+        }
+        return $answers;
+    }  
 }
