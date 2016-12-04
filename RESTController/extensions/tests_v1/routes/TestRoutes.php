@@ -64,7 +64,7 @@ $app->group('/v1', function () use ($app) {
             $questions = $test_model->getQuestions($ref_id,$user_id);
 
             $result = array(
-                'test' => $questions
+                'questions' => $questions
             );
 
             $app->success($result);
