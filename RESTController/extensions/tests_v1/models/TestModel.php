@@ -66,9 +66,10 @@ class TestModel extends Libs\RESTModel {
      * Returns all questions of a test.
      * @param $ref_id
      * @param $user_id
+     * @param $types
      * @return array
      */
-    public function getQuestions($ref_id, $user_id)
+    public function getQuestions($ref_id, $user_id, $types)
     {
         Libs\RESTilias::loadIlUser($user_id);
         Libs\RESTilias::initAccessHandling();
@@ -76,10 +77,18 @@ class TestModel extends Libs\RESTModel {
         $questions = $test->getAllQuestions();
 
         $result = array();
-        foreach($questions as $question){
-            array_push($result, $question);
+        //filter questions that match the provided types parameter
+        if($types != 'all'){
+            foreach($questions as $question){
+                $question_type = $question['question_type_fi'];
+                if(strpos($types, $question_type) !== false){
+                    array_push($result, $question);
+                }
+            }
         }
-
+        else{
+            $result = $questions;
+        }
         return $result;
     }
 }

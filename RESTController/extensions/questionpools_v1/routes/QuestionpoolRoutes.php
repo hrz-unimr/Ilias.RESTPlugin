@@ -15,20 +15,24 @@ use \RESTController\extensions\questionpools_v1 as Questionpools;
 
 $app->group('/v1', function () use ($app) {
     /**
-     * Gets all questions of a Questionpool
+     * Gets the questions of a Questionpool
+     * (OPTIONAL) Desired types of questions can be specified in the 'types' parameter of the request 
+     * e.g. "1, 2, 8" for single choice, multiple choice and text questions only.
      */
     $app->get('/questionpools/getQuestions/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         try {
             $accessToken = $app->request->getToken();
             $user_id = $accessToken->getUserId();
 
+            $types = $app->request->getParameter('types','all');
+
             $questionpool_model = new QuestionpoolModel();
-            $questions = $questionpool_model->getQuestions($ref_id, $user_id);
+            $questions = $questionpool_model->getQuestions($ref_id, $user_id, $types);
 
             $result = array(
                 'questions' => $questions
             );
-
+        
             $app->success($result);
         } catch (Libs\Exceptions\ReadFailed $e) {
             $app->halt(500, $e->getFormatedMessage());

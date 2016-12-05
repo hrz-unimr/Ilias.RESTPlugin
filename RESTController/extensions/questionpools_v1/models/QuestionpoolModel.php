@@ -20,19 +20,34 @@ require_once('./Modules/TestQuestionPool/classes/class.assMultipleChoice.php');
 class QuestionpoolModel extends Libs\RESTModel {
 
     /**
-     * Returns all questions of a questionpool
+     * Returns questions of a questionpool
      * @param $ref_id
      * @param $user_id
+     * @param $types
      * @return array
     */
-    public function getQuestions($ref_id, $user_id)
+    public function getQuestions($ref_id, $user_id, $types)
     {
         Libs\RESTilias::loadIlUser($user_id);
         Libs\RESTilias::initAccessHandling();
         $questionpool = new \ilObjQuestionPool($ref_id);
         $questionpool->read();
         $questions = $questionpool->getPrintviewQuestions();
-        return $questions;
+
+        $result = array();
+        //filter questions that match the provided types parameter
+        if($types != 'all'){
+            foreach($questions as $question){
+                $question_type = $question['question_type_fi'];
+                if(strpos($types, $question_type) !== false){
+                    array_push($result, $question);
+                }
+            }
+        }
+        else{
+            $result = $questions;
+        }
+        return $result;
     }
 
     /**
