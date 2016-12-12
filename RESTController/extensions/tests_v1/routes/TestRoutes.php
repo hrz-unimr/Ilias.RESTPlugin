@@ -55,7 +55,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Retrieves all questions of a test.
      * (OPTIONAL) Desired types of questions can be specified in the 'types' parameter of the request 
-     * e.g. "1, 2, 8" for single choice, multiple choice and text questions only.
+     * e.g. "1,2,8" for single choice, multiple choice and text questions only.
      */
     $app->get('/tests/getQuestions/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         try {

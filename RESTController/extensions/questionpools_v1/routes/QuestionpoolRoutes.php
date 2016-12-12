@@ -17,7 +17,7 @@ $app->group('/v1', function () use ($app) {
     /**
      * Gets the questions of a Questionpool
      * (OPTIONAL) Desired types of questions can be specified in the 'types' parameter of the request 
-     * e.g. "1, 2, 8" for single choice, multiple choice and text questions only.
+     * e.g. "1,2,8" for single choice, multiple choice and text questions only.
      */
     $app->get('/questionpools/getQuestions/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         try {

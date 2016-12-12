@@ -77,18 +77,20 @@ class TestModel extends Libs\RESTModel {
         $questions = $test->getAllQuestions();
 
         $result = array();
+
         //filter questions that match the provided types parameter
         if($types != 'all'){
+            $types = explode(',', $types);
             foreach($questions as $question){
-                $question_type = $question['question_type_fi'];
-                if(strpos($types, $question_type) !== false){
+                if(in_array($question['question_type_fi'], $types)){
                     array_push($result, $question);
                 }
             }
-        }
-        else{
+         }
+         else {
             $result = $questions;
-        }
+         }
+
         return $result;
     }
 }
