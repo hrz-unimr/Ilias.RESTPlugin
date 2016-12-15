@@ -46,7 +46,9 @@ class QuestionpoolModel extends Libs\RESTModel {
             }
          }
          else {
-            $result = $questions;
+            foreach($questions as $question){
+                array_push($result, $question);
+            }
          }
 
         return $result;
