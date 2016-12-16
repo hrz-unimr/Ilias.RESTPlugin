@@ -278,25 +278,53 @@ $app->group('/v1', function () use ($app) {
                 }
             }
 
-            $types = $app->request->getParameter('types','all');
-            $title = $app->request->getParameter('title','all');
-            $description = $app->request->getParameter('description','all');
+            //get filter parameters
+            $types = $app->request->getParameter('types','*');
+            $title = $app->request->getParameter('title','*');
+            $description = $app->request->getParameter('description','*');
             $filtered_contents = array();
 
             //filter for type
-            if($types != 'all'){
+            $type_filter = array();
+            if($types != '*'){
                 $types = explode(',', $types);
                 foreach($contents as $content){
                     if(in_array($content['type'], $types)){
-                        array_push($filtered_contents, $content);
+                        array_push($type_filter, $content);
                     }
                 }
             }
             else{
-                foreach($contents as $content){
-                    array_push($filtered_contents, $content);
+                $type_filter = $contents;
+            }
+
+            //filter for title
+            $title_filter = array();
+            if($title != '*'){
+                foreach($type_filter as $content){
+                    if(strpos($content['title'], $title) !== false){
+                        array_push($title_filter, $content);
+                    }
                 }
             }
+            else{
+                $title_filter = $type_filter;
+            }
+
+            //filter for description
+            $description_filter = array();
+            if($description != '*'){
+                foreach($title_filter as $content){
+                    if(strpos($content['description'], $description) !== false){
+                        array_push($description_filter, $content);
+                    }
+                }
+            }
+            else{
+                $description_filter = $title_filter;
+            }
+
+            $filtered_contents = $description_filter;
 
             $result = array(
                 'contents' => $filtered_contents, // course contents
