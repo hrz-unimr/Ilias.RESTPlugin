@@ -24,7 +24,7 @@ $app->group('/v1', function () use ($app) {
             $accessToken = $app->request->getToken();
             $user_id = $accessToken->getUserId();
 
-            $types = $app->request->getParameter('types','all');
+            $types = $app->request->getParameter('types','*');
 
             $questionpool_model = new QuestionpoolModel();
             $questions = $questionpool_model->getQuestions($ref_id, $user_id, $types);
