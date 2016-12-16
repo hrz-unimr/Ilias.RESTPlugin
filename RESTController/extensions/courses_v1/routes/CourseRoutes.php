@@ -301,8 +301,10 @@ $app->group('/v1', function () use ($app) {
             //filter for title
             $title_filter = array();
             if($title != '*'){
+                $title = mb_strtolower($title, 'UTF-8');
                 foreach($type_filter as $content){
-                    if(strpos($content['title'], $title) !== false){
+                    $content_title = mb_strtolower($content['title'], 'UTF-8');
+                    if(strpos($content_title, $title) !== false){
                         array_push($title_filter, $content);
                     }
                 }
@@ -314,8 +316,10 @@ $app->group('/v1', function () use ($app) {
             //filter for description
             $description_filter = array();
             if($description != '*'){
+                $description = mb_strtolower($description, 'UTF-8');
                 foreach($title_filter as $content){
-                    if(strpos($content['description'], $description) !== false){
+                    $content_description = mb_strtolower($content['description'], 'UTF-8');
+                    if(strpos($content_description, $description) !== false){
                         array_push($description_filter, $content);
                     }
                 }
