@@ -251,7 +251,11 @@ $app->group('/v1', function () use ($app) {
     });
 
     /**
-     * Retrieves the content of a course.
+     * Retrieves all contents of a course.
+     * (OPTIONAL) Results can be filtered by adding these parameters to the request:
+     *      "types": comma seperated list of all desired types of objects, e.g. "fold, tst"
+     *      "title": title of the objects
+     *      "description": description of the objects
      */
     $app->get('/courses/searchCourse/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
         $app->log->debug('in course get ref_id= '.$ref_id);
@@ -286,7 +290,7 @@ $app->group('/v1', function () use ($app) {
 
             //filter for type
             $type_filter = array();
-            if($types != '*'){
+            if($types != '*' && $types != ''){
                 $types = explode(',', $types);
                 foreach($contents as $content){
                     if(in_array($content['type'], $types)){
@@ -300,7 +304,7 @@ $app->group('/v1', function () use ($app) {
 
             //filter for title
             $title_filter = array();
-            if($title != '*'){
+            if($title != '*' && $title != ''){
                 $title = mb_strtolower($title, 'UTF-8');
                 foreach($type_filter as $content){
                     $content_title = mb_strtolower($content['title'], 'UTF-8');
@@ -315,7 +319,7 @@ $app->group('/v1', function () use ($app) {
 
             //filter for description
             $description_filter = array();
-            if($description != '*'){
+            if($description != '*' && $description != ''){
                 $description = mb_strtolower($description, 'UTF-8');
                 foreach($title_filter as $content){
                     $content_description = mb_strtolower($content['description'], 'UTF-8');

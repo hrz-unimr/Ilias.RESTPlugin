@@ -79,7 +79,7 @@ class TestModel extends Libs\RESTModel {
         $result = array();
 
         //filter questions that match the provided types parameter
-        if($types != 'all'){
+        if($types != '*' && $types != ''){
             $types = explode(',', $types);
             foreach($questions as $question){
                 if(in_array($question['question_type_fi'], $types)){
