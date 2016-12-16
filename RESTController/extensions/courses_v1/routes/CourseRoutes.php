@@ -250,4 +250,61 @@ $app->group('/v1', function () use ($app) {
         }
     });
 
+    /**
+     * Retrieves the content of a course.
+     */
+    $app->get('/courses/searchCourse/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
+        $app->log->debug('in course get ref_id= '.$ref_id);
+        try {
+            $crs_model = new CoursesModel();
+            $contents = $crs_model->getCourseContent($ref_id);
+
+            $folders = array();
+
+            foreach($contents as $content){
+                if($content['type'] == 'fold'){
+                    array_push($folders, $content);
+                }
+            }
+
+            while($folder = array_shift($folders)){
+                $f_id = $folder['ref_id'];
+                $childContents = $crs_model->getCourseContent($f_id);
+                foreach($childContents as $childContent){
+                    if($childContent['type'] == 'fold'){
+                        array_push($folders, $childContent);
+                    }
+                    array_push($contents, $childContent);
+                }
+            }
+
+            $types = $app->request->getParameter('types','all');
+            $title = $app->request->getParameter('title','all');
+            $description = $app->request->getParameter('description','all');
+            $filtered_contents = array();
+
+            //filter for type
+            if($types != 'all'){
+                $types = explode(',', $types);
+                foreach($contents as $content){
+                    if(in_array($content['type'], $types)){
+                        array_push($filtered_contents, $content);
+                    }
+                }
+            }
+            else{
+                foreach($contents as $content){
+                    array_push($filtered_contents, $content);
+                }
+            }
+
+            $result = array(
+                'contents' => $filtered_contents, // course contents
+            );
+            $app->success($result);
+        } catch (Libs\Exceptions\ReadFailed $e) {
+            $app->halt(500, $e->getFormatedMessage());
+        }
+    });
+
 });
