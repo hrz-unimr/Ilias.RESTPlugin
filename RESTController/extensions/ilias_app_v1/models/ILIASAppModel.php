@@ -74,7 +74,7 @@ class ILIASAppModel extends Libs\RESTModel
 
         return array(
             'fileExtension' => $file->getFileExtension(),
-            'filName' => $fileName,
+            'fileName' => $fileName,
             'fileSize' => $file->getFileSize(),
             'fileType' => $file->getFileType(),
             'fileVersion' => $file->getVersion(),
