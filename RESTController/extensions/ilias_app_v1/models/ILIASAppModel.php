@@ -152,7 +152,7 @@ class ILIASAppModel extends Libs\RESTModel
                 FROM object_data 
                 INNER JOIN object_reference ON (object_reference.obj_id = object_data.obj_id AND object_reference.deleted IS NULL)
                 INNER JOIN tree ON (tree.child = object_reference.ref_Id)
-                WHERE object_data.obj_id IN (" . implode(',', $objIds) . ") AND object_data.type NOT IN ('rolf', 'sess')";
+                WHERE object_data.obj_id IN (" . implode(',', $objIds) . ") AND object_data.type NOT IN ('rolf', 'itgr')";
         $set = $this->db->query($sql);
         $return = array();
         while ($row = $this->db->fetchAssoc($set)) {
