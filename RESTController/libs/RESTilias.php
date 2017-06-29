@@ -96,6 +96,16 @@ class RESTilias {
     return $http_path;
   }
 
+	/**
+	 * Read and return the default client-ID from the ilias.ini file
+	 * @return string
+	 */
+	protected static function getIniDefaultClientId() {
+		require_once('./Services/Init/classes/class.ilIniFile.php');
+		$ini = new \ilIniFile('./ilias.ini.php');
+		$ini->read();
+		return $ini->readVariable("clients", "default");
+	}
 
   /**
    * Function: initILIAS()
@@ -106,6 +116,12 @@ class RESTilias {
   public static function initILIAS($client = null) {
     // Apply oAuth2 fix for client_id GET/POST value
     self::applyOAuth2Fix($client);
+
+	  // ILIAS 5.2 needs a client-id in $_GET before initialization.
+	  // Use the default client ID defined in the INI file, if client-ID was not determined at this point.
+	  if (!isset($_GET['client_id'])) {
+		  $_GET['client_id'] = self::getIniDefaultClientId();
+	  }
 
     // Required included to initialize ILIAS
     require_once('Services/Context/classes/class.ilContext.php');
