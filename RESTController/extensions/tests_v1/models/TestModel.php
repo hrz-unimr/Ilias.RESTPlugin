@@ -12,6 +12,7 @@ use \RESTController\libs as Libs;
 
 require_once('./Services/Utilities/classes/class.ilUtil.php');
 require_once('./Modules/Test/classes/class.ilObjTest.php');
+require_once('./Services/MediaObjects/classes/class.ilObjMediaObject.php');
 
 class TestModel extends Libs\RESTModel {
 
@@ -76,6 +77,7 @@ class TestModel extends Libs\RESTModel {
         $test = new \ilObjTest($ref_id);
         $questions = $test->getAllQuestions();
 
+        $filter = array();
         $result = array();
 
         //filter questions that match the provided types parameter
@@ -83,12 +85,29 @@ class TestModel extends Libs\RESTModel {
             $types = explode(',', $types);
             foreach($questions as $question){
                 if(in_array($question['question_type_fi'], $types)){
-                    array_push($result, $question);
+                    array_push($filter, $question);
                 }
             }
          }
          else {
-            $result = $questions;
+            $filter = $questions;
+         }
+
+         //get media objects of each question
+         foreach($filter as $question){
+           $ilObjMediaObject = new \ilObjMediaObject();
+           $mobs = $ilObjMediaObject->_getMobsOfObject("qpl:pg", $question['question_id']);
+           
+           $question['mediaObjects'] = [];
+           foreach($mobs as $mob){
+                $mediaobject = new \ilObjMediaObject($mob);
+                $mobarray = [
+                    "id" => $mob,
+                    "mediaItems" => $mediaobject->media_items
+                ];
+                array_push($question['mediaObjects'], $mobarray);
+            }
+           array_push($result, $question);
          }
 
         return $result;

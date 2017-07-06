@@ -15,6 +15,7 @@ require_once('./Modules/TestQuestionPool/classes/class.ilObjQuestionPool.php');
 require_once('./Modules/TestQuestionPool/classes/class.assTextQuestion.php');
 require_once('./Modules/TestQuestionPool/classes/class.assSingleChoice.php');
 require_once('./Modules/TestQuestionPool/classes/class.assMultipleChoice.php');
+require_once('./Services/MediaObjects/classes/class.ilObjMediaObject.php');
 
 
 class QuestionpoolModel extends Libs\RESTModel {
@@ -34,19 +35,40 @@ class QuestionpoolModel extends Libs\RESTModel {
         $questionpool->read();
         $questions = $questionpool->getPrintviewQuestions();
 
+        $filter = array();
         $result = array();
 
-        //filter questions that match the provided types parameter
+        //filter questions that match the provided types parameters
         if($types != '*' && $types != ''){
             $types = explode(',', $types);
             foreach($questions as $question){
                 if(in_array($question['question_type_fi'], $types)){
-                    array_push($result, $question);
+                    array_push($filter, $question);
                 }
             }
          }
          else {
-            $result = $questions;
+            $filter = $questions;
+         }
+
+         //get media objects of each question
+         foreach($filter as $question){
+           $ilObjMediaObject = new \ilObjMediaObject();
+           $mobs = $ilObjMediaObject->_getMobsOfObject("qpl:pg", $question['question_id']);
+           
+           $question['mediaObjects'] = [];
+           foreach($mobs as $mob){
+                $mediaobject = new \ilObjMediaObject($mob);
+                $mobarray = [
+                    "id" => $mob,
+                    "mediaItems" => $mediaobject->media_items
+                ];
+                array_push($question['mediaObjects'], $mobarray);
+
+           }
+
+
+           array_push($result, $question);
          }
 
         return $result;
