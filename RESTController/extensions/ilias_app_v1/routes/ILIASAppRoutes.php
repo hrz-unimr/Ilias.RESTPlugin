@@ -51,4 +51,15 @@ $app->group('/v1/ilias-app', function () use ($app) {
 
     $app->options('/files/:refId', function() {});
 
+    $app->options('/auth', function () {});
+
+    $app->get('/auth', RESTAuth::checkAccess(RESTAuth::TOKEN), function() use ($app) {
+	    $iliasApp = new ILIASAppModel();
+
+	    $accessToken = $app->request->getToken();
+	    $userId = $accessToken->getUserId();
+    	$token = $iliasApp->createToken($userId);
+    	$app->response->body(json_encode("{\"token\":\"$token\"}"));
+    });
+
 });

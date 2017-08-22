@@ -22,15 +22,32 @@ class ILIASAppModel extends Libs\RESTModel
     protected $access;
 
 
-    public function __construct()
+	public function __construct()
     {
         global $ilDB, $ilAccess;
+        Libs\RESTilias::initILIAS();
         Libs\RESTilias::loadIlUser();
         Libs\RESTilias::initAccessHandling();
         $this->db = $ilDB;
         $this->access = $ilAccess;
     }
 
+
+    public function createToken($userId) {
+
+		$token = hash("sha512", rand(100, 10000) * 17 + $userId);
+		$expires = date("Y-m-d H:i:s", time() + 60); // token is 1 min valid
+
+		$fields = array(
+			"user_id" => array("integer", $userId),
+			"token" => array("text", $token),
+			"expires" => array("timestamp", $expires)
+		);
+
+		$this->db->insert("ui_uihk_rest_token", $fields);
+
+		return $token;
+    }
 
     /**
      * Return courses and groups from desktop
