@@ -51,9 +51,12 @@ $app->group('/v1/ilias-app', function () use ($app) {
 
     $app->options('/files/:refId', function() {});
 
-    $app->options('/auth', function () {});
+    $app->options('/auth-token', function () {});
 
-    $app->get('/auth', RESTAuth::checkAccess(RESTAuth::TOKEN), function() use ($app) {
+	/**
+	 * Returns a very short live token to log in via the ILIAS Pegasus Helper plugin.
+	 */
+    $app->get('/auth-token', RESTAuth::checkAccess(RESTAuth::TOKEN), function() use ($app) {
 	    $iliasApp = new ILIASAppModel();
 
 	    $accessToken = $app->request->getToken();

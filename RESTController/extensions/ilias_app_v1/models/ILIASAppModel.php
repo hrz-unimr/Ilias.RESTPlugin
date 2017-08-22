@@ -33,9 +33,33 @@ class ILIASAppModel extends Libs\RESTModel
     }
 
 
+	/**
+	 * Creates and saves a token for the passed in {@code $userId}.
+	 * The token has a very short life time, because it can be used
+	 * to log into ILIAS without username and password.
+	 *
+	 * If the token with the associated user id exists already,
+	 * it will be returned and no token will be generated.
+	 * The expire date of the token will NOT be updated.
+	 *
+	 * @param $userId int the user to create the token for
+	 *
+	 * @return string the created token or the stored token if it exists already
+	 */
     public function createToken($userId) {
 
-		$token = hash("sha512", rand(100, 10000) * 17 + $userId);
+    	// Return the token if the user has already one associated
+    	$sql = "SELECT * FROM ui_uihk_rest_token WHERE user_id = ". $this->db->quote($userId, 'integer');
+    	$set = $this->db->query($sql);
+
+    	$token = $this->db->fetchAssoc($set);
+
+    	if (array_key_exists("token", $token)) {
+    		return $token['token'];
+	    }
+
+		// Create a new token and associate it ith the user id
+		$token = hash("sha512", rand(100, 10000) * 17 + $userId); // hash with the user id
 		$expires = date("Y-m-d H:i:s", time() + 60); // token is 1 min valid
 
 		$fields = array(
