@@ -185,7 +185,7 @@ class ILIASAppModel extends Libs\RESTModel
 
     protected function fetchObjectData(array $objIds)
     {
-    	
+
         if (!count($objIds)) {
             return array();
         }
@@ -206,9 +206,14 @@ class ILIASAppModel extends Libs\RESTModel
         $return = array();
 
         while ($row = $this->db->fetchAssoc($set)) {
-            if (!$this->access->checkAccess('read', '', $row['ref_id'])) {
-                continue;
-            }
+
+        	if ($this->isRead($row['ref_id'])) {
+        		$row['permissionType'] = "read";
+	        } elseif ($this->isVisible($row['ref_id'])) {
+        		$row['permissionType'] = "visible";
+	        } else {
+        		continue;
+	        }
 
             $return[] = array(
                 'objId' => $row['obj_id'],
@@ -216,6 +221,7 @@ class ILIASAppModel extends Libs\RESTModel
                 'description' => $row['description'],
                 'hasPageLayout' => ($row['page_layout'] !== NULL),
                 'hasTimeline' => ($row['timeline'] !== NULL),
+                'permissionType' => $row['permissionType'],
                 'refId' => $row['ref_id'],
                 'parentRefId' => $row['parent_ref_id'],
                 'type' => $row['type'],
@@ -243,4 +249,27 @@ class ILIASAppModel extends Libs\RESTModel
         return $path;
     }
 
+
+	/**
+	 * Checks the access right of the given $refId for visible permission.
+	 *
+	 * @param $refId int a ref_id to check the access
+	 *
+	 * @return bool true if the permission is visible, otherwise false
+	 */
+    private function isVisible($refId) {
+    	return $this->access->checkAccess('visible', '', $refId);
+    }
+
+
+	/**
+	 * Checks the access right of the given $refId for read permission.
+	 *
+	 * @param $refId int a ref_id to check the access
+	 *
+	 * @return bool true if the permission is read, otherwise false
+	 */
+    private function isRead($refId) {
+    	return $this->access->checkAccess('read', '', $refId);
+    }
 }
