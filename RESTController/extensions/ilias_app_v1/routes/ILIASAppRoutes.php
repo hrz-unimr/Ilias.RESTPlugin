@@ -2,6 +2,7 @@
 
 require_once(dirname(__DIR__) . '/models/ILIASAppModel.php');
 require_once('./Services/Membership/classes/class.ilParticipants.php');
+use RESTController\extensions\ILIASApp\V2\ILIASAppModel;
 use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\core\auth as Auth;
 use \RESTController\libs as Libs;
