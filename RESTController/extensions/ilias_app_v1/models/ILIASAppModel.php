@@ -32,47 +32,6 @@ class ILIASAppModel extends Libs\RESTModel
         $this->access = $ilAccess;
     }
 
-
-	/**
-	 * Creates and saves a token for the passed in {@code $userId}.
-	 * The token has a very short life time, because it can be used
-	 * to log into ILIAS without username and password.
-	 *
-	 * If the token with the associated user id exists already,
-	 * it will be returned and no token will be generated.
-	 * The expire date of the token will NOT be updated.
-	 *
-	 * @param $userId int the user to create the token for
-	 *
-	 * @return string the created token or the stored token if it exists already
-	 */
-    public function createToken($userId) {
-
-    	// Return the token if the user has already one associated
-    	$sql = "SELECT * FROM ui_uihk_rest_token WHERE user_id = ". $this->db->quote($userId, 'integer');
-    	$set = $this->db->query($sql);
-
-    	$token = $this->db->fetchAssoc($set);
-
-    	if (array_key_exists("token", $token)) {
-    		return $token['token'];
-	    }
-
-		// Create a new token and associate it ith the user id
-		$token = hash("sha512", rand(100, 10000) * 17 + $userId); // hash with the user id
-		$expires = date("Y-m-d H:i:s", time() + 60); // token is 1 min valid
-
-		$fields = array(
-			"user_id" => array("integer", $userId),
-			"token" => array("text", $token),
-			"expires" => array("timestamp", $expires)
-		);
-
-		$this->db->insert("ui_uihk_rest_token", $fields);
-
-		return $token;
-    }
-
     /**
      * Return courses and groups from desktop
      *
@@ -183,6 +142,7 @@ class ILIASAppModel extends Libs\RESTModel
 
     protected function fetchObjectData(array $objIds)
     {
+
         if (!count($objIds)) {
             return array();
         }
@@ -193,13 +153,17 @@ class ILIASAppModel extends Libs\RESTModel
                 FROM object_data 
                 INNER JOIN object_reference ON (object_reference.obj_id = object_data.obj_id AND object_reference.deleted IS NULL)
                 INNER JOIN tree ON (tree.child = object_reference.ref_Id)
+
                 WHERE object_data.obj_id IN (" . implode(',', $objIds) . ") AND object_data.type NOT IN ('rolf', 'itgr')";
         $set = $this->db->query($sql);
         $return = array();
+
         while ($row = $this->db->fetchAssoc($set)) {
-            if (!$this->access->checkAccess('read', '', $row['ref_id'])) {
-                continue;
-            }
+
+        	if (!$this->access->checkAccess('read', '', $row['ref_id'])) {
+        		continue;
+	        }
+
             $return[] = array(
                 'objId' => $row['obj_id'],
                 'title' => $row['title'],
@@ -230,5 +194,4 @@ class ILIASAppModel extends Libs\RESTModel
 
         return $path;
     }
-
 }

@@ -1,7 +1,8 @@
 <?php namespace RESTController\extensions\ILIASApp;
 
-require_once(dirname(__DIR__) . '/models/ILIASAppModel.php');
+require_once("./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/RESTController/extensions/ilias_app_v1/models/ILIASAppModel.php");
 require_once('./Services/Membership/classes/class.ilParticipants.php');
+use  RESTController\extensions\ILIASApp\ILIASAppModel;
 use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\core\auth as Auth;
 use \RESTController\libs as Libs;
@@ -50,19 +51,5 @@ $app->group('/v1/ilias-app', function () use ($app) {
     });
 
     $app->options('/files/:refId', function() {});
-
-    $app->options('/auth-token', function () {});
-
-	/**
-	 * Returns a very short live token to log in via the ILIAS Pegasus Helper plugin.
-	 */
-    $app->get('/auth-token', RESTAuth::checkAccess(RESTAuth::TOKEN), function() use ($app) {
-	    $iliasApp = new ILIASAppModel();
-
-	    $accessToken = $app->request->getToken();
-	    $userId = $accessToken->getUserId();
-    	$token = $iliasApp->createToken($userId);
-    	$app->response->body(json_encode("{\"token\":\"$token\"}"));
-    });
 
 });
