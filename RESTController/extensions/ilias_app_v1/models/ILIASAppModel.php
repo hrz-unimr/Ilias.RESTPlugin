@@ -32,49 +32,6 @@ class ILIASAppModel extends Libs\RESTModel
         $this->access = $ilAccess;
     }
 
-
-	/**
-	 * Creates and saves a token for the passed in {@code $userId}.
-	 * The token has a very short life time, because it can be used
-	 * to log into ILIAS without username and password.
-	 *
-	 * If the token with the associated user id exists already,
-	 * it will be returned and no token will be generated.
-	 * The expire date of the token will NOT be updated.
-	 *
-	 * @param $userId int the user to create the token for
-	 *
-	 * @return string the created token or the stored token if it exists already
-	 */
-    public function createToken($userId) {
-
-    	// Return the token if the user has already one associated
-    	$sql = "SELECT * FROM ui_uihk_rest_token WHERE user_id = ". $this->db->quote($userId, 'integer');
-    	$set = $this->db->query($sql);
-
-    	$token = $this->db->fetchAssoc($set);
-
-    	if (
-    		is_array($token) &&
-    		array_key_exists("token", $token)) {
-    		return $token['token'];
-	    }
-
-		// Create a new token and associate it with the user id
-		$token = hash("sha512", rand(100, 10000) * 17 + $userId); // hash with the user id
-		$expires = date("Y-m-d H:i:s", time() + 60); // token is 1 min valid
-
-		$fields = array(
-			"user_id" => array("integer", $userId),
-			"token" => array("text", $token),
-			"expires" => array("timestamp", $expires)
-		);
-
-		$this->db->insert("ui_uihk_rest_token", $fields);
-
-		return $token;
-    }
-
     /**
      * Return courses and groups from desktop
      *
@@ -192,26 +149,18 @@ class ILIASAppModel extends Libs\RESTModel
         $sql = "SELECT
                 object_data.*,
                 tree.child AS ref_id,
-                tree.parent AS parent_ref_id,
-                page_object.parent_id AS page_layout,
-				ni.context_obj_id AS timeline
+                tree.parent AS parent_ref_id
                 FROM object_data 
                 INNER JOIN object_reference ON (object_reference.obj_id = object_data.obj_id AND object_reference.deleted IS NULL)
                 INNER JOIN tree ON (tree.child = object_reference.ref_Id)
-                LEFT JOIN page_object ON page_object.parent_id = object_data.obj_id
-                LEFT JOIN il_news_item AS ni ON ni.context_obj_id = object_data.obj_id
-                WHERE object_data.obj_id IN (" . implode(',', $objIds) . ") AND object_data.type NOT IN ('rolf', 'itgr')
-                GROUP BY object_data.obj_id";
+
+                WHERE object_data.obj_id IN (" . implode(',', $objIds) . ") AND object_data.type NOT IN ('rolf', 'itgr')";
         $set = $this->db->query($sql);
         $return = array();
 
         while ($row = $this->db->fetchAssoc($set)) {
 
-        	if ($this->isRead($row['ref_id'])) {
-        		$row['permissionType'] = "read";
-	        } elseif ($this->isVisible($row['ref_id'])) {
-        		$row['permissionType'] = "visible";
-	        } else {
+        	if (!$this->access->checkAccess('read', '', $row['ref_id'])) {
         		continue;
 	        }
 
@@ -219,9 +168,6 @@ class ILIASAppModel extends Libs\RESTModel
                 'objId' => $row['obj_id'],
                 'title' => $row['title'],
                 'description' => $row['description'],
-                'hasPageLayout' => ($row['page_layout'] !== NULL),
-                'hasTimeline' => ($row['timeline'] !== NULL),
-                'permissionType' => $row['permissionType'],
                 'refId' => $row['ref_id'],
                 'parentRefId' => $row['parent_ref_id'],
                 'type' => $row['type'],
@@ -247,29 +193,5 @@ class ILIASAppModel extends Libs\RESTModel
         }
 
         return $path;
-    }
-
-
-	/**
-	 * Checks the access right of the given $refId for visible permission.
-	 *
-	 * @param $refId int a ref_id to check the access
-	 *
-	 * @return bool true if the permission is visible, otherwise false
-	 */
-    private function isVisible($refId) {
-    	return $this->access->checkAccess('visible', '', $refId);
-    }
-
-
-	/**
-	 * Checks the access right of the given $refId for read permission.
-	 *
-	 * @param $refId int a ref_id to check the access
-	 *
-	 * @return bool true if the permission is read, otherwise false
-	 */
-    private function isRead($refId) {
-    	return $this->access->checkAccess('read', '', $refId);
     }
 }
