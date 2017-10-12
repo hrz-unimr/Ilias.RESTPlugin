@@ -478,7 +478,7 @@ class RESTilias {
     global $ilDB;
 
     // Query object by its refence-id
-    $sql    = RESTDatabase::safeSQL('SELECT obj_id FROM object_reference WHERE ref_id = %d', intval($refId));
+    $sql    = RESTDatabase::safeSQL('SELECT obj_id FROM object_reference WHERE ref_id = ' . $ilDB->quote($refId, 'integer'));
     $query  = $ilDB->query($sql);
     $row    = $ilDB->fetchAssoc($query);
 
