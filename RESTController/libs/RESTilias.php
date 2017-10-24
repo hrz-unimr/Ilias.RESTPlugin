@@ -19,14 +19,23 @@ use \RESTController\core\oauth2_v2 as Auth;
  */
 class RESTilias {
   // Allow to re-use status messages and codes
-  const MSG_NO_OBJECT_BY_REF  = 'Could not find any ILIAS-Object with Reference-Id \'{{ref_id}}\' in database.';
-  const ID_NO_OBJECT_BY_REF   = 'RESTController\\libs\\RESTilias::ID_NO_OBJECT_BY_REF';
-  const MSG_NO_OBJECT_BY_OBJ  = 'Could not find any ILIAS-Object with Object-Id \'{{obj_id}}\' in database.';
-  const ID_NO_OBJECT_BY_OBJ   = 'RESTController\\libs\\RESTilias::ID_NO_OBJECT_BY_OBJ';
-  const MSG_NO_USER_BY_ID     = 'Could not find any user with id \'{{id}}\' in database.';
-  const ID_NO_USER_BY_ID      = 'RESTController\\libs\\RESTilias::ID_NO_USER_BY_ID';
-  const MSG_NO_USER_BY_NAME   = 'Could not find any user with name \'{{name}}\' in database.';
-  const ID_NO_USER_BY_NAME    = 'RESTController\\libs\\RESTilias::ID_NO_USER_BY_NAME';
+  const MSG_NO_OBJECT_BY_REF   = 'Could not find any ILIAS-Object with Reference-Id \'{{ref_id}}\' in database.';
+  const ID_NO_OBJECT_BY_REF    = 'RESTController\\libs\\RESTilias::ID_NO_OBJECT_BY_REF';
+  const MSG_NO_OBJECT_BY_OBJ   = 'Could not find any ILIAS-Object with Object-Id \'{{obj_id}}\' in database.';
+  const ID_NO_OBJECT_BY_OBJ    = 'RESTController\\libs\\RESTilias::ID_NO_OBJECT_BY_OBJ';
+
+  const MSG_NO_USER_BY_ID      = 'Could not find any user with id \'{{id}}\' in database.';
+  const ID_NO_USER_BY_ID       = 'RESTController\\libs\\RESTilias::ID_NO_USER_BY_ID';
+  const MSG_NO_USER_BY_NAME    = 'Could not find any user with name \'{{name}}\' in database.';
+  const ID_NO_USER_BY_NAME     = 'RESTController\\libs\\RESTilias::ID_NO_USER_BY_NAME';
+
+  const MSG_RBAC_WRITE_DENIED  = 'Permission to create or modify {{object}} denied by RBAC-System.';
+  const ID_RBAC_WRITE_DENIED   = 'RESTController\\libs\\RESTilias::ID_RBAC_WRITE_DENIED';
+  const MSG_RBAC_READ_DENIED   = 'Permission to read {{object}} denied by RBAC-System.';
+  const ID_RBAC_READ_DENIED    = 'RESTController\\libs\\RESTilias::ID_RBAC_READ_DENIED';
+  const MSG_RBAC_DELETE_DENIED = 'Permission to delete {{object}} denied by RBAC-System.';
+  const ID_RBAC_DELETE_DENIED  = 'RESTController\\libs\\RESTilias::ID_RBAC_DELETE_DENIED';
+
 
   // ILIAS-Admin must have this role (id) assigned to them
   const RBCA_ADMIN_ID = 2;
