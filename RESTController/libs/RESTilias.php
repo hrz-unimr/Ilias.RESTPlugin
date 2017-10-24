@@ -237,8 +237,10 @@ class RESTilias {
 
   /**
    * Function: authenticate($username, $password)
-   *  Authentication via the ILIAS Auth mechanisms.
-   *  This method is used as backend for OAuth2.
+   *  Authentication via the ILIAS Auth mechanisms and is used as backend for OAuth2.
+   *
+   * Note: This code was extracted and refactored from ilSoapUserAdministration->login(...)
+   *       because ILIAS does not distinguish between authentication-logic and further login code-flow...
    *
    * Parameters:
    *  $username - ILIAS username to check
@@ -248,31 +250,44 @@ class RESTilias {
    *  <Boolean> - True if authentication was successfull, false otherwise
    */
   public static function authenticate($username, $password) {
-    // Initilaize role-base access-control
+    // Todo: Remove once auto-loading is available
+    require_once('Services/Authentication/classes/Frontend/class.ilAuthFrontendCredentials.php');
+    require_once('Services/Authentication/classes/Provider/class.ilAuthProviderFactory.php');
+    require_once('Services/Authentication/classes/class.ilAuthStatus.php');
+
+    // Required for LDAP authentication (and others?), because ILIAS forces
+    // updates to a users role EACH TIME credentials are validated successfully...
     self::initAccessHandling();
 
-    // Well, its ILIAS, so there is no way to check username/password pair...
-    // 'Lets just pretend we have filled out a login-form' -.-
-    $_POST['username'] = $username;
-    $_POST['password'] = $password;
+    // Create new authentication credentials object
+    $credentials = new \ilAuthFrontendCredentials();
+    $credentials->setUsername($username);
+    $credentials->setPassword($password);
 
-    // Initilaize ILIAS authentication
-    require_once('Services/User/classes/class.ilObjUser.php');
-    require_once('Services/Authentication/classes/class.ilAuthUtils.php');
-    \ilAuthUtils::_initAuth();
+    // Create new authentication provider factory and fetch all
+    $provider_factory = new \ilAuthProviderFactory();
+    $providers = $provider_factory->getProviders($credentials);
 
-    // Check authentification
-    global $ilAuth;
-    $ilAuth->start();
-    $checked_in = $ilAuth->getAuth();
+    // Fetch single authentication status object to me
+    $status = \ilAuthStatus::getInstance();
 
-    // Remove all dump created by ILIAS
-    $ilAuth->logout();
-    session_destroy();
-    header_remove('Set-Cookie');
+    // Check credentials with all authentication providers
+    foreach ($providers as $provider) {
+      // Reset status every time, just to be save
+      $status->setStatus(\ilAuthStatus::STATUS_UNDEFINED);
+      $status->setReason('');
+      $status->setAuthenticatedUserId(0);
 
-    // Return login-state
-    return $checked_in;
+      // Forward authentication to provider which returns true/false and also modifies the status-parameter
+      $provider->doAuthentication($status);
+
+      // Check if authentication was successfull
+      if ($status->getStatus() === \ilAuthStatus::STATUS_AUTHENTICATED)
+        return true;
+    }
+
+    // Seems like no provider could authenticate given username/password
+    return false;
   }
 
 
