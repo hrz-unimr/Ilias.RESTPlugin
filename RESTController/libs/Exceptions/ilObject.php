@@ -20,4 +20,6 @@ use \RESTController\libs as Libs;
  * Parameters:
  *  @See RESTException for parameter description
  */
-class ilObject extends Libs\RESTException { }
+class ilObject extends Libs\RESTException  {
+  const STATUS=404;
+}

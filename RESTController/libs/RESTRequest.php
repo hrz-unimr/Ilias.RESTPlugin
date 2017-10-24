@@ -21,12 +21,14 @@ use \RESTController\core\oauth2_v2\Tokens as Tokens;
  */
 class RESTRequest extends \Slim\Http\Request {
   // Allow to re-use status messages and codes
-  const MSG_MISSING         = 'Mandatory parameter missing, \'{{key}}\' not set in header, GET or POST (JSON/x-www-form-urlencoded) parameters.';
-  const ID_MISSING          = 'RESTController\\libs\\RESTRequest::ID_MISSING';
-  const MSG_PARSE_ISSUE     = 'Could not parse ids \'{{ids}} from \'{{string}}\'.';
-  const ID_PARSE_ISSUE      = 'RESTController\\libs\\RESTRequest::ID_PARSE_ISSUE';
-  const MSG_NO_TOKEN        = 'Could not find any {{type}} in header, GET or POST (JSON/x-www-form-urlencoded) parameters.';
-  const ID_NO_TOKEN         = 'RESTController\\libs\\RESTRequest::ID_NO_TOKEN';
+  const MSG_MISSING     = 'Mandatory parameter missing, \'{{key}}\' not set in header, GET or POST (JSON/x-www-form-urlencoded) parameters.';
+  const ID_MISSING      = 'RESTController\\libs\\RESTRequest::ID_MISSING';
+  const MSG_PARSE_ISSUE = 'Could not parse ids \'{{ids}} from \'{{string}}\'.';
+  const ID_PARSE_ISSUE  = 'RESTController\\libs\\RESTRequest::ID_PARSE_ISSUE';
+  const MSG_NO_TOKEN    = 'Could not find any {{type}} in header, GET or POST (JSON/x-www-form-urlencoded) parameters.';
+  const ID_NO_TOKEN     = 'RESTController\\libs\\RESTRequest::ID_NO_TOKEN';
+  const MSG_INVALID     = 'Parameter \'{{key}}\' contains invalid value.';
+  const ID_INVALID      = 'RESTController\\libs\\RESTRequest::ID_INVALID';
 
 
   /**
@@ -143,7 +145,8 @@ class RESTRequest extends \Slim\Http\Request {
           self::ID_MISSING,
           array(
             'key' => $key
-          )
+          ),
+          400
         );
 
       // Return the default value

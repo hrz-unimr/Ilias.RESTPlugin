@@ -27,6 +27,7 @@ class RESTException extends \Exception {
   // All RESTException can optionally have an attached 'rest-code'
   // Unlike the default exception-code, this can be non-numeric!
   protected $restCode = 0;
+  protected $httpCode = null;
   protected $restData = array();
 
 
@@ -41,7 +42,7 @@ class RESTException extends \Exception {
    *  $restData <Array[Mixed]> - [Optional] Optional data that should be attached to the exception. (Must be an array!)
    *  $previous <Exception> - [Optional] Attach previous exception that caused this exception
    */
-  public function __construct ($message, $restCode = 0, $restData = null, $previous = NULL) {
+  public function __construct ($message, $restCode = 0, $restData = null, $httpCode = null, $previous = NULL) {
     // Call parent constructor
     $message = self::format($message, $restCode, $restData);
     parent::__construct ($message, 0, $previous);
@@ -52,6 +53,7 @@ class RESTException extends \Exception {
 
     // This internal values
     $this->restCode = $restCode;
+    $this->httpCode = $httpCode;
   }
 
 
@@ -79,6 +81,10 @@ class RESTException extends \Exception {
   public function getRESTCode() {
     // Return internal rest-code
     return $this->restCode;
+  }
+  public function getHTTPCode() {
+    // Return internal rest-code
+    return $this->httpCode;
   }
 
 
@@ -162,12 +168,19 @@ class RESTException extends \Exception {
    * Parameters:
    *  $code <Integer> - HTTP-Code that should be used
    */
-  public function send($code) {
+  public function send($code = null) {
     // Fect instance of the RESTController
     $app = \RESTController\RESTController::getInstance();
 
     // Send formated exception-information
-    $app->halt($code, $this->responseObject());
+    if ($code)
+      $app->halt($code, $this->responseObject());
+    elseif ($this->getHTTPCode())
+      $app->halt($this->getHTTPCode(), $this->responseObject());
+    elseif (static::STATUS)
+      $app->halt(static::STATUS, $this->responseObject());
+    else
+      $app->halt(500, $this->responseObject());
   }
 
 
