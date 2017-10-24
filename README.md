@@ -34,5 +34,5 @@ Note: Please refer to the [wiki](https://github.com/hrz-unimr/Ilias.RESTPlugin/w
 **Retrieve all available routes**
 
 ```bash
-curl -X GET http://api.my-ilias.de/v2/routes
+curl -X GET https://ilias.uni-marburg.de/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/api.php/v2/util/routes
 ```
