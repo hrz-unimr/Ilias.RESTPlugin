@@ -68,6 +68,15 @@ class RESTilias {
     // Given client parameter always overwrites given POST, GET values!
     if (is_string($client))
       $_GET['client_id'] = $client;
+
+    if (!isset($_GET['client_id'])) {
+      // Create ini-handler (onces)
+      ilInitialisation::initIliasIniFile();
+      global $ilIliasIniFile;
+
+      // Read default client (ContextRest does not do this since 5.2)
+      $_GET['client_id'] = $ilIliasIniFile->readVariable('clients', 'default');
+    }
   }
 
 
@@ -76,15 +85,12 @@ class RESTilias {
    *  Return the [server] -> 'http_path' variable from 'ilias.init.php'.
    */
   protected static function getIniHost() {
-    // Include file to read config
-    require_once('Services/Init/classes/class.ilIniFile.php');
-
-    // Read config
-		$ini = new \ilIniFile('./ilias.ini.php');
-		$ini->read();
+    // Create ini-handler (onces)
+    ilInitialisation::initIliasIniFile();
+    global $ilIliasIniFile;
 
     // Return [server] -> 'http_path' variable from 'ilias.init.php'
-    $http_path = $ini->readVariable('server', 'http_path');
+    $http_path = $ilIliasIniFile->readVariable('server', 'http_path');
 
     // Strip http:// & https://
     if (strpos($http_path, 'https://') !== false)
@@ -129,6 +135,9 @@ class RESTilias {
     // Initialise ILIAS
     \ilInitialisation::initILIAS();
     header_remove('Set-Cookie');
+
+    // Include ilObjUser and initialize
+    ilInitialisation::initGlobal('ilUser', 'ilObjUser', './Services/User/classes/class.ilObjUser.php');
 
     // Restore original, since this could lead to bad side-effects otherwise
     $_SERVER['HTTP_HOST']   = $_ORG_SERVER['HTTP_HOST'];
@@ -195,9 +204,6 @@ class RESTilias {
    *  <ilObjUser> - Global ilUser object use by ILIAS
    */
   public static function loadIlUser($userId = null) {
-    // Include ilObjUser and initialize
-    ilInitialisation::initGlobal('ilUser', 'ilObjUser', './Services/User/classes/class.ilObjUser.php');
-
     // Fetch user-id from access-token if non is given
     if (!isset($userId)) {
       $app          = \RESTController\RESTController::getInstance();
@@ -647,5 +653,16 @@ class ilInitialisation extends \ilInitialisation {
    */
   public static function initAccessHandling() {
     return parent::initAccessHandling();
+  }
+
+  /**
+   * Function: initIliasIniFile()
+   *  Derive from protected to public...
+   *
+   * @see \ilInitialisation::initIliasIniFile()
+   */
+  public static function initIliasIniFile() {
+    if (!isset($GLOBALS['ilIliasIniFile']))
+      parent::initIliasIniFile();
   }
 }
