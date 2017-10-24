@@ -34,6 +34,8 @@ class Common extends Libs\RESTModel {
   const ID_BAD_SCOPE                    = 'RESTController\\core\\auth\\Common::MSG_BAD_SCOPE';
   const MSG_INVALID_CLIENT              = 'There is no client with api-key: {{api_key}}';
   const ID_INVALID_CLIENT               = 'RESTController\\core\\auth\\Common::ID_INVALID_CLIENT';
+  const MSG_REVOKED                     = '{{types}} has been revoked or expired from database.';
+  const ID_REVOKED                      = 'RESTController\\core\\auth\\Common::ID_REVOKED';
 
 
   /**

@@ -9,6 +9,7 @@ namespace RESTController\libs;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires ../Slim/Http/Request
+use \RESTController\database as Database;
 use \RESTController\core\oauth2_v2 as Auth;
 use \RESTController\core\oauth2_v2\Tokens as Tokens;
 
@@ -408,6 +409,35 @@ class RESTRequest extends \Slim\Http\Request {
           'username'  => $username
         )
       );
+
+    // Check wether access-token exists in DB
+    // This throws a DB exception if not found!
+    try {
+      switch ($type) {
+        default:
+        case 'access':
+          Database\RESTaccess::fromToken($token->getTokenString());
+          break;
+        case 'refresh':
+          Database\RESTrefresh::fromToken($token->getTokenString());
+          break;
+        case 'authorization':
+          Database\RESTauthorization::fromToken($token->getTokenString());
+          break;
+      }
+    }
+    catch (Exceptions\Database $e) {
+      // Convert generic DB exception into problem-specific one
+      if ($e->getRESTCode() ==  RESTDatabase::ID_NO_ENTRY)
+        throw new Auth\Exceptions\Denied(
+          Auth\Common::MSG_REVOKED,
+          Auth\Common::ID_REVOKED
+        );
+      // Something else happened
+      else
+        throw $e;
+    }
+  }
 
 
   /**
