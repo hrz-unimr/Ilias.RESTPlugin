@@ -394,7 +394,7 @@ class RESTRequest extends \Slim\Http\Request {
     // Fetch client ip and check restriction
     $remoteIp  = $_SERVER['REMOTE_ADDR'];
     if (!$client->isIpAllowed($remoteIp))
-      throw new Exceptions\Denied(
+      throw new Auth\Exceptions\Denied(
         Auth\Common::MSG_RESTRICTED_IP,
         Auth\Common::ID_RESTRICTED_IP,
         array(
@@ -406,7 +406,7 @@ class RESTRequest extends \Slim\Http\Request {
     $userId   = $token->getUserId();
     $username = $token->getUserName();
     if (!$client->isUserAllowed($userId))
-      throw new Exceptions\Denied(
+      throw new Auth\Exceptions\Denied(
         Auth\Common::MSG_RESTRICTED_USER,
         Auth\Common::ID_RESTRICTED_USER,
         array(
