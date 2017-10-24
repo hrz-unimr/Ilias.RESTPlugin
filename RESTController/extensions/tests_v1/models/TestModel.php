@@ -10,8 +10,8 @@ namespace RESTController\extensions\tests_v1;
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
 
-require_once('./Services/Utilities/classes/class.ilUtil.php');
-require_once('./Modules/Test/classes/class.ilObjTest.php');
+require_once('Services/Utilities/classes/class.ilUtil.php');
+require_once('Modules/Test/classes/class.ilObjTest.php');
 
 class TestModel extends Libs\RESTModel {
 

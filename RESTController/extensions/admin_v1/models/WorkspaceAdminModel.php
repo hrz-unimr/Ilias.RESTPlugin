@@ -8,9 +8,9 @@
 namespace RESTController\extensions\admin_v1;
 
 
-require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
-require_once("./Services/User/classes/class.ilObjUser.php");
-require_once("./Services/Object/classes/class.ilObjectFactory.php");
+require_once('Services/Database/classes/class.ilAuthContainerMDB2.php');
+require_once('Services/User/classes/class.ilObjUser.php');
+require_once('Services/Object/classes/class.ilObjectFactory.php');
 
 class WorkspaceAdminModel extends Libs\RESTModel
 {
@@ -26,7 +26,7 @@ class WorkspaceAdminModel extends Libs\RESTModel
      */
     public function scanUsersForWorkspaces($limit, $offset)
     {
-        include_once("Services/PersonalWorkspace/classes/class.ilWorkspaceTree.php");
+        include_once('Services/PersonalWorkspace/classes/class.ilWorkspaceTree.php');
         $r = array();
         $usersWithWorkspace = 0;
         $selFields = $this->fields_of_interest;
@@ -79,7 +79,7 @@ class WorkspaceAdminModel extends Libs\RESTModel
     {
         $r = array();
         $selFields = $this->fields_of_interest;
-        include_once("Services/PersonalWorkspace/classes/class.ilWorkspaceTree.php");
+        include_once('Services/PersonalWorkspace/classes/class.ilWorkspaceTree.php');
         $this->tree = new \ilWorkspaceTree($user_id);
         if ($this->tree->readRootId()) {
             $nodes = $this->tree->getSubTree(

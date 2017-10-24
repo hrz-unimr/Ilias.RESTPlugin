@@ -8,7 +8,7 @@
  
  
 // Include GUI-Class of UIHook plugin-slot
-include_once("./Services/UIComponent/classes/class.ilUIHookPluginGUI.php");
+include_once('Services/UIComponent/classes/class.ilUIHookPluginGUI.php');
 
 
 /**

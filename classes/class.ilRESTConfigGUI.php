@@ -8,7 +8,7 @@
 
 
 // Include core configuration UI class
-require_once("./Services/Component/classes/class.ilPluginConfigGUI.php");
+require_once('Services/Component/classes/class.ilPluginConfigGUI.php');
 // Requires <$tpl>, <$ilUser>, <$ilCtrl>, <$ilTabs>
 
 

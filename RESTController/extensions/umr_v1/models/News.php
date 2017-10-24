@@ -51,7 +51,7 @@ class News extends Libs\RESTModel {
     Libs\RESTilias::initAccessHandling();
 
     // Use custom filter or apply personal-desktop settings
-    include_once('./Services/News/classes/class.ilNewsItem.php');
+    include_once('Services/News/classes/class.ilNewsItem.php');
     if ($settings && $settings['period'])
       $period = $settings['period'];
     else

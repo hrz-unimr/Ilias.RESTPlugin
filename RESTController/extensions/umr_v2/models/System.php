@@ -22,7 +22,7 @@ class System extends Libs\RESTModel {
    */
   static public function LoginStats($userId) {
     // Import user-object class
-    include_once('./Services/User/classes/class.ilObjUser.php');
+    include_once('Services/User/classes/class.ilObjUser.php');
 
     // Fetch user-object
     $userObj = new \ilObjUser($userId);

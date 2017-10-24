@@ -342,7 +342,7 @@ class Admin extends Libs\RESTModel {
     // Check required fields for new user mode
     elseif ($mode == self::MODE_CREATE) {
       // Include required classes
-      include_once('./Services/User/classes/class.ilUserDefinedFields.php');
+      include_once('Services/User/classes/class.ilUserDefinedFields.php');
 
       // Load ILIAS objects
       global $ilSetting;
@@ -397,10 +397,10 @@ class Admin extends Libs\RESTModel {
     global $lng;
 
     // Include required classes for validation
-    include_once('./Services/Style/classes/class.ilObjStyleSettings.php');
-    include_once('./Services/Style/classes/class.ilStyleDefinition.php');
-    include_once('./Services/Authentication/classes/class.ilAuthUtils.php');
-    include_once('./Services/User/classes/class.ilUserDefinedFields.php');
+    include_once('Services/Style/classes/class.ilObjStyleSettings.php');
+    include_once('Services/Style/classes/class.ilStyleDefinition.php');
+    include_once('Services/Authentication/classes/class.ilAuthUtils.php');
+    include_once('Services/User/classes/class.ilUserDefinedFields.php');
 
     //
     switch ($field) {
@@ -598,7 +598,7 @@ class Admin extends Libs\RESTModel {
    */
   public static function FetchUserData($userId, $refId = self::USER_FOLDER_ID) {
     // Include required classes (who needs an AutoLoader/DI-System anyway?! -.-)
-    include_once('./Services/Authentication/classes/class.ilAuthUtils.php');
+    include_once('Services/Authentication/classes/class.ilAuthUtils.php');
 
     // Import ILIAS systems (all praise the glorious 'DI-System')
     global $rbacsystem, $rbacadmin, $rbacreview, $ilSetting, $ilUser;
@@ -791,7 +791,7 @@ class Admin extends Libs\RESTModel {
    */
   public static function StoreUserData($userData, $mode = self::MODE_CREATE, $refId = self::USER_FOLDER_ID) {
     // Include required classes (who needs an AutoLoader/DI-System anyway?! -.-)
-    include_once('./Services/Authentication/classes/class.ilAuthUtils.php');
+    include_once('Services/Authentication/classes/class.ilAuthUtils.php');
     include_once('Services/User/classes/class.ilUserProfile.php');
     include_once('Services/Mail/classes/class.ilAccountMail.php');
 
@@ -1304,7 +1304,7 @@ class Admin extends Libs\RESTModel {
    *  <Bool> - True if all roles can be assigned by the currently active ILIAS user
    */
   protected static function ValidateRoles($roles, $refId) {
-    include_once('./Services/AccessControl/classes/class.ilObjRole.php');
+    include_once('Services/AccessControl/classes/class.ilObjRole.php');
     global $rbacreview;
 
 

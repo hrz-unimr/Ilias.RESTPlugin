@@ -8,7 +8,7 @@
 namespace RESTController\extensions\admin_v1;
 
 
-require_once("./Modules/TestQuestionPool/classes/class.assSingleChoice.php");
+require_once('Modules/TestQuestionPool/classes/class.assSingleChoice.php');
 
 
 class TestQuestionModel extends Libs\RESTModel

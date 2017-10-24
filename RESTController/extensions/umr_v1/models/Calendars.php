@@ -36,7 +36,7 @@ class Calendars extends Libs\RESTModel {
     // Query information only ONCE
     if (!self::$calendars[$userId]) {
       // Load classes required to access calendars and their appointments
-      require_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
+      require_once('Services/Calendar/classes/class.ilCalendarCategories.php');
 
       // Fetch user-id from access-token
       $userId = $accessToken->getUserId();
@@ -119,7 +119,7 @@ class Calendars extends Libs\RESTModel {
     $calendarInfos  = $calendars->getCategoriesInfo();
     //return ($calendarInfos[$calendarId] != null);
 
-    require_once('./Services/Calendar/classes/class.ilCalendarCategories.php');
+    require_once('Services/Calendar/classes/class.ilCalendarCategories.php');
     $categories = \ilCalendarCategories::_getInstance();
     $cat_id = $calendarId;//$a_category_id;
     return $categories->isEditable($cat_id);

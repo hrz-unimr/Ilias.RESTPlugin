@@ -77,7 +77,7 @@ class RESTilias {
    */
   protected static function getIniHost() {
     // Include file to read config
-    require_once('./Services/Init/classes/class.ilIniFile.php');
+    require_once('Services/Init/classes/class.ilIniFile.php');
 
     // Read config
 		$ini = new \ilIniFile('./ilias.ini.php');
@@ -426,7 +426,7 @@ class RESTilias {
    */
   public static function isAdmin($userId = null) {
     // Load role-based access-control review-functions
-    require_once('./Services/AccessControl/classes/class.ilRbacReview.php');
+    require_once('Services/AccessControl/classes/class.ilRbacReview.php');
 
     // Fetch user-id from access-token if non is given
     if (!isset($userId)) {
@@ -626,7 +626,7 @@ class RESTilias {
  *
  * !!! DO NOT USE THIS CLASS OUTSIDE OF RESTLIB !!!
  */
-require_once('./Services/Init/classes/class.ilInitialisation.php');
+require_once('Services/Init/classes/class.ilInitialisation.php');
 class ilInitialisation extends \ilInitialisation {
   /**
    * Function; initGlobal($a_name, $a_class, $a_source_file)
