@@ -934,15 +934,15 @@ abstract class RESTDatabase {
 
     // Return by detected type: Boolean
     else if (is_bool($value))
-      return self::getDB()->quote($value, 'integer');
+      return $value;
 
     // Return by detected type: Integer
     elseif (ctype_digit($value))
-      return self::getDB()->quote($value, 'integer');
+      return $value;
 
     // Return by detected type: Float/double
     elseif (is_float($value) || is_double($value) || is_numeric($value))
-      return self::getDB()->quote($value, 'float');
+      return $value;
 
     // Return by detected type: String
     elseif (is_string($value))
