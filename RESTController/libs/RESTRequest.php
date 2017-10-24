@@ -220,21 +220,19 @@ class RESTRequest extends \Slim\Http\Request {
    * Return:
    *  <AccessToken>/<RefreshToken>/<AuthorizationCode> - Fetched token, depending on input parameter
    */
-  public function getToken($name = 'access', $stringOnly = false) {
+  public function getToken($type = 'access', $stringOnly = false) {
     // Already fetched?
-    if (isset($this->tokens[$name]))
-      return $this->tokens[$name];
+    if (isset($this->tokens[$type]))
+      return $this->tokens[$type];
 
     // Prevent undefined variables
     $tokenString = null;
 
     // Extract token
-    switch ($name) {
+    switch ($type) {
       // Fetch access-token
       default:
       case 'access':
-        $type = 'Access-Token';
-
         // Fetch all parameters and convert keys to lower-case
         $headers    = $this->getallheaders();
         $parameters = array_change_key_case($this->getParameter());
@@ -283,8 +281,6 @@ class RESTRequest extends \Slim\Http\Request {
 
       // Fetch refresh-token
       case 'refresh':
-        $type = 'Refresh-Token';
-
         // Fetch 'access_token' from header, GET or POST...
         $tokenString = $this->getParameter('refresh_token');
 
@@ -307,8 +303,6 @@ class RESTRequest extends \Slim\Http\Request {
 
       // Fetch authorization-token
       case 'authorization':
-        $type = 'Authorization-Code-Token';
-
         // Fetch 'access_token' from header, GET or POST...
         $tokenString = $this->getParameter('authorization_token');
 
@@ -338,7 +332,7 @@ class RESTRequest extends \Slim\Http\Request {
       self::MSG_NO_TOKEN,
       self::ID_NO_TOKEN,
       array(
-        'type' => $type
+        'type' => self::GetName($type)
       )
     );
   }
@@ -363,7 +357,7 @@ class RESTRequest extends \Slim\Http\Request {
         self::MSG_NO_TOKEN,
         self::ID_NO_TOKEN,
         array(
-          'type' => $type
+          'type' => self::GetName($type)
         )
       );
 
@@ -373,7 +367,7 @@ class RESTRequest extends \Slim\Http\Request {
         Tokens\Base::MSG_INVALID,
         Tokens\Base::ID_INVALID,
         array(
-          'type' => $type
+          'type' => self::GetName($type)
         )
       );
 
@@ -383,7 +377,7 @@ class RESTRequest extends \Slim\Http\Request {
         Tokens\Base::MSG_EXPIRED,
         Tokens\Base::ID_EXPIRED,
         array(
-          'type' => $type
+          'type' => self::GetName($type)
         )
       );
 
@@ -414,6 +408,21 @@ class RESTRequest extends \Slim\Http\Request {
           'username'  => $username
         )
       );
+
+
+  /**
+   * Function:
+   */
+  protected static function GetName($type) {
+    switch ($type) {
+      default:
+      case 'access':
+        return 'Access-Token';
+      case 'refresh':
+        return 'Refresh-Token';
+      case 'authorization':
+        return 'Authorization-Code-Token';
+    }
   }
 
 
