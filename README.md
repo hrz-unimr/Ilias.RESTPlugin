@@ -36,3 +36,5 @@ Note: Please refer to the [wiki](https://github.com/hrz-unimr/Ilias.RESTPlugin/w
 ```bash
 curl -X GET https://ilias.uni-marburg.de/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/REST/api.php/v2/util/routes
 ```
+
+More examples can be found in the [wiki](https://github.com/hrz-unimr/Ilias.RESTPlugin/wiki/Examples).
