@@ -250,6 +250,39 @@ class RESTilias {
    *  <Boolean> - True if authentication was successfull, false otherwise
    */
   public static function authenticate($username, $password) {
+    if (\ilComponent::isVersionGreaterString("5.1.99", ILIAS_VERSION_NUMERIC))
+      return self::authenticate_50($username, $password);
+    else
+      return self::authenticate_52($username, $password);
+  }
+  public static function authenticate_50($username, $password) {
+    // Initilaize role-base access-control
+    self::initAccessHandling();
+
+    // Well, its ILIAS, so there is no way to check username/password pair...
+    // 'Lets just pretend we have filled out a login-form' -.-
+    $_POST['username'] = $username;
+    $_POST['password'] = $password;
+
+    // Initilaize ILIAS authentication
+    require_once('Services/User/classes/class.ilObjUser.php');
+    require_once('Services/Authentication/classes/class.ilAuthUtils.php');
+    \ilAuthUtils::_initAuth();
+
+    // Check authentification
+    global $ilAuth;
+    $ilAuth->start();
+    $checked_in = $ilAuth->getAuth();
+
+    // Remove all dump created by ILIAS
+    $ilAuth->logout();
+    session_destroy();
+    header_remove('Set-Cookie');
+
+    // Return login-state
+    return $checked_in;
+  }
+  public static function authenticate_52($username, $password) {
     // Todo: Remove once auto-loading is available
     require_once('Services/Authentication/classes/Frontend/class.ilAuthFrontendCredentials.php');
     require_once('Services/Authentication/classes/Provider/class.ilAuthProviderFactory.php');
