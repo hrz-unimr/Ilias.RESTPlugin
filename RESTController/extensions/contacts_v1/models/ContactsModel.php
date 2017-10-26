@@ -11,7 +11,7 @@ namespace RESTController\extensions\contacts_v1;
 use \RESTController\libs as Libs;
 
 
-require_once('Services/Database/classes/class.ilAuthContainerMDB2.php');
+
 require_once('Services/User/classes/class.ilObjUser.php');
 require_once('Services/Contact/classes/class.ilAddressbook.php');
 

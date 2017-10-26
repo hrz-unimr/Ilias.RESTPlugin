@@ -10,7 +10,7 @@ namespace RESTController\extensions\bibliography_v1;
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
 
-require_once('Services/Database/classes/class.ilAuthContainerMDB2.php');
+
 require_once('Services/User/classes/class.ilObjUser.php');
 require_once('Modules/Bibliographic/classes/class.ilObjBibliographic.php');
 require_once('Modules/Bibliographic/classes/class.ilBibliographicEntry.php');

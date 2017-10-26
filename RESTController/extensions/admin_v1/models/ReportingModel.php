@@ -10,7 +10,7 @@ namespace RESTController\extensions\admin_v1;
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
 
-require_once('Services/Database/classes/class.ilAuthContainerMDB2.php');
+
 
 
 class ReportingModel extends Libs\RESTModel {

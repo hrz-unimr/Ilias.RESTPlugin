@@ -12,7 +12,7 @@ use \RESTController\libs as Libs;
 use \RESTController\extensions\files_v1 as Files;
 
 
-require_once('Services/Database/classes/class.ilAuthContainerMDB2.php');
+
 
 
 class DescribrModel extends Libs\RESTModel {

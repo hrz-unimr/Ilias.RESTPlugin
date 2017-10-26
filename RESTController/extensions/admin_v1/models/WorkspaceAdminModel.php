@@ -8,7 +8,7 @@
 namespace RESTController\extensions\admin_v1;
 
 
-require_once('Services/Database/classes/class.ilAuthContainerMDB2.php');
+
 require_once('Services/User/classes/class.ilObjUser.php');
 require_once('Services/Object/classes/class.ilObjectFactory.php');
 
