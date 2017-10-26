@@ -19,14 +19,23 @@ use \RESTController\core\oauth2_v2 as Auth;
  */
 class RESTilias {
   // Allow to re-use status messages and codes
-  const MSG_NO_OBJECT_BY_REF  = 'Could not find any ILIAS-Object with Reference-Id \'{{ref_id}}\' in database.';
-  const ID_NO_OBJECT_BY_REF   = 'RESTController\\libs\\RESTilias::ID_NO_OBJECT_BY_REF';
-  const MSG_NO_OBJECT_BY_OBJ  = 'Could not find any ILIAS-Object with Object-Id \'{{obj_id}}\' in database.';
-  const ID_NO_OBJECT_BY_OBJ   = 'RESTController\\libs\\RESTilias::ID_NO_OBJECT_BY_OBJ';
-  const MSG_NO_USER_BY_ID     = 'Could not find any user with id \'{{id}}\' in database.';
-  const ID_NO_USER_BY_ID      = 'RESTController\\libs\\RESTilias::ID_NO_USER_BY_ID';
-  const MSG_NO_USER_BY_NAME   = 'Could not find any user with name \'{{name}}\' in database.';
-  const ID_NO_USER_BY_NAME    = 'RESTController\\libs\\RESTilias::ID_NO_USER_BY_NAME';
+  const MSG_NO_OBJECT_BY_REF   = 'Could not find any ILIAS-Object with Reference-Id \'{{ref_id}}\' in database.';
+  const ID_NO_OBJECT_BY_REF    = 'RESTController\\libs\\RESTilias::ID_NO_OBJECT_BY_REF';
+  const MSG_NO_OBJECT_BY_OBJ   = 'Could not find any ILIAS-Object with Object-Id \'{{obj_id}}\' in database.';
+  const ID_NO_OBJECT_BY_OBJ    = 'RESTController\\libs\\RESTilias::ID_NO_OBJECT_BY_OBJ';
+
+  const MSG_NO_USER_BY_ID      = 'Could not find any user with id \'{{id}}\' in database.';
+  const ID_NO_USER_BY_ID       = 'RESTController\\libs\\RESTilias::ID_NO_USER_BY_ID';
+  const MSG_NO_USER_BY_NAME    = 'Could not find any user with name \'{{name}}\' in database.';
+  const ID_NO_USER_BY_NAME     = 'RESTController\\libs\\RESTilias::ID_NO_USER_BY_NAME';
+
+  const MSG_RBAC_WRITE_DENIED  = 'Permission to create or modify {{object}} denied by RBAC-System.';
+  const ID_RBAC_WRITE_DENIED   = 'RESTController\\libs\\RESTilias::ID_RBAC_WRITE_DENIED';
+  const MSG_RBAC_READ_DENIED   = 'Permission to read {{object}} denied by RBAC-System.';
+  const ID_RBAC_READ_DENIED    = 'RESTController\\libs\\RESTilias::ID_RBAC_READ_DENIED';
+  const MSG_RBAC_DELETE_DENIED = 'Permission to delete {{object}} denied by RBAC-System.';
+  const ID_RBAC_DELETE_DENIED  = 'RESTController\\libs\\RESTilias::ID_RBAC_DELETE_DENIED';
+
 
   // ILIAS-Admin must have this role (id) assigned to them
   const RBCA_ADMIN_ID = 2;
@@ -68,6 +77,15 @@ class RESTilias {
     // Given client parameter always overwrites given POST, GET values!
     if (is_string($client))
       $_GET['client_id'] = $client;
+
+    if (!isset($_GET['client_id'])) {
+      // Create ini-handler (onces)
+      ilInitialisation::initIliasIniFile();
+      global $ilIliasIniFile;
+
+      // Read default client (ContextRest does not do this since 5.2)
+      $_GET['client_id'] = $ilIliasIniFile->readVariable('clients', 'default');
+    }
   }
 
 
@@ -76,15 +94,12 @@ class RESTilias {
    *  Return the [server] -> 'http_path' variable from 'ilias.init.php'.
    */
   protected static function getIniHost() {
-    // Include file to read config
-    require_once('./Services/Init/classes/class.ilIniFile.php');
-
-    // Read config
-		$ini = new \ilIniFile('./ilias.ini.php');
-		$ini->read();
+    // Create ini-handler (onces)
+    ilInitialisation::initIliasIniFile();
+    global $ilIliasIniFile;
 
     // Return [server] -> 'http_path' variable from 'ilias.init.php'
-    $http_path = $ini->readVariable('server', 'http_path');
+    $http_path = $ilIliasIniFile->readVariable('server', 'http_path');
 
     // Strip http:// & https://
     if (strpos($http_path, 'https://') !== false)
@@ -145,6 +160,9 @@ class RESTilias {
     // Initialise ILIAS
     \ilInitialisation::initILIAS();
     header_remove('Set-Cookie');
+
+    // Include ilObjUser and initialize
+    ilInitialisation::initGlobal('ilUser', 'ilObjUser', './Services/User/classes/class.ilObjUser.php');
 
     // Restore original, since this could lead to bad side-effects otherwise
     $_SERVER['HTTP_HOST']   = $_ORG_SERVER['HTTP_HOST'];
@@ -211,9 +229,6 @@ class RESTilias {
    *  <ilObjUser> - Global ilUser object use by ILIAS
    */
   public static function loadIlUser($userId = null) {
-    // Include ilObjUser and initialize
-    ilInitialisation::initGlobal('ilUser', 'ilObjUser', './Services/User/classes/class.ilObjUser.php');
-
     // Fetch user-id from access-token if non is given
     if (!isset($userId)) {
       $app          = \RESTController\RESTController::getInstance();
@@ -238,8 +253,10 @@ class RESTilias {
 
   /**
    * Function: authenticate($username, $password)
-   *  Authentication via the ILIAS Auth mechanisms.
-   *  This method is used as backend for OAuth2.
+   *  Authentication via the ILIAS Auth mechanisms and is used as backend for OAuth2.
+   *
+   * Note: This code was extracted and refactored from ilSoapUserAdministration->login(...)
+   *       because ILIAS does not distinguish between authentication-logic and further login code-flow...
    *
    * Parameters:
    *  $username - ILIAS username to check
@@ -249,6 +266,12 @@ class RESTilias {
    *  <Boolean> - True if authentication was successfull, false otherwise
    */
   public static function authenticate($username, $password) {
+    if (\ilComponent::isVersionGreaterString("5.1.99", ILIAS_VERSION_NUMERIC))
+      return self::authenticate_50($username, $password);
+    else
+      return self::authenticate_52($username, $password);
+  }
+  public static function authenticate_50($username, $password) {
     // Initilaize role-base access-control
     self::initAccessHandling();
 
@@ -274,6 +297,46 @@ class RESTilias {
 
     // Return login-state
     return $checked_in;
+  }
+  public static function authenticate_52($username, $password) {
+    // Todo: Remove once auto-loading is available
+    require_once('Services/Authentication/classes/Frontend/class.ilAuthFrontendCredentials.php');
+    require_once('Services/Authentication/classes/Provider/class.ilAuthProviderFactory.php');
+    require_once('Services/Authentication/classes/class.ilAuthStatus.php');
+
+    // Required for LDAP authentication (and others?), because ILIAS forces
+    // updates to a users role EACH TIME credentials are validated successfully...
+    self::initAccessHandling();
+
+    // Create new authentication credentials object
+    $credentials = new \ilAuthFrontendCredentials();
+    $credentials->setUsername($username);
+    $credentials->setPassword($password);
+
+    // Create new authentication provider factory and fetch all
+    $provider_factory = new \ilAuthProviderFactory();
+    $providers = $provider_factory->getProviders($credentials);
+
+    // Fetch single authentication status object to me
+    $status = \ilAuthStatus::getInstance();
+
+    // Check credentials with all authentication providers
+    foreach ($providers as $provider) {
+      // Reset status every time, just to be save
+      $status->setStatus(\ilAuthStatus::STATUS_UNDEFINED);
+      $status->setReason('');
+      $status->setAuthenticatedUserId(0);
+
+      // Forward authentication to provider which returns true/false and also modifies the status-parameter
+      $provider->doAuthentication($status);
+
+      // Check if authentication was successfull
+      if ($status->getStatus() === \ilAuthStatus::STATUS_AUTHENTICATED)
+        return true;
+    }
+
+    // Seems like no provider could authenticate given username/password
+    return false;
   }
 
 
@@ -442,7 +505,7 @@ class RESTilias {
    */
   public static function isAdmin($userId = null) {
     // Load role-based access-control review-functions
-    require_once('./Services/AccessControl/classes/class.ilRbacReview.php');
+    require_once('Services/AccessControl/classes/class.ilRbacReview.php');
 
     // Fetch user-id from access-token if non is given
     if (!isset($userId)) {
@@ -642,7 +705,7 @@ class RESTilias {
  *
  * !!! DO NOT USE THIS CLASS OUTSIDE OF RESTLIB !!!
  */
-require_once('./Services/Init/classes/class.ilInitialisation.php');
+require_once('Services/Init/classes/class.ilInitialisation.php');
 class ilInitialisation extends \ilInitialisation {
   /**
    * Function; initGlobal($a_name, $a_class, $a_source_file)
@@ -663,5 +726,16 @@ class ilInitialisation extends \ilInitialisation {
    */
   public static function initAccessHandling() {
     return parent::initAccessHandling();
+  }
+
+  /**
+   * Function: initIliasIniFile()
+   *  Derive from protected to public...
+   *
+   * @see \ilInitialisation::initIliasIniFile()
+   */
+  public static function initIliasIniFile() {
+    if (!isset($GLOBALS['ilIliasIniFile']))
+      parent::initIliasIniFile();
   }
 }

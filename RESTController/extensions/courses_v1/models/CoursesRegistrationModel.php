@@ -11,15 +11,15 @@ namespace RESTController\extensions\courses_v1;
 use \RESTController\libs as Libs;
 
 
-require_once('./Services/Utilities/classes/class.ilUtil.php');
-require_once('./Modules/Course/classes/class.ilObjCourse.php');
-require_once('./Services/Object/classes/class.ilObjectFactory.php');
-require_once('./Services/Object/classes/class.ilObjectActivation.php');
-require_once('./Modules/LearningModule/classes/class.ilObjLearningModule.php');
-require_once('./Modules/LearningModule/classes/class.ilLMPageObject.php');
-require_once('./Services/Database/classes/class.ilDB.php');
-require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
-//require_once('./Modules/Course/classes/class.ilCourseConstants.php');
+require_once('Services/Utilities/classes/class.ilUtil.php');
+require_once('Modules/Course/classes/class.ilObjCourse.php');
+require_once('Services/Object/classes/class.ilObjectFactory.php');
+require_once('Services/Object/classes/class.ilObjectActivation.php');
+require_once('Modules/LearningModule/classes/class.ilObjLearningModule.php');
+require_once('Modules/LearningModule/classes/class.ilLMPageObject.php');
+require_once('Services/Database/classes/class.ilDB.php');
+require_once('Services/Database/classes/class.ilAuthContainerMDB2.php');
+//require_once('Modules/Course/classes/class.ilCourseConstants.php');
 
 
 class CoursesRegistrationModel extends Libs\RESTModel
@@ -98,7 +98,7 @@ class CoursesRegistrationModel extends Libs\RESTModel
      */
     protected function initParticipants()
     {
-        include_once('./Modules/Course/classes/class.ilCourseParticipants.php');
+        include_once('Modules/Course/classes/class.ilCourseParticipants.php');
         $this->participants = \ilCourseParticipants::_getInstanceByObjId($this->container->getId());//$this->obj_id);
     }
 
@@ -109,7 +109,7 @@ class CoursesRegistrationModel extends Libs\RESTModel
      */
     protected function initWaitingList()
     {
-        include_once('./Modules/Course/classes/class.ilCourseWaitingList.php');
+        include_once('Modules/Course/classes/class.ilCourseWaitingList.php');
         $this->waiting_list = new \ilCourseWaitingList($this->container->getId()); //$this->obj_id);
     }
 
@@ -127,7 +127,7 @@ class CoursesRegistrationModel extends Libs\RESTModel
         // set aggreement accepted
         $this->setAccepted(true);
 
-        include_once('./Modules/Course/classes/class.ilCourseWaitingList.php');
+        include_once('Modules/Course/classes/class.ilCourseWaitingList.php');
         $free = max(0,$this->container->getSubscriptionMaxMembers() - $this->participants->getCountMembers());
         $waiting_list = new \ilCourseWaitingList($this->container->getId());
         if($this->container->isSubscriptionMembershipLimited() and $this->container->enabledWaitingList() and (!$free or $waiting_list->getCountUsers()))
@@ -180,7 +180,7 @@ class CoursesRegistrationModel extends Libs\RESTModel
                 $this->participants->sendNotification($this->participants->NOTIFY_ADMINS,$ilUser->getId());
                 $this->participants->sendNotification($this->participants->NOTIFY_REGISTERED,$ilUser->getId());
 
-                include_once('./Modules/Forum/classes/class.ilForumNotification.php');
+                include_once('Modules/Forum/classes/class.ilForumNotification.php');
                 \ilForumNotification::checkForumsExistsInsert($this->container->getRefId(), $ilUser->getId());
 
                 if($this->container->getType() == 'crs')

@@ -549,10 +549,10 @@ ctrl.controller("ConfigCtrl", function(Flash, $scope, $filter, dialogs, $locatio
     $scope.init = function() {
         Flash.clear();
 
-        restConfig.query( {key:'rest_log'},
+        restConfig.query( {key:'log_file'},
             function(response) {
                 console.log('Got config '+angular.toJson(response));
-                $scope.loggingPath = response.rest_log;
+                $scope.loggingPath = response.log_file;
             }
         );
 
@@ -592,7 +592,7 @@ ctrl.controller("ConfigCtrl", function(Flash, $scope, $filter, dialogs, $locatio
      */
     $scope.saveConfigurations = function() {
         restConfig.update({
-                key: 'rest_log'
+                key: 'log_file'
             }, {
                 value: $scope.loggingPath
             },

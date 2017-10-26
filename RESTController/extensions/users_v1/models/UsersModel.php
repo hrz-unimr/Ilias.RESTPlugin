@@ -11,8 +11,8 @@ namespace RESTController\extensions\users_v1;
 use \RESTController\libs as Libs;
 
 
-require_once('./Services/User/classes/class.ilObjUser.php');
-require_once('./Services/AccessControl/classes/class.ilRbacReview.php');
+require_once('Services/User/classes/class.ilObjUser.php');
+require_once('Services/AccessControl/classes/class.ilRbacReview.php');
 
 
 class UsersModel extends Libs\RESTModel
@@ -37,7 +37,7 @@ class UsersModel extends Libs\RESTModel
      */
     public function getBasicUserData($id)
     {
-        include_once('./Services/Calendar/classes/class.ilDate.php');
+        include_once('Services/Calendar/classes/class.ilDate.php');
         $usrObj = \ilObjectFactory::getInstanceByObjId($id);
         $usr_data = array();
         if (is_null($usrObj) == false) {
@@ -170,8 +170,8 @@ class UsersModel extends Libs\RESTModel
     public function bulkImport($xmlData, &$resp)
     {
 
-        require_once('./Services/User/classes/class.ilUserImportParser.php');
-        require_once('./Services/Authentication/classes/class.ilAuthUtils.php');
+        require_once('Services/User/classes/class.ilUserImportParser.php');
+        require_once('Services/Authentication/classes/class.ilAuthUtils.php');
 
        // Fetch authorized user
        $userId  = Auth\Util::getAccessToken()->getUserId();

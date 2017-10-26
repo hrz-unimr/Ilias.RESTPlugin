@@ -1,6 +1,6 @@
 <?php
 namespace RESTController\extensions\bibliography_v1;
-require_once('./Modules/Bibliographic/classes/class.ilBibliographicEntry.php');
+require_once('Modules/Bibliographic/classes/class.ilBibliographicEntry.php');
 /**
  * Helper: Lightweight / Template-less variant of ilBibliographicEntry
  */

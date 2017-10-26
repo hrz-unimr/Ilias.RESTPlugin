@@ -22,7 +22,7 @@ class System extends Libs\RESTModel {
    */
   static public function LoginStats($userId) {
     // Import user-object class
-    include_once('./Services/User/classes/class.ilObjUser.php');
+    include_once('Services/User/classes/class.ilObjUser.php');
 
     // Fetch user-object
     $userObj = new \ilObjUser($userId);
@@ -63,10 +63,18 @@ class System extends Libs\RESTModel {
         case 'agree_date':
         case 'last_login':
         case 'inactivation_date':
+          if (isset($value)) {
+            $realDate = new \ilDateTime($value, IL_CAL_DATETIME);
+            $parsedUserData[$key] = $realDate->get(IL_CAL_ISO_8601);
+          }
+          else
+            $parsedUserData[$key] = false;
+        break;
         case 'time_limit_from':
         case 'time_limit_until':
           if (isset($value)) {
-            $realDate = new \ilDateTime($value, IL_CAL_DATETIME);
+            $parsedUserData[$key] = $value;
+            $realDate = new \ilDateTime($value, IL_CAL_UNIX);
             $parsedUserData[$key] = $realDate->get(IL_CAL_ISO_8601);
           }
           else

@@ -151,7 +151,7 @@ class Redirect extends Libs\RESTModel {
     }
     // Generate link from refId and object-type
     else {
-      include_once './Services/Link/classes/class.ilLink.php';
+      include_once('Services/Link/classes/class.ilLink.php');
       return \ilLink::_getLink($refId, $type);
     }
   }

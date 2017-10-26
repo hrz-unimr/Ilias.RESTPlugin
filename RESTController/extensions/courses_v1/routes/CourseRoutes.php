@@ -250,4 +250,97 @@ $app->group('/v1', function () use ($app) {
         }
     });
 
+    /**
+     * Retrieves all contents of a course.
+     * (OPTIONAL) Results can be filtered by adding these parameters to the request:
+     *      "types": comma seperated list of all desired types of objects, e.g. "fold, tst"
+     *      "title": title of the objects
+     *      "description": description of the objects
+     */
+    $app->get('/courses/searchCourse/:ref_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), function ($ref_id) use ($app) {
+        $app->log->debug('in course get ref_id= '.$ref_id);
+        try {
+            $crs_model = new CoursesModel();
+            $contents = $crs_model->getCourseContent($ref_id);
+
+            $folders = array();
+
+            foreach($contents as $content){
+                if($content['type'] == 'fold'){
+                    array_push($folders, $content);
+                }
+            }
+
+            while($folder = array_shift($folders)){
+                $f_id = $folder['ref_id'];
+                $childContents = $crs_model->getCourseContent($f_id);
+                foreach($childContents as $childContent){
+                    if($childContent['type'] == 'fold'){
+                        array_push($folders, $childContent);
+                    }
+                    array_push($contents, $childContent);
+                }
+            }
+
+            //get filter parameters
+            $types = $app->request->getParameter('types','*');
+            $title = $app->request->getParameter('title','*');
+            $description = $app->request->getParameter('description','*');
+            $filtered_contents = array();
+
+            //filter for type
+            $type_filter = array();
+            if($types != '*' && $types != ''){
+                $types = explode(',', $types);
+                foreach($contents as $content){
+                    if(in_array($content['type'], $types)){
+                        array_push($type_filter, $content);
+                    }
+                }
+            }
+            else{
+                $type_filter = $contents;
+            }
+
+            //filter for title
+            $title_filter = array();
+            if($title != '*' && $title != ''){
+                $title = mb_strtolower($title, 'UTF-8');
+                foreach($type_filter as $content){
+                    $content_title = mb_strtolower($content['title'], 'UTF-8');
+                    if(strpos($content_title, $title) !== false){
+                        array_push($title_filter, $content);
+                    }
+                }
+            }
+            else{
+                $title_filter = $type_filter;
+            }
+
+            //filter for description
+            $description_filter = array();
+            if($description != '*' && $description != ''){
+                $description = mb_strtolower($description, 'UTF-8');
+                foreach($title_filter as $content){
+                    $content_description = mb_strtolower($content['description'], 'UTF-8');
+                    if(strpos($content_description, $description) !== false){
+                        array_push($description_filter, $content);
+                    }
+                }
+            }
+            else{
+                $description_filter = $title_filter;
+            }
+
+            $filtered_contents = $description_filter;
+
+            $result = array(
+                'contents' => $filtered_contents, // course contents
+            );
+            $app->success($result);
+        } catch (Libs\Exceptions\ReadFailed $e) {
+            $app->halt(500, $e->getFormatedMessage());
+        }
+    });
+
 });

@@ -10,8 +10,9 @@ namespace RESTController\extensions\tests_v1;
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
 
-require_once('./Services/Utilities/classes/class.ilUtil.php');
-require_once('./Modules/Test/classes/class.ilObjTest.php');
+require_once('Services/Utilities/classes/class.ilUtil.php');
+require_once('Modules/Test/classes/class.ilObjTest.php');
+require_once('Services/MediaObjects/classes/class.ilObjMediaObject.php');
 
 class TestModel extends Libs\RESTModel {
 
@@ -60,5 +61,55 @@ class TestModel extends Libs\RESTModel {
         $test = new \ilObjTest($ref_id);
         $test->read();
         return array("title"=>$test->getTitle(),"description"=>$test->getDescription(),"type"=>$type = $test->getType());
+    }
+
+    /**
+     * Returns all questions of a test.
+     * @param $ref_id
+     * @param $user_id
+     * @param $types
+     * @return array
+     */
+    public function getQuestions($ref_id, $user_id, $types)
+    {
+        Libs\RESTilias::loadIlUser($user_id);
+        Libs\RESTilias::initAccessHandling();
+        $test = new \ilObjTest($ref_id);
+        $questions = $test->getAllQuestions();
+
+        $filter = array();
+        $result = array();
+
+        //filter questions that match the provided types parameter
+        if($types != '*' && $types != ''){
+            $types = explode(',', $types);
+            foreach($questions as $question){
+                if(in_array($question['question_type_fi'], $types)){
+                    array_push($filter, $question);
+                }
+            }
+         }
+         else {
+            $filter = $questions;
+         }
+
+         //get media objects of each question
+         foreach($filter as $question){
+           $ilObjMediaObject = new \ilObjMediaObject();
+           $mobs = $ilObjMediaObject->_getMobsOfObject("qpl:pg", $question['question_id']);
+
+           $question['mediaObjects'] = [];
+           foreach($mobs as $mob){
+                $mediaobject = new \ilObjMediaObject($mob);
+                $mobarray = [
+                    "id" => $mob,
+                    "mediaItems" => $mediaobject->media_items
+                ];
+                array_push($question['mediaObjects'], $mobarray);
+            }
+           array_push($result, $question);
+         }
+
+        return $result;
     }
 }

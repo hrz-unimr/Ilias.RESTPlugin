@@ -9,8 +9,8 @@ namespace RESTController\extensions\news_v1;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
-require_once("./Services/Database/classes/class.ilAuthContainerMDB2.php");
-require_once("./Services/User/classes/class.ilObjUser.php");
+require_once('Services/Database/classes/class.ilAuthContainerMDB2.php');
+require_once('Services/User/classes/class.ilObjUser.php');
 
 /**
  * Class NewsModel
@@ -46,7 +46,7 @@ class NewsModel extends Libs\RESTModel {
             ? $_GET["news_ref_id"]
             : $ilUser->getPref("news_sel_ref_id");
 
-        include_once("./Services/News/classes/class.ilNewsItem.php");
+        include_once('Services/News/classes/class.ilNewsItem.php');
         $per = ($_SESSION["news_pd_news_per"] != "")
             ? $_SESSION["news_pd_news_per"]
             : \ilNewsItem::_lookupUserPDPeriod($ilUser->getId());

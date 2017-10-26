@@ -28,7 +28,7 @@ class Events extends Libs\RESTModel {
    */
   protected static function getRecurrenceString($eventId) {
     // Load classes required to access calendars and their appointments
-    require_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
+    require_once('Services/Calendar/classes/class.ilCalendarRecurrences.php');
 
     // Will temporary store string elemts for imploding
     $recurrenceStrings  = array();
@@ -58,7 +58,7 @@ class Events extends Libs\RESTModel {
    */
   protected static function getEventInfo($calendarId, $eventId) {
     // Load classes required to access calendars and their appointments
-    require_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
+    require_once('Services/Calendar/classes/class.ilCalendarEntry.php');
 
     // Fetch appointment object
     $event    = new \ilCalendarEntry($eventId);
@@ -111,7 +111,7 @@ class Events extends Libs\RESTModel {
    */
   public static function getEventsForCalendar($calendarId, $subItems = null) {
     // Load classes required to access calendars and their appointments
-    require_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
+    require_once('Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
 
     // Use calendarId if no subItems are given
     if (!$subItems)
@@ -137,7 +137,7 @@ class Events extends Libs\RESTModel {
       $eventIds = array($eventIds);
 
     // Load classes required to appointments
-    require_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
+    require_once('Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
 
     // Fetch each contact from list
     $result     = array();
@@ -191,8 +191,8 @@ class Events extends Libs\RESTModel {
   public static function deleteEvent($accessToken, $eventId) {
     global $ilLog;
 
-    include_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
-    include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
+    include_once('Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
+    include_once('Services/Calendar/classes/class.ilCalendarEntry.php');
 
     $calendarId             = current(\ilCalendarCategoryAssignments::_getAppointmentCalendars(array($eventId)));
 
@@ -223,9 +223,9 @@ class Events extends Libs\RESTModel {
   public static function addEvent($accessToken, $cal_id, $title, $description, $fullDayFlag, $startTime, $endTime) {
 
     if (Calendars::isEditable($accessToken, $cal_id)==true) {
-      include_once('./Services/Calendar/classes/class.ilDate.php');
-      include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
-      include_once('./Services/Calendar/classes/class.ilCalendarRecurrences.php');
+      include_once('Services/Calendar/classes/class.ilDate.php');
+      include_once('Services/Calendar/classes/class.ilCalendarEntry.php');
+      include_once('Services/Calendar/classes/class.ilCalendarRecurrences.php');
 
       $a_app_id = 0;
       $app = new \ilCalendarEntry($a_app_id);
@@ -248,7 +248,7 @@ class Events extends Libs\RESTModel {
         $app->setDescription($description);
         $app->save();
 
-        include_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
+        include_once('Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
         $ass = new \ilCalendarCategoryAssignments($app->getEntryId());
         $ass->addAssignment($cal_id);
 
@@ -272,8 +272,8 @@ class Events extends Libs\RESTModel {
    */
   public static function updateEvent($accessToken, $event_id, $newTitle, $newDescription, $fullDayFlag, $startTime, $endTime) {
 
-    include_once('./Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
-    include_once('./Services/Calendar/classes/class.ilCalendarEntry.php');
+    include_once('Services/Calendar/classes/class.ilCalendarCategoryAssignments.php');
+    include_once('Services/Calendar/classes/class.ilCalendarEntry.php');
 
     $calendarId             = current(\ilCalendarCategoryAssignments::_getAppointmentCalendars(array($event_id)));
 

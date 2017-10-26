@@ -20,4 +20,6 @@ use \RESTController\libs as Libs;
  * Parameters:
  *  @See RESTException for parameter description
  */
-class RBAC extends Libs\RESTException { }
+class RBAC extends Libs\RESTException {
+  const STATUS=403;
+}

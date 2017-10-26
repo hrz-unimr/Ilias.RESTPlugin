@@ -11,11 +11,11 @@ namespace RESTController\extensions\surveys_v1;
 use \RESTController\libs as Libs;
 
 
-require_once('./Services/User/classes/class.ilObjUser.php');
-require_once('./Services/AccessControl/classes/class.ilRbacReview.php');
-require_once('./Modules/Survey/classes/class.ilObjSurvey.php');
-require_once('./Modules/SurveyQuestionPool/classes/class.SurveyMultipleChoiceQuestion.php');
-require_once('./Modules/SurveyQuestionPool/classes/class.SurveyQuestion.php');
+require_once('Services/User/classes/class.ilObjUser.php');
+require_once('Services/AccessControl/classes/class.ilRbacReview.php');
+require_once('Modules/Survey/classes/class.ilObjSurvey.php');
+require_once('Modules/SurveyQuestionPool/classes/class.SurveyMultipleChoiceQuestion.php');
+require_once('Modules/SurveyQuestionPool/classes/class.SurveyQuestion.php');
 
 class SurveyModel extends Libs\RESTModel
 {
@@ -47,7 +47,7 @@ class SurveyModel extends Libs\RESTModel
      */
     public function getSurveyInfo($svy_ref_id)
     {
-        require_once('./Services/Xml/classes/class.ilSaxParser.php');
+        require_once('Services/Xml/classes/class.ilSaxParser.php');
         Libs\RESTilias::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
         Libs\RESTilias::initGlobal('ilObjDataCache', 'ilObjectDataCache',
             './Services/Object/classes/class.ilObjectDataCache.php');

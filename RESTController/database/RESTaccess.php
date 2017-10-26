@@ -64,7 +64,7 @@ class RESTaccess extends Libs\RESTDatabase {
    */
   public static function fromHash($hash) {
     // Generate a (save) where clause for the hash ($hash can be malformed!)
-    $where  = sprintf('token = %s', self::quote($hash, 'text'));
+    $where  = sprintf('hash = %s', self::quote($hash, 'text'));
 
     // Fetch matching object
     return self::fromWhere($where);

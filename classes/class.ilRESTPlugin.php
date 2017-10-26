@@ -8,7 +8,7 @@
  
  
 // Include core UIHook plugin slot class
-include_once("./Services/UIComponent/classes/class.ilUserInterfaceHookPlugin.php");
+include_once('Services/UIComponent/classes/class.ilUserInterfaceHookPlugin.php');
 
 
 /**

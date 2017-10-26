@@ -1,5 +1,5 @@
 <?php
-require_once('./IliasRestSystemClient.php');
+require_once('IliasRestSystemClient.php');
 
 $client = new IliasRestSystemClient();
 

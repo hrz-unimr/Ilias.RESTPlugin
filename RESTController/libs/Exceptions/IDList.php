@@ -20,4 +20,6 @@ use \RESTController\libs as Libs;
  * Parameters:
  *  @See RESTException for parameter description
  */
-class IDList extends Libs\RESTException { }
+class IDList extends Libs\RESTException {
+  const STATUS=422;
+}

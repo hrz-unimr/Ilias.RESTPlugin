@@ -32,7 +32,7 @@ class ContentTypes extends \Slim\Middleware {
   public function call() {
     try {
       // Fetch request content-type from headers...
-      $mediaType = $this->app->request()->getMediaType();
+      $mediaType = $this->app->request()->getMediaType() ?: 'application/json';
       if ($mediaType) {
         // Store original request and try to convert request to an array
         $env = $this->app->environment();

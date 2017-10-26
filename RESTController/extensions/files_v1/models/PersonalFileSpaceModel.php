@@ -11,10 +11,10 @@ namespace RESTController\extensions\files_v1;
 use \RESTController\libs as Libs;
 
 
-require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
-require_once('./Modules/File/classes/class.ilObjFile.php');
-require_once('./Services/User/classes/class.ilObjUser.php');
-require_once('./Services/Object/classes/class.ilObjectFactory.php');
+require_once('Services/Database/classes/class.ilAuthContainerMDB2.php');
+require_once('Modules/File/classes/class.ilObjFile.php');
+require_once('Services/User/classes/class.ilObjUser.php');
+require_once('Services/Object/classes/class.ilObjectFactory.php');
 
 /**
  * Class PersonalFileSpaceModel
@@ -72,7 +72,7 @@ class PersonalFileSpaceModel extends Libs\RESTModel {
         define ('MAXLENGTH_OBJ_TITLE',125);
         define ('MAXLENGTH_OBJ_DESC',123);
 
-        require_once('./Services/Xml/classes/class.ilSaxParser.php');
+        require_once('Services/Xml/classes/class.ilSaxParser.php');
         Libs\RESTilias::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
         Libs\RESTilias::initGlobal('ilAppEventHandler', 'ilAppEventHandler','./Services/EventHandling/classes/class.ilAppEventHandler.php');
         Libs\RESTilias::initGlobal('ilObjDataCache', 'ilObjectDataCache','./Services/Object/classes/class.ilObjectDataCache.php');
@@ -106,7 +106,7 @@ class PersonalFileSpaceModel extends Libs\RESTModel {
             }
             else
             {
-                include_once('./Modules/File/classes/class.ilObjFileAccess.php');
+                include_once('Modules/File/classes/class.ilObjFileAccess.php');
                 // BEGIN WebDAV: Ensure that object title ends with the filename extension
                 $fileExtension = \ilObjFileAccess::_getFileExtension($filename);
                 $titleExtension = \ilObjFileAccess::_getFileExtension($title);
@@ -119,14 +119,14 @@ class PersonalFileSpaceModel extends Libs\RESTModel {
 
 
             // create and insert file in grp_tree
-            include_once('./Modules/File/classes/class.ilObjFile.php');
+            include_once('Modules/File/classes/class.ilObjFile.php');
             $fileObj = new \ilObjFile();
             $fileObj->setOwner($owner_id);
             $fileObj->setTitle($title);
             $fileObj->setDescription($description);
             $fileObj->setFileName($filename);
 
-            include_once('./Services/Utilities/classes/class.ilMimeTypeUtil.php');
+            include_once('Services/Utilities/classes/class.ilMimeTypeUtil.php');
             $fileObj->setFileType(\ilMimeTypeUtil::getMimeType('', $filename, $type));
             $fileObj->setFileSize($size);
             $object_id = $fileObj->create();

@@ -11,15 +11,15 @@ namespace RESTController\extensions\groups_v1;
 use \RESTController\libs as Libs;
 
 
-require_once('./Services/Utilities/classes/class.ilUtil.php');
-require_once('./Modules/Group/classes/class.ilObjGroup.php');
-require_once('./Services/Object/classes/class.ilObjectFactory.php');
-require_once('./Services/Object/classes/class.ilObjectActivation.php');
-require_once('./Modules/LearningModule/classes/class.ilObjLearningModule.php');
-require_once('./Modules/LearningModule/classes/class.ilLMPageObject.php');
-require_once('./Services/Database/classes/class.ilDB.php');
-require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
-include_once('./Modules/Group/classes/class.ilGroupMembershipMailNotification.php');
+require_once('Services/Utilities/classes/class.ilUtil.php');
+require_once('Modules/Group/classes/class.ilObjGroup.php');
+require_once('Services/Object/classes/class.ilObjectFactory.php');
+require_once('Services/Object/classes/class.ilObjectActivation.php');
+require_once('Modules/LearningModule/classes/class.ilObjLearningModule.php');
+require_once('Modules/LearningModule/classes/class.ilLMPageObject.php');
+require_once('Services/Database/classes/class.ilDB.php');
+require_once('Services/Database/classes/class.ilAuthContainerMDB2.php');
+include_once('Modules/Group/classes/class.ilGroupMembershipMailNotification.php');
 
 
 class GroupsRegistrationModel extends Libs\RESTModel
@@ -96,7 +96,7 @@ class GroupsRegistrationModel extends Libs\RESTModel
      */
     protected function initParticipants()
     {
-        include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
+        include_once('Modules/Group/classes/class.ilGroupParticipants.php');
         $this->participants = \ilGroupParticipants::_getInstanceByObjId($this->container->getId());//$this->obj_id);
     }
 
@@ -107,7 +107,7 @@ class GroupsRegistrationModel extends Libs\RESTModel
      */
     protected function initWaitingList()
     {
-        include_once('./Modules/Group/classes/class.ilGroupWaitingList.php');
+        include_once('Modules/Group/classes/class.ilGroupWaitingList.php');
         $this->waiting_list = new \ilGroupWaitingList($this->container->getId()); //$this->obj_id);
     }
 
@@ -125,7 +125,7 @@ class GroupsRegistrationModel extends Libs\RESTModel
         // set aggreement accepted
         $this->setAccepted(true);
 
-        include_once('./Modules/Group/classes/class.ilGroupWaitingList.php');
+        include_once('Modules/Group/classes/class.ilGroupWaitingList.php');
         $free = max(0,$this->container->getMaxMembers() - $this->participants->getCountMembers());
         $waiting_list = new \ilGroupWaitingList($this->container->getId());
         if(
@@ -180,7 +180,7 @@ class GroupsRegistrationModel extends Libs\RESTModel
                     $ilUser->getId()
                 );
 
-                include_once './Modules/Forum/classes/class.ilForumNotification.php';
+                include_once('Modules/Forum/classes/class.ilForumNotification.php');
                 \ilForumNotification::checkForumsExistsInsert($this->container->getRefId(), $ilUser->getId());
 
                 break;

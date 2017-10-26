@@ -58,14 +58,14 @@ class Objects extends Libs\RESTModel {
    */
   protected static function containerPageExists($obj_id) {
     // (see also ilContainerGUI->getContainerPageHTML)
-    include_once("./Services/Container/classes/class.ilContainer.php");
+    include_once('Services/Container/classes/class.ilContainer.php');
 
     // old page editor content
     $xpage_id = \ilContainer::_lookupContainerSetting($obj_id, "xhtml_page");
 
     if ($xpage_id > 0)
     {
-      include_once("Services/XHTMLPage/classes/class.ilXHTMLPage.php");
+      include_once('Services/XHTMLPage/classes/class.ilXHTMLPage.php');
       $xpage = new \ilXHTMLPage($xpage_id);
       $pageContent = $xpage->getContent();
       if (strlen($pageContent)>0) {
@@ -74,7 +74,7 @@ class Objects extends Libs\RESTModel {
     }
 
     // if page does not exist, return nothing
-    include_once("./Services/COPage/classes/class.ilPageUtil.php");
+    include_once('Services/COPage/classes/class.ilPageUtil.php');
     if (!\ilPageUtil::_existsAndNotEmpty("cont", $obj_id))
     {
       return false;
@@ -213,7 +213,7 @@ class Objects extends Libs\RESTModel {
    */
   protected static function getCalender($objectId) {
     // Add course/group calendar (if available)
-    require_once('./Services/Calendar/classes/class.ilCalendarCategory.php');
+    require_once('Services/Calendar/classes/class.ilCalendarCategory.php');
     $category = \ilCalendarCategory::_getInstanceByObjId($objectId);
     if ($category && $category->getCategoryID())
       return intval($category->getCategoryID());

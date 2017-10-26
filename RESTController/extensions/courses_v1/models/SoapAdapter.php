@@ -31,7 +31,7 @@ class SoapAdapter {
         $ilDB = $GLOBALS['ilDB'];
 
         define ("IL_SOAPMODE", IL_SOAPMODE_INTERNAL);
-        include_once("Services/Context/classes/class.ilContext.php");
+        include_once('Services/Context/classes/class.ilContext.php');
         \ilContext::init(\ilContext::CONTEXT_SOAP);
 
         // Load username/password from DB
@@ -53,8 +53,8 @@ class SoapAdapter {
         }
 
         // Get username and password
-        require_once("./Services/Calendar/classes/class.ilDatePresentation.php");
-        require_once("./Services/User/classes/class.ilObjUser.php");
+        require_once('Services/Calendar/classes/class.ilDatePresentation.php');
+        require_once('Services/User/classes/class.ilObjUser.php');
         $user_id = \ilObjUser::getUserIdByLogin($username);
 
         if ($user_id == 0) {
@@ -70,18 +70,18 @@ class SoapAdapter {
         $_POST['password'] = $password;
 
         // add code 2
-        require_once("Auth/Auth.php");
-        include_once("Services/Authentication/classes/class.ilSession.php");
-        include_once("Services/Authentication/classes/class.ilSessionControl.php");
-        require_once("./Services/AuthShibboleth/classes/class.ilShibboleth.php");
-        include_once("./Services/Authentication/classes/class.ilAuthUtils.php");
+        require_once('Auth/Auth.php');
+        include_once('Services/Authentication/classes/class.ilSession.php');
+        include_once('Services/Authentication/classes/class.ilSessionControl.php');
+        require_once('Services/AuthShibboleth/classes/class.ilShibboleth.php');
+        include_once('Services/Authentication/classes/class.ilAuthUtils.php');
 
         \ilAuthUtils::_initAuth();
 
         global $ilAuth;
         $ilAuth->start();
 
-        require_once("./Services/Init/classes/class.ilIniFile.php");
+        require_once('Services/Init/classes/class.ilIniFile.php');
         $ilIliasIniFile = new \ilIniFile("./ilias.ini.php");
         $ilIliasIniFile->read();
         $client = $ilIliasIniFile->readVariable("clients","default");

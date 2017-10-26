@@ -11,14 +11,14 @@ namespace RESTController\extensions\groups_v1;
 use \RESTController\libs as Libs;
 
 
-require_once('./Services/Utilities/classes/class.ilUtil.php');
-require_once('./Modules/Course/classes/class.ilObjCourse.php');
-require_once('./Services/Object/classes/class.ilObjectFactory.php');
-require_once('./Services/Object/classes/class.ilObjectActivation.php');
-require_once('./Modules/LearningModule/classes/class.ilObjLearningModule.php');
-require_once('./Modules/LearningModule/classes/class.ilLMPageObject.php');
-require_once('./Services/Database/classes/class.ilDB.php');
-require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
+require_once('Services/Utilities/classes/class.ilUtil.php');
+require_once('Modules/Course/classes/class.ilObjCourse.php');
+require_once('Services/Object/classes/class.ilObjectFactory.php');
+require_once('Services/Object/classes/class.ilObjectActivation.php');
+require_once('Modules/LearningModule/classes/class.ilObjLearningModule.php');
+require_once('Modules/LearningModule/classes/class.ilLMPageObject.php');
+require_once('Services/Database/classes/class.ilDB.php');
+require_once('Services/Database/classes/class.ilAuthContainerMDB2.php');
 
 
 class GroupsModel extends Libs\RESTModel
@@ -51,7 +51,7 @@ class GroupsModel extends Libs\RESTModel
      */
     public function getGroupInfo($crs_ref_id)
     {
-        require_once('./Services/Xml/classes/class.ilSaxParser.php');
+        require_once('Services/Xml/classes/class.ilSaxParser.php');
         Libs\RESTilias::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
         Libs\RESTilias::initGlobal('ilObjDataCache', 'ilObjectDataCache','./Services/Object/classes/class.ilObjectDataCache.php');
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition, $ilObjDataCache;
@@ -76,7 +76,7 @@ class GroupsModel extends Libs\RESTModel
     public function getGroupContent($crs_ref_id)
     {
 
-        require_once('./Services/Xml/classes/class.ilSaxParser.php');
+        require_once('Services/Xml/classes/class.ilSaxParser.php');
         Libs\RESTilias::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
 

@@ -9,6 +9,7 @@ namespace RESTController\libs;
 
 // This allows us to use shortcuts instead of full quantifier
 // Requires ../Slim/Http/Request
+use \RESTController\database as Database;
 use \RESTController\core\oauth2_v2 as Auth;
 use \RESTController\core\oauth2_v2\Tokens as Tokens;
 
@@ -21,12 +22,14 @@ use \RESTController\core\oauth2_v2\Tokens as Tokens;
  */
 class RESTRequest extends \Slim\Http\Request {
   // Allow to re-use status messages and codes
-  const MSG_MISSING         = 'Mandatory parameter missing, \'{{key}}\' not set in header, GET or POST (JSON/x-www-form-urlencoded) parameters.';
-  const ID_MISSING          = 'RESTController\\libs\\RESTRequest::ID_MISSING';
-  const MSG_PARSE_ISSUE     = 'Could not parse ids \'{{ids}} from \'{{string}}\'.';
-  const ID_PARSE_ISSUE      = 'RESTController\\libs\\RESTRequest::ID_PARSE_ISSUE';
-  const MSG_NO_TOKEN        = 'Could not find any {{type}} in header, GET or POST (JSON/x-www-form-urlencoded) parameters.';
-  const ID_NO_TOKEN         = 'RESTController\\libs\\RESTRequest::ID_NO_TOKEN';
+  const MSG_MISSING     = 'Mandatory parameter missing, \'{{key}}\' not set in header, GET or POST (JSON/x-www-form-urlencoded) parameters.';
+  const ID_MISSING      = 'RESTController\\libs\\RESTRequest::ID_MISSING';
+  const MSG_PARSE_ISSUE = 'Could not parse ids \'{{ids}} from \'{{string}}\'.';
+  const ID_PARSE_ISSUE  = 'RESTController\\libs\\RESTRequest::ID_PARSE_ISSUE';
+  const MSG_NO_TOKEN    = 'Could not find any {{type}} in header, GET or POST (JSON/x-www-form-urlencoded) parameters.';
+  const ID_NO_TOKEN     = 'RESTController\\libs\\RESTRequest::ID_NO_TOKEN';
+  const MSG_INVALID     = 'Parameter \'{{key}}\' contains invalid value.';
+  const ID_INVALID      = 'RESTController\\libs\\RESTRequest::ID_INVALID';
 
 
   /**
@@ -143,7 +146,8 @@ class RESTRequest extends \Slim\Http\Request {
           self::ID_MISSING,
           array(
             'key' => $key
-          )
+          ),
+          400
         );
 
       // Return the default value
@@ -217,21 +221,19 @@ class RESTRequest extends \Slim\Http\Request {
    * Return:
    *  <AccessToken>/<RefreshToken>/<AuthorizationCode> - Fetched token, depending on input parameter
    */
-  public function getToken($name = 'access', $stringOnly = false) {
+  public function getToken($type = 'access', $stringOnly = false) {
     // Already fetched?
-    if (isset($this->tokens[$name]))
-      return $this->tokens[$name];
+    if (isset($this->tokens[$type]))
+      return $this->tokens[$type];
 
     // Prevent undefined variables
     $tokenString = null;
 
     // Extract token
-    switch ($name) {
+    switch ($type) {
       // Fetch access-token
       default:
       case 'access':
-        $type = 'Access-Token';
-
         // Fetch all parameters and convert keys to lower-case
         $headers    = $this->getallheaders();
         $parameters = array_change_key_case($this->getParameter());
@@ -280,8 +282,6 @@ class RESTRequest extends \Slim\Http\Request {
 
       // Fetch refresh-token
       case 'refresh':
-        $type = 'Refresh-Token';
-
         // Fetch 'access_token' from header, GET or POST...
         $tokenString = $this->getParameter('refresh_token');
 
@@ -304,8 +304,6 @@ class RESTRequest extends \Slim\Http\Request {
 
       // Fetch authorization-token
       case 'authorization':
-        $type = 'Authorization-Code-Token';
-
         // Fetch 'access_token' from header, GET or POST...
         $tokenString = $this->getParameter('authorization_token');
 
@@ -335,7 +333,7 @@ class RESTRequest extends \Slim\Http\Request {
       self::MSG_NO_TOKEN,
       self::ID_NO_TOKEN,
       array(
-        'type' => $type
+        'type' => self::GetName($type)
       )
     );
   }
@@ -360,7 +358,7 @@ class RESTRequest extends \Slim\Http\Request {
         self::MSG_NO_TOKEN,
         self::ID_NO_TOKEN,
         array(
-          'type' => $type
+          'type' => self::GetName($type)
         )
       );
 
@@ -370,7 +368,7 @@ class RESTRequest extends \Slim\Http\Request {
         Tokens\Base::MSG_INVALID,
         Tokens\Base::ID_INVALID,
         array(
-          'type' => $type
+          'type' => self::GetName($type)
         )
       );
 
@@ -380,7 +378,7 @@ class RESTRequest extends \Slim\Http\Request {
         Tokens\Base::MSG_EXPIRED,
         Tokens\Base::ID_EXPIRED,
         array(
-          'type' => $type
+          'type' => self::GetName($type)
         )
       );
 
@@ -391,7 +389,7 @@ class RESTRequest extends \Slim\Http\Request {
     // Fetch client ip and check restriction
     $remoteIp  = $_SERVER['REMOTE_ADDR'];
     if (!$client->isIpAllowed($remoteIp))
-      throw new Exceptions\Denied(
+      throw new Auth\Exceptions\Denied(
         Auth\Common::MSG_RESTRICTED_IP,
         Auth\Common::ID_RESTRICTED_IP,
         array(
@@ -403,7 +401,7 @@ class RESTRequest extends \Slim\Http\Request {
     $userId   = $token->getUserId();
     $username = $token->getUserName();
     if (!$client->isUserAllowed($userId))
-      throw new Exceptions\Denied(
+      throw new Auth\Exceptions\Denied(
         Auth\Common::MSG_RESTRICTED_USER,
         Auth\Common::ID_RESTRICTED_USER,
         array(
@@ -411,6 +409,50 @@ class RESTRequest extends \Slim\Http\Request {
           'username'  => $username
         )
       );
+
+    // Check wether access-token exists in DB
+    // This throws a DB exception if not found!
+    try {
+      switch ($type) {
+        default:
+        case 'access':
+          Database\RESTaccess::fromToken($token->getTokenString());
+          break;
+        case 'refresh':
+          Database\RESTrefresh::fromToken($token->getTokenString());
+          break;
+        case 'authorization':
+          Database\RESTauthorization::fromToken($token->getTokenString());
+          break;
+      }
+    }
+    catch (Exceptions\Database $e) {
+      // Convert generic DB exception into problem-specific one
+      if ($e->getRESTCode() ==  RESTDatabase::ID_NO_ENTRY)
+        throw new Auth\Exceptions\Denied(
+          Auth\Common::MSG_REVOKED,
+          Auth\Common::ID_REVOKED
+        );
+      // Something else happened
+      else
+        throw $e;
+    }
+  }
+
+
+  /**
+   * Function:
+   */
+  protected static function GetName($type) {
+    switch ($type) {
+      default:
+      case 'access':
+        return 'Access-Token';
+      case 'refresh':
+        return 'Refresh-Token';
+      case 'authorization':
+        return 'Authorization-Code-Token';
+    }
   }
 
 

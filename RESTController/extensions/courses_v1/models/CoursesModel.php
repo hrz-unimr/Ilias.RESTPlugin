@@ -11,14 +11,14 @@ namespace RESTController\extensions\courses_v1;
 use \RESTController\libs as Libs;
 
 
-require_once('./Services/Utilities/classes/class.ilUtil.php');
-require_once('./Modules/Course/classes/class.ilObjCourse.php');
-require_once('./Services/Object/classes/class.ilObjectFactory.php');
-require_once('./Services/Object/classes/class.ilObjectActivation.php');
-require_once('./Modules/LearningModule/classes/class.ilObjLearningModule.php');
-require_once('./Modules/LearningModule/classes/class.ilLMPageObject.php');
-require_once('./Services/Database/classes/class.ilDB.php');
-require_once('./Services/Database/classes/class.ilAuthContainerMDB2.php');
+require_once('Services/Utilities/classes/class.ilUtil.php');
+require_once('Modules/Course/classes/class.ilObjCourse.php');
+require_once('Services/Object/classes/class.ilObjectFactory.php');
+require_once('Services/Object/classes/class.ilObjectActivation.php');
+require_once('Modules/LearningModule/classes/class.ilObjLearningModule.php');
+require_once('Modules/LearningModule/classes/class.ilLMPageObject.php');
+require_once('Services/Database/classes/class.ilDB.php');
+require_once('Services/Database/classes/class.ilAuthContainerMDB2.php');
 
 
 class CoursesModel extends Libs\RESTModel
@@ -82,7 +82,7 @@ class CoursesModel extends Libs\RESTModel
      */
     public function getCourseInfo($crs_ref_id)
     {
-        require_once('./Services/Xml/classes/class.ilSaxParser.php');
+        require_once('Services/Xml/classes/class.ilSaxParser.php');
         Libs\RESTilias::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
         Libs\RESTilias::initGlobal('ilObjDataCache', 'ilObjectDataCache',
             './Services/Object/classes/class.ilObjectDataCache.php');
@@ -112,7 +112,7 @@ class CoursesModel extends Libs\RESTModel
     public function getCourseContent($crs_ref_id)
     {
 
-        require_once('./Services/Xml/classes/class.ilSaxParser.php');
+        require_once('Services/Xml/classes/class.ilSaxParser.php');
         Libs\RESTilias::initGlobal('objDefinition', 'ilObjectDefinition','./Services/Object/classes/class.ilObjectDefinition.php');
         global $ilDB, $ilias, $ilPluginAdmin, $objDefinition;
 
@@ -279,7 +279,7 @@ class CoursesModel extends Libs\RESTModel
     {
         $types = array('xml');
         $obj_id = Libs\RESTilias::getObjId($ref_id);
-        include_once('./Services/Export/classes/class.ilExport.php');
+        include_once('Services/Export/classes/class.ilExport.php');
         $files = \ilExport::_getExportFiles($obj_id, $types, "crs");
         return $files;
     }
@@ -295,7 +295,7 @@ class CoursesModel extends Libs\RESTModel
         global $ilCtrl, $lng;
 
         $obj_id = Libs\RESTilias::getObjId($ref_id);
-        include_once("./Services/Export/classes/class.ilExport.php");
+        include_once('Services/Export/classes/class.ilExport.php');
         $export_dir = \ilExport::_getExportDirectory($obj_id, $filename, "crs");
         $export_file = str_replace('export_','export/', $export_dir);
         self::getApp()->log->debug('DownloadExportFile '.$export_file);
@@ -348,7 +348,7 @@ class CoursesModel extends Libs\RESTModel
         $success = false;
         $obj_id = Libs\RESTilias::getObjId($ref_id);
 
-        include_once './Services/Export/classes/class.ilExportOptions.php';
+        include_once('Services/Export/classes/class.ilExportOptions.php');
         $eo = \ilExportOptions::newInstance(\ilExportOptions::allocateExportId());
         $eo->addOption(\ilExportOptions::KEY_ROOT,0,0,$obj_id);
 
@@ -356,7 +356,7 @@ class CoursesModel extends Libs\RESTModel
         // the ExportOption data structure must be filled by traversing over the course contents.
         // c.f. Services/Export/classses/class.ilExportGUI.php
 
-        include_once("./Services/Export/classes/class.ilExport.php");
+        include_once('Services/Export/classes/class.ilExport.php');
         $exp = new \ilExport();
         return $exp->exportObject("crs",$obj_id, "5.0.0");
     }
