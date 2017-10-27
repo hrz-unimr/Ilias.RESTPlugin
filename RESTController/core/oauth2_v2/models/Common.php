@@ -340,7 +340,8 @@ class Common extends Libs\RESTModel {
     $hash      = $refresh->getUniqueHash();
 
     // Used to catch if no existing refresh-key was found...
-    try {
+
+	/* try {
       // Check wether a refresh-token was already generated (throws on failure)
       $refreshDB = Database\RESTrefresh::fromHash($hash);
       $refreshDB->refreshed();
@@ -351,7 +352,8 @@ class Common extends Libs\RESTModel {
     }
     catch (Libs\Exceptions\Database $e) {
       
-    }
+    }*/
+
 // Store newly generated refresh-token in database
 	  $time       = date("Y-m-d H:i:s");
 	  $refreshDB  = Database\RESTrefresh::fromRow(array(
