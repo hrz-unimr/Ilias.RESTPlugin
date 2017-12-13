@@ -17,7 +17,6 @@ require_once('Services/Object/classes/class.ilObjectFactory.php');
 require_once('Services/Object/classes/class.ilObjectActivation.php');
 require_once('Modules/LearningModule/classes/class.ilObjLearningModule.php');
 require_once('Modules/LearningModule/classes/class.ilLMPageObject.php');
-require_once('Services/Database/classes/class.ilDB.php');
 
 //require_once('Modules/Course/classes/class.ilCourseConstants.php');
 
