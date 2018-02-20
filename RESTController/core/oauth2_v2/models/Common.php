@@ -320,7 +320,7 @@ class Common extends Libs\RESTModel {
 
   /**
    * Function: GetRefreshToken($apiKey, $userId, $iliasClient, $scope)
-   *  Returns existing refresh-token from in database or generate a new one and store in database.
+   *  Generate a new refresh-token and stores in database.
    *
    * Parameters:
    *  $apiKey <String> - Client used to generate the tokens (will be attached to tokens)
@@ -338,28 +338,16 @@ class Common extends Libs\RESTModel {
     $refresh   = Tokens\Refresh::fromFields($settings, $userId, $iliasClient, $apiKey, $scope);
     $hash      = $refresh->getUniqueHash();
 
-    // Used to catch if no existing refresh-key was found...
-    try {
-      // Check wether a refresh-token was already generated (throws on failure)
-      $refreshDB = Database\RESTrefresh::fromHash($hash);
-      $refreshDB->refreshed();
-
-      // Use existing refresh-token instead
-      $token    = $refreshDB->getKey('token');
-      $refresh  = Tokens\Refresh::fromMixed($settings, $token);
-    }
-    catch (Libs\Exceptions\Database $e) {
-      // Store newly generated refresh-token in database
-      $time       = date("Y-m-d H:i:s");
-      $refreshDB  = Database\RESTrefresh::fromRow(array(
-        'hash'          => $hash,
-        'token'         => $refresh->getTokenString(),
-        'last_refresh'  => $time,
-        'created'       => $time,
-        'refreshes'     => 0
-      ));
-      $refreshDB->insert();
-    }
+    // Store newly generated refresh-token in database
+    $time       = date("Y-m-d H:i:s");
+    $refreshDB  = Database\RESTrefresh::fromRow(array(
+      'hash'          => $hash,
+      'token'         => $refresh->getTokenString(),
+      'last_refresh'  => $time,
+      'created'       => $time,
+      'refreshes'     => 0
+    ));
+    $refreshDB->insert();
 
     // Return existing or new refresh-token
     return $refresh;

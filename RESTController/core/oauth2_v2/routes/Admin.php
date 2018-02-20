@@ -11,6 +11,7 @@ namespace RESTController\core\oauth2_v2;
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;
 use \RESTController\database as Database;
+use \RESTController\core\oauth2_v2 as OAuth2v2;
 
 
 // Group Version 2 implementation
@@ -342,7 +343,7 @@ $app->group('/v2', function () use ($app) {
       try {
         // Delegate insert to model
         $request      = $app->request();
-        $permissionId = Permission::InsertPermission($request);
+        $permissionId = OAuth2v2\Admin::InsertPermission($clientId,$request);
         if ($permissionId)
           $app->success(array( 'id' => $permissionId ));
         else

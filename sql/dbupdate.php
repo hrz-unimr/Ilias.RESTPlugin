@@ -457,3 +457,29 @@
   global $ilLog;
   $ilLog->write('Plugin REST -> DB-Update #9: Created ui_uihk_rest_access.');
 ?>
+<#10>
+<?php
+$fields = array(
+	'user_id' => array(
+		'type'    => 'integer',
+		'length'  => 4,
+		'notnull' => true
+	),
+	'token' => array(
+		'type'    => 'text',
+		'length'  => 128,
+		'fixed'   => false,
+		'notnull' => true
+	),
+	'expires'  => array(
+		'type'    => 'timestamp',
+		'notnull' => true
+	),
+);
+$ilDB->createTable('ui_uihk_rest_token', $fields, true);
+
+$ilDB->addPrimaryKey('ui_uihk_rest_token',  array('user_id'));
+
+global $ilLog;
+$ilLog->write('Plugin REST -> DB-Update #10: Created ui_uihk_rest_token.');
+?>
