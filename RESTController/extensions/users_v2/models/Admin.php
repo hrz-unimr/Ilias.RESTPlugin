@@ -586,25 +586,27 @@ class Admin extends Libs\RESTModel {
     $userObj = new \ilObjUser($userId);
     $refId   = $userObj->getTimeLimitOwner();
 
-    // Check for local administration access-rights (Note: getTimeLimitOwner() should be $refId for new users)
-    if ($refId != self::USER_FOLDER_ID && !$rbacsystem->checkAccess('cat_administrate_users', $refId))
-      throw new LibExceptions\RBAC(
-        Libs\RESTilias::MSG_RBAC_READ_DENIED,
-        Libs\RESTilias::ID_RBAC_READ_DENIED,
-        array(
-          'object' => 'user-object'
-        )
-      );
+    if (!Libs\RESTilias::isAdmin()) {
+      // Check for local administration access-rights (Note: getTimeLimitOwner() should be $refId for new users)
+      if ($refId != self::USER_FOLDER_ID && !$rbacsystem->checkAccess('cat_administrate_users', $refId))
+        throw new LibExceptions\RBAC(
+          Libs\RESTilias::MSG_RBAC_READ_DENIED,
+          Libs\RESTilias::ID_RBAC_READ_DENIED,
+          array(
+            'object' => 'user-object'
+          )
+        );
 
-    // Check for Admin-GUI access-rights to users
-    if ($refId == self::USER_FOLDER_ID && !$rbacsystem->checkAccess('visible,read', $refId))
-      throw new LibExceptions\RBAC(
-        Libs\RESTilias::MSG_RBAC_READ_DENIED,
-        Libs\RESTilias::ID_RBAC_READ_DENIED,
-        array(
-          'object' => 'user-object'
-        )
-      );
+      // Check for Admin-GUI access-rights to users
+      if ($refId == self::USER_FOLDER_ID && !$rbacsystem->checkAccess('visible,read', $refId))
+        throw new LibExceptions\RBAC(
+          Libs\RESTilias::MSG_RBAC_READ_DENIED,
+          Libs\RESTilias::ID_RBAC_READ_DENIED,
+          array(
+            'object' => 'user-object'
+          )
+        );
+    }
 
     // Magnitude of byte units (1024)
     $magnitude = \ilFormat::_getSizeMagnitude();
@@ -749,7 +751,7 @@ class Admin extends Libs\RESTModel {
       $userData = Admin::TransformInput($userData, $refId, $mode);
 
       // Check of user is allowd to create user globally or in given category/org-unit
-      if (!$rbacsystem->checkAccess('create_usr', $refId) && !$ilAccess->checkAccess('cat_administrate_users', '', $refId))
+      if (!Libs\RESTilias::isAdmin() && !$rbacsystem->checkAccess('create_usr', $refId) && !$ilAccess->checkAccess('cat_administrate_users', '', $refId))
         throw new LibExceptions\RBAC(
           Libs\RESTilias::MSG_RBAC_WRITE_DENIED,
           Libs\RESTilias::ID_RBAC_WRITE_DENIED,
@@ -772,26 +774,28 @@ class Admin extends Libs\RESTModel {
       // Make sure input is in a format that ilias understands and likes
       $userData = Admin::TransformInput($userData, $refId, $mode);
 
-      // Check for local administration access-rights (Note: getTimeLimitOwner() should be $refId for new users)
-      if ($refId != self::USER_FOLDER_ID && !$rbacsystem->checkAccess('cat_administrate_users', $refId))
-        throw new LibExceptions\RBAC(
-          Libs\RESTilias::MSG_RBAC_WRITE_DENIED,
-          Libs\RESTilias::ID_RBAC_WRITE_DENIED,
-          array(
-            'object' => 'user-object'
-          ),
-          400
-        );
+      if (!Libs\RESTilias::isAdmin()) {
+        // Check for local administration access-rights (Note: getTimeLimitOwner() should be $refId for new users)
+        if ($refId != self::USER_FOLDER_ID && !$rbacsystem->checkAccess('cat_administrate_users', $refId))
+          throw new LibExceptions\RBAC(
+            Libs\RESTilias::MSG_RBAC_WRITE_DENIED,
+            Libs\RESTilias::ID_RBAC_WRITE_DENIED,
+            array(
+              'object' => 'user-object'
+            ),
+            400
+          );
 
-      // Check for Admin-GUI access-rights to users
-      if ($refId == self::USER_FOLDER_ID && !$rbacsystem->checkAccess('visible,read', $refId))
-        throw new LibExceptions\RBAC(
-          Libs\RESTilias::MSG_RBAC_WRITE_DENIED,
-          Libs\RESTilias::ID_RBAC_WRITE_DENIED,
-          array(
-            'object' => 'user-object'
-          )
-        );
+        // Check for Admin-GUI access-rights to users
+        if ($refId == self::USER_FOLDER_ID && !$rbacsystem->checkAccess('visible,read', $refId))
+          throw new LibExceptions\RBAC(
+            Libs\RESTilias::MSG_RBAC_WRITE_DENIED,
+            Libs\RESTilias::ID_RBAC_WRITE_DENIED,
+            array(
+              'object' => 'user-object'
+            )
+          );
+      }
 
       // Update login of existing account
       if (self::HasUserValue($userData, 'login'))
@@ -1040,15 +1044,25 @@ class Admin extends Libs\RESTModel {
     $refId   = $userObj->getTimeLimitOwner();
 
     // Check if allowed to delete user
-    if ($refId == self::USER_FOLDER_ID && !$rbacsystem->checkAccess('delete', $refId)
-    ||  $refId != self::USER_FOLDER_ID && !$ilAccess->checkAccess('cat_administrate_users', '', $refId))
-      throw new LibExceptions\RBAC(
-        Libs\RESTilias::MSG_RBAC_DELETE_DENIED,
-        Libs\RESTilias::ID_RBAC_DELETE_DENIED,
-        array(
-          'object' => 'user-object'
-        )
-      );
+    if (!Libs\RESTilias::isAdmin()) {
+      if ($refId == self::USER_FOLDER_ID && !$rbacsystem->checkAccess('delete', $refId))
+        throw new LibExceptions\RBAC(
+          Libs\RESTilias::MSG_RBAC_DELETE_DENIED,
+          Libs\RESTilias::ID_RBAC_DELETE_DENIED,
+          array(
+            'object' => 'user-object'
+          )
+        );
+
+      if ($refId != self::USER_FOLDER_ID && !$ilAccess->checkAccess('cat_administrate_users', '', $refId))
+        throw new LibExceptions\RBAC(
+          Libs\RESTilias::MSG_RBAC_DELETE_DENIED,
+          Libs\RESTilias::ID_RBAC_DELETE_DENIED,
+          array(
+            'object' => 'user-object'
+          )
+        );
+    }
 
     // Delete user
     $userObj->delete();
@@ -1089,7 +1103,7 @@ class Admin extends Libs\RESTModel {
     global $ilSetting, $rbacsystem;
 
     // All settings can be changed via the admin-panel / for global accounts
-    if ($refId == self::USER_FOLDER_ID || $rbacsystem->checkAccess('visible,read', self::USER_FOLDER_ID))
+    if ($refId == self::USER_FOLDER_ID || $rbacsystem->checkAccess('visible,read', self::USER_FOLDER_ID) || Libs\RESTilias::isAdmin())
       return true;
 
     // Fetch ILIAS settings for checking changability
