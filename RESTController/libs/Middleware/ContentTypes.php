@@ -65,6 +65,10 @@ class ContentTypes extends \Slim\Middleware {
    *  <Array> - Converted assoc-array payload
    */
   protected function parse($input, $contentType) {
+    // Early exit
+    if (!isset($input) || trim($input) == '')
+      return $input;
+
     // Convert JSON
     if (in_array($contentType, [ 'application/json', 'text/json' ])) {
       $result = $this->parseJSON($input);
@@ -96,9 +100,6 @@ class ContentTypes extends \Slim\Middleware {
    *  <Array> - Converted assoc-array payload
    */
   protected function parseJSON($input) {
-    if (trim($input) == '')
-      return null;
-
     if (function_exists('json_decode')) {
       $result     = json_decode($input, true);
       $errorCode  = json_last_error();
@@ -130,9 +131,6 @@ class ContentTypes extends \Slim\Middleware {
    *  <Array> - Converted assoc-array payload
    */
   protected function parseXML($input) {
-    if (trim($input) == '')
-      return null;
-
     if (function_exists('simplexml_load_string')) {
       try {
         return Libs\RESTLib::XML2Array($input);
