@@ -26,8 +26,8 @@ $app->group('/v1', function () use ($app) {
             $test_model = new TestModel();
             $test_model->downloadTestExportFile($ref_id,$user_id);
 
-        } catch (Libs\Exceptions\ReadFailed $e) {
-            $app->halt(500, $e->getFormatedMessage());
+        } catch (\Exception $e) {
+            $app->halt(500, $e->getMessage());
         }
     });
 
@@ -48,8 +48,8 @@ $app->group('/v1', function () use ($app) {
             );
 
             $app->success($result);
-        } catch (Libs\Exceptions\ReadFailed $e) {
-            $app->halt(500, $e->getFormatedMessage());
+        } catch (\Exception $e) {
+            $app->halt(500, $e->getMessage());
         }
     });
 
@@ -73,8 +73,8 @@ $app->group('/v1', function () use ($app) {
             );
 
             $app->success($result);
-        } catch (Libs\Exceptions\ReadFailed $e) {
-            $app->halt(500, $e->getFormatedMessage());
+        } catch (\Exception $e) {
+            $app->halt(500, $e->getMessage());
         }
     });
 
@@ -117,8 +117,8 @@ $app->group('/v1', function () use ($app) {
             );
 
             $app->success($result);
-        } catch (Libs\Exceptions\ReadFailed $e) {
-            $app->halt(500, $e->getFormatedMessage());
+        } catch (\Exception $e) {
+            $app->halt(500, $e->getMessage());
         }
     });
 });

@@ -45,7 +45,7 @@ $app->group('/v1/umr', function () use ($app) {
       // Output result
       $app->success($events);
     }
-    catch (Libs\Exceptions\StringList $e) {
+    catch (Libs\Exceptions\IDList $e) {
       $app->halt(422, $e->getRESTMessage(), $e->getRESTCode());
     }
     catch (Exceptions\Events $e) {
@@ -128,11 +128,11 @@ $app->group('/v1/umr', function () use ($app) {
       }
 
     }
-    catch (Libs\Exceptions\StringList $e) {
+    catch (Libs\Exceptions\IDList $e) {
       $app->halt(422, $e->getRESTMessage(), $e->getRESTCode());
     }
-    catch (Libs\Exceptions\MissingParameter $e) {
-      $app->halt(400, $e->getFormatedMessage(), $e->getRESTCode());
+    catch (Libs\Exceptions\Parameter $e) {
+      $e->send(400);
     }
     catch (Exceptions\Events $e) {
       $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());
@@ -188,11 +188,11 @@ $app->group('/v1/umr', function () use ($app) {
       }
 
     }
-    catch (Libs\Exceptions\StringList $e) {
+    catch (Libs\Exceptions\IDList $e) {
       $app->halt(422, $e->getRESTMessage(), $e->getRESTCode());
     }
-    catch (Libs\Exceptions\MissingParameter $e) {
-      $app->halt(400, $e->getFormatedMessage(), $e->getRESTCode());
+    catch (Libs\Exceptions\Parameter $e) {
+      $e->send(400);
     }
     catch (Exceptions\Events $e) {
       $responseObject         = Libs\RESTLib::responseObject($e->getRESTMessage(), $e->getRESTCode());

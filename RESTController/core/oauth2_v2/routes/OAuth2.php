@@ -284,7 +284,7 @@ $app->group('/v2', function () use ($app) {
         $e->send(400);
       }
       // Catch invalid request (from Flow*())
-      catch (Libs\Exceptions\InvalidRequest $e) {
+      catch (Exceptions\InvalidRequest $e) {
         $e->send(400);
       }
       //  Catch if access is denied, by user of due to client settings (from Flow*())
@@ -355,7 +355,7 @@ $app->group('/v2', function () use ($app) {
         $e->send(400);
       }
       // Catch invalid request (from Flow*())
-      catch (Libs\Exceptions\InvalidRequest $e) {
+      catch (Exceptions\InvalidRequest $e) {
         $e->send(400);
       }
       //  Catch if access is denied, by user of due to client settings (from Flow*())
@@ -426,7 +426,7 @@ $app->group('/v2', function () use ($app) {
         $e->send(400);
       }
       // Catch invalid request (from Flow*())
-      catch (Libs\Exceptions\InvalidRequest $e) {
+      catch (Exceptions\InvalidRequest $e) {
         $e->send(400);
       }
       //  Catch if access is denied, by user of due to client settings (from Flow*())

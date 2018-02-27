@@ -76,7 +76,7 @@ $app->group('/v1', function () use ($app) {
 
         if ($authorizedUserId > -1) { // only the user is allowed to access the data
             $id = $authorizedUserId;
-        
+
             $model = new ContactsModel();
             $data = $model->deleteContactEntry($id, $addr_id);
             $resp = array("contact_removed" => $data);
@@ -124,7 +124,7 @@ $app->group('/v1', function () use ($app) {
                 $data = $model->getMyContacts($user_id);
                 $resp = array("contacts" => $data);
                 $app->success($resp);
-            } catch (Libs\ReadFailed $e) {
+            } catch (\Exception $e) {
                 $app->halt(404, 'Error: Could not retrieve data for user '.$user_id.".", -15);
             }
         }

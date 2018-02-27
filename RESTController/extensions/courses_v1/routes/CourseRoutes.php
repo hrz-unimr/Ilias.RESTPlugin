@@ -30,8 +30,8 @@ $app->group('/v1', function () use ($app) {
             'courses' => $data1
         );
         $app->success($result);
-        } catch (Libs\Exceptions\ReadFailed $e) {
-            $app->halt(500, $e->getFormatedMessage());
+        } catch (\Exception $e) {
+            $app->halt(500, $e->getMessage());
         }
     });
 
@@ -53,8 +53,8 @@ $app->group('/v1', function () use ($app) {
                 'members' => $data3   // course members
             );
             $app->success($result);
-        } catch (Libs\Exceptions\ReadFailed $e) {
-            $app->halt(500, $e->getFormatedMessage());
+        } catch (\Exception $e) {
+            $app->halt(500, $e->getMessage());
         }
     });
 
@@ -80,8 +80,8 @@ $app->group('/v1', function () use ($app) {
             $result = array('refId' => $new_ref_id);
             $app->success($result);
         }
-        catch (Libs\Exceptions\MissingParameter $e) {
-            $app->halt(400, $e->getFormatedMessage(), $e::ID);
+        catch (Libs\Exceptions\Parameter $e) {
+            $e->send(400);
         }
     });
 
@@ -148,7 +148,7 @@ $app->group('/v1', function () use ($app) {
         try {
             $crsreg_model = new CoursesRegistrationModel();
             $crsreg_model->joinCourse($user_id, $crs_ref_id);
-        } catch (Libs\Exceptions\CreateFailed $e) {
+        } catch (\Exception $e) {
             // TODO: Replace message with const-class-variable and error-code with unique string
             $app->halt(400, "Error: Subscribing user ".$user_id." to course with ref_id = ".$crs_ref_id." failed. Exception:".$e->getMessage());
         }
@@ -176,7 +176,7 @@ $app->group('/v1', function () use ($app) {
                 'msg' => "User ".$authorizedUserId." subscribed to course with ref_id = " . $ref_id . " successfully.",
             );
             $app->success($result);
-        } catch (Courses\SubscriptionFailed $e) {
+        } catch (Exceptions\SubscriptionFailed $e) {
             $app->halt(400, "Error: Subscribing user ".$authorizedUserId." to course with ref_id = ".$ref_id." failed. Exception:".$e->getMessage(), -15);
         }
     });
@@ -193,7 +193,7 @@ $app->group('/v1', function () use ($app) {
             $crsreg_model->leaveCourse($authorizedUserId, $ref_id);
             $app->success(array("msg"=>"User ".$authorizedUserId." has left course with ref_id = " . $ref_id . "."));
 
-        } catch (Courses\CancelationFailed $e) {
+        } catch (Exceptions\CancelationFailed $e) {
             $app->halt(400, 'Error: Could not perform action for user '.$authorizedUserId.". ".$e->getMessage(), -15);
         }
     });
@@ -207,8 +207,8 @@ $app->group('/v1', function () use ($app) {
             $aSuccess = $crs_model->createNewCourseExportFile($ref_id);
 
             $app->success(array("msg"=>$aSuccess));
-        } catch (Libs\Exceptions\ReadFailed $e) {
-            $app->halt(500, $e->getFormatedMessage());
+        } catch (\Exception $e) {
+            $app->halt(500, $e->getMessage());
         }
     });
 
@@ -228,11 +228,11 @@ $app->group('/v1', function () use ($app) {
                 if ($filename == null) throw new Libs\RESTException("Parameter 'filename' is missing. Could not find an existing export file.",-1);
             }
             $crs_model->downloadExportFile($ref_id, $filename);
-        } catch (Libs\Exceptions\ReadFailed $e) {
-            $app->halt(500, $e->getFormatedMessage());
+        } catch (\Exception $e) {
+            $app->halt(500, $e->getMessage());
         }
     });
-    
+
     /**
      * List all available export files for the course specified by "ref_id".
      */
@@ -245,8 +245,8 @@ $app->group('/v1', function () use ($app) {
                 'export_files' => $xmlFiles
             );
             $app->success($result);
-        } catch (Libs\Exceptions\ReadFailed $e) {
-            $app->halt(500, $e->getFormatedMessage());
+        } catch (\Exception $e) {
+            $app->halt(500, $e->getMessage());
         }
     });
 
@@ -338,8 +338,8 @@ $app->group('/v1', function () use ($app) {
                 'contents' => $filtered_contents, // course contents
             );
             $app->success($result);
-        } catch (Libs\Exceptions\ReadFailed $e) {
-            $app->halt(500, $e->getFormatedMessage());
+        } catch (\Exception $e) {
+            $app->halt(500, $e->getMessage());
         }
     });
 

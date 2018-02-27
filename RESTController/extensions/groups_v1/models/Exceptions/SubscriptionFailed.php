@@ -5,7 +5,7 @@
  * Authors: D.Schaefer, T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * Since 2014
  */
-namespace RESTController\core\auth\Exceptions;
+namespace RESTController\extensions\groups_v1\Exceptions;
 
 
 // This allows us to use shortcuts instead of full quantifier

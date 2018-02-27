@@ -13,7 +13,6 @@ use \RESTController\libs as Libs;
 use \RESTController\database as Database;
 use \RESTController\libs\RESTAuth as RESTAuth;
 use \RESTController\libs\Exceptions as LibExceptions;
-use \RESTController\core\clients\Exceptions as ClientExceptions;
 use \RESTController\core\auth as Auth;
 use \RESTController\core\oauth2_v2 as OAuth2v2;
 
@@ -73,7 +72,7 @@ $app->group('/v1', function () use ($app) {
       // Send affirmation status
       $app->success(array('id' => $id));
     }
-    catch(ClientExceptions\DeleteFailed $e) {
+    catch(Libs\Exceptions\Parameter $e) {
       $e->send();
     }
   });

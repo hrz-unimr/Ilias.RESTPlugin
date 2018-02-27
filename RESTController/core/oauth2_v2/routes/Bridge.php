@@ -62,32 +62,26 @@ $app->group('/v2', function () use ($app) {
 
       // Catches missing parameter (from params())
       catch (Libs\Exceptions\Parameter $e) {
-        $app->log->debug($e->getMessage());
         $e->send(400);
       }
       // Catch invalid request (from Flow*())
-      catch (Libs\Exceptions\InvalidRequest $e) {
-        $app->log->debug($e->getMessage());
+      catch (Exceptions\InvalidRequest $e) {
         $e->send(400);
       }
       //  Catch if access is denied, by user of due to client settings (from Flow*())
       catch (Exceptions\Denied $e) {
-        $app->log->debug($e->getMessage());
         $e->send(401);
       }
       // Catch invalid oauth2 client authorization/credentials (from Flow*())
       catch (Exceptions\UnauthorizedClient $e) {
-        $app->log->debug($e->getMessage());
         $e->send(401);
       }
       // Catch invalid resource-owner credentials (from Flow*())
       catch (Exceptions\Credentials $e) {
-        $app->log->debug($e->getMessage());
         $e->send(401);
       }
       // Catch database lookup error (from Flow*())
       catch (Libs\Exceptions\Database $e) {
-        $app->log->debug($e->getMessage());
         $e->send(500);
       }
     });
@@ -154,7 +148,7 @@ $app->group('/v2', function () use ($app) {
         $e->send(400);
       }
       // Catch invalid request (from Flow*())
-      catch (Libs\Exceptions\InvalidRequest $e) {
+      catch (Exceptions\InvalidRequest $e) {
         $e->send(400);
       }
       //  Catch if access is denied, by user of due to client settings (from Flow*())
@@ -216,7 +210,7 @@ $app->group('/v2', function () use ($app) {
         $e->send(400);
       }
       // Catch invalid request (from Flow*())
-      catch (Libs\Exceptions\InvalidRequest $e) {
+      catch (Exceptions\InvalidRequest $e) {
         $e->send(400);
       }
       //  Catch if access is denied, by user of due to client settings (from Flow*())

@@ -73,8 +73,8 @@ $app->get('/v1/search/user',RESTAuth::checkAccess(RESTAuth::ADMIN), function () 
                 //$app->log->debug('model response: '.print_r($userdata,true));
                 $result['user'] = $userdata;
                 $app->success($result);
-            } catch (Libs\ReadFailed $e) {
-                $app->halt(400, $e->getFormatedMessage());
+            } catch (\Exception $e) {
+                $app->halt(400, $e->getMessage());
             }
         } else {
             // no extname specified: retrieve ALL users with auth_mode 'ldap'
@@ -83,8 +83,8 @@ $app->get('/v1/search/user',RESTAuth::checkAccess(RESTAuth::ADMIN), function () 
                 $app->log->debug('Searching for ALL users with  auth_mode ldap.');
                 $userdata = $usr_model->findExtLdapUsers();
                 $result['user'] = $userdata;
-            } catch (Libs\ReadFailed $e) {
-                $app->halt(400, $e->getFormatedMessage());
+            } catch (\Exception $e) {
+                $app->halt(400, $e->getMessage());
             }
         }
     }
@@ -151,8 +151,8 @@ $app->put('/v1/users/:user_id', RESTAuth::checkAccess(RESTAuth::PERMISSION), fun
 
         $app->success($usr_basic_info);
 
-    } catch (LibExceptions\UpdateFailed $e) {
-        $app->halt(400, $e->getFormatedMessage());
+    } catch (\Exception $e) {
+        $app->halt(400, $e->getMessage());
     }
 });
 

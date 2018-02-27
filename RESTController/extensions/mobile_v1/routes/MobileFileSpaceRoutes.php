@@ -59,8 +59,8 @@ $app->group('/v1/m', function () use ($app) {
                 $app->success(array('msg' => 'Moved item from personal file space to repository.'));
             }
 
-        } catch(Exceptions\MissingParameter $e) {
-            $app->halt(400, $e->getFormatedMessage(), $e::ID);
+        } catch(Exceptions\Parameter $e) {
+            $e->send(400);
         }
     });
 
@@ -86,8 +86,8 @@ $app->group('/v1/m', function () use ($app) {
             } else {
                 $app->success(array("msg"=>"Moved item from personal file space to repository."));
             }
-        } catch(Exceptions\MissingParameter $e) {
-            $app->halt(400, $e->getFormatedMessage(), $e::ID);
+        } catch(Exceptions\Parameter $e) {
+            $e->send(400);
         }
     });
 
@@ -146,8 +146,8 @@ $app->group('/v1/m', function () use ($app) {
             Libs\RESTilias::initAccessHandling();
             $model = new Files\PersonalFileSpaceModel();
             $model->deleteFromMyFileSpace($file_id, $user_id);
-        } catch(Exceptions\MissingParameter $e) {
-            $app->halt(400, $e->getFormatedMessage(), $e::ID);
+        } catch(Exceptions\Parameter $e) {
+            $e->send(400);
         }
 
         $app->success(array('msg'=>'Deleted file from personal file space.'));

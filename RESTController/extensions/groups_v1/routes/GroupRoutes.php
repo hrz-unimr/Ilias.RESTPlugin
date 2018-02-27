@@ -80,7 +80,7 @@ $app->group('/v1', function () use ($app) {
                 'msg' => "User ".$authorizedUserId." subscribed to group with ref_id = " . $ref_id . " successfully.",
             );
             $app->success($result);
-        } catch (Groups\SubscriptionFailed $e) {
+        } catch (Exceptions\SubscriptionFailed $e) {
             $app->halt(400, "Error: Subscribing user ".$authorizedUserId." to group with ref_id = ".$ref_id." failed. Exception:".$e->getMessage(), -15);
         }
     });
@@ -103,7 +103,7 @@ $app->group('/v1', function () use ($app) {
             $crsreg_model->leaveGroup($authorizedUserId, $ref_id);
             $app->success(array("msg"=>"User ".$authorizedUserId." has left group with ref_id = " . $ref_id . "."));
 
-        } catch (Groups\CancelationFailed $e) {
+        } catch (Exceptions\CancelationFailed $e) {
             $app->halt(400, 'Error: Could not perform action for user '.$authorizedUserId.". ".$e->getMessage(), -15);
         }
     });

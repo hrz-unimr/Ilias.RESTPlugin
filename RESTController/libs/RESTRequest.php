@@ -491,7 +491,7 @@ class RESTRequest extends \Slim\Http\Request {
 
     // Throw an exception?
     if (count($throws) > 0)
-      throw new Exceptions\StringList(
+      throw new Exceptions\IDList(
         self::MSG_PARSE_ISSUE,
         self::ID_PARSE_ISSUE,
         array(

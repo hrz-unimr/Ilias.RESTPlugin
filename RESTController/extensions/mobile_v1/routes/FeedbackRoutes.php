@@ -27,15 +27,15 @@ $app->group('/v1/m', function () use ($app) {
         try {
             $s_msg = $request->getParameter('message','',true);
             $s_env = $request->getParameter('env','',true);
-            
+
             $accessToken = $app->request->getToken();
             $s_uid = $accessToken->getTokenString();
 
             $model = new MobileFeedbackModel();
             $id = $model->createFeedbackItem($s_uid, $s_msg, $s_env);
             $app->success(array("msg"=>"Created new feedback entry.", "id"=>$id));
-        } catch (Libs\Exceptions\MissingParameter $e) {
-            $app->halt(400, $e->getMessage(), $e::ID);
+        } catch (Libs\Exceptions\Parameter $e) {
+            $e->send(400);
         }
     });
 
@@ -54,8 +54,8 @@ $app->group('/v1/m', function () use ($app) {
              $model = new MobileFeedbackModel();
              $id = $model->createFeedbackItem($s_uid, $s_msg, $s_env);
              $app->success(array("msg"=>"Created new feedback entry.", "id"=>$id));
-         } catch (Libs\Exceptions\MissingParameter $e) {
-             $app->halt(400, $e->getMessage(), $e::ID);
+         } catch (Libs\Exceptions\Parameter $e) {
+             $e->send(400);
          }
 
      });

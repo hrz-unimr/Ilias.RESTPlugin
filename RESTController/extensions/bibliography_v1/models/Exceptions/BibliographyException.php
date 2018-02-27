@@ -5,7 +5,7 @@
  * Authors: D.Schaefer and T.Hufschmidt <(schaefer|hufschmidt)@hrz.uni-marburg.de>
  * Since 2014
  */
-namespace RESTController\extensions\bibliography_v1\exceptions;
+namespace RESTController\extensions\bibliography_v1\Exceptions;
 
 // This allows us to use shortcuts instead of full quantifier
 use \RESTController\libs as Libs;

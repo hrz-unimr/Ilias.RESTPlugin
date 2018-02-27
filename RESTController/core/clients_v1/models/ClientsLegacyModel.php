@@ -147,7 +147,7 @@ class ClientsLegacyModel extends Libs\RESTModel {
         self::getDB()->manipulate($sql);
 
         if ($numAffRows === false) {
-            throw new Exceptions\DeleteFailed(self::MSG_NO_CLIENT, $id);
+            throw new Libs\Exceptions\Parameter(self::MSG_NO_CLIENT, $id);
         }
     }
 }
